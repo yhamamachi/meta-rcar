@@ -4,7 +4,8 @@ require include/avb-control.inc
 require recipes-kernel/linux/linux-yocto.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}/${MACHINE}:"
-COMPATIBLE_MACHINE = "salvator-x"
+COMPATIBLE_MACHINE = "(salvator-x|h3ulcb)"
+
 
 RENESAS_BSP_URL = "git://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas-bsp.git"
 BRANCH = "v4.4/rcar-3.2.x"
@@ -20,4 +21,9 @@ SRC_URI_append = " \
     file://defconfig \
     file://touch.cfg \
     ${@base_conditional("USE_AVB", "1", " file://usb-video-class.cfg", "", d)} \
+    file://0001-arm64-renesas-add-H3ULCB-board-support.patch \
+"
+
+SRC_URI_append_h3ulcb = " \
+    file://leds.cfg \
 "
