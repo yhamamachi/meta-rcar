@@ -6,6 +6,15 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     bash \
     lib32-libstdc++ \
     v4l-utils \
+    can-utils \
+    libsocketcan \
+    iproute2 \
+    spidev-dbg \
+    e2fsprogs \
+    ethtool \
+    pciutils \
+    usbutils \
+    util-linux \
 "
 
 # Support secure environment

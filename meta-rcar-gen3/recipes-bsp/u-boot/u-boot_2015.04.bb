@@ -10,7 +10,13 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
 SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
 SRC_URI_append = " \
     file://0001-uboot-add-H3ULCB-board-support.patch \
+    file://0002-uboot-ravb-add-chk-cut-for-speed-workaround.patch \
 "
+SRC_URI_append_h3ulcb = '${@ \
+    " file://0003-uboot-H3ULCB-support-fixed-PHY.patch \
+      file://0004-uboot-H3ULCB-console-on-scif1.patch " \
+    if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
+    ""}'
 SRCREV = "20a18bcee6603b94f7c745880d1fe09e98a70876"
 
 PV = "v2015.04+git${SRCPV}"

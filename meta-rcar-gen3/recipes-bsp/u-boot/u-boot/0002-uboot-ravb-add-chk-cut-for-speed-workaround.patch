@@ -1,0 +1,86 @@
+From 7bd8b71bf6a1ada5f0fcb6e7c905aa164256a120 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 3 Jun 2016 10:26:00 +0300
+Subject: [PATCH] uboot: ravb add chk cut for speed workaround
+
+Add CHK_CUT for speed workaround on ws1.0 and relax for ws1.1
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm/cpu/armv8/rcar_gen3/prr_depend.c        | 13 +++++++++++++
+ arch/arm/include/asm/arch-rcar_gen3/prr_depend.h |  1 +
+ drivers/net/ravb.c                               | 15 +++++++++------
+ 3 files changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c b/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
+index b3cc831..bc053f8 100644
+--- a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
++++ b/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
+@@ -10,6 +10,7 @@
+ 
+ #include <common.h>
+ #include <asm/io.h>
++#include <miiphy.h>
+ 
+ #define PRR				(0xfff00044ul) /* Product Register */
+ 
+@@ -79,3 +80,14 @@ int rcar_get_sdhi_config_clk(void)
+ 	else
+ 		return SDH800_SD200;
+ }
++
++/*
++ * for ravb function
++ */
++int rcar_get_ravb_speed(void)
++{
++	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
++		return SPEED_100;
++	else
++		return SPEED_1000;
++}
+diff --git a/arch/arm/include/asm/arch-rcar_gen3/prr_depend.h b/arch/arm/include/asm/arch-rcar_gen3/prr_depend.h
+index 00c951c..aeafdaa 100644
+--- a/arch/arm/include/asm/arch-rcar_gen3/prr_depend.h
++++ b/arch/arm/include/asm/arch-rcar_gen3/prr_depend.h
+@@ -10,3 +10,4 @@
+ void rcar_prr_init(void);
+ int rcar_get_serial_config_clk(void);
+ int rcar_get_sdhi_config_clk(void);
++int rcar_get_ravb_speed(void);
+diff --git a/drivers/net/ravb.c b/drivers/net/ravb.c
+index 214173a..efd6fba 100644
+--- a/drivers/net/ravb.c
++++ b/drivers/net/ravb.c
+@@ -15,6 +15,7 @@
+ #include <net.h>
+ #include <netdev.h>
+ #include <miiphy.h>
++#include <asm/arch/prr_depend.h>
+ #include <asm/errno.h>
+ #include <asm/io.h>
+ 
+@@ -354,12 +355,14 @@ static int ravb_phy_config(struct ravb_dev *eth)
+ 	/* 10BASE is not supported for Ethernet AVB MAC */
+ 	phydev->supported &= ~(SUPPORTED_10baseT_Full
+ 			       | SUPPORTED_10baseT_Half);
+-	/* workaround: 1000 BASE is not supported for rcar_gen3 */
+-	phydev->supported &= ~(SUPPORTED_1000baseT_Half
+-			       | SUPPORTED_1000baseT_Full);
+-	reg = phy_read(phydev, -1, 0x09);
+-	reg &= ~((1ul << 9) | (1ul << 8));
+-	phy_write(phydev, -1, 0x09, reg);
++	/* workaround: 1000 BASE is not supported for rcar_gen3 ws1.0 */
++	if (rcar_get_ravb_speed() == SPEED_100) {
++		phydev->supported &= ~(SUPPORTED_1000baseT_Half |
++				       SUPPORTED_1000baseT_Full);
++		reg = phy_read(phydev, -1, 0x09);
++		reg &= ~((1ul << 9) | (1ul << 8));
++		phy_write(phydev, -1, 0x09, reg);
++	}
+ 
+ 	phy_config(phydev);
+ 
+-- 
+1.9.1
+

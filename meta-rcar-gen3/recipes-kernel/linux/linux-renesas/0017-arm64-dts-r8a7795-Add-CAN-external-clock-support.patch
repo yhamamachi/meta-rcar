@@ -1,0 +1,33 @@
+From e481ab23c57b37c989fa27e0a6b3e941a9087753 Mon Sep 17 00:00:00 2001
+From: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Date: Mon, 29 Feb 2016 12:37:25 +0000
+Subject: [PATCH] arm64: dts: r8a7795: Add CAN external clock support
+
+Adds external CAN clock node for r8a7795. This clock can be used as
+fCAN clock of CAN and CAN FD controller.
+
+Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index a7315eb..5167a6c 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -115,6 +115,13 @@
+ 		clock-frequency = <0>;
+ 	};
+ 
++	/* External CAN clock - to be overridden by boards that provide it */
++	can_clk: can {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <0>;
++	};
++
+ 	/* External SCIF clock - to be overridden by boards that provide it */
+ 	scif_clk: scif {
+ 		compatible = "fixed-clock";
+-- 
+1.9.1

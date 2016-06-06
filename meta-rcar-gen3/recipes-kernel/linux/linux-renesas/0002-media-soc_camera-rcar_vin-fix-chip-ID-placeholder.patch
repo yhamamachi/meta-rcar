@@ -1,0 +1,51 @@
+From 938dfccb65c0553541244f2abbecf9bc0c45067f Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 15 May 2016 21:50:26 +0300
+Subject: [PATCH] media: soc_camera: rcar_vin: fix chip ID placeholder
+
+The Renesas chip ID must be parsed earlier then it was using
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/platform/soc_camera/rcar_vin.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
+index c458b92..af4cb8f 100644
+--- a/drivers/media/platform/soc_camera/rcar_vin.c
++++ b/drivers/media/platform/soc_camera/rcar_vin.c
+@@ -3028,6 +3028,15 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 	priv->ici.ops = &rcar_vin_host_ops;
+ 	priv->csi_sync = false;
+ 
++	priv->pdata_flags = pdata_flags;
++	if (!match) {
++		priv->ici.nr = pdev->id;
++		priv->chip = pdev->id_entry->driver_data;
++	} else {
++		priv->ici.nr = of_alias_get_id(pdev->dev.of_node, "vin");
++		priv->chip = (enum chip_id)match->data;
++	}
++
+ 	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3) {
+ 		priv->max_width = 4096;
+ 		priv->max_height = 4096;
+@@ -3187,15 +3196,6 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		rcar_vin_cpg_enable_for_ifmd(priv->index, false);
+ 	}
+ 
+-	priv->pdata_flags = pdata_flags;
+-	if (!match) {
+-		priv->ici.nr = pdev->id;
+-		priv->chip = pdev->id_entry->driver_data;
+-	} else {
+-		priv->ici.nr = of_alias_get_id(pdev->dev.of_node, "vin");
+-		priv->chip = (enum chip_id)match->data;
+-	}
+-
+ 	spin_lock_init(&priv->lock);
+ 	INIT_LIST_HEAD(&priv->capture);
+ 
+-- 
+1.9.1
+

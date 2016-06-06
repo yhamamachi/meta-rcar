@@ -1,0 +1,27 @@
+From 11c6fb783256d016295db241ce5e16f65a4da97c Mon Sep 17 00:00:00 2001
+From: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Date: Thu, 25 Feb 2016 17:05:24 +0000
+Subject: [PATCH] clk: shmobile: r8a7795: Add CAN peripheral clock
+
+Signed-off-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ drivers/clk/shmobile/r8a7795-cpg-mssr.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/clk/shmobile/r8a7795-cpg-mssr.c b/drivers/clk/shmobile/r8a7795-cpg-mssr.c
+index 79acdd0..958043e 100644
+--- a/drivers/clk/shmobile/r8a7795-cpg-mssr.c
++++ b/drivers/clk/shmobile/r8a7795-cpg-mssr.c
+@@ -192,6 +192,8 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] __initconst = {
+ 	DEF_MOD("gpio2",		 910,	R8A7795_CLK_CP),
+ 	DEF_MOD("gpio1",		 911,	R8A7795_CLK_CP),
+ 	DEF_MOD("gpio0",		 912,	R8A7795_CLK_CP),
++	DEF_MOD("can-if1",		 915,	R8A7795_CLK_S3D4),
++	DEF_MOD("can-if0",		 916,	R8A7795_CLK_S3D4),
+ 	DEF_MOD("i2c6",			 918,	R8A7795_CLK_S3D2),
+ 	DEF_MOD("i2c5",			 919,	R8A7795_CLK_S3D2),
+ 	DEF_MOD("i2c-dvfs",		 926,	R8A7795_CLK_CP),
+-- 
+1.9.1
+
