@@ -37,7 +37,7 @@ index 42555a6..0987aab 100644
  					remote-endpoint = <&csi2_41_in_ep>;
 @@ -783,7 +783,7 @@
  		reg = <0x4c>;
- 		gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
+ 		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
  		maxim,sensor_delay = <0>;
 -		maxim,links = <4>;
 +		maxim,links = <1>;
@@ -45,8 +45,8 @@ index 42555a6..0987aab 100644
  
  	max9286-max9271@1 {
 @@ -791,7 +791,7 @@
+ 		compatible = "maxim,max9286-max9271";
  		reg = <0x6c>;
- 		gpios = <&gpio5 25 GPIO_ACTIVE_LOW>;
  		maxim,sensor_delay = <0>;
 -		maxim,links = <4>;
 +		maxim,links = <1>;
