@@ -651,11 +651,11 @@ index 0000000..b31be4f
 +//	maxim_reg8_write(client, 0x0a, 0xff);	/* enable reverse_control/conf_link */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+//	maxim_reg8_write(client, 0x04, 0x43);	/* enable reverse_control/conf_link */
++	maxim_reg8_write(client, 0x04, 0x43);	/* enable reverse_control/conf_link */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = tmp_addr;
 +
-+//	maxim_reg16_write(client, 0x0100, enable); /* stream on/off */
++	maxim_reg16_write(client, 0x0100, enable); /* stream on/off */
 +
 +	if (enable) {
 +		/* switch to GMSL serial_link for streaming video */
@@ -2469,7 +2469,7 @@ new file mode 100644
 index 0000000..cfd84f2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
-@@ -0,0 +1,428 @@
+@@ -0,0 +1,429 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2551,6 +2551,7 @@ index 0000000..cfd84f2
 +	maxim_reg8_write(client, 0x15, 0x93);	/* disable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
++//	maxim_reg8_write(client, 0x04, 0x43);	/* enable reverse_control/conf_link */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = tmp_addr;
 +
