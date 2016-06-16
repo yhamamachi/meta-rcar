@@ -50,6 +50,7 @@ SRC_URI_append = " \
     file://0054-arm64-dts-r8a7795-h3ulcb-had-route-RAVB-to-rdrive.patch \
     ${@base_conditional("LVDSCAMERA_ONE", "1", " file://0055-arm64-dts-r8a7795-view-boards-stream-from-1-cam.patch", "", d)} \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0056-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
+    file://0057-arm64-dts-r8a7795-remove-ravb-phy-skews.patch \
 "
 
 SRC_URI_append_h3ulcb = " \

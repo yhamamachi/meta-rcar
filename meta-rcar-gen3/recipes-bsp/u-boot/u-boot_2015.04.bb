@@ -11,6 +11,7 @@ SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
 SRC_URI_append = " \
     file://0001-uboot-add-H3ULCB-board-support.patch \
     file://0002-uboot-ravb-add-chk-cut-for-speed-workaround.patch \
+    file://0005-uboot-ravb-r8a7795-remove-PHY-skews.patch \
 "
 SRC_URI_append_h3ulcb = '${@ \
     " file://0003-uboot-H3ULCB-support-fixed-PHY.patch \
