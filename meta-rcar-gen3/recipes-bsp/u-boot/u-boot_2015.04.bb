@@ -15,7 +15,8 @@ SRC_URI_append = " \
 "
 SRC_URI_append_h3ulcb = '${@ \
     " file://0003-uboot-H3ULCB-support-fixed-PHY.patch \
-      file://0004-uboot-H3ULCB-console-on-scif1.patch " \
+      file://0004-uboot-H3ULCB-console-on-scif1.patch \
+      file://0006-uboot-h3ulcb-set-all-RAVB-pins-strengh-to-maximum.patch " \
     if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
     ""}'
 SRCREV = "20a18bcee6603b94f7c745880d1fe09e98a70876"
