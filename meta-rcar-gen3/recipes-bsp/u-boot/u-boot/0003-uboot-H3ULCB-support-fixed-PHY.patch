@@ -3,7 +3,7 @@ From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 20 May 2016 01:18:44 +0300
 Subject: [PATCH] uboot: H3ULCB support fixed-PHY
 
-Set console on SCIF1 port for H3ULCB
+Add support for fixed-PHY on H3ULCB
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
