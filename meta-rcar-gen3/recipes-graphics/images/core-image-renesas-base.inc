@@ -15,6 +15,7 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     pciutils \
     usbutils \
     util-linux \
+    mtd-utils \
 "
 
 # Support secure environment

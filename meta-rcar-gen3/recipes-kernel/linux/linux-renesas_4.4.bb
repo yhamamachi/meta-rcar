@@ -42,6 +42,7 @@ SRC_URI_append = " \
     file://0021-arm64-dts-r8a7795-Add-CAN-FD-support.patch \
     file://0022-can-rcar_canfd-use-explicit-clock_select-from-dts.patch \
     file://0023-can-rcar_canfd-add-enable-and-standby-control-pins.patch \
+    file://0024-mtd-Add-RPC-HyperFlash-driver.patch \
     file://0040-H3-Maxim-MAX9286-support-support-10635-10640-cameras.patch \
     file://0050-arm64-renesas-Salvator-X-View-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
