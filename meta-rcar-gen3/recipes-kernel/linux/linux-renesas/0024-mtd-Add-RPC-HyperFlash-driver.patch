@@ -1021,7 +1021,7 @@ index 0000000..f8a2c90
 +module_init(rpc_flash_init);
 +module_exit(rpc_flash_exit);
 +
-+MODULE_LICENSE("GPLv2");
++MODULE_LICENSE("GPL v2");
 +MODULE_DESCRIPTION("Renesas RPC HyperFlash MTD driver");
 -- 
 2.7.4
