@@ -9,18 +9,18 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig               |   32 +
  drivers/media/i2c/soc_camera/Makefile              |    4 +
- drivers/media/i2c/soc_camera/max9286_max9271.c     |  224 ++++
- drivers/media/i2c/soc_camera/max9286_max9271.h     |  235 ++++
- .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  636 +++++++++++
- .../media/i2c/soc_camera/max9286_max9271_ov10635.h | 1159 ++++++++++++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c     |  213 ++++
+ drivers/media/i2c/soc_camera/max9286_max9271.h     |  234 ++++
+ .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  614 +++++++++++
+ .../media/i2c/soc_camera/max9286_max9271_ov10635.h | 1149 ++++++++++++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov106xx.c |   94 ++
- .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  428 ++++++++
+ .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  409 +++++++
  .../i2c/soc_camera/max9286_max9271_ov490_ov10640.h |   36 +
  drivers/media/platform/soc_camera/rcar_csi2.c      |   42 +-
  drivers/media/platform/soc_camera/rcar_vin.c       |    4 +
  drivers/media/platform/soc_camera/soc_mediabus.c   |   16 +
  include/media/drv-intf/soc_mediabus.h              |    3 +
- 13 files changed, 2913 insertions(+), 3 deletions(-)
+ 13 files changed, 2847 insertions(+), 3 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
@@ -87,10 +87,10 @@ index d0421fe..05944d8 100644
  obj-$(CONFIG_SOC_CAMERA_MT9T031)	+= mt9t031.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..1a8b4f3
+index 0000000..ed1e841
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,213 @@
 +/*
 + * MAXIM R-Car H3 Demo board setup driver
 + *
@@ -195,24 +195,13 @@ index 0000000..1a8b4f3
 +		maxim_reg8_write(client, 0x3b, 0x19);			/* reverse channel increase amplitude 170mV to compensate high threshold enabled */
 +		mdelay(2);						/* wait 2ms after any change of reverse channel settings */
 +
-+		/* re-setup for the case of s/w reboot */
-+		client->addr = 0x40;					/* MAX9271-CAMx I2C */
-+		maxim_reg8_write(client, 0x04, 0x43);			/* wake-up, enable reverse_control/conf_link */
-+		mdelay(5);						/* wait 5ms for conf_link to establish */
-+		maxim_reg8_write(client, 0x08, 0x1);			/* reverse channel receiver high threshold enable */
-+		mdelay(2);						/* wait 2ms after any change of reverse channel settings */
-+
 +		/* Initial setup */
 +		client->addr = des_addr;				/* MAX9286-CAMx I2C */
 +		maxim_reg8_write(client, 0x15, 0x13);			/* disable CSI output, VC is set accordingly to Link number */
-+#ifdef YUV_10BIT
-+		maxim_reg8_write(client, 0x12, 0xf4);			/* enable CSI-2 Lanes D[0:3], DBL mode, YUV422 10-bit*/
-+#else
 +		if (links == 1)
 +			maxim_reg8_write(client, 0x12, 0x33);		/* enable CSI-2 Lane D0 only, DBL mode, YUV422 8-bit*/
 +		else
 +			maxim_reg8_write(client, 0x12, 0xf3);		/* enable CSI-2 Lanes D[0:3], DBL mode, YUV422 8-bit*/
-+#endif
 +#if 0
 +#define FSYNC_PERIOD	(1280*800*2)
 +		maxim_reg8_write(client, 0x01, 0x00);			/* manual: FRAMESYNC set manually via [0x06:0x08] regs */
@@ -317,10 +306,10 @@ index 0000000..1a8b4f3
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.h b/drivers/media/i2c/soc_camera/max9286_max9271.h
 new file mode 100644
-index 0000000..85b92c6
+index 0000000..57303a4
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.h
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,234 @@
 +/*
 + * MAXIM R-Car H2/H3 Demo boards setup include file
 + *
@@ -344,7 +333,6 @@ index 0000000..85b92c6
 +#endif
 +
 +#define MAXIM_NUM_RETRIES	1 /* number of read/write retries */
-+//#define YUV_10BIT
 +
 +/*
 + * I2C MAP.
@@ -379,7 +367,7 @@ index 0000000..85b92c6
 +	}
 +
 +	if (ret < 0) {
-+		dev_dbg(&client->dev,
++		dev_err(&client->dev,
 +			"read fail: chip 0x%x register 0x%x\n", client->addr,
 +								reg);
 +	} else {
@@ -435,7 +423,7 @@ index 0000000..85b92c6
 +	}
 +
 +	if (ret < 0) {
-+		dev_dbg(&client->dev,
++		dev_err(&client->dev,
 +			"read fail: chip 0x%x register 0x%x\n", client->addr,
 +								reg);
 +	} else {
@@ -458,7 +446,7 @@ index 0000000..85b92c6
 +	}
 +
 +	if (ret < 0) {
-+		dev_dbg(&client->dev,
++		dev_err(&client->dev,
 +			"write fail: chip 0x%x register 0x%x\n", client->addr,
 +								 reg);
 +	} else {
@@ -559,10 +547,10 @@ index 0000000..85b92c6
 \ No newline at end of file
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
 new file mode 100644
-index 0000000..b31be4f
+index 0000000..13658c4
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
-@@ -0,0 +1,636 @@
+@@ -0,0 +1,614 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov10635 sensor camera driver
 + *
@@ -647,24 +635,14 @@ index 0000000..b31be4f
 +	/* switch to GMSL conf_link to access sensor registers */
 +	tmp_addr = client->addr;
 +	client->addr = maxim_map[0][cam_idx];	/* MAX9286-CAMx */
-+	maxim_reg8_write(client, 0x15, 0x93);	/* disable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
-+//	maxim_reg8_write(client, 0x0a, 0xff);	/* enable reverse_control/conf_link */
-+	mdelay(5);				/* wait 5ms for conf_link to establish */
-+	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+	maxim_reg8_write(client, 0x04, 0x43);	/* enable reverse_control/conf_link */
++	maxim_reg8_write(client, 0x15, 0x13);	/* disable CSI output, VC is set accordingly to Link number */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = tmp_addr;
-+
-+	maxim_reg16_write(client, 0x0100, enable); /* stream on/off */
 +
 +	if (enable) {
 +		/* switch to GMSL serial_link for streaming video */
 +		tmp_addr = client->addr;
-+		client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+		maxim_reg8_write(client, 0x04, 0x83);	/* enable reverse_control/serial_link */
-+		mdelay(2);				/* wait 2ms after changing reverse_control */
 +		client->addr = maxim_map[0][cam_idx];	/* MAX9286-CAMx */
-+//		maxim_reg8_write(client, 0x0a, 0xf0);	/* disable reverse_control, enable serial_link */
 +		maxim_reg8_write(client, 0x15, 0x9b);	/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +		mdelay(5);				/* wait 2ms after changing reverse_control */
 +		client->addr = tmp_addr;
@@ -686,11 +664,7 @@ index 0000000..b31be4f
 +
 +	mf->width = priv->width;
 +	mf->height = priv->height;
-+#ifdef YUV_10BIT
-+	mf->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
@@ -706,11 +680,7 @@ index 0000000..b31be4f
 +	struct ov10635_priv *priv = to_ov10635(client);
 +	int ret = 0;
 +
-+#ifdef YUV_10BIT
-+	mf->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
@@ -751,11 +721,7 @@ index 0000000..b31be4f
 +	if (code->pad || code->index > 0)
 +		return -EINVAL;
 +
-+#ifdef YUV_10BIT
-+	code->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	code->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +
 +	return 0;
 +}
@@ -1068,7 +1034,7 @@ index 0000000..b31be4f
 +	/* switch to GMSL serial_link for streaming video */
 +	tmp_addr = client->addr;
 +	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+	maxim_reg8_write(client, 0x04, 0x83);	/* enable reverse_control/serial_link */
++	maxim_reg8_write(client, 0x04, 0xc3);	/* enable reverse_control/serial_link */
 +	mdelay(2);				/* wait 2ms after changing reverse_control */
 +	client->addr = tmp_addr;
 +
@@ -1201,10 +1167,10 @@ index 0000000..b31be4f
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.h b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.h
 new file mode 100644
-index 0000000..6544d9b
+index 0000000..74f9ef9
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.h
-@@ -0,0 +1,1159 @@
+@@ -0,0 +1,1149 @@
 +/*
 + * OmniVision ov10635 sensor camera wizard 1280x800@30/UYVY/BT601/8bit
 + *
@@ -1508,11 +1474,6 @@ index 0000000..6544d9b
 +#endif
 +{0x4701, 0x00},
 +{0x4702, 0x01},
-+#ifdef YUV_10BIT
-+{ 0x4302, 0x03 }, { 0x4303, 0xfe }, { 0x4304, 0x00 },
-+{ 0x4305, 0x02 }, { 0x4306, 0x03 }, { 0x4307, 0xfe },
-+{ 0x4308, 0x00 }, { 0x4309, 0x02 },
-+#endif
 +{0x4004, 0x04},
 +{0x4005, 0x18},
 +{0x4001, 0x06},
@@ -1833,12 +1794,8 @@ index 0000000..6544d9b
 +{0x4611, 0x01},
 +{0x4612, 0x00},
 +{0x4613, 0x01},
-+#ifdef YUV_10BIT
-+{0x4605, 0x00}, // 10bit
-+#else
 +{0x4605, 0x08}, // 8bit
 +{0x4709, 0x10}, // swap data bits order [9:0] -> [0:9]
-+#endif
 +{0x4608, 0x00},
 +{0x4609, 0x08},
 +{0x6804, 0x00},
@@ -2171,7 +2128,6 @@ index 0000000..6544d9b
 +{0x3834, 0x03},
 +{0x3835, 0x48},
 +{0x302E, 0x01},
-+{0x0100, 0x00}, // stop streaming
 +};
 +
 +static const struct ov10635_reg ov10635_regs_1280x800[] = {
@@ -2466,10 +2422,10 @@ index 0000000..3670ded
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
 new file mode 100644
-index 0000000..cfd84f2
+index 0000000..d233a37
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
-@@ -0,0 +1,429 @@
+@@ -0,0 +1,409 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2548,21 +2504,13 @@ index 0000000..cfd84f2
 +	/* switch to GMSL conf_link to access sensor registers */
 +	tmp_addr = client->addr;
 +	client->addr = maxim_map[0][cam_idx];	/* MAX9286-CAMx */
-+	maxim_reg8_write(client, 0x15, 0x93);	/* disable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
-+	mdelay(5);				/* wait 5ms for conf_link to establish */
-+	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+//	maxim_reg8_write(client, 0x04, 0x43);	/* enable reverse_control/conf_link */
++	maxim_reg8_write(client, 0x15, 0x13);	/* disable CSI output, VC is set accordingly to Link number */
 +	mdelay(5);				/* wait 5ms for conf_link to establish */
 +	client->addr = tmp_addr;
-+
-+//	maxim_reg16_write(client, 0x0100, enable); /* stream on/off */
 +
 +	if (enable) {
 +		/* switch to GMSL serial_link for streaming video */
 +		tmp_addr = client->addr;
-+		client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+		maxim_reg8_write(client, 0x04, 0x83);	/* enable reverse_control/serial_link */
-+		mdelay(2);				/* wait 2ms after changing reverse_control */
 +		client->addr = maxim_map[0][cam_idx];	/* MAX9286-CAMx */
 +		maxim_reg8_write(client, 0x15, 0x9b);	/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +		mdelay(5);				/* wait 2ms after changing reverse_control */
@@ -2585,11 +2533,7 @@ index 0000000..cfd84f2
 +
 +	mf->width = priv->width;
 +	mf->height = priv->height;
-+#ifdef YUV_10BIT
-+	mf->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
@@ -2604,11 +2548,7 @@ index 0000000..cfd84f2
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov490_priv *priv = to_ov490(client);
 +
-+#ifdef YUV_10BIT
-+	mf->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
@@ -2634,11 +2574,7 @@ index 0000000..cfd84f2
 +	if (code->pad || code->index > 0)
 +		return -EINVAL;
 +
-+#ifdef YUV_10BIT
-+	code->code = MEDIA_BUS_FMT_YUYV10_2X10;
-+#else
 +	code->code = MEDIA_BUS_FMT_YUYV8_2X8;
-+#endif
 +
 +	return 0;
 +}
@@ -2790,7 +2726,7 @@ index 0000000..cfd84f2
 +	/* switch to GMSL serial_link for streaming video */
 +	tmp_addr = client->addr;
 +	client->addr = maxim_map[1][cam_idx];	/* MAX9271-CAMx */
-+	maxim_reg8_write(client, 0x04, 0x83);	/* enable reverse_control/serial_link */
++	maxim_reg8_write(client, 0x04, 0xc3);	/* enable reverse_control/serial_link */
 +	mdelay(2);				/* wait 2ms after changing reverse_control */
 +	client->addr = tmp_addr;
 +
