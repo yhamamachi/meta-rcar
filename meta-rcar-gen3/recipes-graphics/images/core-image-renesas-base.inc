@@ -16,6 +16,7 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     usbutils \
     util-linux \
     mtd-utils \
+    capture \
 "
 
 # Support secure environment
