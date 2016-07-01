@@ -17,6 +17,8 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     util-linux \
     mtd-utils \
     capture \
+    v4l2-fw \
+    i2c-tools \
 "
 
 # Support secure environment
