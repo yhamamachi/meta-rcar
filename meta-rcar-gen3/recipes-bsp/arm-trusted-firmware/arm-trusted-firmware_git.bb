@@ -24,7 +24,10 @@ PV = "v1.1+renesas+git${SRCPV}"
 
 COMPATIBLE_MACHINE = "(salvator-x|h3ulcb)"
 PLATFORM = "rcar"
-ATFW_OPT_r8a7795 = "LSI=H3 RCAR_DRAM_SPLIT=1"
+ATFW_OPT_r8a7795 = " \
+    LSI=H3 RCAR_DRAM_SPLIT=1 \
+    ${@base_conditional("CA57CA53BOOT", "1", " PSCI_DISABLE_BIGLITTLE_IN_CA57BOOT=0", "", d)} \
+"
 ATFW_OPT_r8a7796 = "LSI=M3 RCAR_DRAM_SPLIT=2"
 
 # requires CROSS_COMPILE set by hand as there is no configure script
