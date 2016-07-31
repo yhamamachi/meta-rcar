@@ -12,6 +12,9 @@ SRC_URI_append = " \
     file://0001-uboot-add-H3ULCB-board-support.patch \
     file://0002-uboot-ravb-add-chk-cut-for-speed-workaround.patch \
     file://0005-uboot-ravb-r8a7795-remove-PHY-skews.patch \
+    file://0007-armv8-rcar_gen3-fix-config_regs-table.patch \
+    file://0008-gpio-sh-pfc-fix-gpio-input-read.patch \
+    file://0009-rcar-gen3-add-CMD_GPIO.patch \
 "
 SRC_URI_append_h3ulcb = '${@ \
     " file://0003-uboot-H3ULCB-support-fixed-PHY.patch \
