@@ -52,7 +52,6 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_ONE", "1", " file://0055-arm64-dts-r8a7795-view-boards-stream-from-1-cam.patch", "", d)} \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0056-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIVE", "1", " file://0057-arm64-dts-r8a7795-view-boards-stream-from-5-cam.patch", "", d)} \
-    file://0057-arm64-dts-r8a7795-remove-ravb-phy-skews.patch \
     ${@base_conditional("CA57CA53BOOT", "1", " file://0058-arm64-dts-r8a7795-fix-ca57-ca53-boot.patch", "", d)} \
 "
 
