@@ -19,6 +19,10 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     capture \
     v4l2-fw \
     i2c-tools \
+    iperf \
+    glmark2 \
+    bonnie++ \
+    lmbench \
 "
 
 # Support secure environment
