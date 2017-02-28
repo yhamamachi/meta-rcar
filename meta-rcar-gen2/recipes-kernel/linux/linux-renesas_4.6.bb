@@ -157,4 +157,6 @@ SRC_URI_append = " \
     file://v2h.drivers.media.imr/0002-renesas-IMR-driver-new-API.patch \
     file://v2h.drivers.media.imr/0003-media-imr-temp-solution-on-V2H.patch \
     file://v2h.drivers.du/0001-rcar-du-support-vsp-du-on-V2h-board.patch \
+    file://v2h.drivers.media.imr/0004-rcar-imr-change-rcar-imr-width-align.patch \
+    file://v2h.dts/0019-arch-dts-r8a7792-remove-unused-sgx-clk.patch \
 "
