@@ -4,6 +4,9 @@ def map_libs(d):
     if base_conditional('USE_GLES_WAYLAND', "1", "1", "0", d) == "1":
         return "wayland"
 
+    if base_conditional('USE_GLES', "1", "1", "0", d) == "1":
+        return "gsx"
+
     return "dummy"
 
 MESATARGET := "${@map_libs(d)}"
