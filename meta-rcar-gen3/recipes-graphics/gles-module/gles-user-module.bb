@@ -15,7 +15,7 @@ GLES = "gsx"
 SRC_URI_r8a7795 = "file://r8a7795_linux_gsx_binaries_gles3.tar.bz2"
 SRC_URI_r8a7796 = "file://r8a7796_linux_gsx_binaries_gles3.tar.bz2"
 SRC_URI_append = " \
-    ${@bb.utils.contains("DISTRO_FEATURES", "wayland", " \
+    ${@bb.utils.contains("DISTRO_FEATURES", "systemd", " \
         file://change-shell.patch \
         file://rc.pvr.service \
         ", "", d)} \
@@ -61,6 +61,8 @@ do_install() {
             sed -i -e "s/WindowSystem=libpvrDRM_WSEGL.so/WindowSystem=libpvrWAYLAND_WSEGL.so/g" \
                 ${D}/${sysconfdir}/powervr.ini
         fi
+    else
+        rm ${D}/${libdir}/libpvrWAYLAND_WSEGL.so
     fi
 
     if [ ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)} ]; then
@@ -100,9 +102,11 @@ RPROVIDES_${PN} += " \
     libegl1 \
 "
 
+# Gen3 GLES binaries (IMGegl) depends on wayland-kms
 RDEPENDS_${PN} = " \
     kernel-module-gles \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'libgbm wayland-kms', '', d)} \
+    libgbm \
+    wayland-kms \
 "
 
 INSANE_SKIP_${PN} = "ldflags build-deps file-rdeps"
