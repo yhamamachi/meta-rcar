@@ -14,4 +14,4 @@ do_configure_prepend() {
     cd ${B}
 }
 
-RDEPENDS_${PN} = "libwayland-egl"
+RDEPENDS_${PN} = "${@'libwayland-egl' if 'wayland' in '${DISTRO_FEATURES}' else ''}"
