@@ -9,6 +9,8 @@ PR = "r0"
 S = "${WORKDIR}/git"
 MMNGRBUF_DRV_DIR = "mmngr_drv/mmngrbuf/mmngrbuf-module/files/mmngrbuf"
 
+SRC_URI_append = " file://0001-free-dma-buf-on-error.patch"
+
 do_compile() {
     cd ${S}/${MMNGRBUF_DRV_DIR}/drv
     make all
@@ -40,3 +42,4 @@ FILES_${PN} = " \
 "
 
 RPROVIDES_${PN} += "kernel-module-mmngrbuf"
+
