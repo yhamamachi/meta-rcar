@@ -107,7 +107,7 @@ new file mode 100644
 index 0000000..c0c659f
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,519 @@
+@@ -0,0 +1,533 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -161,6 +161,17 @@ index 0000000..c0c659f
 +	struct i2c_client	*client;
 +	int			max9271_addr_map[4];
 +};
++
++static int force_conf_link;
++
++static __init int max9286_max9271_force_conf_link(char *str)
++{
++	/* force configuration link */
++	/* used only for camera firmware recovery */
++	force_conf_link = 1;
++	return 0;
++}
++early_param("force_conf_link", max9286_max9271_force_conf_link);
 +
 +static void max9286_max9271_preinit(struct i2c_client *client, int addr)
 +{
@@ -412,6 +423,9 @@ index 0000000..c0c659f
 +	struct i2c_client *client = priv->client;
 +	int idx, tmp_addr;
 +
++	if (unlikely(force_conf_link))
++		return 0;
++
 +	/* switch to GMSL serial_link for streaming video */
 +	tmp_addr = client->addr;
 +	idx = sd->grp_id;
@@ -655,7 +669,7 @@ index 0000000..ac17b08
 +#define dev_dbg dev_info
 +#endif
 +
-+#define MAXIM_NUM_RETRIES	1 /* number of read/write retries */
++#define MAXIM_NUM_RETRIES	3 /* number of read/write retries */
 +#define MAX9271_ID		0x9
 +#define MAX9286_ID		0x40
 +#define BROADCAST		0x6f
@@ -2811,7 +2825,7 @@ new file mode 100644
 index 0000000..883ee06
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,902 @@
+@@ -0,0 +1,904 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -3049,6 +3063,8 @@ index 0000000..883ee06
 +	int ret;
 +
 +	ret = reg16_write(client, (u16)reg->reg, (u8)reg->val);
++	if ((u8)reg->reg == 0xFFFD)
++		usleep_range(100, 150); /* wait 100 us */
 +	if ((u8)reg->reg == 0xFFFE)
 +		usleep_range(100, 150); /* wait 100 us */
 +	return ret;
