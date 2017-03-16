@@ -68,6 +68,10 @@ SRC_URI_append_h3ulcb = " \
     file://h3ulcb.cfg \
 "
 
+SRC_URI_append_h3ulcb = '${@ \
+    " file://hyperflash.cfg " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
+    ""}'
+
 SRC_URI_append_salvator-x = " \
     file://salvator-x.cfg \
 "
