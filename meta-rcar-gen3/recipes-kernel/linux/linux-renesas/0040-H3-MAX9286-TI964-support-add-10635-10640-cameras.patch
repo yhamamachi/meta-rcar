@@ -9,14 +9,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   35 +
  drivers/media/i2c/soc_camera/Makefile            |    5 +
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  519 ++++++++++
- drivers/media/i2c/soc_camera/max9286_max9271.h   |  195 ++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c   |  529 ++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
  drivers/media/i2c/soc_camera/ov10635.c           |  657 ++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1159 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   84 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  902 +++++++++++++++++
- drivers/media/i2c/soc_camera/ov490_ov10640.h     |   32 +
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  919 +++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.h     |   33 +
  drivers/media/i2c/soc_camera/ti964_ti913.c       |  335 +++++++
  drivers/media/i2c/soc_camera/ti964_ti913.h       |  109 ++
  drivers/media/platform/soc_camera/rcar_csi2.c    |  162 ++-
@@ -25,7 +25,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 18 files changed, 4278 insertions(+), 103 deletions(-)
+ 18 files changed, 4307 insertions(+), 103 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -104,10 +104,10 @@ index d0421fe..3809208 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..c0c659f
+index 0000000..7c0b719
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,533 @@
+@@ -0,0 +1,529 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -167,7 +167,7 @@ index 0000000..c0c659f
 +static __init int max9286_max9271_force_conf_link(char *str)
 +{
 +	/* force configuration link */
-+	/* used only for camera firmware recovery */
++	/* used only if robust firmware flashing required (f.e. recovery) */
 +	force_conf_link = 1;
 +	return 0;
 +}
@@ -206,8 +206,6 @@ index 0000000..c0c659f
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
 +
 +		client->addr = 0x40;				/* MAX9271-CAMx I2C */
-+		i2c_smbus_read_byte(client);			/* ping to wake-up */
-+		reg8_write(client, 0x04, 0x43);			/* wake-up, enable reverse_control/conf_link */
 +		reg8_write(client, 0x08, 0x1);			/* reverse channel receiver high threshold enable */
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
 +
@@ -216,9 +214,7 @@ index 0000000..c0c659f
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
 +
 +		client->addr = 0x40;				/* MAX9271-CAMx I2C */
-+		i2c_smbus_read_byte(client);			/* ping to wake-up */
 +		reg8_write(client, 0x04, 0x43);			/* wake-up, enable reverse_control/conf_link */
-+		reg8_write(client, 0x08, 0x1);			/* reverse channel receiver high threshold enable */
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
 +
 +		client->addr = 0x40;				/* MAX9271-CAMx I2C */
@@ -643,10 +639,10 @@ index 0000000..c0c659f
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.h b/drivers/media/i2c/soc_camera/max9286_max9271.h
 new file mode 100644
-index 0000000..ac17b08
+index 0000000..a9c1eed
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.h
-@@ -0,0 +1,195 @@
+@@ -0,0 +1,196 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver include file
 + *
@@ -669,7 +665,8 @@ index 0000000..ac17b08
 +#define dev_dbg dev_info
 +#endif
 +
-+#define MAXIM_NUM_RETRIES	3 /* number of read/write retries */
++#define REG8_NUM_RETRIES	1 /* number of read/write retries */
++#define REG16_NUM_RETRIES	3 /* number of read/write retries */
 +#define MAX9271_ID		0x9
 +#define MAX9286_ID		0x40
 +#define BROADCAST		0x6f
@@ -678,7 +675,7 @@ index 0000000..ac17b08
 +{
 +	int ret, retries;
 +
-+	for (retries = MAXIM_NUM_RETRIES; retries; retries--) {
++	for (retries = REG8_NUM_RETRIES; retries; retries--) {
 +		ret = i2c_smbus_read_byte_data(client, reg);
 +		if (!(ret < 0))
 +			break;
@@ -699,7 +696,7 @@ index 0000000..ac17b08
 +{
 +	int ret, retries;
 +
-+	for (retries = MAXIM_NUM_RETRIES; retries; retries--) {
++	for (retries = REG8_NUM_RETRIES; retries; retries--) {
 +		ret = i2c_smbus_write_byte_data(client, reg, val);
 +		if (!(ret < 0))
 +			break;
@@ -728,7 +725,7 @@ index 0000000..ac17b08
 +	int ret, retries;
 +	u8 buf[2] = {reg >> 8, reg & 0xff};
 +
-+	for (retries = MAXIM_NUM_RETRIES; retries; retries--) {
++	for (retries = REG16_NUM_RETRIES; retries; retries--) {
 +		ret = i2c_master_send(client, buf, 2);
 +		if (ret == 2) {
 +			ret = i2c_master_recv(client, buf, 1);
@@ -753,7 +750,7 @@ index 0000000..ac17b08
 +	int ret, retries;
 +	u8 buf[3] = {reg >> 8, reg & 0xff, val};
 +
-+	for (retries = MAXIM_NUM_RETRIES; retries; retries--) {
++	for (retries = REG16_NUM_RETRIES; retries; retries--) {
 +		ret = i2c_master_send(client, buf, 3);
 +		if (ret == 3)
 +			break;
@@ -2822,10 +2819,10 @@ index 0000000..64e42f0
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..883ee06
+index 0000000..38539f0
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,904 @@
+@@ -0,0 +1,919 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2883,6 +2880,17 @@ index 0000000..883ee06
 +	int				autogain;
 +	int				dvp_order;
 +};
++
++static int force_conf_link;
++
++static __init int ov490_force_conf_link(char *str)
++{
++	/* force configuration link */
++	/* used only if robust firmware flashing required (f.e. recovery) */
++	force_conf_link = 1;
++	return 0;
++}
++early_param("force_conf_link", ov490_force_conf_link);
 +
 +static inline struct ov490_priv *to_ov490(const struct i2c_client *client)
 +{
@@ -3492,6 +3500,9 @@ index 0000000..883ee06
 +		return -ENODEV;
 +	}
 +
++	if (unlikely(force_conf_link))
++		goto out;
++
 +	/* read resolution used by current firmware */
 +	reg16_write(client, 0xFFFD, 0x80);
 +	reg16_write(client, 0xFFFE, 0x82);
@@ -3519,6 +3530,7 @@ index 0000000..883ee06
 +
 +	ov490_otp_id_read(client);
 +
++out:
 +	dev_info(&client->dev, "ov490/ov10640 Product ID %x Manufacturer ID %x, rev 1%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
 +		 pid, ver, 0xa + rev, priv->width, priv->height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +
@@ -3732,7 +3744,7 @@ index 0000000..883ee06
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.h b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 new file mode 100644
-index 0000000..0b4ba70
+index 0000000..86e6524
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 @@ -0,0 +1,33 @@
