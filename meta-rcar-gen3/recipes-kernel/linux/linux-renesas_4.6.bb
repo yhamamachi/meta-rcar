@@ -62,6 +62,23 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0071-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0072-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0080-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
+    file://0081-mic-vop-scif-rename-ioremap-and-iounmap-methods.patch \
+    file://0082-mic-vop-abstract-allocation-of-peer-mappable-memory.patch \
+    file://0083-mic-vop-abstract-VOP-device-DMA-setup.patch \
+    file://0084-mic-vop-ensure-struct-_mic_vring_info-alignment.patch \
+    file://0085-mic-vop-rework-mmap.patch \
+    file://0086-mic-vop-reassign-used-ring-in-a-safe-way.patch \
+    file://0087-virtio-allow-device-to-enforce-dma-mapping-of-data-b.patch \
+    file://0088-mic-vop-allow-enforcement-of-dma-mapping-of-virtio-d.patch \
+    file://0089-vringh-support-ring-structure-located-in-i-o-space.patch \
+    file://0090-mic-vop-use-vringh_complete_kern_io.patch \
+    file://0091-vringh-add-data-push-pull-with-external-copy-helper.patch \
+    file://0092-mic-vop-use-vringh_iov_-push-pull-_-user-kern-_ext.patch \
+    file://0093-mic-vop-refactor-data-transfer-routines.patch \
+    file://0094-mic-vop-avoid-extra-rescheduling-on-each-interrupt.patch \
+    file://0095-mic-mpssd-fix-logging.patch \
+    file://0096-mic-mpssd-support-VOP-on-non-MIC.patch \
+    file://0097-rcar-add-virtio-over-pcie-interconnect-framework.patch \
 "
 
 SRC_URI_append_h3ulcb = " \

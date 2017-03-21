@@ -266,7 +266,7 @@ new file mode 100644
 index 0000000..234bb68
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-ttardrive-beta.dts
-@@ -0,0 +1,128 @@
+@@ -0,0 +1,132 @@
 +/*
 + * Base Device Tree Source for the TTA-R-Drive board Beta CPU
 + *
@@ -319,6 +319,10 @@ index 0000000..234bb68
 +
 +&pcie_bus_clk {
 +        clock-frequency = <100000000>;
++};
++
++&pciec0 {
++	endpoint;
 +};
 +
 +&pfc {
@@ -1044,11 +1048,11 @@ index 0000000..e74a2c1
 +};
 +
 +&pciec0 {
-+          status = "disabled";
++          status = "okay";
 +};
 +
 +&pciec1 {
-+          status = "disabled";
++          status = "okay";
 +};
 +
 +&sata {
