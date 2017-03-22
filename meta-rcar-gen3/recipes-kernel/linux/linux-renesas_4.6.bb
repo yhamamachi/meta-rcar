@@ -78,7 +78,8 @@ SRC_URI_append = " \
     file://0094-mic-vop-avoid-extra-rescheduling-on-each-interrupt.patch \
     file://0095-mic-mpssd-fix-logging.patch \
     file://0096-mic-mpssd-support-VOP-on-non-MIC.patch \
-    file://0097-rcar-add-virtio-over-pcie-interconnect-framework.patch \
+    file://0097-mic-vop-fix-crashes-on-access-to-VOP-debugfs-entries.patch \
+    file://0098-rcar-add-virtio-over-pcie-interconnect-framework.patch \
 "
 
 SRC_URI_append_h3ulcb = " \

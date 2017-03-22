@@ -177,13 +177,15 @@ index 87de6c6..21071e2 100644
  struct rcar_msi {
  	DECLARE_BITMAP(used, INT_PCI_MSI_NR);
  	struct irq_domain *domain;
-@@ -159,6 +196,22 @@ struct rcar_pcie {
+@@ -159,6 +196,24 @@ struct rcar_pcie {
  	struct clk		*clk;
  	struct clk		*bus_clk;
  	struct			rcar_msi msi;
 +
 +	bool			endpoint;
++#ifdef CONFIG_VIRTIO_RCAR_PCIE
 +	struct vrp_host		*vrp_host;
++#endif
 +
 +	struct {
 +		void __iomem	*addr;
@@ -259,7 +261,7 @@ index 87de6c6..21071e2 100644
  	/* Begin initialization */
  	rcar_pci_write_reg(pcie, 0, PCIETCTLR);
  
-@@ -1290,6 +1382,291 @@ out_release_res:
+@@ -1290,6 +1382,295 @@ out_release_res:
  	return err;
  }
  
@@ -315,8 +317,10 @@ index 87de6c6..21071e2 100644
 +
 +	rcar_pci_write_reg(pcie, val, PCIETSTR);
 +
++#ifdef CONFIG_VIRTIO_RCAR_PCIE
 +	if (pcie->vrp_host)
 +		vrp_host_notification(pcie->vrp_host);
++#endif
 +
 +	return IRQ_HANDLED;
 +}
@@ -330,12 +334,14 @@ index 87de6c6..21071e2 100644
 +		IRQF_SHARED | IRQF_NO_THREAD, "rcar-pcie-ep", pcie);
 +}
 +
++#ifdef CONFIG_VIRTIO_RCAR_PCIE
 +struct vrp_host *rcar_pcie_ep_get_vrp_host(struct device *ep_dev)
 +{
 +	struct rcar_pcie *pcie = dev_get_drvdata(ep_dev);
 +
 +	return pcie->vrp_host;
 +}
++#endif
 +
 +int rcar_pcie_ep_send_msi(struct device *ep_dev, int msi)
 +{
@@ -597,7 +603,7 @@ index 87de6c6..21071e2 100644
  	hw_init_fn = of_id->data;
  
  	/* Failure to get a link might just be that no cards are inserted */
-@@ -1342,19 +1731,33 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+@@ -1342,19 +1731,35 @@ static int rcar_pcie_probe(struct platform_device *pdev)
  	data = rcar_pci_read_reg(pcie, MACSR);
  	dev_info(&pdev->dev, "PCIe x%d: link up\n", (data >> 20) & 0x3f);
  
@@ -636,8 +642,10 @@ index 87de6c6..21071e2 100644
 +		if (err)
 +			goto err_pm_put;
 +	
++#ifdef CONFIG_VIRTIO_RCAR_PCIE
 +		pcie->vrp_host = vrp_host_create(&pdev->dev,
 +				pcie->inbound_area, pcie->inbound_area_dma);
++#endif
 +	}
  
  	return 0;

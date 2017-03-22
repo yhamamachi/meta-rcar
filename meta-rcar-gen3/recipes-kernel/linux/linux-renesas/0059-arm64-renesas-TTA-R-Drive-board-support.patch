@@ -404,7 +404,7 @@ new file mode 100644
 index 0000000..e74a2c1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-ttardrive.dtsi
-@@ -0,0 +1,908 @@
+@@ -0,0 +1,910 @@
 +/*
 + * Base Device Tree Source for the TTA-R-Drive board
 + *
@@ -1049,10 +1049,12 @@ index 0000000..e74a2c1
 +
 +&pciec0 {
 +          status = "okay";
++          dma-ranges = <0x42000000 0 0x40000000 0 0x40000000 0 0x80000000>;
 +};
 +
 +&pciec1 {
 +          status = "okay";
++          dma-ranges = <0x42000000 0 0x40000000 0 0x40000000 0 0x80000000>;
 +};
 +
 +&sata {
