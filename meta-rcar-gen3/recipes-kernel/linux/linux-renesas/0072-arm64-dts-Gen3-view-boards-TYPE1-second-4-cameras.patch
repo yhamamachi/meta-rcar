@@ -7,16 +7,16 @@ This set 4 cameras to TYPE1 in DT
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts      | 8 ++++----
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi      | 8 ++++----
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts       | 8 ++++----
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts     | 8 ++++----
  arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts | 8 ++++----
  4 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 index cbf8205..b84a3e7 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 @@ -712,22 +712,22 @@
  		port@0 {
  			max9286_des1ep0: endpoint@0 {

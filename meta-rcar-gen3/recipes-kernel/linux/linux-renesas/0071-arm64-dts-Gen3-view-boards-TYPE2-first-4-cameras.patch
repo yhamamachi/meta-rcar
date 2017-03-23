@@ -7,7 +7,7 @@ This set 4 cameras to TYPE2 in DT
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts      | 17 +++++++++++++++--
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi      | 17 +++++++++++++++--
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts       | 17 +++++++++++++++--
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts     | 17 +++++++++++++++--
  arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts | 17 +++++++++++++++--
@@ -16,10 +16,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts | 17 +++++++++++++++--
  7 files changed, 105 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 index 2054f59..b44da54 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 @@ -516,6 +516,9 @@
  		compatible = "ovti,ov106xx";
  		reg = <0x60>;

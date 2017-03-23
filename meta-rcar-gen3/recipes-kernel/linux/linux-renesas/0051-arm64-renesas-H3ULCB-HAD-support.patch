@@ -7,28 +7,90 @@ Add support for H3ULCB HAD board
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |    2 +-
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts | 1260 ++++++++++++++++++++
- 2 files changed, 1261 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+ arch/arm64/boot/dts/renesas/Makefile               |    3 +-
+ .../boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts   |   22 +
+ .../boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts   |   23 +
+ .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi | 1256 ++++++++++++++++++++
+ 4 files changed, 1303 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index c44c810..c8948588 100644
+index c44c810..bd3f253 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,6 @@
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-x.dtb r8a7795-h3ulcb.dtb \
 -			      r8a7795-salvator-x-view.dtb
-+			      r8a7795-salvator-x-view.dtb r8a7795-h3ulcb-had.dtb
++			      r8a7795-salvator-x-view.dtb \
++			      r8a7795-h3ulcb-had-alfa.dtb r8a7795-h3ulcb-had-beta.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb
  
  always		:= $(dtb-y)
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts
 new file mode 100644
-index 0000000..2049587
+index 0000000..ae115bd
 --- /dev/null
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
-@@ -0,0 +1,1260 @@
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts
+@@ -0,0 +1,22 @@
++/*
++ * Device Tree Source for the H3ULCB.HAD board Alfa side
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7795-h3ulcb-had.dtsi"
++
++/ {
++	model = "Renesas H3ULCB.HAD board Alfa side based on r8a7795";
++};
++
++&pciec0 {
++	status = "okay";
++
++	/* Root complex */
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts
+new file mode 100644
+index 0000000..805067e
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts
+@@ -0,0 +1,23 @@
++/*
++ * Device Tree Source for the H3ULCB.HAD board Beta side
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7795-h3ulcb-had.dtsi"
++
++/ {
++	model = "Renesas H3ULCB.HAD board Beta side based on r8a7795";
++};
++
++&pciec0 {
++	status = "okay";
++
++	/* Endpoint */
++	endpoint;
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
+new file mode 100644
+index 0000000..dbc3348
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
+@@ -0,0 +1,1256 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board
 + *
@@ -935,10 +997,6 @@ index 0000000..2049587
 +};
 +
 +&pcie_bus_clk {
-+	status = "okay";
-+};
-+
-+&pciec0 {
 +	status = "okay";
 +};
 +

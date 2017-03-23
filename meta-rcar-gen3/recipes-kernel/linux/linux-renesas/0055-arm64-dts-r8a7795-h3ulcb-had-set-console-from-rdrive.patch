@@ -7,13 +7,13 @@ Set console from R-Drive CN9 connector (i.e. scif1)
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts | 4 ++--
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 index dbed953..b1811cb 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dts
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 @@ -44,8 +44,8 @@
  	compatible = "renesas,h3ulcb", "renesas,r8a7795";
  
