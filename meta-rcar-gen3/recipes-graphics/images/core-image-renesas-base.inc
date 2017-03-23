@@ -21,6 +21,7 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     bonnie++ \
     lmbench \
     nfs-utils \
+    mpssd \
 "
 
 # Support secure environment
