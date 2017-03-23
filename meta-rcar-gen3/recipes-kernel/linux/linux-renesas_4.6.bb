@@ -103,7 +103,7 @@ SRC_URI_append_ttardrive = " \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = '${@ \
-    " renesas/r8a7795-h3ulcb-had.dtb " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
+    " renesas/r8a7795-h3ulcb-had-alfa.dtb renesas/r8a7795-h3ulcb-had-beta.dtb " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
     " renesas/r8a7795-h3ulcb-view.dtb " if 'h3ulcb-view' in '${MACHINE_FEATURES}' else \
     " renesas/r8a7795-h3ulcb-kf.dtb " if 'h3ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
