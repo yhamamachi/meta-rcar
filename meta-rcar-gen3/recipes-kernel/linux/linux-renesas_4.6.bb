@@ -79,6 +79,9 @@ SRC_URI_append = " \
     file://0096-mic-mpssd-support-VOP-on-non-MIC.patch \
     file://0097-mic-vop-fix-crashes-on-access-to-VOP-debugfs-entries.patch \
     file://0098-rcar-add-virtio-over-pcie-interconnect-framework.patch \
+    file://0099-ti-st-add-device-tree-support.patch \
+    file://0100-btwilink-add-minimal-device-tree-support.patch \
+    file://0101-ulcb-kf-dts-fix-wifi.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
