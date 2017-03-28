@@ -11,21 +11,21 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile            |    5 +
  drivers/media/i2c/soc_camera/max9286_max9271.c   |  529 ++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
- drivers/media/i2c/soc_camera/ov10635.c           |  657 ++++++++++++
- drivers/media/i2c/soc_camera/ov10635.h           | 1159 ++++++++++++++++++++++
- drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
+ drivers/media/i2c/soc_camera/ov10635.c           |  694 +++++++++++++
+ drivers/media/i2c/soc_camera/ov10635.h           | 1123 ++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 ++
  drivers/media/i2c/soc_camera/ov106xx.c           |   84 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  919 +++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  919 ++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   33 +
  drivers/media/i2c/soc_camera/ti964_ti913.c       |  335 +++++++
- drivers/media/i2c/soc_camera/ti964_ti913.h       |  109 ++
- drivers/media/platform/soc_camera/rcar_csi2.c    |  162 ++-
+ drivers/media/i2c/soc_camera/ti964_ti913.h       |  109 +++
+ drivers/media/platform/soc_camera/rcar_csi2.c    |  162 ++--
  drivers/media/platform/soc_camera/rcar_vin.c     |   96 +-
  drivers/media/platform/soc_camera/soc_camera.c   |   17 +-
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 18 files changed, 4307 insertions(+), 103 deletions(-)
+ 18 files changed, 4308 insertions(+), 103 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -841,10 +841,10 @@ index 0000000..a9c1eed
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..a845be6
+index 0000000..6bcfb31
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,657 @@
+@@ -0,0 +1,694 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -881,13 +881,13 @@ index 0000000..a845be6
 +	struct v4l2_subdev		sd;
 +	struct v4l2_ctrl_handler	hdl;
 +	struct media_pad		pad;
++	struct v4l2_rect		rect;
++	int				subsampling;
 +	int				max9271_addr;
 +	int				ti964_addr;
 +	int				ti913_port;
 +	int				gpio_resetb;
 +	int				gpio_fsin;
-+	int				width;
-+	int				height;
 +	int				fps_denominator;
 +	int				init_complete;
 +	u8				id[6];
@@ -924,6 +924,51 @@ index 0000000..a845be6
 +	return 0;
 +}
 +
++static int ov10635_set_window(struct v4l2_subdev *sd, int subsampling)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov10635_priv *priv = to_ov10635(client);
++
++	/* disable clocks */
++	reg16_write(client, 0x302e, 0x00);
++	reg16_write(client, 0x301b, 0xff);
++	reg16_write(client, 0x301c, 0xff);
++	reg16_write(client, 0x301a, 0xff);
++
++	/* setup resolution */
++	reg16_write(client, 0x3808, priv->rect.width >> 8);
++	reg16_write(client, 0x3809, priv->rect.width & 0xff);
++	reg16_write(client, 0x380a, priv->rect.height >> 8);
++	reg16_write(client, 0x380b, priv->rect.height & 0xff);
++
++	/* enable/disable subsampling */
++	reg16_write(client, 0x5005, subsampling ? 0x89 : 0x08);
++	reg16_write(client, 0x3007, subsampling ? 0x02 : 0x01);
++	reg16_write(client, 0x4004, subsampling ? 0x02 : 0x04);
++
++#if 0 /* This is implemented in VIN via SOC_CAMERA layer, hence skip */
++	/* horiz crop start */
++	reg16_write(client, 0x3800, priv->rect.left >> 8);
++	reg16_write(client, 0x3801, priv->rect.left & 0xff);
++	/* horiz crop end */
++	reg16_write(client, 0x3804, (priv->rect.left + priv->rect.width + 1) >> 8);
++	reg16_write(client, 0x3805, (priv->rect.left + priv->rect.width + 1) & 0xff);
++	/* vert crop start */
++	reg16_write(client, 0x3802, priv->rect.top >> 8);
++	reg16_write(client, 0x3803, priv->rect.top & 0xff);
++	/* vert crop end */
++	reg16_write(client, 0x3806, (priv->rect.top + priv->rect.height + 1) >> 8);
++	reg16_write(client, 0x3807, (priv->rect.top + priv->rect.height + 1) & 0xff);
++#endif
++	/* enable clocks */
++	reg16_write(client, 0x301b, 0xf0);
++	reg16_write(client, 0x301c, 0xf0);
++	reg16_write(client, 0x301a, 0xf0);
++	reg16_write(client, 0x302e, 0x01);
++
++	return 0;
++};
++
 +static int ov10635_get_fmt(struct v4l2_subdev *sd,
 +			   struct v4l2_subdev_pad_config *cfg,
 +			   struct v4l2_subdev_format *format)
@@ -935,8 +980,8 @@ index 0000000..a845be6
 +	if (format->pad)
 +		return -EINVAL;
 +
-+	mf->width = priv->width;
-+	mf->height = priv->height;
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
@@ -949,42 +994,15 @@ index 0000000..a845be6
 +			   struct v4l2_subdev_format *format)
 +{
 +	struct v4l2_mbus_framefmt *mf = &format->format;
-+	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ov10635_priv *priv = to_ov10635(client);
-+	int ret = 0;
 +
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
 +		cfg->try_fmt = *mf;
-+		return 0;
-+	}
 +
-+	if (!((mf->width == 1280 && mf->height == 800) ||
-+	      (mf->width == 640 && mf->height == 400))) {
-+		mf->width = 1280;
-+		mf->height = 800;
-+	}
-+
-+	if (priv->width != mf->width) {
-+		priv->width = mf->width;
-+		priv->height = mf->height;
-+
-+		switch(priv->width) {
-+		case 1280:
-+			ret = ov10635_set_regs(client, ov10635_regs_1280x800,
-+					       ARRAY_SIZE(ov10635_regs_1280x800));
-+			break;
-+		case 640:
-+			ret = ov10635_set_regs(client, ov10635_regs_640x400,
-+					       ARRAY_SIZE(ov10635_regs_640x400));
-+			break;
-+		}
-+	}
-+
-+	return ret;
++	return 0;
 +}
 +
 +static int ov10635_enum_mbus_code(struct v4l2_subdev *sd,
@@ -1020,11 +1038,31 @@ index 0000000..a845be6
 +	struct v4l2_rect *rect = &a_writable.c;
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov10635_priv *priv = to_ov10635(client);
++	int subsampling = 0;
 +
-+	rect->left = 0;
-+	rect->top = 0;
-+	rect->width = priv->width;
-+	rect->height = priv->height;
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > OV10635_MAX_WIDTH) ||
++	    (rect->top + rect->height > OV10635_MAX_HEIGHT))
++		*rect = priv->rect;
++
++	if (rect->width == OV10635_MAX_WIDTH / 2 &&
++	    rect->height == OV10635_MAX_HEIGHT / 2)
++		subsampling = 1;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
++
++	/* change window only for subsampling, crop is done by VIN */
++	if (subsampling != priv->subsampling) {
++		ov10635_set_window(sd, subsampling);
++		priv->subsampling = subsampling;
++	}
 +
 +	return 0;
 +}
@@ -1034,10 +1072,7 @@ index 0000000..a845be6
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov10635_priv *priv = to_ov10635(client);
 +
-+	a->c.left = 0;
-+	a->c.top = 0;
-+	a->c.width = priv->width;
-+	a->c.height = priv->height;
++	a->c = priv->rect;
 +	a->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 +
 +	return 0;
@@ -1389,8 +1424,10 @@ index 0000000..a845be6
 +
 +	v4l2_i2c_subdev_init(&priv->sd, client, &ov10635_subdev_ops);
 +	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
-+	priv->width = OV10635_MAX_WIDTH;
-+	priv->height = OV10635_MAX_HEIGHT;
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = OV10635_MAX_WIDTH;
++	priv->rect.height = OV10635_MAX_HEIGHT;
 +	priv->fps_denominator = 30;
 +
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
@@ -1504,10 +1541,10 @@ index 0000000..a845be6
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov10635.h b/drivers/media/i2c/soc_camera/ov10635.h
 new file mode 100644
-index 0000000..5e41916
+index 0000000..6980385
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.h
-@@ -0,0 +1,1159 @@
+@@ -0,0 +1,1123 @@
 +/*
 + * OmniVision ov10635 sensor camera wizard 1280x800@30/UYVY/BT601/8bit
 + *
@@ -2475,42 +2512,6 @@ index 0000000..5e41916
 +{0x3834, 0x00},
 +{0x3835, 0x10},
 +{0x302E, 0x01},
-+};
-+
-+static const struct ov10635_reg ov10635_regs_1280x800[] = {
-+/* disable clocks */
-+{0x301b, 0xff},
-+{0x301c, 0xff},
-+{0x301a, 0xff},
-+/* setup resolution (subsampling off) */
-+{0x3808, 1280 >> 8},
-+{0x3809, 1280 & 0xff},
-+{0x380a, 800 >> 8},
-+{0x380b, 800 & 0xff},
-+{0x3007, 0x01},
-+{0x5005, 0x08},
-+/* enable clocks */
-+{0x301b, 0xf0},
-+{0x301c, 0xf0},
-+{0x301a, 0xf0},
-+};
-+
-+static const struct ov10635_reg ov10635_regs_640x400[] = {
-+/* disable clocks */
-+{0x301b, 0xff},
-+{0x301c, 0xff},
-+{0x301a, 0xff},
-+/* setup resolution (subsampling on) */
-+{0x3808, 640 >> 8},
-+{0x3809, 640 & 0xff},
-+{0x380a, 400 >> 8},
-+{0x380b, 400 & 0xff},
-+{0x3007, 0x02},
-+{0x5005, 0x89},
-+/* enable clocks */
-+{0x301b, 0xf0},
-+{0x301c, 0xf0},
-+{0x301a, 0xf0},
 +};
 +
 +static const struct ov10635_reg ov10635_regs_30fps[] = {
@@ -4524,7 +4525,7 @@ index 851a4ca..91d40f8 100644
  
  	return 0;
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 5fa9e26..19a9ab4 100644
+index 0c0027e..d56f14f 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
 @@ -730,10 +730,13 @@ struct rcar_vin_priv {
@@ -4625,7 +4626,7 @@ index 5fa9e26..19a9ab4 100644
  
  	dev_dbg(icd->parent, "R-Car VIN driver detached from camera %d\n",
  		icd->devnum);
-@@ -2434,6 +2477,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2722,6 +2765,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
  	return 0;
  }
  
@@ -4645,7 +4646,7 @@ index 5fa9e26..19a9ab4 100644
  static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.owner		= THIS_MODULE,
  	.add		= rcar_vin_add_device,
-@@ -2450,6 +2506,7 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
+@@ -2738,6 +2794,7 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.init_videobuf2	= rcar_vin_init_videobuf2,
  	.get_selection	= rcar_vin_get_selection,
  	.cropcap	= rcar_vin_cropcap,
@@ -4653,7 +4654,7 @@ index 5fa9e26..19a9ab4 100644
  };
  
  #ifdef CONFIG_OF
-@@ -2469,7 +2526,7 @@ static const struct of_device_id rcar_vin_of_table[] = {
+@@ -2757,7 +2814,7 @@ static const struct of_device_id rcar_vin_of_table[] = {
  MODULE_DEVICE_TABLE(of, rcar_vin_of_table);
  #endif
  
@@ -4662,7 +4663,7 @@ index 5fa9e26..19a9ab4 100644
  static DECLARE_BITMAP(device_map, MAP_MAX_NUM);
  static DEFINE_MUTEX(list_lock);
  
-@@ -2659,7 +2716,10 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2947,7 +3004,10 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	const char *str;
  	unsigned int i;
  	struct device_node *epn = NULL, *ren = NULL;
@@ -4673,7 +4674,7 @@ index 5fa9e26..19a9ab4 100644
  
  	match = of_match_device(of_match_ptr(rcar_vin_of_table), &pdev->dev);
  
-@@ -2686,13 +2746,22 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2974,13 +3034,22 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		dev_dbg(&pdev->dev, "node name:%s\n",
  			of_node_full_name(ren->parent));
  
@@ -4700,7 +4701,7 @@ index 5fa9e26..19a9ab4 100644
  	}
  
  	ret = v4l2_of_parse_endpoint(np, &ep);
-@@ -2748,6 +2817,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -3036,6 +3105,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	priv->ici.drv_name = dev_name(&pdev->dev);
  	priv->ici.ops = &rcar_vin_host_ops;
  	priv->csi_sync = false;
@@ -4708,7 +4709,7 @@ index 5fa9e26..19a9ab4 100644
  
  	priv->pdata_flags = pdata_flags;
  	if (!match) {
-@@ -2928,7 +2998,19 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -3216,7 +3286,19 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		goto cleanup;
  
  	if (csi_use) {
