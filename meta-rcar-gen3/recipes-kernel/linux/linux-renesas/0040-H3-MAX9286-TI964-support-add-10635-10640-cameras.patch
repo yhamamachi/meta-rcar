@@ -666,7 +666,7 @@ index 0000000..a9c1eed
 +#endif
 +
 +#define REG8_NUM_RETRIES	1 /* number of read/write retries */
-+#define REG16_NUM_RETRIES	3 /* number of read/write retries */
++#define REG16_NUM_RETRIES	10 /* number of read/write retries */
 +#define MAX9271_ID		0x9
 +#define MAX9286_ID		0x40
 +#define BROADCAST		0x6f
