@@ -2994,8 +2994,8 @@ index 0000000..95e9add
 +	rect->width = ALIGN(rect->width, 2);
 +	rect->height = ALIGN(rect->height, 2);
 +
-+	if ((rect->left + rect->width > OV10635_MAX_WIDTH) ||
-+	    (rect->top + rect->height > OV10635_MAX_HEIGHT))
++	if ((rect->left + rect->width > priv->max_width) ||
++	    (rect->top + rect->height > priv->max_height))
 +		*rect = priv->rect;
 +
 +	priv->rect.left = rect->left;
