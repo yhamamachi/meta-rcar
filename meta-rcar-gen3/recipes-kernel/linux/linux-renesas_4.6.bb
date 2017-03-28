@@ -82,6 +82,8 @@ SRC_URI_append = " \
     file://0099-ti-st-add-device-tree-support.patch \
     file://0100-btwilink-add-minimal-device-tree-support.patch \
     file://0101-ulcb-kf-dts-fix-wifi.patch \
+    file://0102-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
+    file://0103-ASoC-add-dummy-Si468x-driver.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
