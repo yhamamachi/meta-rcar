@@ -1108,7 +1108,7 @@ index 0000000..d045448
 +				};
 +				port@1 {
 +					ti964_csi0ep0: endpoint {
-+						csi-rate = <800>;
++						csi-rate = <1450>;
 +						remote-endpoint = <&csi2_40_ep>;
 +					};
 +				};
@@ -1287,7 +1287,7 @@ index 0000000..d045448
 +				};
 +				port@1 {
 +					ti964_csi2ep0: endpoint {
-+						csi-rate = <800>;
++						csi-rate = <1450>;
 +						remote-endpoint = <&csi2_41_ep>;
 +					};
 +				};
