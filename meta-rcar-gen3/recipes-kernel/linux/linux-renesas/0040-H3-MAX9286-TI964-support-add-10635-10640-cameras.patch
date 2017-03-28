@@ -15,7 +15,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov10635.h           | 1123 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 ++
  drivers/media/i2c/soc_camera/ov106xx.c           |   84 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  919 ++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  909 +++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   33 +
  drivers/media/i2c/soc_camera/ti964_ti913.c       |  335 +++++++
  drivers/media/i2c/soc_camera/ti964_ti913.h       |  109 +++
@@ -25,7 +25,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 18 files changed, 4308 insertions(+), 103 deletions(-)
+ 18 files changed, 4298 insertions(+), 103 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -639,7 +639,7 @@ index 0000000..7c0b719
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.h b/drivers/media/i2c/soc_camera/max9286_max9271.h
 new file mode 100644
-index 0000000..a9c1eed
+index 0000000..87c040b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.h
 @@ -0,0 +1,196 @@
@@ -2820,10 +2820,10 @@ index 0000000..64e42f0
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..38539f0
+index 0000000..95e9add
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,919 @@
+@@ -0,0 +1,909 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2866,13 +2866,14 @@ index 0000000..38539f0
 +	struct v4l2_subdev		sd;
 +	struct v4l2_ctrl_handler	hdl;
 +	struct media_pad		pad;
++	struct v4l2_rect		rect;
 +	int				max9271_addr;
 +	int				ti964_addr;
 +	int				ti913_port;
 +	int				gpio_resetb;
 +	int				gpio_fsin;
-+	int				width;
-+	int				height;
++	int				max_width;
++	int				max_height;
 +	char				is_fixed_sensor;
 +	int				init_complete;
 +	u8				id[6];
@@ -2929,8 +2930,8 @@ index 0000000..38539f0
 +	if (format->pad)
 +		return -EINVAL;
 +
-+	mf->width = priv->width;
-+	mf->height = priv->height;
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
@@ -2943,25 +2944,13 @@ index 0000000..38539f0
 +			 struct v4l2_subdev_format *format)
 +{
 +	struct v4l2_mbus_framefmt *mf = &format->format;
-+	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ov490_priv *priv = to_ov490(client);
 +
 +	mf->code = MEDIA_BUS_FMT_YUYV8_2X8;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
 +		cfg->try_fmt = *mf;
-+		return 0;
-+	}
-+
-+	if (priv->width != mf->width || priv->height != mf->height) {
-+		dev_info(&client->dev, "update firmware to use res %dx%d (current res %dx%d)\n",
-+				       mf->width, mf->height, priv->width, priv->height);
-+
-+		mf->width = priv->width;
-+		mf->height = priv->height;
-+	}
 +
 +	return 0;
 +}
@@ -3000,10 +2989,19 @@ index 0000000..38539f0
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov490_priv *priv = to_ov490(client);
 +
-+	rect->left = 0;
-+	rect->top = 0;
-+	rect->width = priv->width;
-+	rect->height = priv->height;
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > OV10635_MAX_WIDTH) ||
++	    (rect->top + rect->height > OV10635_MAX_HEIGHT))
++		*rect = priv->rect;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
 +
 +	return 0;
 +}
@@ -3013,10 +3011,7 @@ index 0000000..38539f0
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov490_priv *priv = to_ov490(client);
 +
-+	a->c.left = 0;
-+	a->c.top = 0;
-+	a->c.width = priv->width;
-+	a->c.height = priv->height;
++	a->c = priv->rect;
 +	a->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 +
 +	return 0;
@@ -3029,8 +3024,8 @@ index 0000000..38539f0
 +
 +	a->bounds.left = 0;
 +	a->bounds.top = 0;
-+	a->bounds.width = priv->width;
-+	a->bounds.height = priv->height;
++	a->bounds.width = priv->max_width;
++	a->bounds.height = priv->max_height;
 +	a->defrect = a->bounds;
 +	a->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 +
@@ -3474,27 +3469,17 @@ index 0000000..38539f0
 +	int ret;
 +
 +	if (priv->is_fixed_sensor) {
-+		dev_info(&client->dev, "ov490/ov10640 fixed-sensor res %dx%d\n", priv->width, priv->height);
++		dev_info(&client->dev, "ov490/ov10640 fixed-sensor res %dx%d\n", priv->max_width, priv->max_height);
 +		return 0;
 +	}
 +
 +	/* check and show product ID and manufacturer ID */
-+	ret = reg16_write(client, 0xFFFD, 0x80);
-+	if (ret)
-+		return ret;
-+	ret = reg16_write(client, 0xFFFE, 0x80);
-+	if (ret)
-+		return ret;
++	reg16_write(client, 0xFFFD, 0x80);
++	reg16_write(client, 0xFFFE, 0x80);
 +	usleep_range(100, 150); /* wait 100 us */
-+	ret = reg16_read(client, OV490_PID, &pid);
-+	if (ret)
-+		return ret;
-+	ret = reg16_read(client, OV490_VER, &ver);
-+	if (ret)
-+		return ret;
-+	ret = reg16_read(client, OV490_REV, &rev);
-+	if (ret)
-+		return ret;
++	reg16_read(client, OV490_PID, &pid);
++	reg16_read(client, OV490_VER, &ver);
++	reg16_read(client, OV490_REV, &rev);
 +
 +	if (OV490_VERSION(pid, ver) != OV490_VERSION_REG) {
 +		dev_dbg(&client->dev, "Product ID error %x:%x\n", pid, ver);
@@ -3509,14 +3494,14 @@ index 0000000..38539f0
 +	reg16_write(client, 0xFFFE, 0x82);
 +	usleep_range(100, 150); /* wait 100 us */
 +	reg16_read(client, OV490_ISP_HSIZE_HIGH, &val);
-+	priv->width = val;
++	priv->max_width = val;
 +	reg16_read(client, OV490_ISP_HSIZE_LOW, &val);
-+	priv->width = (priv->width << 8) | val;
++	priv->max_width = (priv->max_width << 8) | val;
 +
 +	reg16_read(client, OV490_ISP_VSIZE_HIGH, &val);
-+	priv->height = val;
++	priv->max_height = val;
 +	reg16_read(client, OV490_ISP_VSIZE_LOW, &val);
-+	priv->height = (priv->height << 8) | val;
++	priv->max_height = (priv->max_height << 8) | val;
 +
 +	ret = ov490_set_regs(client, ov490_regs_wizard,
 +			     ARRAY_SIZE(ov490_regs_wizard));
@@ -3533,7 +3518,7 @@ index 0000000..38539f0
 +
 +out:
 +	dev_info(&client->dev, "ov490/ov10640 Product ID %x Manufacturer ID %x, rev 1%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 pid, ver, 0xa + rev, priv->width, priv->height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++		 pid, ver, 0xa + rev, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +
 +	return 0;
 +}
@@ -3597,13 +3582,13 @@ index 0000000..38539f0
 +		return 0;
 +
 +	if (strcmp(fixed_sensor, "ov490") == 0) {
-+		err = of_property_read_u32(np, "maxim,width", &priv->width);
++		err = of_property_read_u32(np, "maxim,width", &priv->max_width);
 +		if (err) {
 +			dev_err(&client->dev, "maxim,width must be set for fixed-sensor\n");
 +			goto out;
 +		}
 +
-+		err = of_property_read_u32(np, "maxim,height", &priv->height);
++		err = of_property_read_u32(np, "maxim,height", &priv->max_height);
 +		if (err) {
 +			dev_err(&client->dev, "maxim,height must be set for fixed-sensor\n");
 +			goto out;
@@ -3676,6 +3661,11 @@ index 0000000..38539f0
 +	ret = ov490_initialize(client);
 +	if (ret < 0)
 +		goto cleanup;
++
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = priv->max_width;
++	priv->rect.height = priv->max_height;
 +
 +	ret = v4l2_async_register_subdev(&priv->sd);
 +	if (ret)
