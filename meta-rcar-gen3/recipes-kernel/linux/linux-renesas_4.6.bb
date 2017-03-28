@@ -84,6 +84,7 @@ SRC_URI_append = " \
     file://0101-ulcb-kf-dts-fix-wifi.patch \
     file://0102-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
     file://0103-ASoC-add-dummy-Si468x-driver.patch \
+    file://0104-ulcb-kf-fix-display-resolution-now-1280x800.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
