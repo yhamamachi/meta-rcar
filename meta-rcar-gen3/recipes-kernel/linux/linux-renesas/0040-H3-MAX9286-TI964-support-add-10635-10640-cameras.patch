@@ -9,7 +9,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   35 +
  drivers/media/i2c/soc_camera/Makefile            |    5 +
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  529 ++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c   |  531 ++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
  drivers/media/i2c/soc_camera/ov10635.c           |  694 +++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1123 ++++++++++++++++++++++
@@ -25,7 +25,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 18 files changed, 4316 insertions(+), 103 deletions(-)
+ 18 files changed, 4318 insertions(+), 103 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -104,10 +104,10 @@ index d0421fe..3809208 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..7c0b719
+index 0000000..355887b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,529 @@
+@@ -0,0 +1,531 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -196,7 +196,6 @@ index 0000000..7c0b719
 +	usleep_range(2000, 2500);				/* wait 2ms after any change of reverse channel settings */
 +	reg8_write(client, 0x00, 0xe0 | mask);			/* enable GMSL link for CAMx */
 +	reg8_write(client, 0x0a, (mask << 4) | mask);		/* enable reverse control for CAMx */
-+	reg8_write(client, 0x69, mask ^ 0x0f);			/* unmask link for CAMx */
 +	reg8_write(client, 0x1b, mask);				/* enable equalizer for CAMx */
 +	usleep_range(2000, 2500);				/* wait 2ms after any change of reverse channel settings */
 +
@@ -258,6 +257,7 @@ index 0000000..7c0b719
 +	/* Initial setup */
 +	client->addr = priv->des_addr;				/* MAX9286-CAMx I2C */
 +	reg8_write(client, 0x15, 0x13);				/* disable CSI output, VC is set accordingly to Link number */
++	reg8_write(client, 0x69, 0x0f);				/* mask CSI forwarding from all links */
 +	switch (priv->lanes) {
 +	case 1:
 +		reg8_write(client, 0x12, 0x33);			/* enable CSI-2 Lane D0, DBL mode, YUV422 8-bit*/
@@ -402,12 +402,12 @@ index 0000000..7c0b719
 +
 +	if (on) {
 +		if (!atomic_read(&priv->use_count))
-+			reg8_write(client, 0x15, 0x9b);		/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
++			reg8_write(client, 0x69, priv->links_mask ^ 0x0f); /* unmask CSI forwarding from detected links */
 +		atomic_inc(&priv->use_count);
 +	} else {
 +		atomic_dec(&priv->use_count);
 +		if (!atomic_read(&priv->use_count))
-+			reg8_write(client, 0x15, 0x13);		/* disable CSI output, VC is set accordingly to Link number */
++			reg8_write(client, 0x69, 0x0f);		/* mask CSI forwarding from all links */
 +	}
 +
 +	return 0;
@@ -429,6 +429,8 @@ index 0000000..7c0b719
 +	reg8_write(client, 0x04, 0x83);				/* enable reverse_control/serial_link */
 +	usleep_range(2000, 2500);				/* wait 2ms after changing reverse_control */
 +	client->addr = tmp_addr;
++
++	reg8_write(client, 0x15, 0x9b);				/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +
 +	return 0;
 +}
@@ -3774,7 +3776,7 @@ index 0000000..86e6524
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti913.c b/drivers/media/i2c/soc_camera/ti964_ti913.c
 new file mode 100644
-index 0000000..716d4b9
+index 0000000..ab480f5
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti913.c
 @@ -0,0 +1,353 @@
@@ -3943,12 +3945,12 @@ index 0000000..716d4b9
 +
 +	if (on) {
 +		if (!atomic_read(&priv->use_count))
-+			reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4 | 0x1); /* enable CSI output, set CSI lane count, non-continuous CSI mode */
++			reg8_write(client, 0x20, 0x00);		/* enable port forwarding to CSI */
 +		atomic_inc(&priv->use_count);
 +	} else {
 +		atomic_dec(&priv->use_count);
 +		if (!atomic_read(&priv->use_count))
-+			reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
++			reg8_write(client, 0x20, 0xf0);		/* disable port forwarding to CSI */
 +	}
 +
 +	return 0;
@@ -3959,7 +3961,7 @@ index 0000000..716d4b9
 +	struct ti964_ti913_priv *priv = v4l2_get_subdevdata(sd);
 +	struct i2c_client *client = priv->client;
 +
-+	reg8_write(client, 0x20, 0x00);		/* enable port forwarding */
++	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4 | 0x1); /* enable CSI output, set CSI lane count, non-continuous CSI mode */
 +
 +	return 0;
 +}
@@ -4533,7 +4535,7 @@ index 851a4ca..91d40f8 100644
  
  	return 0;
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 0c0027e..24206a7 100644
+index 0c0027e..d56f14f 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
 @@ -730,10 +730,13 @@ struct rcar_vin_priv {
@@ -4588,29 +4590,35 @@ index 0c0027e..24206a7 100644
  static int rcar_vin_add_device(struct soc_camera_device *icd)
  {
  	struct soc_camera_host *ici = to_soc_camera_host(icd->parent);
-@@ -1328,8 +1355,21 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+@@ -1328,7 +1355,8 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
  
  	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3) {
  		struct v4l2_subdev *csi2_sd = find_csi2(priv);
 -		int ret;
 +		struct v4l2_subdev *deser_sd = find_deser(priv);
 +		int ret = 0;
-+
+ 
+ 		if (csi2_sd) {
+ 			csi2_sd->grp_id = soc_camera_grp_id(icd);
+@@ -1343,6 +1371,18 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+ 			if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
+ 				return ret;
+ 		}
 +		if (deser_sd) {
 +			v4l2_set_subdev_hostdata(deser_sd, icd);
 +
 +			ret = v4l2_subdev_call(deser_sd, core, s_power, 1);
 +			priv->deser_sync = true;
- 
++
 +			if (ret < 0 && ret != -EINVAL)
 +				priv->deser_sync = false;
 +
 +			if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
 +				return ret;
 +		}
- 		if (csi2_sd) {
- 			csi2_sd->grp_id = soc_camera_grp_id(icd);
- 			v4l2_set_subdev_hostdata(csi2_sd, icd);
+ 		/*
+ 		 * -ENODEV is special:
+ 		 * either csi2_sd == NULL or the CSI-2 driver
 @@ -1370,6 +1410,7 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
  	struct rcar_vin_priv *priv = ici->priv;
  	struct vb2_v4l2_buffer *vbuf;
