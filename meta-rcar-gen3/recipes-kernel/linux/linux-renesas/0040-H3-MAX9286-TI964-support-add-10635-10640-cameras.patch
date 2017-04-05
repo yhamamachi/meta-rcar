@@ -107,7 +107,7 @@ new file mode 100644
 index 0000000..bc21223
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,554 @@
+@@ -0,0 +1,551 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -430,9 +430,6 @@ index 0000000..bc21223
 +	struct i2c_client *client = priv->client;
 +	int idx, tmp_addr;
 +
-+	if (unlikely(force_conf_link))
-+		return 0;
-+
 +	/* switch to GMSL serial_link for streaming video */
 +	tmp_addr = client->addr;
 +	idx = sd->grp_id;
@@ -441,7 +438,7 @@ index 0000000..bc21223
 +	reg8_write(client, 0x0a, 0x11 << idx);			/* enable reverse/forward control for CAMx */
 +
 +	client->addr = priv->max9271_addr_map[idx];		/* MAX9271-CAMx */
-+	reg8_write(client, 0x04, 0x83);				/* enable reverse_control/serial_link */
++	reg8_write(client, 0x04, force_conf_link ? 0x43 : 0x83); /* enable reverse_control/serial_link */
 +	usleep_range(2000, 2500);				/* wait 2ms after changing reverse_control */
 +
 +	client->addr = priv->des_addr;				/* MAX9286 I2C */
