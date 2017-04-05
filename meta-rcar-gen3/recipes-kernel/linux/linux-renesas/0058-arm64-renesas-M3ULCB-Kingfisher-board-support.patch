@@ -32,7 +32,7 @@ new file mode 100644
 index 0000000..1461bab
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1592 @@
+@@ -0,0 +1,1584 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board
 + *
@@ -1060,29 +1060,21 @@ index 0000000..1461bab
 +				port@0 {
 +					ti964_des0ep0: endpoint@0 {
 +						ti913-addr = <0x0c>;
-+						ti913-port = <0>;
-+						ti964-addr = <0x3a>;
 +						dvp-order = <0>;
 +						remote-endpoint = <&ov106xx_in0>;
 +					};
 +					ti964_des0ep1: endpoint@1 {
 +						ti913-addr = <0x0d>;
-+						ti913-port = <1>;
-+						ti964-addr = <0x3a>;
 +						dvp-order = <0>;
 +						remote-endpoint = <&ov106xx_in1>;
 +					};
 +					ti964_des0ep2: endpoint@2 {
 +						ti913-addr = <0x0e>;
-+						ti913-port = <2>;
-+						ti964-addr = <0x3a>;
 +						dvp-order = <0>;
 +						remote-endpoint = <&ov106xx_in2>;
 +					};
 +					ti964_des0ep3: endpoint@3 {
 +						ti913-addr = <0x0f>;
-+						ti913-port = <3>;
-+						ti964-addr = <0x3a>;
 +						dvp-order = <0>;
 +						remote-endpoint = <&ov106xx_in3>;
 +					};
