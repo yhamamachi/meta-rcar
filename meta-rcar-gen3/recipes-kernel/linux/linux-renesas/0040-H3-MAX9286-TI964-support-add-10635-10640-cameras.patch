@@ -3,29 +3,30 @@ From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Wed, 4 Jan 2017 15:31:41 +0300
 Subject: [PATCH] H3 MAX9286/TI964 support: add 10635/10640 cameras
 
-H3 MAX9286/TI964 support: add 10635/10640 cameras on YoctoV2120
+H3 MAX9286/TI964/TI953 support: add 10635/10640 cameras on YoctoV2120
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- drivers/media/i2c/soc_camera/Kconfig             |   35 +
- drivers/media/i2c/soc_camera/Makefile            |    5 +
+ drivers/media/i2c/soc_camera/Kconfig             |   41 +
+ drivers/media/i2c/soc_camera/Makefile            |    6 +
  drivers/media/i2c/soc_camera/max9286_max9271.c   |  551 +++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
- drivers/media/i2c/soc_camera/ov10635.c           |  718 ++++++++++++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  737 ++++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   84 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  934 ++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  951 ++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   33 +
- drivers/media/i2c/soc_camera/ti964_ti913.c       |  358 +++++++
+ drivers/media/i2c/soc_camera/ti954_ti913.c       |  386 ++++++++
+ drivers/media/i2c/soc_camera/ti964_ti913.c       |  356 +++++++
  drivers/media/i2c/soc_camera/ti964_ti913.h       |  109 +++
  drivers/media/platform/soc_camera/rcar_csi2.c    |  249 +++--
- drivers/media/platform/soc_camera/rcar_vin.c     |  125 ++-
+ drivers/media/platform/soc_camera/rcar_vin.c     |  142 ++-
  drivers/media/platform/soc_camera/soc_camera.c   |   17 +-
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 18 files changed, 4521 insertions(+), 106 deletions(-)
+ 19 files changed, 4965 insertions(+), 106 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -34,14 +35,15 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/soc_camera/ov106xx.c
  create mode 100644 drivers/media/i2c/soc_camera/ov490_ov10640.c
  create mode 100644 drivers/media/i2c/soc_camera/ov490_ov10640.h
+ create mode 100644 drivers/media/i2c/soc_camera/ti954_ti913.c
  create mode 100644 drivers/media/i2c/soc_camera/ti964_ti913.c
  create mode 100644 drivers/media/i2c/soc_camera/ti964_ti913.h
 
 diff --git a/drivers/media/i2c/soc_camera/Kconfig b/drivers/media/i2c/soc_camera/Kconfig
-index 23d352f..870d824 100644
+index 23d352f..10ee5a6 100644
 --- a/drivers/media/i2c/soc_camera/Kconfig
 +++ b/drivers/media/i2c/soc_camera/Kconfig
-@@ -6,6 +6,41 @@ config SOC_CAMERA_IMX074
+@@ -6,6 +6,47 @@ config SOC_CAMERA_IMX074
  	help
  	  This driver supports IMX074 cameras from Sony
  
@@ -80,17 +82,24 @@ index 23d352f..870d824 100644
 +	help
 +	  This is an Texas Instruments ti964-ti913 FPDLinkIII driver
 +
++config SOC_CAMERA_TI954_TI913
++	tristate "ti954-ti913 FPDLinkIII support"
++	depends on SOC_CAMERA && I2C
++	help
++	  This is an Texas Instruments ti954-ti913 FPDLinkIII driver
++
  config SOC_CAMERA_MT9M001
  	tristate "mt9m001 support"
  	depends on SOC_CAMERA && I2C
 diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camera/Makefile
-index d0421fe..3809208 100644
+index d0421fe..512c430 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
-@@ -1,9 +1,14 @@
+@@ -1,9 +1,15 @@
  obj-$(CONFIG_SOC_CAMERA_IMX074)		+= imx074.o
 +obj-$(CONFIG_SOC_CAMERA_MAX9286_MAX9271)	+= max9286_max9271.o
 +obj-$(CONFIG_SOC_CAMERA_TI964_TI913)	+= ti964_ti913.o
++obj-$(CONFIG_SOC_CAMERA_TI954_TI913)	+= ti954_ti913.o
  obj-$(CONFIG_SOC_CAMERA_MT9M001)	+= mt9m001.o
  obj-$(CONFIG_SOC_CAMERA_MT9M111)	+= mt9m111.o
  obj-$(CONFIG_SOC_CAMERA_MT9T031)	+= mt9t031.o
@@ -863,10 +872,10 @@ index 0000000..87c040b
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..e018ddf
+index 0000000..13632b3
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,718 @@
+@@ -0,0 +1,737 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -913,6 +922,7 @@ index 0000000..e018ddf
 +	int				max9286_addr;
 +	int				max9271_addr;
 +	int				ti964_addr;
++	int				ti954_addr;
 +	int				ti913_addr;
 +	int				port;
 +	int				gpio_resetb;
@@ -1424,9 +1434,14 @@ index 0000000..e018ddf
 +		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti964_addr) &&
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
++
++		if (!of_property_read_u32(rendpoint, "ti913-addr", &priv->ti913_addr) &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti954_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++			break;
 +	}
 +
-+	if (!priv->max9286_addr && !priv->ti964_addr) {
++	if (!priv->max9286_addr && !priv->ti964_addr && !priv->ti954_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
 +		return -EINVAL;
 +	}
@@ -1442,8 +1457,21 @@ index 0000000..e018ddf
 +		reg8_write(client, 0x0A, OV10635_I2C_ADDR << 1);	/* Sensor native I2C address */
 +		usleep_range(2000, 2500);				/* wait 2ms */
 +	};
++
 +	if (priv->ti964_addr) {
 +		client->addr = priv->ti964_addr;			/* Deserializer I2C address */
++
++		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
++		usleep_range(2000, 2500);				/* wait 2ms */
++		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x5d, OV10635_I2C_ADDR << 1);	/* Sensor native I2C address */
++
++		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - resetb, GPIO1 - fsin */
++		udelay(100);
++	}
++
++	if (priv->ti954_addr) {
++		client->addr = priv->ti954_addr;			/* Deserializer I2C address */
 +
 +		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
 +		usleep_range(2000, 2500);				/* wait 2ms */
@@ -2882,10 +2910,10 @@ index 0000000..64e42f0
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..462a5c3
+index 0000000..160f79a
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,934 @@
+@@ -0,0 +1,951 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2942,6 +2970,7 @@ index 0000000..462a5c3
 +	int				max9286_addr;
 +	int				max9271_addr;
 +	int				ti964_addr;
++	int				ti954_addr;
 +	int				ti913_addr;
 +	int				port;
 +	int				gpio_resetb;
@@ -3632,6 +3661,11 @@ index 0000000..462a5c3
 +		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti964_addr) &&
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
++
++		if (!of_property_read_u32(rendpoint, "ti913-addr", &priv->ti913_addr) &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti954_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++		    break;
 +	}
 +
 +	if (!priv->max9286_addr && !priv->ti964_addr) {
@@ -3661,6 +3695,17 @@ index 0000000..462a5c3
 +		reg8_write(client, 0x6e, 0x9a);				/* GPIO0 - resetb, GPIO1 - fsin */
 +		/* TODO: why too long? move logic to workqueue? */
 +		mdelay(350);						/* time needed to boot all sensor IPs */
++	}
++	if (priv->ti954_addr) {
++		client->addr = priv->ti954_addr;			/* Deserializer I2C address */
++
++		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
++		usleep_range(2000, 2500);				/* wait 2ms */
++		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x5d, OV490_I2C_ADDR << 1);		/* Sensor native I2C address */
++
++		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - resetb, GPIO1 - fsin */
++		udelay(100);
 +	}
 +	client->addr = tmp_addr;
 +
@@ -3859,12 +3904,404 @@ index 0000000..86e6524
 +{0x0091, 0x00},
 +{0x00bb, 0x1d}, // bit[3]=0 - PCLK polarity workaround
 +};
+diff --git a/drivers/media/i2c/soc_camera/ti954_ti913.c b/drivers/media/i2c/soc_camera/ti954_ti913.c
+new file mode 100644
+index 0000000..6eb5110
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ti954_ti913.c
+@@ -0,0 +1,386 @@
++/*
++ * TI ti954-ti913 FPDLinkIII driver
++ *
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/of_gpio.h>
++#include <linux/videodev2.h>
++#include <linux/notifier.h>
++
++#include <media/v4l2-common.h>
++#include <media/v4l2-device.h>
++#include <media/v4l2-of.h>
++#include <media/v4l2-subdev.h>
++
++#include "ti964_ti913.h"
++
++struct ti954_ti913_priv {
++	struct v4l2_subdev	sd[4];
++	struct device_node	*sd_of_node[4];
++	int			des_addr;
++	int			links;
++	int			lanes;
++	int			csi_rate;
++	const char		*forwarding_mode;
++	atomic_t		use_count;
++	struct i2c_client	*client;
++	int			ti913_addr_map[4];
++	int			xtal_gpio;
++};
++
++static int indirect_write(struct i2c_client *client, unsigned int page, u8 reg, u8 val)
++{
++	if (page > 7)
++		return -EINVAL;
++
++	reg8_write(client, 0xb0, page << 2);
++	reg8_write(client, 0xb1, reg);
++	reg8_write(client, 0xb2, val);
++
++	return 0;
++}
++
++static int indirect_read(struct i2c_client *client, unsigned int page, u8 reg, u8 *val)
++{
++	if (page > 7)
++		return -EINVAL;
++
++	reg8_write(client, 0xb0, page << 2);
++	reg8_write(client, 0xb1, reg);
++	reg8_read(client, 0xb2, val);
++
++	return 0;
++}
++
++static void ti954_ti913_initial_setup(struct i2c_client *client)
++{
++	struct ti954_ti913_priv *priv = i2c_get_clientdata(client);
++
++	/* Initial setup */
++	client->addr = priv->des_addr;				/* TI954 I2C */
++	reg8_write(client, 0x08, 0x1c);				/* I2C glitch filter depth */
++	reg8_write(client, 0x0a, 0x79);				/* I2C high pulse width */
++	reg8_write(client, 0x0b, 0x79);				/* I2C low pulse width */
++	reg8_write(client, 0x0d, 0xb9);				/* VDDIO 3.3V */
++	switch (priv->csi_rate) {
++	case 1600: /* REFCLK = 25MHZ */
++	case 1450: /* REFCLK = 22.5MHZ */
++		reg8_write(client, 0x1f, 0x00);			/* CSI rate 1.5/1.6Gbps */
++		break;
++	case 800: /* REFCLK = 25MHZ */
++		reg8_write(client, 0x1f, 0x02);			/* CSI rate 800Mbps */
++		break;
++	case 400: /* REFCLK = 25MHZ */
++		reg8_write(client, 0x1f, 0x03);			/* CSI rate 400Mbps */
++		break;
++	default:
++		dev_err(&client->dev, "unsupported CSI rate %d\n", priv->csi_rate);
++	}
++
++	if (strcmp(priv->forwarding_mode, "round-robin") == 0) {
++		reg8_write(client, 0x21, 0x01);			/* Round Robin forwarding enable */
++	} else if (strcmp(priv->forwarding_mode, "synchronized") == 0) {
++		reg8_write(client, 0x21, 0x44);			/* Basic Syncronized forwarding enable (FrameSync must be enabled!!) */
++	}
++
++	reg8_write(client, 0x32, 0x01);				/* Select TX (CSI) port 0 */
++	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
++	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
++#if 1
++	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS*25MHz  =1/30*25Mhz  =833333 -> FS_TIME=833333 */
++	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS*22.5Mhz=1/30*22.5Mhz=750000 -> FS_TIME=750000 */
++ #define FS_TIME (priv->csi_rate == 1450 ? 750000 : 833333)
++	reg8_write(client, 0x1a, FS_TIME >> 16);		/* FrameSync time 24bit */
++	reg8_write(client, 0x1b, (FS_TIME >> 8) & 0xff);
++	reg8_write(client, 0x1c, FS_TIME & 0xff);
++	reg8_write(client, 0x18, 0x43);				/* Enable FrameSync, 50/50 mode, Frame clock from 25MHz */
++#else
++	/* FrameSync setup for 30FPS: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 FPS=30.008 */
++	reg8_write(client, 0x19, 2 >> 8);			/* FrameSync high time MSB */
++	reg8_write(client, 0x1a, 2 >> 16);			/* FrameSync high time LSB */
++	reg8_write(client, 0x1b, 2775 & 0xff);			/* FrameSync low time MSB */
++	reg8_write(client, 0x1c, 2775 & 0xff);			/* FrameSync low time LSB */
++	reg8_write(client, 0x18, 0x01);				/* Enable FrameSync, HI/LO mode, Frame clock from port0 */
++#endif
++}
++
++//#define SENSOR_ID 0x30  // ov10635
++//#define SENSOR_ID 0x24  // ov490
++
++static void ti954_ti913_fpdlink3_setup(struct i2c_client *client, int idx)
++{
++	struct ti954_ti913_priv *priv = i2c_get_clientdata(client);
++
++	/* FPDLinkIII setup */
++	client->addr = priv->des_addr;				/* TI954 I2C */
++	reg8_write(client, 0x4c, (idx << 4) | (1 << idx));	/* Select RX port number */
++	usleep_range(2000, 2500);				/* wait 2ms */
++	reg8_write(client, 0x58, 0x58);				/* Back channel: pass-through/backchannel/CRC enable, Freq=2.5Mbps */
++	reg8_write(client, 0x5c, priv->ti913_addr_map[idx] << 1); /* TI913 I2C addr */
++//	reg8_write(client, 0x5d, SENSOR_ID << 1);		/* SENSOR I2C native - must be set by sensor driver */
++//	reg8_write(client, 0x65, (0x60 + idx) << 1);		/* SENSOR I2C translated - must be set by sensor driver */
++	reg8_write(client, 0x6d, 0x7f);				/* Coax, RAW10 */
++	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
++	reg8_write(client, 0x7c, 0x81);				/* BIT(7) - magic to Use RAW10 as 8-bit mode */
++	reg8_write(client, 0x6e, 0x99);				/* Backchannel GPIO0/GPIO1 set high */
++}
++
++static int ti954_ti913_initialize(struct i2c_client *client)
++{
++	struct ti954_ti913_priv *priv = i2c_get_clientdata(client);
++	int idx;
++
++	dev_info(&client->dev, "LINKs=%d, LANES=%d, FORWARDING=%s\n",
++			       priv->links, priv->lanes, priv->forwarding_mode);
++
++	ti954_ti913_initial_setup(client);
++
++	for (idx = 0; idx < priv->links; idx++)
++		ti954_ti913_fpdlink3_setup(client, idx);
++
++	client->addr = priv->des_addr;
++
++	return 0;
++}
++
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++static int ti954_ti913_g_register(struct v4l2_subdev *sd,
++				      struct v4l2_dbg_register *reg)
++{
++	struct ti954_ti913_priv *priv = v4l2_get_subdevdata(sd);
++	struct i2c_client *client = priv->client;
++	int ret;
++	u8 val = 0;
++
++	ret = reg8_read(client, (u8)reg->reg, &val);
++	if (ret < 0)
++		return ret;
++
++	reg->val = val;
++	reg->size = sizeof(u8);
++
++	return 0;
++}
++
++static int ti954_ti913_s_register(struct v4l2_subdev *sd,
++				      const struct v4l2_dbg_register *reg)
++{
++	struct ti954_ti913_priv *priv = v4l2_get_subdevdata(sd);
++	struct i2c_client *client = priv->client;
++
++	return reg8_write(client, (u8)reg->reg, (u8)reg->val);
++}
++#endif
++
++static int ti954_ti913_s_power(struct v4l2_subdev *sd, int on)
++{
++	struct ti954_ti913_priv *priv = v4l2_get_subdevdata(sd);
++	struct i2c_client *client = priv->client;
++
++	if (on) {
++		if (atomic_inc_return(&priv->use_count) == 1)
++			reg8_write(client, 0x20, 0x00);		/* enable port forwarding to CSI */
++	} else {
++		if (atomic_dec_return(&priv->use_count) == 0)
++			reg8_write(client, 0x20, 0xf0);		/* disable port forwarding to CSI */
++	}
++
++	return 0;
++}
++
++static int ti954_ti913_registered_async(struct v4l2_subdev *sd)
++{
++	struct ti954_ti913_priv *priv = v4l2_get_subdevdata(sd);
++	struct i2c_client *client = priv->client;
++
++	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4 | 0x1); /* enable CSI output, set CSI lane count, non-continuous CSI mode */
++
++	return 0;
++}
++
++static struct v4l2_subdev_core_ops ti954_ti913_subdev_core_ops = {
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++	.g_register		= ti954_ti913_g_register,
++	.s_register		= ti954_ti913_s_register,
++#endif
++	.s_power		= ti954_ti913_s_power,
++	.registered_async	= ti954_ti913_registered_async,
++};
++
++static struct v4l2_subdev_ops ti954_ti913_subdev_ops = {
++	.core	= &ti954_ti913_subdev_core_ops,
++};
++
++static int ti954_ti913_parse_dt(struct i2c_client *client)
++{
++	struct ti954_ti913_priv *priv = i2c_get_clientdata(client);
++	struct device_node *np = client->dev.of_node;
++	struct device_node *endpoint = NULL, *rendpoint = NULL;
++	struct property *prop;
++	int err, i;
++	int sensor_delay;
++	char forwarding_mode_default[20] = "round-robin"; /* round-robin, synchronized */
++	struct property *csi_rate_prop, *dvp_order_prop;
++	u8 val = 0;
++
++	if (of_property_read_u32(np, "ti,links", &priv->links))
++		priv->links = 2;
++
++	if (of_property_read_u32(np, "ti,lanes", &priv->lanes))
++		priv->lanes = 4;
++
++	priv->xtal_gpio = of_get_gpio(np, 0);
++	if (priv->xtal_gpio > 0) {
++		err = gpio_request_one(priv->xtal_gpio, GPIOF_OUT_INIT_LOW, dev_name(&client->dev));
++		if (err)
++			dev_err(&client->dev, "cannot request XTAL gpio %d: %d\n", priv->xtal_gpio, err);
++		else
++			mdelay(250);
++	}
++
++	reg8_read(client, 0x00, &val);				/* read TI954 ID */
++	if (val != (priv->des_addr << 1)) {
++		prop = of_find_property(np, "reg", NULL);
++		if (prop)
++			of_remove_property(np, prop);
++		return -ENODEV;
++	}
++
++	indirect_write(client, 7, 0x15, 0x30);
++	gpio_set_value(priv->xtal_gpio, 1);
++	usleep_range(5000, 5500);				/* wait 5ms */
++	indirect_write(client, 7, 0x15, 0);
++
++	if (!of_property_read_u32(np, "ti,sensor_delay", &sensor_delay))
++		mdelay(sensor_delay);
++
++	err = of_property_read_string(np, "ti,forwarding-mode", &priv->forwarding_mode);
++	if (err)
++		priv->forwarding_mode = forwarding_mode_default;
++
++	for (i = 0; ; i++) {
++		endpoint = of_graph_get_next_endpoint(np, endpoint);
++		if (!endpoint)
++			break;
++
++		of_node_put(endpoint);
++
++		if (i < priv->links) {
++			if (of_property_read_u32(endpoint, "ti913-addr", &priv->ti913_addr_map[i])) {
++				dev_err(&client->dev, "ti913-addr not set\n");
++				return -EINVAL;
++			}
++			priv->sd_of_node[i] = endpoint;
++		}
++
++		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
++		if (!rendpoint)
++			continue;
++
++		csi_rate_prop = of_find_property(endpoint, "csi-rate", NULL);
++		if (csi_rate_prop) {
++			of_property_read_u32(endpoint, "csi-rate", &priv->csi_rate);
++			of_update_property(rendpoint, csi_rate_prop);
++		}
++
++		dvp_order_prop = of_find_property(endpoint, "dvp-order", NULL);
++		if (dvp_order_prop)
++			of_update_property(rendpoint, dvp_order_prop);
++	}
++
++	return 0;
++}
++
++static int ti954_ti913_probe(struct i2c_client *client,
++			     const struct i2c_device_id *did)
++{
++	struct ti954_ti913_priv *priv;
++	int err, i;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, priv);
++	priv->des_addr = client->addr;
++	priv->client = client;
++	atomic_set(&priv->use_count, 0);
++
++	err = ti954_ti913_parse_dt(client);
++	if (err)
++		goto out;
++
++	err = ti954_ti913_initialize(client);
++	if (err < 0)
++		goto out;
++
++	for (i = 0; i < priv->links; i++) {
++		v4l2_subdev_init(&priv->sd[i], &ti954_ti913_subdev_ops);
++		priv->sd[i].owner = client->dev.driver->owner;
++		priv->sd[i].dev = &client->dev;
++		priv->sd[i].grp_id = i;
++		v4l2_set_subdevdata(&priv->sd[i], priv);
++		priv->sd[i].of_node = priv->sd_of_node[i];
++
++		snprintf(priv->sd[i].name, V4L2_SUBDEV_NAME_SIZE, "%s %d-%04x",
++			 client->dev.driver->name, i2c_adapter_id(client->adapter),
++			 client->addr);
++
++		err = v4l2_async_register_subdev(&priv->sd[i]);
++		if (err < 0)
++			goto out;
++	}
++
++out:
++	return err;
++}
++
++static int ti954_ti913_remove(struct i2c_client *client)
++{
++	struct ti954_ti913_priv *priv = i2c_get_clientdata(client);
++	int i;
++
++	for (i = 0; i < priv->links; i++) {
++		v4l2_async_unregister_subdev(&priv->sd[i]);
++		v4l2_device_unregister_subdev(&priv->sd[i]);
++	}
++
++	return 0;
++}
++
++static const struct of_device_id ti954_ti913_dt_ids[] = {
++	{ .compatible = "ti,ti954-ti913" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, ti954_ti913_dt_ids);
++
++static const struct i2c_device_id ti954_ti913_id[] = {
++	{ "ti954_ti913", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ti954_ti913_id);
++
++static struct i2c_driver ti954_ti913_i2c_driver = {
++	.driver	= {
++		.name		= "ti954_ti913",
++		.of_match_table	= of_match_ptr(ti954_ti913_dt_ids),
++	},
++	.probe		= ti954_ti913_probe,
++	.remove		= ti954_ti913_remove,
++	.id_table	= ti954_ti913_id,
++};
++
++module_i2c_driver(ti954_ti913_i2c_driver);
++
++MODULE_DESCRIPTION("FPDLinkIII driver for TI954-TI913");
++MODULE_AUTHOR("Vladimir Barinov");
++MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti913.c b/drivers/media/i2c/soc_camera/ti964_ti913.c
 new file mode 100644
-index 0000000..e6b245b
+index 0000000..e298dc6
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti913.c
-@@ -0,0 +1,358 @@
+@@ -0,0 +1,356 @@
 +/*
 + * TI ti964-ti913 FPDLinkIII driver
 + *
@@ -4029,12 +4466,10 @@ index 0000000..e6b245b
 +	struct i2c_client *client = priv->client;
 +
 +	if (on) {
-+		if (!atomic_read(&priv->use_count))
++		if (atomic_inc_return(&priv->use_count) == 1)
 +			reg8_write(client, 0x20, 0x00);		/* enable port forwarding to CSI */
-+		atomic_inc(&priv->use_count);
 +	} else {
-+		atomic_dec(&priv->use_count);
-+		if (!atomic_read(&priv->use_count))
++		if (atomic_dec_return(&priv->use_count) == 0)
 +			reg8_write(client, 0x20, 0xf0);		/* disable port forwarding to CSI */
 +	}
 +
@@ -4162,7 +4597,7 @@ index 0000000..e6b245b
 +	if (err < 0)
 +		goto out;
 +
-+	for (i = 0; i < 4; i++) {
++	for (i = 0; i < priv->links; i++) {
 +		v4l2_subdev_init(&priv->sd[i], &ti964_ti913_subdev_ops);
 +		priv->sd[i].owner = client->dev.driver->owner;
 +		priv->sd[i].dev = &client->dev;
@@ -4188,7 +4623,7 @@ index 0000000..e6b245b
 +	struct ti964_ti913_priv *priv = i2c_get_clientdata(client);
 +	int i;
 +
-+	for (i = 0; i < 4; i++) {
++	for (i = 0; i < priv->links; i++) {
 +		v4l2_async_unregister_subdev(&priv->sd[i]);
 +		v4l2_device_unregister_subdev(&priv->sd[i]);
 +	}
@@ -4339,7 +4774,7 @@ index 0000000..5bd0f5f
 +}
 +#endif /* _TI964_H */
 diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
-index 851a4ca..f3d5fdd 100644
+index 851a4ca..b337ecd 100644
 --- a/drivers/media/platform/soc_camera/rcar_csi2.c
 +++ b/drivers/media/platform/soc_camera/rcar_csi2.c
 @@ -36,8 +36,9 @@
@@ -4727,7 +5162,7 @@ index 851a4ca..f3d5fdd 100644
  
  	return 0;
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 0c0027e..7b7e4ba 100644
+index 0c0027e..26ef183 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
 @@ -106,6 +106,7 @@
@@ -4801,7 +5236,7 @@ index 0c0027e..7b7e4ba 100644
  	while (priv->state != STOPPED) {
  		/* issue stop if running */
  		if (priv->state == RUNNING)
-@@ -1315,6 +1331,26 @@ static struct v4l2_subdev *find_csi2(struct rcar_vin_priv *pcdev)
+@@ -1315,6 +1331,31 @@ static struct v4l2_subdev *find_csi2(struct rcar_vin_priv *pcdev)
  	return NULL;
  }
  
@@ -4810,6 +5245,7 @@ index 0c0027e..7b7e4ba 100644
 +	struct v4l2_subdev *sd;
 +	char name[] = "max9286_max9271";
 +	char name2[] = "ti964_ti913";
++	char name3[] = "ti954_ti913";
 +
 +	v4l2_device_for_each_subdev(sd, &pcdev->ici.v4l2_dev) {
 +		if (!strncmp(name, sd->name, sizeof(name) - 1)) {
@@ -4817,6 +5253,10 @@ index 0c0027e..7b7e4ba 100644
 +			return sd;
 +		}
 +		if (!strncmp(name2, sd->name, sizeof(name2) - 1)) {
++			pcdev->deser_sd = sd;
++			return sd;
++		}
++		if (!strncmp(name3, sd->name, sizeof(name3) - 1)) {
 +			pcdev->deser_sd = sd;
 +			return sd;
 +		}
@@ -4828,7 +5268,7 @@ index 0c0027e..7b7e4ba 100644
  static int rcar_vin_add_device(struct soc_camera_device *icd)
  {
  	struct soc_camera_host *ici = to_soc_camera_host(icd->parent);
-@@ -1328,7 +1364,8 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+@@ -1328,7 +1369,8 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
  
  	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3) {
  		struct v4l2_subdev *csi2_sd = find_csi2(priv);
@@ -4838,7 +5278,7 @@ index 0c0027e..7b7e4ba 100644
  
  		if (csi2_sd) {
  			csi2_sd->grp_id = soc_camera_grp_id(icd);
-@@ -1343,6 +1380,18 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+@@ -1343,6 +1385,18 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
  			if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
  				return ret;
  		}
@@ -4857,7 +5297,7 @@ index 0c0027e..7b7e4ba 100644
  		/*
  		 * -ENODEV is special:
  		 * either csi2_sd == NULL or the CSI-2 driver
-@@ -1370,6 +1419,7 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
+@@ -1370,6 +1424,7 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
  	struct rcar_vin_priv *priv = ici->priv;
  	struct vb2_v4l2_buffer *vbuf;
  	struct v4l2_subdev *csi2_sd = find_csi2(priv);
@@ -4865,7 +5305,7 @@ index 0c0027e..7b7e4ba 100644
  	int i;
  
  	/* disable capture, disable interrupts */
-@@ -1396,6 +1446,8 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
+@@ -1396,6 +1451,8 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
  
  	if ((csi2_sd) && (priv->csi_sync))
  		v4l2_subdev_call(csi2_sd, core, s_power, 0);
@@ -4874,7 +5314,7 @@ index 0c0027e..7b7e4ba 100644
  
  	dev_dbg(icd->parent, "R-Car VIN driver detached from camera %d\n",
  		icd->devnum);
-@@ -1573,13 +1625,17 @@ static int rcar_vin_set_rect(struct soc_camera_device *icd)
+@@ -1573,13 +1630,17 @@ static int rcar_vin_set_rect(struct soc_camera_device *icd)
  	}
  
  	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3) {
@@ -4894,7 +5334,7 @@ index 0c0027e..7b7e4ba 100644
  		   (icd->current_fmt->host_fmt->fourcc == V4L2_PIX_FMT_NV16) ||
  		   (icd->current_fmt->host_fmt->fourcc == V4L2_PIX_FMT_NV12))
  			iowrite32(ALIGN(cam->out_width, 0x20),
-@@ -1849,6 +1905,14 @@ static const struct soc_mbus_pixelfmt rcar_vin_formats[] = {
+@@ -1849,6 +1910,14 @@ static const struct soc_mbus_pixelfmt rcar_vin_formats[] = {
  		.order			= SOC_MBUS_ORDER_LE,
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
@@ -4909,7 +5349,7 @@ index 0c0027e..7b7e4ba 100644
  };
  
  static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
-@@ -1962,6 +2026,7 @@ static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
+@@ -1962,6 +2031,7 @@ static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
  	case MEDIA_BUS_FMT_YUYV8_2X8:
  	case MEDIA_BUS_FMT_YUYV10_2X10:
  	case MEDIA_BUS_FMT_RGB888_1X24:
@@ -4917,7 +5357,7 @@ index 0c0027e..7b7e4ba 100644
  		if (cam->extra_fmt)
  			break;
  
-@@ -2464,6 +2529,7 @@ static int rcar_vin_set_fmt(struct soc_camera_device *icd,
+@@ -2464,6 +2534,7 @@ static int rcar_vin_set_fmt(struct soc_camera_device *icd,
  		can_scale = true;
  		break;
  	case V4L2_PIX_FMT_NV12:
@@ -4925,7 +5365,7 @@ index 0c0027e..7b7e4ba 100644
  	default:
  		can_scale = false;
  		break;
-@@ -2722,6 +2788,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2722,6 +2793,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
  	return 0;
  }
  
@@ -4945,7 +5385,7 @@ index 0c0027e..7b7e4ba 100644
  static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.owner		= THIS_MODULE,
  	.add		= rcar_vin_add_device,
-@@ -2738,6 +2817,7 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
+@@ -2738,6 +2822,7 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.init_videobuf2	= rcar_vin_init_videobuf2,
  	.get_selection	= rcar_vin_get_selection,
  	.cropcap	= rcar_vin_cropcap,
@@ -4953,7 +5393,7 @@ index 0c0027e..7b7e4ba 100644
  };
  
  #ifdef CONFIG_OF
-@@ -2757,7 +2837,7 @@ static const struct of_device_id rcar_vin_of_table[] = {
+@@ -2757,7 +2842,7 @@ static const struct of_device_id rcar_vin_of_table[] = {
  MODULE_DEVICE_TABLE(of, rcar_vin_of_table);
  #endif
  
@@ -4962,18 +5402,19 @@ index 0c0027e..7b7e4ba 100644
  static DECLARE_BITMAP(device_map, MAP_MAX_NUM);
  static DEFINE_MUTEX(list_lock);
  
-@@ -2947,7 +3027,10 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2947,7 +3032,11 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	const char *str;
  	unsigned int i;
  	struct device_node *epn = NULL, *ren = NULL;
-+	struct device_node *csi2_ren = NULL, *max9286_ren = NULL, *ti964_ren = NULL;
++	struct device_node *csi2_ren = NULL, *max9286_ren = NULL, *ti964_ren = NULL, *ti954_ren = NULL;
  	bool csi_use = false;
 +	bool max9286_use = false;
 +	bool ti964_use = false;
++	bool ti954_use = false;
  
  	match = of_match_device(of_match_ptr(rcar_vin_of_table), &pdev->dev);
  
-@@ -2974,13 +3057,22 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2974,13 +3063,27 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		dev_dbg(&pdev->dev, "node name:%s\n",
  			of_node_full_name(ren->parent));
  
@@ -4996,11 +5437,16 @@ index 0c0027e..7b7e4ba 100644
 +			ti964_use = true;
 +		}
 +
++		if (strcmp(ren->parent->name, "ti954-ti913") == 0) {
++			ti954_ren = of_parse_phandle(epn, "remote-endpoint", 0);
++			ti954_use = true;
++		}
++
 +		of_node_put(ren);
  	}
  
  	ret = v4l2_of_parse_endpoint(np, &ep);
-@@ -3036,6 +3128,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -3036,6 +3139,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	priv->ici.drv_name = dev_name(&pdev->dev);
  	priv->ici.ops = &rcar_vin_host_ops;
  	priv->csi_sync = false;
@@ -5008,7 +5454,7 @@ index 0c0027e..7b7e4ba 100644
  
  	priv->pdata_flags = pdata_flags;
  	if (!match) {
-@@ -3216,7 +3309,19 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -3216,7 +3320,25 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		goto cleanup;
  
  	if (csi_use) {
@@ -5026,6 +5472,12 @@ index 0c0027e..7b7e4ba 100644
 +
 +	if (ti964_use) {
 +		ret = rcar_vin_soc_of_bind(priv, &priv->ici, epn, ti964_ren);
++		if (ret)
++			goto cleanup;
++	}
++
++	if (ti954_use) {
++		ret = rcar_vin_soc_of_bind(priv, &priv->ici, epn, ti954_ren);
  		if (ret)
  			goto cleanup;
  	}

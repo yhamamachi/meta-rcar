@@ -9,12 +9,12 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile              |    3 +-
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts | 2015 +++++++++++++++++++++
- 2 files changed, 2017 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts | 2173 +++++++++++++++++++++
+ 2 files changed, 2175 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index 7d445b9..681f183 100644
+index 1a0e393..f7d8885 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -1,6 +1,7 @@
@@ -28,10 +28,10 @@ index 7d445b9..681f183 100644
  
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..d045448
+index 0000000..7830622
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,1999 @@
+@@ -0,0 +1,2173 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -1001,6 +1001,9 @@ index 0000000..d045448
 +					ov106xx_ti964_des0ep0: endpoint@1 {
 +						remote-endpoint = <&ti964_des0ep0>;
 +					};
++					ov106xx_ti954_des0ep0: endpoint@2 {
++						remote-endpoint = <&ti954_des0ep0>;
++					};
 +				};
 +			};
 +
@@ -1021,6 +1024,9 @@ index 0000000..d045448
 +					};
 +					ov106xx_ti964_des0ep1: endpoint@1 {
 +						remote-endpoint = <&ti964_des0ep1>;
++					};
++					ov106xx_ti954_des0ep1: endpoint@2 {
++						remote-endpoint = <&ti954_des0ep1>;
 +					};
 +				};
 +			};
@@ -1106,6 +1112,36 @@ index 0000000..d045448
 +				};
 +			};
 +
++			/* DS90UB954 @ 0x38 */
++			ti954-ti913@0 {
++				compatible = "ti,ti954-ti913";
++				reg = <0x38>;
++				gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>;
++				ti,sensor_delay = <350>;
++				ti,links = <2>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++
++				port@0 {
++					ti954_des0ep0: endpoint@0 {
++						ti913-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					ti954_des0ep1: endpoint@1 {
++						ti913-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++				};
++				port@1 {
++					ti954_csi0ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_40_ep>;
++					};
++				};
++			};
++
 +			/* MAX9286 @ 0x2a */
 +			max9286-max9271@0 {
 +				compatible = "maxim,max9286-max9271";
@@ -1172,6 +1208,9 @@ index 0000000..d045448
 +					ov106xx_ti964_des1ep0: endpoint@1 {
 +						remote-endpoint = <&ti964_des1ep0>;
 +					};
++					ov106xx_ti954_des1ep0: endpoint@2 {
++						remote-endpoint = <&ti954_des1ep0>;
++					};
 +				};
 +			};
 +
@@ -1192,6 +1231,9 @@ index 0000000..d045448
 +					};
 +					ov106xx_ti964_des1ep1: endpoint@1 {
 +						remote-endpoint = <&ti964_des1ep1>;
++					};
++					ov106xx_ti954_des1ep1: endpoint@2 {
++						remote-endpoint = <&ti954_des1ep1>;
 +					};
 +				};
 +			};
@@ -1277,6 +1319,36 @@ index 0000000..d045448
 +				};
 +			};
 +
++			/* DS90UB954 @ 0x38 */
++			ti954-ti913@1 {
++				compatible = "ti,ti954-ti913";
++				reg = <0x38>;
++				gpios = <&video_b_ext1 10 GPIO_ACTIVE_HIGH>;
++				ti,sensor_delay = <350>;
++				ti,links = <2>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++
++				port@0 {
++					ti954_des1ep0: endpoint@0 {
++						ti913-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in4>;
++					};
++					ti954_des1ep1: endpoint@1 {
++						ti913-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in5>;
++					};
++				};
++				port@1 {
++					ti954_csi2ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++
 +			/* MAX9286 @ 0x2a */
 +			max9286-max9271@1 {
 +				compatible = "maxim,max9286-max9271";
@@ -1345,7 +1417,8 @@ index 0000000..d045448
 +			#size-cells = <0>;
 +			reg = <6>;
 +			/* Video input "B" main node(s) */
-+			video_b_ext: pca9535@27 {
++
++			video_b_ext0: pca9535@27 {
 +				compatible = "nxp,pca9535";
 +				reg = <0x27>;
 +				gpio-controller;
@@ -1406,6 +1479,50 @@ index 0000000..d045448
 +					line-name = "Video-B led";
 +				};
 +			};
++
++			video_b_ext1: max7325@5c {
++				compatible = "maxim,max7325";
++				reg = <0x5c>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_b_des_cfg2 {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B cfg2";
++				};
++				video_b_des_cfg1 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B cfg1";
++				};
++				video_b_des_cfg0 {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B cfg0";
++				};
++				video_b_pwr_shdn {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR_SHDN";
++				};
++				video_b_cam_pwr0 {
++					gpio-hog;
++					gpios = <8 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR0";
++				};
++				video_b_cam_pwr1 {
++					gpio-hog;
++					gpios = <9 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR1";
++				};
++			};
 +		};
 +
 +		i2c@7 {
@@ -1413,7 +1530,8 @@ index 0000000..d045448
 +			#size-cells = <0>;
 +			reg = <7>;
 +			/* Video input "A" main node(s) */
-+			video_a_ext: pca9535@26 {
++
++			video_a_ext0: pca9535@26 {
 +				compatible = "nxp,pca9535";
 +				reg = <0x26>;
 +				gpio-controller;
@@ -1472,6 +1590,50 @@ index 0000000..d045448
 +					gpios = <7 GPIO_ACTIVE_HIGH>;
 +					output-low;
 +					line-name = "Video-A led";
++				};
++			};
++
++			video_a_ext1: max7325@5c {
++				compatible = "maxim,max7325";
++				reg = <0x5c>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_a_des_cfg2 {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A cfg2";
++				};
++				video_a_des_cfg1 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A cfg1";
++				};
++				video_a_des_cfg0 {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A cfg0";
++				};
++				video_a_pwr_shdn {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR_SHDN";
++				};
++				video_a_cam_pwr0 {
++					gpio-hog;
++					gpios = <8 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR0";
++				};
++				video_a_cam_pwr1 {
++					gpio-hog;
++					gpios = <9 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR1";
 +				};
 +			};
 +		};
@@ -1571,6 +1733,9 @@ index 0000000..d045448
 +			vin0_ti964_des0ep0: endpoint@1 {
 +				remote-endpoint = <&ti964_des0ep0>;
 +			};
++			vin0_ti954_des0ep0: endpoint@2 {
++				remote-endpoint = <&ti954_des0ep0>;
++			};
 +		};
 +	};
 +};
@@ -1601,6 +1766,9 @@ index 0000000..d045448
 +			};
 +			vin1_ti964_des0ep1: endpoint@1 {
 +				remote-endpoint = <&ti964_des0ep1>;
++			};
++			vin1_ti954_des0ep1: endpoint@2 {
++				remote-endpoint = <&ti954_des0ep1>;
 +			};
 +		};
 +	};
@@ -1695,6 +1863,9 @@ index 0000000..d045448
 +			vin4_ti964_des1ep0: endpoint@1 {
 +				remote-endpoint = <&ti964_des1ep0>;
 +			};
++			vin4_ti954_des1ep0: endpoint@2 {
++				remote-endpoint = <&ti954_des1ep0>;
++			};
 +		};
 +	};
 +};
@@ -1725,6 +1896,9 @@ index 0000000..d045448
 +			};
 +			vin5_ti964_des1ep1: endpoint@1 {
 +				remote-endpoint = <&ti964_des1ep1>;
++			};
++			vin5_ti954_des1ep0: endpoint@2 {
++				remote-endpoint = <&ti954_des1ep0>;
 +			};
 +		};
 +	};
