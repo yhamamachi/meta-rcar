@@ -2,6 +2,8 @@ SUMMARY = "MPSSD"
 LICENSE = "GPL"
 LIC_FILES_CHKSUM = "file://COPYING;md5=58dd7e3251f8a7d8c3784355098b8d53"
 
+DEPENDS = "virtual/kernel"
+
 export KERNELDIR = "${STAGING_KERNEL_DIR}"
 
 S = "${WORKDIR}/mpssd"
