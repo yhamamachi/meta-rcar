@@ -46,6 +46,8 @@ SRC_URI_append = " \
     file://0025-IMR-driver-interim-patch.patch \
     file://0026-lib-swiotlb-reduce-verbosity.patch \
     file://0027-mm-introduce-dedicated-WQ_MEM_RECLAIM-workqueue-to-d.patch \
+    file://0028-gpio-max732x-fix-gpio-set.patch \
+    file://0029-gpio-gpiolib-suppress-gpiod-warning.patch \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
