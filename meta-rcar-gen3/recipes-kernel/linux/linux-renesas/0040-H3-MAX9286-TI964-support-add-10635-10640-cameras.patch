@@ -9,7 +9,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   47 +
  drivers/media/i2c/soc_camera/Makefile            |    7 +
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  551 +++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c   |  554 +++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
  drivers/media/i2c/soc_camera/ov10635.c           |  737 ++++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
@@ -28,7 +28,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5675 insertions(+), 107 deletions(-)
+ 21 files changed, 5678 insertions(+), 107 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -124,10 +124,10 @@ index d0421fe..bd35851 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..b71d9ea
+index 0000000..84611c6
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,551 @@
+@@ -0,0 +1,554 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -364,8 +364,11 @@ index 0000000..b71d9ea
 +		/* get out from sensor reset */
 +		client->addr = priv->max9271_addr_map[idx];	/* MAX9271-CAMx I2C new */
 +		reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
-+				 (priv->active_low_resetb ? BIT(priv->gpio_resetb) : 0)); /* set GPIOn value to un-reset */
++				 (priv->active_low_resetb ? 0 : BIT(priv->gpio_resetb))); /* set GPIOn value to reset */
 +		reg8_write(client, 0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
++		usleep_range(2000, 2500);			/* wait 2ms */
++		reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
++				 (priv->active_low_resetb ? BIT(priv->gpio_resetb) : 0)); /* set GPIOn value to un-reset */
 +		usleep_range(2000, 2500);			/* wait 2ms */
 +	}
 +}
