@@ -81,6 +81,12 @@ SRC_URI_append = " \
     file://0096-mic-mpssd-support-VOP-on-non-MIC.patch \
     file://0097-mic-vop-fix-crashes-on-access-to-VOP-debugfs-entries.patch \
     file://0098-rcar-add-virtio-over-pcie-interconnect-framework.patch \
+    file://0099-ti-st-add-device-tree-support.patch \
+    file://0100-btwilink-add-minimal-device-tree-support.patch \
+    file://0101-ulcb-kf-dts-fix-wifi.patch \
+    file://0102-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
+    file://0103-ASoC-add-dummy-Si468x-driver.patch \
+    file://0104-ulcb-kf-fix-display-resolution-now-1280x800.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
@@ -106,7 +112,7 @@ SRC_URI_append_ttardrive = " \
 KERNEL_DEVICETREE_append_h3ulcb = '${@ \
     " renesas/r8a7795-h3ulcb-had-alfa.dtb renesas/r8a7795-h3ulcb-had-beta.dtb " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
     " renesas/r8a7795-h3ulcb-view.dtb " if 'h3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7795-h3ulcb-kf.dtb " if 'h3ulcb-kf' in '${MACHINE_FEATURES}' else \
+    " renesas/r8a7795-h3ulcb-kf.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
 
 KERNEL_DEVICETREE_append_salvator-x = '${@ \
@@ -116,5 +122,5 @@ KERNEL_DEVICETREE_append_salvator-x = '${@ \
 
 KERNEL_DEVICETREE_append_m3ulcb = '${@ \
     " renesas/r8a7796-m3ulcb-view.dtb " if 'm3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7796-m3ulcb-kf.dtb " if 'm3ulcb-kf' in '${MACHINE_FEATURES}' else \
+    " renesas/r8a7796-m3ulcb-kf.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
