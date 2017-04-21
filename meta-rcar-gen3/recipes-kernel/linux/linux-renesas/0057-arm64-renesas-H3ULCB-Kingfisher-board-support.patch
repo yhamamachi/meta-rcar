@@ -31,7 +31,7 @@ new file mode 100644
 index 0000000..7830622
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2173 @@
+@@ -0,0 +1,2161 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -95,18 +95,11 @@ index 0000000..7830622
 +			reg = <0x00000000 0x54000000 0x0 0x03000000>;
 +		};
 +
-+		/* For Audio DSP */
-+		adsp_reserved: linux,adsp {
-+			compatible = "shared-dma-pool";
-+			reusable;
-+			reg = <0x00000000 0x57000000 0x0 0x01000000>;
-+		};
-+
 +		/* global autoconfigured region for contiguous allocations */
 +		linux,cma {
 +			compatible = "shared-dma-pool";
 +			reusable;
-+			reg = <0x00000000 0x58000000 0x0 0x18000000>;
++			reg = <0x00000000 0x57000000 0x0 0x19000000>;
 +			linux,cma-default;
 +		};
 +
@@ -737,11 +730,6 @@ index 0000000..7830622
 +		input;
 +		line-name = "0x21@i2c4 irq";
 +	};
-+};
-+
-+&adsp {
-+	status = "okay";
-+	memory-region = <&adsp_reserved>;
 +};
 +
 +&scif2 {

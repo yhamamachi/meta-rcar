@@ -42,7 +42,7 @@ new file mode 100644
 index 0000000..7956df8
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
-@@ -0,0 +1,535 @@
+@@ -0,0 +1,523 @@
 +/*
 + * Device Tree Source for the M3ULCB board
 + *
@@ -95,18 +95,11 @@ index 0000000..7956df8
 +			reg = <0x00000000 0x54000000 0x0 0x03000000>;
 +		};
 +
-+		/* For Audio DSP */
-+		adsp_reserved: linux,adsp {
-+			compatible = "shared-dma-pool";
-+			reusable;
-+			reg = <0x00000000 0x57000000 0x0 0x01000000>;
-+		};
-+
 +		/* global autoconfigured region for contiguous allocations */
 +		linux,cma {
 +			compatible = "shared-dma-pool";
 +			reusable;
-+			reg = <0x00000000 0x58000000 0x0 0x18000000>;
++			reg = <0x00000000 0x57000000 0x0 0x19000000>;
 +			linux,cma-default;
 +		};
 +
@@ -364,11 +357,6 @@ index 0000000..7956df8
 +		groups = "usb1";
 +		function = "usb1";
 +	};
-+};
-+
-+&adsp {
-+	status = "okay";
-+	memory-region = <&adsp_reserved>;
 +};
 +
 +&scif2 {
