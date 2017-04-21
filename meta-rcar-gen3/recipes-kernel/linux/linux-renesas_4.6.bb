@@ -120,6 +120,5 @@ KERNEL_DEVICETREE_append_salvator-x = '${@ \
 
 KERNEL_DEVICETREE_append_m3ulcb = '${@ \
     " renesas/r8a7796-m3ulcb-view.dtb " if 'm3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7796-m3ulcb-kf.dtb " if 'm3ulcb-kf' in '${MACHINE_FEATURES}' else \
     " renesas/r8a7796-m3ulcb-kf.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
