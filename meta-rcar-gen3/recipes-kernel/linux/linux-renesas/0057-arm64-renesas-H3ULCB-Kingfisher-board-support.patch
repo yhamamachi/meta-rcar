@@ -9,8 +9,8 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile              |    3 +-
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts | 2173 +++++++++++++++++++++
- 2 files changed, 2175 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts | 2174 +++++++++++++++++++++
+ 2 files changed, 2176 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
@@ -28,10 +28,10 @@ index 1a0e393..f7d8885 100644
  
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..7830622
+index 0000000..1f58809
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2161 @@
+@@ -0,0 +1,2174 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -202,8 +202,8 @@ index 0000000..7830622
 +		compatible = "regulator-fixed";
 +		regulator-name = "wlan-en-regulator";
 +
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
 +
 +		gpio = <&gpio_ext_20 4 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
@@ -213,6 +213,7 @@ index 0000000..7830622
 +		compatible = "regulator-fixed";
 +
 +		regulator-name = "SDHI3 VccQ";
++		/* external voltage translator to 1.8V */
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
 +	};
@@ -465,16 +466,16 @@ index 0000000..7830622
 +		height-mm = <158>;
 +
 +		panel-timing {
-+			/* 1024x768 @60Hz */
++			/* 1280x800 @60Hz */
 +			clock-frequency = <65000000>;
-+			hactive = <1024>;
-+			vactive = <768>;
-+			hsync-len = <136>;
-+			hfront-porch = <20>;
-+			hback-porch = <160>;
-+			vfront-porch = <3>;
-+			vback-porch = <29>;
-+			vsync-len = <6>;
++			hactive = <1280>;
++			vactive = <800>;
++			hsync-len = <40>;
++			hfront-porch = <80>;
++			hback-porch = <40>;
++			vfront-porch = <14>;
++			vback-porch = <14>;
++			vsync-len = <4>;
 +		};
 +
 +		port {
@@ -563,7 +564,7 @@ index 0000000..7830622
 +				remote-endpoint = <&rcar_dw_hdmi0_in>;
 +			};
 +		};
-+		port@2 {
++		port@3 {
 +			endpoint {
 +				remote-endpoint = <&lvds_enc_in>;
 +			};
@@ -720,6 +721,16 @@ index 0000000..7830622
 +		gpios = <6 GPIO_ACTIVE_HIGH>;
 +		input;
 +		line-name = "touch irq";
++	};
++
++	/* From TI forum */
++	/* BT_AUD_OUT should be pulled low when WL_EN is activated. */
++	/* in case it isn't, wilink8 ends up in one of the test modes that introduces various issues */
++	bt_strap {
++		gpio-hog;
++		gpios = <14 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "BT strap pin";
 +	};
 +};
 +
@@ -1975,8 +1986,10 @@ index 0000000..7830622
 +	keep-power-in-suspend;
 +	enable-sdio-wakeup;
 +	bus-width = <4>;
++	no-1-8-v;
 +	non-removable;
 +	cap-power-off-card;
++	max-frequency = <26000000>;
 +	status = "okay";
 +
 +	#address-cells = <1>;
