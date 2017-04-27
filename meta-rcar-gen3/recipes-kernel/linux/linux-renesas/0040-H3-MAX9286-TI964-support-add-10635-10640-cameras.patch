@@ -127,7 +127,7 @@ new file mode 100644
 index 0000000..84611c6
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,554 @@
+@@ -0,0 +1,558 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -213,6 +213,10 @@ index 0000000..84611c6
 +	reg8_write(client, 0x15, 0x9b);				/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +	reg8_write(client, 0x1b, priv->links_mask);		/* enable equalizer for CAMs */
 +	usleep_range(5000, 5500);				/* wait 2ms after any change of reverse channel settings */
++
++	/* wait for sensor firmware up (f.e. ov490) if we did sensor reset */
++	if (priv->gpio_resetb >= 1 && priv->gpio_resetb <= 5)
++		mdelay(300);
 +}
 +
 +static int max9286_max9271_reverse_channel_setup(struct i2c_client *client, int idx)
