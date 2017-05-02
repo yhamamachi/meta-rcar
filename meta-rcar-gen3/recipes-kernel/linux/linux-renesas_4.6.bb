@@ -48,6 +48,7 @@ SRC_URI_append = " \
     file://0027-mm-introduce-dedicated-WQ_MEM_RECLAIM-workqueue-to-d.patch \
     file://0028-gpio-max732x-fix-gpio-set.patch \
     file://0029-gpio-gpiolib-suppress-gpiod-warning.patch \
+    file://0030-arm64-renesas-r8a7797-Add-Renesas-R8A7797-SoC-suppor.patch \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
@@ -59,6 +60,8 @@ SRC_URI_append = " \
     file://0057-arm64-renesas-H3ULCB-Kingfisher-board-support.patch \
     file://0058-arm64-renesas-M3ULCB-Kingfisher-board-support.patch \
     file://0059-arm64-renesas-TTA-R-Drive-board-support.patch \
+    file://0060-arm64-renesas-V3M-Eagle-board-support.patch \
+    file://0061-staging-boards-Add-V3M-Eagle-staging.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0070-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0071-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0072-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \

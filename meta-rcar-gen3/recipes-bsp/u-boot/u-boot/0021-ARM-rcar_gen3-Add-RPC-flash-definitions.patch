@@ -50,7 +50,6 @@ index 0000000..403aaee
 +#include <asm/io.h>
 +#include <asm/arch/rcar_gen3.h>
 +
-+#ifndef CONFIG_SYS_NO_FLASH
 +#define RPC_CMNCR		0x0000	/* R/W */
 +#define RPC_CMNCR_MD		(0x1 << 31)
 +#define RPC_CMNCR_MOIIO0(val)	(((val) & 0x3) << 16)
@@ -181,6 +180,7 @@ index 0000000..403aaee
 +#define RPC_WBUF		0x8000	/* R/W size=4/8/16/32/64Bytes */
 +#define RPC_WBUF_SIZE		0x100
 +
++#ifndef CONFIG_SYS_NO_FLASH
 +static inline phys_addr_t rpc_addr(flash_info_t *info, u32 offset)
 +{
 +	return offset + CONFIG_SYS_RPC_BASE;
