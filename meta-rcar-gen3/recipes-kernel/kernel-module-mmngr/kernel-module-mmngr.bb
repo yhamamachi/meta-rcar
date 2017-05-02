@@ -14,6 +14,7 @@ MMNGR_CFG_salvator-x = "MMNGR_SALVATORX"
 MMNGR_CFG_h3ulcb = "MMNGR_ULCB"
 MMNGR_CFG_m3ulcb = "MMNGR_ULCB"
 MMNGR_CFG_ttardrive = "MMNGR_ULCB"
+MMNGR_CFG_eagle = "MMNGR_ULCB"
 
 do_compile() {
     export MMNGR_CONFIG=${MMNGR_CFG}

@@ -4,7 +4,7 @@ require include/avb-control.inc
 require recipes-kernel/linux/linux-yocto.inc
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}/${MACHINE}:"
-COMPATIBLE_MACHINE = "(salvator-x|h3ulcb|m3ulcb|ttardrive)"
+COMPATIBLE_MACHINE = "(salvator-x|h3ulcb|m3ulcb|ttardrive|eagle)"
 
 RENESAS_BSP_URL = "git://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas-bsp.git"
 BRANCH = "v4.6/rcar-3.3.x"
@@ -109,6 +109,10 @@ SRC_URI_append_m3ulcb = " \
 
 SRC_URI_append_ttardrive = " \
     file://ttardrive.cfg \
+"
+
+SRC_URI_append_eagle = " \
+    file://eagle.cfg \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = '${@ \
