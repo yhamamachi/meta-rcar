@@ -3701,7 +3701,7 @@ index 0000000..160f79a
 +		    break;
 +	}
 +
-+	if (!priv->max9286_addr && !priv->ti964_addr) {
++	if (!priv->max9286_addr && !priv->ti964_addr && !priv->ti954_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
 +		return -EINVAL;
 +	}
