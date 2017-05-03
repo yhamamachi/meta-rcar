@@ -246,7 +246,7 @@ index 0000000..ba3b608
 +	};
 +
 +	avb_pins: avb {
-+		groups = "avb0_mdc";
++		groups = "avb0_mdc", "avb0_rx_ctrl", "avb0_rxc", "avb0_rd4", "avb0_tx_ctrl", "avb0_txc", "avb0_td4", "avb0_txcrefclk";
 +		function = "avb0";
 +	};
 +
@@ -273,7 +273,7 @@ index 0000000..ba3b608
 +	pinctrl-names = "default";
 +
 +	status = "okay";
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	hdmi@39{
 +		compatible = "adi,adv7511w";
