@@ -23,6 +23,7 @@ do_install() {
     install -m 644 ${S}/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x966@30_96Mhz.bin ${D}/usr/share/factory/
     install -m 644 ${S}/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_640x480@30_96Mhz.bin ${D}/usr/share/factory/
     install -m 644 ${S}/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_640x480@60_96MHz.bin ${D}/usr/share/factory/
+    install -m 644 ${S}/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x528@60_96MHz.bin ${D}/usr/share/factory/
     install -m 755 ${S}/ov10640_ov490_flash_0-3.sh ${D}/usr/share/factory/
     install -m 755 ${S}/ov10640_ov490_flash_4-7.sh ${D}/usr/share/factory/
 }
@@ -34,6 +35,7 @@ FILES_${PN} = " \
     /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x966@30_96Mhz.bin \
     /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_640x480@30_96Mhz.bin \
     /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_640x480@60_96MHz.bin \
+    /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x528@60_96MHz.bin \
     /usr/share/factory/ov10640_ov490_flash_0-3.sh \
     /usr/share/factory/ov10640_ov490_flash_4-7.sh \
 "
