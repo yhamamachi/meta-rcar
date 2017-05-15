@@ -990,7 +990,7 @@ index 0000000..071fa27
 +		reg = <0>;
 +		interrupt-parent = <&gpio2>;
 +		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		max-speed = <100>;
++		max-speed = <1000>;
 +	};
 +};
 +
