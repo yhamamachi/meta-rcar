@@ -60,14 +60,13 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-view.dtb \
-    renesas/r8a7796-m3ulcb-had-alfa.dtb \
-    renesas/r8a7796-m3ulcb-had-beta.dtb \
     renesas/r8a7796-m3ulcb-kf.dtb \
 "
 
 KERNEL_DEVICETREE_append_salvator-x = " \
     renesas/r8a7795-es1-salvator-x-view.dtb \
     renesas/r8a7795-salvator-x-view.dtb \
+    renesas/r8a7796-salvator-x-view.dtb \
 "
 
 KERNEL_DEVICETREE_append_eagle = " \
