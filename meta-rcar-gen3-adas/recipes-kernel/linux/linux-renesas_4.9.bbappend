@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI_append = " \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \

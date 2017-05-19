@@ -21,6 +21,10 @@ SRC_URI_append = " \
     file://0022-mtd-Add-RPC-HyperFlash-support.patch \
     file://0023-board-renesas-salvator-x-Enable-RPC-clock.patch \
     file://0024-board-renesas-ulcb-Enable-RPC-clock.patch \
+    file://0025-configs-r8a7795_salvator-x-Enable-RPC-HyperFlash-sup.patch \
+    file://0026-configs-r8a7796_salvator-x-Enable-RPC-HyperFlash-sup.patch \
+    file://0027-configs-h3ulcb-Enable-RPC-HyperFlash-support.patch \
+    file://0028-configs-m3ulcb-Enable-RPC-HyperFlash-support.patch \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0041-board-renesas-ulcb-console-on-scif1.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0042-board-renesas-ulcb-set-all-RAVB-pins-strengh-to-maximum.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0043-board-renesas-ulcb-support-fixed-PHY.patch', '', d)} \
