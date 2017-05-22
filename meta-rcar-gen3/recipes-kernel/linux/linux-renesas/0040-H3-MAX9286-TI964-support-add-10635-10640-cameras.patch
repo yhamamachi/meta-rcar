@@ -16,7 +16,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   95 ++
  drivers/media/i2c/soc_camera/ov490_ov10640.c     |  954 ++++++++++++++++++
- drivers/media/i2c/soc_camera/ov490_ov10640.h     |   33 +
+ drivers/media/i2c/soc_camera/ov490_ov10640.h     |   82 ++
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  661 +++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   18 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  414 ++++++++
@@ -28,7 +28,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5755 insertions(+), 109 deletions(-)
+ 21 files changed, 5804 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -3910,10 +3910,10 @@ index 0000000..18e98d7
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.h b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 new file mode 100644
-index 0000000..86e6524
+index 0000000..0e6197d
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,82 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera wizard 1280x1080@30/UYVY/BT601/8bit
 + *
@@ -3946,6 +3946,55 @@ index 0000000..86e6524
 +{0xfffe, 0x80},
 +{0x0091, 0x00},
 +{0x00bb, 0x1d}, // bit[3]=0 - PCLK polarity workaround
++/* ov10635 FSIN */
++{0xfffd, 0x80},
++{0xfffe, 0x19},
++{0x5000, 0x00},
++{0x5001, 0x30},
++{0x5002, 0x8c},
++{0x5003, 0xb2},
++{0xfffe, 0x80},
++{0x00c0, 0xc1},
++/* ov10635 EMB line disable */
++{0xfffe, 0x19},
++{0x5000, 0x00},
++{0x5001, 0x30},
++{0x5002, 0x91},
++{0x5003, 0x00},
++{0xfffe, 0x80},
++{0x00c0, 0xc1},
++/* Ov490 FSIN: app_fsin_from_fsync */
++{0xfffe, 0x85},
++{0x0008, 0x00},
++{0x0009, 0x01},
++{0x000A, 0x05}, // fsin0 src
++{0x000B, 0x00},
++{0x0030, 0x02}, // fsin0_delay
++{0x0031, 0x00},
++{0x0032, 0x00},
++{0x0033, 0x00},
++{0x0038, 0x02}, // fsin1_delay
++{0x0039, 0x00},
++{0x003A, 0x00},
++{0x003B, 0x00},
++{0x0070, 0x2C}, // fsin0_length
++{0x0071, 0x01},
++{0x0072, 0x00},
++{0x0073, 0x00},
++{0x0074, 0x64}, // fsin1_length
++{0x0075, 0x00},
++{0x0076, 0x00},
++{0x0077, 0x00},
++{0x0000, 0x14},
++{0x0001, 0x00},
++{0x0002, 0x00},
++{0x0003, 0x00},
++{0x0004, 0x32}, // load fsin0,load fsin1,load other, it will be cleared automatically.
++{0x0005, 0x00},
++{0x0006, 0x00},
++{0x0007, 0x00},
++{0xfffe, 0x80},
++{0x0081, 0x00}, // 03;SENSOR FSIN
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
