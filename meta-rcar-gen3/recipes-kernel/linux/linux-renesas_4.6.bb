@@ -88,7 +88,7 @@ SRC_URI_append = " \
     file://0100-btwilink-add-minimal-device-tree-support.patch \
     file://0101-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
     file://0102-ASoC-add-dummy-Si468x-driver.patch \
-    file://0105-ulcb-kf-dts-cleanup.patch \
+    file://0103-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
