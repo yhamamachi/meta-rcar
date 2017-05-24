@@ -21,7 +21,7 @@ index 387652e..9dad6dc 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -14,6 +14,7 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-view.dtb
- dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb
+ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb r8a7796-m3ulcb-kf-v1.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-x-view.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-view.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-had-alfa.dtb r8a7795-h3ulcb-had-beta.dtb
