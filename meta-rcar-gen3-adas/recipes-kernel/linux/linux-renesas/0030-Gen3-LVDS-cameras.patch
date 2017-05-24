@@ -4715,7 +4715,7 @@ index 0000000..dc6ad86
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti954_ti9x3.c b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 new file mode 100644
-index 0000000..81babce
+index 0000000..c325876
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 @@ -0,0 +1,414 @@
@@ -4983,7 +4983,7 @@ index 0000000..81babce
 +
 +	priv->xtal_gpio = of_get_gpio(np, 0);
 +	if (priv->xtal_gpio > 0) {
-+		err = gpio_request_one(priv->xtal_gpio, GPIOF_OUT_INIT_LOW, dev_name(&client->dev));
++		err = devm_gpio_request_one(&client->dev, priv->xtal_gpio, GPIOF_OUT_INIT_LOW, dev_name(&client->dev));
 +		if (err)
 +			dev_err(&client->dev, "cannot request XTAL gpio %d: %d\n", priv->xtal_gpio, err);
 +		else
@@ -5135,7 +5135,7 @@ index 0000000..81babce
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 new file mode 100644
-index 0000000..e66e639
+index 0000000..b293466
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 @@ -0,0 +1,382 @@
@@ -5376,7 +5376,7 @@ index 0000000..e66e639
 +
 +	pwen = of_get_gpio(np, 0);
 +	if (pwen > 0) {
-+		err = gpio_request_one(pwen, GPIOF_OUT_INIT_HIGH, dev_name(&client->dev));
++		err = devm_gpio_request_one(&client->dev, pwen, GPIOF_OUT_INIT_HIGH, dev_name(&client->dev));
 +		if (err)
 +			dev_err(&client->dev, "cannot request PWEN gpio %d: %d\n", pwen, err);
 +		else
