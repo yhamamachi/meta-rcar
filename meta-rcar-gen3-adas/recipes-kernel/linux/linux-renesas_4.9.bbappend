@@ -26,6 +26,7 @@ SRC_URI_append = " \
     file://0021-btwilink-add-minimal-device-tree-support.patch \
     file://0022-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
     file://0023-ASoC-add-dummy-Si468x-driver.patch \
+    file://0024-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch \
     file://0030-Gen3-LVDS-cameras.patch \
     file://0031-arm64-dts-r8a7795-es1-salvator-x-view-add-ADAS-board.patch \
     file://0032-arm64-dts-r8a7795-es1-h3ulcb-view-add-ADAS-board.patch \

@@ -7,29 +7,272 @@ M3ULCB.View board on R8A7796
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile              |    1 +
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts | 1197 +++++++++++++++++++++
- 2 files changed, 1198 insertions(+)
+ arch/arm64/boot/dts/renesas/Makefile               |    1 +
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  235 +++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1103 ++++++++++++++++++++
+ 3 files changed, 1339 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index a5dd1d3..5cb7eb1 100644
+index 5d99267..e41b5b3 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -11,6 +11,7 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-h3ulcb-had.dtb
- dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-h3ulcb-kf.dtb
+@@ -11,6 +11,7 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-h3ulcb-had-alfa.dtb r8a7795-es1-h3ulcb
+ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-h3ulcb-kf.dtb r8a7795-es1-h3ulcb-kf-v1.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x-view.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-view.dtb
-+dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb
++dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb r8a7796-m3ulcb-kf-v1.dtb
  
  always		:= $(dtb-y)
  clean-files	:= *.dtb
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
+new file mode 100644
+index 0000000..f77ef0f
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
+@@ -0,0 +1,235 @@
++/*
++ * Device Tree Source for the M3ULCB Kingfisher V1 board
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7796-m3ulcb-kf.dts"
++
++/ {
++	model = "Renesas M3ULCB Kingfisher V1 board based on r8a7796";
++
++	wlan_en: regulator@4 {
++		compatible = "regulator-fixed";
++		regulator-name = "wlan-en-regulator";
++
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++
++		gpio = <&gpio_ext_74 4 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	codec_en_reg: regulator@6 {
++		compatible = "regulator-fixed";
++		regulator-name = "codec-en-regulator";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++
++		gpio = <&gpio_ext_74 15 0>;
++
++		/* delay - CHECK */
++		startup-delay-us = <70000>;
++		enable-active-high;
++	};
++
++	amp_en_reg: regulator@7 {
++		compatible = "regulator-fixed";
++		regulator-name = "amp-en-regulator";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++
++		gpio = <&gpio_ext_74 0 0>;
++
++		startup-delay-us = <0>;
++		enable-active-high;
++	};
++
++	/delete-node/regulator@8;
++
++	sdio_switch: regulator@9 {
++		compatible = "regulator-fixed";
++		regulator-name = "wifi_on";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio_ext_74 5 0>;
++		enable-active-low;
++		regulator-always-on;
++	};
++
++	/delete-node/regulator@10;
++
++	radio_switch: regulator@11 {
++		compatible = "regulator-fixed";
++		regulator-name = "radio_on";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio_ext_74 13 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		regulator-always-on;
++	};
++
++	kim {
++		compatible = "kim";
++		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		/* serial1 */
++		dev_name = "/dev/ttySC1";
++		flow_cntrl = <0>;
++		/* int div 8 hscif@26.6666656MHz */
++		baud_rate = <3333332>;
++	};
++};
++
++&pfc {
++	/delete-node/hscif4;
++
++	hscif0_pins: hscif0 {
++		groups = "hscif0_data";
++		function = "hscif0";
++	};
++
++	hscif1_pins: hscif1 {
++		groups = "hscif1_data_a", "hscif1_ctrl_a";
++		function = "hscif1";
++	};
++};
++
++&gpio0 {
++	/delete-node/gpioext_2_20_irq;
++};
++
++&gpio1 {
++	/delete-node/gpioext_2_21_irq;
++};
++
++&gpio5 {
++	/delete-node/touch_irq;
++	/delete-node/bt_strap;
++
++	/* V1 has h/w bug with swapped RTS and CTS on BT interface */
++	/* Ignore these pins */
++	hscif0_cts {
++		gpio-hog;
++		gpios = <15 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "hscif0 CTS";
++	};
++
++	hscif0_rts {
++		gpio-hog;
++		gpios = <16 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "hscif0 RTS";
++	};
++};
++
++&gpio7 {
++	/delete-node/gpioext_2_21_irq;
++};
++
++&hscif4 {
++	/delete-property/pinctrl-0;
++	/delete-property/pinctrl-names;
++
++	status = "disabled";
++};
++
++&i2c2 {
++	/delete-node/pca9535@20;
++	/delete-node/pca9535@21;
++
++	gpio_ext_74: pca9539@74 {
++		compatible = "nxp,pca9539";
++		reg = <0x74>;
++		gpio-controller;
++		#gpio-cells = <2>;
++
++		hub_pwen {
++			gpio-hog;
++			gpios = <6 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "HUB pwen";
++		};
++		hub_rst {
++			gpio-hog;
++			gpios = <7 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "HUB rst";
++		};
++	};
++
++	gpio_ext_75: pca9539@75 {
++		compatible = "nxp,pca9539";
++		reg = <0x75>;
++		gpio-controller;
++		#gpio-cells = <2>;
++	};
++};
++
++&i2cswitch2 {
++	reg = <0x71>;
++	reset-gpios= <&gpio5 3 GPIO_ACTIVE_LOW>;
++};
++
++&i2c4 {
++	/delete-node/pca9535@21;
++
++	gpio_ext_76: pca9539@76 {
++		compatible = "nxp,pca9539";
++		reg = <0x76>;
++		gpio-controller;
++		#gpio-cells = <2>;
++	};
++
++	gpio_ext_77: pca9539@77 {
++		compatible = "nxp,pca9539";
++		reg = <0x77>;
++		gpio-controller;
++		#gpio-cells = <2>;
++
++		port_b_a0 {
++			gpio-hog;
++			gpios = <0 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "Video-B A0";
++		};
++		port_b_a1 {
++			gpio-hog;
++			gpios = <1 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "Video-B A1";
++		};
++		port_a_a0 {
++			gpio-hog;
++			gpios = <2 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "Video-A A0";
++		};
++		port_a_a1 {
++			gpio-hog;
++			gpios = <3 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "Video-A A1";
++		};
++		lvds_vs_fpdl {
++			gpio-hog;
++			gpios = <14 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "LVDS switch";
++		};
++	};
++};
++
++&i2cswitch4 {
++	reg = <0x71>;
++	reset-gpios= <&gpio3 15 GPIO_ACTIVE_LOW>;
++};
++
++&wlcore {
++	interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..ffaef74
+index 0000000..82faaa1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1197 @@
+@@ -0,0 +1,1103 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board on r8a7796
 + *
@@ -222,69 +465,6 @@ index 0000000..ffaef74
 +		};
 +	};
 +
-+	sound_amp: sound@3 {
-+		pinctrl-0 = <&sound_9_pins>;
-+		pinctrl-names = "default";
-+		compatible = "simple-audio-card";
-+
-+		simple-audio-card,name = "power_amp";
-+
-+		simple-audio-card,dai-link@0 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_L>;
-+			};
-+		};
-+		simple-audio-card,dai-link@1 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_R>;
-+			};
-+		};
-+		simple-audio-card,dai-link@2 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_RL>;
-+			};
-+		};
-+		simple-audio-card,dai-link@3 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_RR>;
-+			};
-+		};
-+		simple-audio-card,dai-link@4 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_C>;
-+			};
-+		};
-+		simple-audio-card,dai-link@5 {
-+			format = "i2s";
-+			cpu {
-+				sound-dai = <&rcar_sound 3>;
-+			};
-+			codec {
-+				sound-dai = <&max98371_S>;
-+			};
-+		};
-+	};
-+
 +	lvds-encoder {
 +		compatible = "thine,thc63lvdm83d";
 +
@@ -364,11 +544,6 @@ index 0000000..ffaef74
 +
 +	sound_2_pins: sound2 {
 +		groups = "ssi6_ctrl", "ssi6_data";
-+		function = "ssi";
-+	};
-+
-+	sound_9_pins: sound2 {
-+		groups = "ssi9_ctrl_b", "ssi9_data_b";
 +		function = "ssi";
 +	};
 +
@@ -476,7 +651,7 @@ index 0000000..ffaef74
 +		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
 +	};
 +
-+	i2cswitch2@74 {
++	i2cswitch2: pca9548@74 {
 +		compatible = "nxp,pca9548";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
@@ -502,37 +677,6 @@ index 0000000..ffaef74
 +			#size-cells = <0>;
 +			reg = <2>;
 +			/* Power amp node(s) */
-+
-+			max98371_L: max98371@0x31 {
-+				compatible = "maxim,max98371";
-+				reg = <0x31>;
-+				#sound-dai-cells = <0>;
-+			};
-+			max98371_R: max98371@0x32 {
-+				compatible = "maxim,max98371";
-+				reg = <0x32>;
-+				#sound-dai-cells = <0>;
-+			};
-+			max98371_RL: max98371@0x33 {
-+				compatible = "maxim,max98371";
-+				reg = <0x33>;
-+				#sound-dai-cells = <0>;
-+			};
-+			max98371_RR: max98371@0x34 {
-+				compatible = "maxim,max98371";
-+				reg = <0x34>;
-+				#sound-dai-cells = <0>;
-+			};
-+			max98371_C: max98371@0x35 {
-+				compatible = "maxim,max98371";
-+				reg = <0x35>;
-+				#sound-dai-cells = <0>;
-+			};
-+			max98371_S: max98371@0x36 {
-+				compatible = "maxim,max98371";
-+				reg = <0x36>;
-+				#sound-dai-cells = <0>;
-+			};
 +		};
 +
 +		i2c@3 {
@@ -617,7 +761,7 @@ index 0000000..ffaef74
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +	};
 +
-+	i2cswitch4@74 {
++	i2cswitch4: pca9548@74 {
 +		compatible = "nxp,pca9548";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
@@ -635,7 +779,7 @@ index 0000000..ffaef74
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
-+			/* Video input "A" acc node(s) */
++			/* Slot A (CN10) */
 +
 +			ov106xx@0 {
 +				compatible = "ovti,ov106xx";
@@ -731,6 +875,7 @@ index 0000000..ffaef74
 +			ti964-ti9x3@0 {
 +				compatible = "ti,ti964-ti9x3";
 +				reg = <0x3a>;
++				gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>;
 +				ti,sensor_delay = <350>;
 +				ti,links = <4>;
 +				ti,lanes = <4>;
@@ -865,7 +1010,7 @@ index 0000000..ffaef74
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <7>;
-+			/* Video input "A" main node(s) */
++			/* Slot A (CN10) */
 +
 +			video_a_ext0: pca9535@26 {
 +				compatible = "nxp,pca9535";
@@ -970,6 +1115,18 @@ index 0000000..ffaef74
 +					gpios = <9 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "Video-A PWR1";
++				};
++				video_b_cam_pwr {
++					gpio-hog;
++					gpios = <11 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR3";
++				};
++				video_a_cam_pwr3 {
++					gpio-hog;
++					gpios = <11 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR3";
 +				};
 +			};
 +		};
@@ -1173,10 +1330,6 @@ index 0000000..ffaef74
 +		dai2 {
 +			capture  = <&ssi6>;
 +		};
-+
-+		dai3 {
-+			playback = <&ssi9>;
-+		};
 +	};
 +};
 +
@@ -1203,10 +1356,6 @@ index 0000000..ffaef74
 +		interrupt-parent = <&gpio1>;
 +		interrupts = <25 IRQ_TYPE_EDGE_RISING>;
 +	};
-+};
-+
-+&xhci0 {
-+	status = "okay";
 +};
 +
 +&usb2_phy0 {
