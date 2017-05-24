@@ -8,12 +8,12 @@ Add support for V3M Eagle board
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile          |   1 +
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts | 585 ++++++++++++++++++++++++++
- 2 files changed, 586 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts | 620 ++++++++++++++++++++++++++
+ 2 files changed, 621 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index ce1dc724..13c8c4c 100644
+index e201b02..da2a619 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -6,6 +6,7 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-x.dtb r8a7795-h3ulcb.dtb \
@@ -26,10 +26,10 @@ index ce1dc724..13c8c4c 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..ba3b608
+index 0000000..067958d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,585 @@
+@@ -0,0 +1,620 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -104,6 +104,24 @@ index 0000000..ba3b608
 +		compatible = "fixed-clock";
 +		#clock-cells = <0>;
 +		clock-frequency = <24576000>;
++	};
++
++	fixedregulator3v3: regulator@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-3.3V";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	fixedregulator1v8: regulator@1 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-1.8V";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-boot-on;
++		regulator-always-on;
 +	};
 +
 +	vspm_if {
@@ -253,6 +271,12 @@ index 0000000..ba3b608
 +	du_pins: du {
 +		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
 +		function = "du";
++	};
++
++	mmc0_pins_1v8: mmc0_1v8 {
++		groups = "sdhi2_data8", "sdhi2_ctrl";
++		function = "sdhi2";
++		power-source = <1800>;
 +	};
 +};
 +
@@ -435,6 +459,17 @@ index 0000000..ba3b608
 +			};
 +		};
 +	};
++};
++
++&mmc0 {
++	pinctrl-0 = <&mmc0_pins_1v8>;
++	pinctrl-1 = <&mmc0_pins_1v8>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&fixedregulator3v3>;
++	vqmmc-supply = <&fixedregulator1v8>;
++	bus-width = <8>;
++	status = "okay";
 +};
 +
 +&wdt0 {
