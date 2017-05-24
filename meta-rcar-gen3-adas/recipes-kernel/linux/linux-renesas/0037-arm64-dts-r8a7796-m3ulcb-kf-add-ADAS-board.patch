@@ -272,7 +272,7 @@ new file mode 100644
 index 0000000..82faaa1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1103 @@
+@@ -0,0 +1,1097 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board on r8a7796
 + *
@@ -1115,12 +1115,6 @@ index 0000000..82faaa1
 +					gpios = <9 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "Video-A PWR1";
-+				};
-+				video_b_cam_pwr {
-+					gpio-hog;
-+					gpios = <11 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video-B PWR3";
 +				};
 +				video_a_cam_pwr3 {
 +					gpio-hog;
