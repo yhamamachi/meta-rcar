@@ -10,8 +10,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
  .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  235 +++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1553 ++++++++++++++++++++
- 3 files changed, 1790 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1609 ++++++++++++++++++++
+ 3 files changed, 1846 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 
@@ -272,10 +272,10 @@ index 0000000..f77ef0f
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..2f94733
+index 0000000..d699a65
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1553 @@
+@@ -0,0 +1,1609 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board
 + *
@@ -829,6 +829,26 @@ index 0000000..2f94733
 +	usb1_pins: usb1 {
 +		groups = "usb1";
 +		function = "usb1";
++	};
++
++	can0_pins: can0 {
++		groups = "can0_data_a";
++		function = "can0";
++	};
++
++	can1_pins: can1 {
++		groups = "can1_data";
++		function = "can1";
++	};
++
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
++
++	canfd1_pins: canfd1 {
++		groups = "canfd1_data";
++		function = "canfd1";
 +	};
 +};
 +
@@ -1828,6 +1848,42 @@ index 0000000..2f94733
 +
 +&vspi0 {
 +	status = "okay";
++};
++
++&xhci0 {
++	status = "okay";
++};
++
++&can0 {
++	pinctrl-0 = <&can0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	renesas,can-clock-select = <0x0>;
++};
++
++&can1 {
++	pinctrl-0 = <&can1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	renesas,can-clock-select = <0x0>;
++};
++
++&canfd {
++	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
++	pinctrl-names = "default";
++	status = "disabled";
++
++	renesas,can-clock-select = <0x0>;
++
++	channel0 {
++		status = "okay";
++	};
++
++	channel1 {
++		status = "okay";
++	};
 +};
 -- 
 1.9.1

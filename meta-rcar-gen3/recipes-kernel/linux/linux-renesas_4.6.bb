@@ -49,6 +49,7 @@ SRC_URI_append = " \
     file://0028-gpio-max732x-fix-gpio-set.patch \
     file://0029-gpio-gpiolib-suppress-gpiod-warning.patch \
     file://0030-arm64-renesas-r8a7797-Add-Renesas-R8A7797-SoC-suppor.patch \
+    file://0031-arm64-dts-r8a7796-Add-CAN-FD-support.patch \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
