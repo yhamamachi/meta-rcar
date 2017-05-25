@@ -119,7 +119,7 @@ SRC_URI_append_eagle = " \
 KERNEL_DEVICETREE_append_h3ulcb = '${@ \
     " renesas/r8a7795-h3ulcb-had-alfa.dtb renesas/r8a7795-h3ulcb-had-beta.dtb " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
     " renesas/r8a7795-h3ulcb-view.dtb " if 'h3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7795-h3ulcb-kf.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
+    " renesas/r8a7795-h3ulcb-kf.dtb renesas/r8a7795-h3ulcb-kf-v1.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
 
 KERNEL_DEVICETREE_append_salvator-x = '${@ \
@@ -129,5 +129,5 @@ KERNEL_DEVICETREE_append_salvator-x = '${@ \
 
 KERNEL_DEVICETREE_append_m3ulcb = '${@ \
     " renesas/r8a7796-m3ulcb-view.dtb " if 'm3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7796-m3ulcb-kf.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
+    " renesas/r8a7796-m3ulcb-kf.dtb renesas/r8a7796-m3ulcb-kf-v1.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
     ""}'
