@@ -87,17 +87,10 @@ index 15a14c5..4aa670d 100644
  
  	if (of_property_read_bool(pdev->dev.of_node, "renesas,no-can-fd"))
  		fdmode = false;			/* Classical CAN only mode */
-@@ -1552,6 +1555,33 @@ static int rcar_canfd_probe(struct platform_device *pdev)
+@@ -1552,6 +1555,26 @@ static int rcar_canfd_probe(struct platform_device *pdev)
  			goto fail_channel;
  	}
  
-+	of_property_read_u32(pdev->dev.of_node,
-+			     "renesas,can-clock-select", &clock_select);
-+	if (clock_select >= ARRAY_SIZE(clock_names)) {
-+		err = -EINVAL;
-+		dev_err(&pdev->dev, "invalid CAN clock selected\n");
-+		goto fail_dev;
-+	}
 +	gpriv->enable_pin = of_get_gpio_flags(pdev->dev.of_node, 0, &enable_flags);
 +	gpriv->standby_pin = of_get_gpio_flags(pdev->dev.of_node, 1, &standby_flags);
 +
