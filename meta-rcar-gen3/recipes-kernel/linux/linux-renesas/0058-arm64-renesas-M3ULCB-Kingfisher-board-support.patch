@@ -9,9 +9,9 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  235 +++
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  429 ++++++
  arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1609 ++++++++++++++++++++
- 3 files changed, 1846 insertions(+), 1 deletion(-)
+ 3 files changed, 2040 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 
@@ -31,10 +31,10 @@ index 7b424ab..29191c4 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..f77ef0f
+index 0000000..f8f2be1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,429 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -50,6 +50,12 @@ index 0000000..f77ef0f
 +
 +/ {
 +	model = "Renesas M3ULCB Kingfisher V1 board based on r8a7796";
++
++	aliases {
++		serial1 = &hscif0;
++		serial2 = &hscif1;
++		serial3 = &scif1;
++	};
 +
 +	wlan_en: regulator@4 {
 +		compatible = "regulator-fixed";
@@ -116,17 +122,33 @@ index 0000000..f77ef0f
 +		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
-+		flow_cntrl = <0>;
++		flow_cntrl = <1>;
 +		/* int div 8 hscif@26.6666656MHz */
 +		baud_rate = <3333332>;
++	};
++
++	hdmi-out {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_con: endpoint {
++				remote-endpoint = <&adv7513_out>;
++			};
++		};
 +	};
 +};
 +
 +&pfc {
 +	/delete-node/hscif4;
 +
++	scif1_pins: scif1 {
++		groups = "scif1_data_b";
++		function = "scif1";
++	};
++
 +	hscif0_pins: hscif0 {
-+		groups = "hscif0_data";
++		groups = "hscif0_data", "hscif0_ctrl";
 +		function = "hscif0";
 +	};
 +
@@ -134,14 +156,49 @@ index 0000000..f77ef0f
 +		groups = "hscif1_data_a", "hscif1_ctrl_a";
 +		function = "hscif1";
 +	};
++
++	du_pins: du {
++		groups = "du_rgb888", "du_sync", "du_clk_out_0", "du_disp";
++		function = "du";
++	};
++};
++
++&du {
++	pinctrl-0 = <&du_pins>;
++	pinctrl-names = "default";
++
++	ports {
++		port@0 {
++			endpoint {
++				remote-endpoint = <&adv7513_in>;
++			};
++		};
++		port@1 {
++			endpoint {
++				remote-endpoint = <&rcar_dw_hdmi_in>;
++			};
++		};
++	};
 +};
 +
 +&gpio0 {
++	/delete-node/video_a_irq;
++	/delete-node/video_b_irq;
 +	/delete-node/gpioext_2_20_irq;
 +};
 +
 +&gpio1 {
 +	/delete-node/gpioext_2_21_irq;
++	/delete-node/wifi_irq;
++};
++
++&gpio2 {
++	bl_pwm {
++		gpio-hog;
++		gpios = <3 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BL PWM 100%";
++	};
 +};
 +
 +&gpio5 {
@@ -169,6 +226,28 @@ index 0000000..f77ef0f
 +	/delete-node/gpioext_2_21_irq;
 +};
 +
++&scif1 {
++	pinctrl-0 = <&scif1_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
++&hscif0 {
++	pinctrl-0 = <&hscif0_pins>;
++	pinctrl-names = "default";
++	ctsrts;
++
++	status = "okay";
++};
++
++&hscif1 {
++	pinctrl-0 = <&hscif1_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
 +&hscif4 {
 +	/delete-property/pinctrl-0;
 +	/delete-property/pinctrl-names;
@@ -185,6 +264,9 @@ index 0000000..f77ef0f
 +		reg = <0x74>;
 +		gpio-controller;
 +		#gpio-cells = <2>;
++		interrupt-controller;
++		interrupt-parent = <&gpio6>;
++		interrupts = <8 IRQ_TYPE_EDGE_FALLING>;
 +
 +		hub_pwen {
 +			gpio-hog;
@@ -198,6 +280,30 @@ index 0000000..f77ef0f
 +			output-high;
 +			line-name = "HUB rst";
 +		};
++		otg_offvbus {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "OTG off VBUSn";
++		};
++		otg_extlpn {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "OTG EXTLPn";
++		};
++		otg_stat1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			input;
++			line-name = "OTG Stat1";
++		};
++		otg_stat2 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			input;
++			line-name = "OTG Stat2";
++		};
 +	};
 +
 +	gpio_ext_75: pca9539@75 {
@@ -205,12 +311,68 @@ index 0000000..f77ef0f
 +		reg = <0x75>;
 +		gpio-controller;
 +		#gpio-cells = <2>;
++		interrupt-controller;
++		interrupt-parent = <&gpio6>;
++		interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
++
++		gps_rst {
++			gpio-hog;
++			gpios = <6 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "GPS rst";
++		};
++		fpdl_shdn {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "FPDLink shdn";
++		};
 +	};
 +};
 +
 +&i2cswitch2 {
 +	reg = <0x71>;
 +	reset-gpios= <&gpio5 3 GPIO_ACTIVE_LOW>;
++
++	i2c@4 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <4>;
++
++		hdmi@3d {
++			compatible = "adi,adv7511w";
++			reg = <0x3d>;
++			interrupt-parent = <&gpio2>;
++			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++			pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
++
++			adi,input-depth = <8>;
++			adi,input-colorspace = "rgb";
++			adi,input-clock = "1x";
++			adi,input-style = <1>;
++			adi,input-justification = "evenly";
++			adi,clock-delay = <1200>;
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				port@0 {
++					reg = <0>;
++					adv7513_in: endpoint {
++						remote-endpoint = <&du_out_rgb>;
++					};
++				};
++
++				port@1 {
++					reg = <1>;
++					adv7513_out: endpoint {
++						remote-endpoint = <&hdmi_con>;
++					};
++				};
++			};
++		};
++	};
 +};
 +
 +&i2c4 {
@@ -221,13 +383,9 @@ index 0000000..f77ef0f
 +		reg = <0x76>;
 +		gpio-controller;
 +		#gpio-cells = <2>;
-+	};
-+
-+	gpio_ext_77: pca9539@77 {
-+		compatible = "nxp,pca9539";
-+		reg = <0x77>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
++		interrupt-controller;
++		interrupt-parent = <&gpio7>;
++		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +
 +		port_b_a0 {
 +			gpio-hog;
@@ -253,11 +411,47 @@ index 0000000..f77ef0f
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
 +			gpio-hog;
 +			gpios = <14 GPIO_ACTIVE_HIGH>;
 +			output-high;
 +			line-name = "LVDS switch";
++		};
++	};
++
++	gpio_ext_77: pca9539@77 {
++		compatible = "nxp,pca9539";
++		reg = <0x77>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		interrupt-controller;
++		interrupt-parent = <&gpio5>;
++		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
++
++		mpcie_wake {
++			gpio-hog;
++			gpios = <0 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "mPCIe WAKE#";
++		};
++		mpcie_wdisable {
++			gpio-hog;
++			gpios = <1 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "mPCIe W_DISABLE";
++		};
++		mpcie_clreq {
++			gpio-hog;
++			gpios = <2 GPIO_ACTIVE_HIGH>;
++			input;
++			line-name = "mPCIe CLKREQ#";
++		};
++		mpcie_ovc {
++			gpio-hog;
++			gpios = <3 GPIO_ACTIVE_HIGH>;
++			input;
++			line-name = "mPCIe OVC";
 +		};
 +	};
 +};
@@ -272,7 +466,7 @@ index 0000000..f77ef0f
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..d699a65
+index 0000000..47f3bcb
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 @@ -0,0 +1,1609 @@
@@ -1797,7 +1991,7 @@ index 0000000..d699a65
 +&msiof1 {
 +	pinctrl-0 = <&msiof1_pins>;
 +	pinctrl-names = "default";
-+	status = "okay";
++	status = "disabled";
 +
 +	spidev@0 {
 +		compatible = "renesas,sh-msiof";

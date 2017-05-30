@@ -50,6 +50,12 @@ SRC_URI_append = " \
     file://0029-gpio-gpiolib-suppress-gpiod-warning.patch \
     file://0030-arm64-renesas-r8a7797-Add-Renesas-R8A7797-SoC-suppor.patch \
     file://0031-arm64-dts-r8a7796-Add-CAN-FD-support.patch \
+    file://0032-drm-adv7511-Enable-HPD-interrupts-to-support-hotplug.patch \
+    file://0033-drm-adv7511-add-polling-mode-when-no-irq-available.patch \
+    file://0034-usb-host-xhci-plat-add-support-for-Renesas-r8a7796-S.patch \
+    file://0035-usb-host-xhci-rcar-add-a-new-firmware-version-for-r8.patch \
+    file://0036-usb-host-xhci-plat-add-firmware-for-the-R-Car-M3-W-x.patch \
+    file://0037-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
