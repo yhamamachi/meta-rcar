@@ -27,6 +27,10 @@ SRC_URI_append = " \
     file://0022-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch \
     file://0023-ASoC-add-dummy-Si468x-driver.patch \
     file://0024-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch \
+    file://0025-drm-adv7511-Enable-HPD-interrupts-to-support-hotplug.patch \
+    file://0026-drm-adv7511-add-polling-mode-when-no-irq-available.patch \
+    file://0027-usb-host-xhci-plat-add-firmware-for-the-R-Car-M3-W-x.patch \
+    file://0028-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
     file://0030-Gen3-LVDS-cameras.patch \
     file://0031-arm64-dts-r8a7795-es1-salvator-x-view-add-ADAS-board.patch \
     file://0032-arm64-dts-r8a7795-es1-h3ulcb-view-add-ADAS-board.patch \
