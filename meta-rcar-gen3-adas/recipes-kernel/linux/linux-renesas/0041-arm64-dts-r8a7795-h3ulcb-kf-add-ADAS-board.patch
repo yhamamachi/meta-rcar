@@ -8,9 +8,9 @@ Kingfisher board on R8A7795 SoC
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    1 +
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  429 ++++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1623 ++++++++++++++++++++
- 3 files changed, 2053 insertions(+)
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  443 ++++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1641 ++++++++++++++++++++
+ 3 files changed, 2085 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 
@@ -28,10 +28,10 @@ index d163df7..86a08db 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..1d64e6c
+index 0000000..4b10d31
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,429 @@
+@@ -0,0 +1,443 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -408,6 +408,20 @@ index 0000000..1d64e6c
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
 +			gpio-hog;
@@ -463,10 +477,10 @@ index 0000000..1d64e6c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..7b6c9bc
+index 0000000..472b375
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,1623 @@
+@@ -0,0 +1,1641 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795
 + *
@@ -973,6 +987,21 @@ index 0000000..7b6c9bc
 +		interrupt-controller;
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
++
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +	};
 +
 +	i2cswitch4: pca9548@74 {
@@ -2090,6 +2119,9 @@ index 0000000..7b6c9bc
 +		status = "okay";
 +	};
 +};
++
++/* uncomment to enable CN48 on VIN4 */
++//#include "r8a7795-h3ulcb-kf-rpi.dtsi"
 -- 
 1.9.1
 

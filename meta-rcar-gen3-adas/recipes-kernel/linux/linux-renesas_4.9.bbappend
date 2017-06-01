@@ -46,6 +46,7 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
+    file://0060-media-i2c-Add-ov5647-sensor.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://h3ulcb.cfg"
