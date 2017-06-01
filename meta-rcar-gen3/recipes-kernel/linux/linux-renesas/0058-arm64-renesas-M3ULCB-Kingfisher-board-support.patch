@@ -9,9 +9,9 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  429 ++++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1609 ++++++++++++++++++++
- 3 files changed, 2040 insertions(+), 1 deletion(-)
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  443 +++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1688 ++++++++++++++++++++
+ 3 files changed, 2133 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 
@@ -31,10 +31,10 @@ index 7b424ab..29191c4 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..f8f2be1
+index 0000000..139c20f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,429 @@
+@@ -0,0 +1,443 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -411,6 +411,20 @@ index 0000000..f8f2be1
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
 +			gpio-hog;
@@ -466,10 +480,10 @@ index 0000000..f8f2be1
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..47f3bcb
+index 0000000..2afee92
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1609 @@
+@@ -0,0 +1,1688 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board
 + *
@@ -1299,6 +1313,21 @@ index 0000000..47f3bcb
 +		interrupt-controller;
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
++
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +	};
 +
 +	i2cswitch4: pca9548@74 {
@@ -1530,6 +1559,25 @@ index 0000000..47f3bcb
 +			#size-cells = <0>;
 +			reg = <2>;
 +			/* Slot B (CN11) */
++		};
++
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++
++			rpi_camera: ov5647@36 {
++				compatible = "ovti,ov5647";
++				reg = <0x36>;
++
++				port@0 {
++					rpi_camera_in: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2>;
++						remote-endpoint = <&vin4ep0>;
++					};
++				};
++			};
 +		};
 +
 +		i2c@6 {
@@ -1852,6 +1900,29 @@ index 0000000..47f3bcb
 +	};
 +};
 +
++&vin4 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin4ep0: endpoint {
++				csi,select = "csi20";
++				virtual,channel = <0>;
++				remote-endpoint = <&rpi_camera_in>;
++				data-lanes = <1 2>;
++			};
++		};
++		port@1 {
++			csi2ep0: endpoint {
++				remote-endpoint = <&csi2_20_ep>;
++			};
++		};
++	};
++};
++
 +&sdhi0 {
 +	pinctrl-0 = <&sdhi0_pins_3v3>;
 +	pinctrl-1 = <&sdhi0_pins_1v8>;
@@ -2032,6 +2103,28 @@ index 0000000..47f3bcb
 +			clock-lanes = <0>;
 +			data-lanes = <1 2 3 4>;
 +			csi-rate = <300>;
++		};
++	};
++};
++
++&csi2_20 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "raw8";
++			receive,vc = <0>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_20_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2>;
++			csi-rate = <280>;
 +		};
 +	};
 +};

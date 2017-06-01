@@ -9,9 +9,11 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  429 ++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2120 ++++++++++++++++++++
- 3 files changed, 2551 insertions(+), 1 deletion(-)
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi    |   75 +
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  443 ++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2138 ++++++++++++++++++++
+ 4 files changed, 2658 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 
@@ -28,12 +30,93 @@ index 1a0e393..7b424ab 100644
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb \
  			      r8a7796-salvator-x-view.dtb r8a7796-m3ulcb-view.dtb
  
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
+new file mode 100644
+index 0000000..d3b4ece
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
+@@ -0,0 +1,75 @@
++/*
++ * Device Tree Source for the H3ULCB Kingfisher board:
++ * this adding conflicting resource on VIN4 for Raspberry Pi camera
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++&i2cswitch4 {
++	i2c@4 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <4>;
++
++		rpi_camera: ov5647@36 {
++			compatible = "ovti,ov5647";
++			reg = <0x36>;
++
++			port@0 {
++				rpi_camera_in: endpoint {
++					clock-lanes = <0>;
++					data-lanes = <1 2>;
++					remote-endpoint = <&vin4ep0>;
++				};
++			};
++		};
++	};
++};
++
++&vin4 {
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin4ep0: endpoint {
++				csi,select = "csi20";
++				virtual,channel = <0>;
++				remote-endpoint = <&rpi_camera_in>;
++				data-lanes = <1 2>;
++			};
++		};
++		port@1 {
++			csi2ep0: endpoint {
++				remote-endpoint = <&csi2_20_ep>;
++			};
++		};
++	};
++};
++
++&csi2_20 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "raw8";
++			receive,vc = <0>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_20_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2>;
++			csi-rate = <280>;
++		};
++	};
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..1d64e6c
+index 0000000..4b10d31
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,429 @@
+@@ -0,0 +1,443 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -410,6 +493,20 @@ index 0000000..1d64e6c
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
 +			gpio-hog;
@@ -465,10 +562,10 @@ index 0000000..1d64e6c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..8d9c118
+index 0000000..b55449a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2120 @@
+@@ -0,0 +1,2138 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -1318,6 +1415,21 @@ index 0000000..8d9c118
 +		interrupt-controller;
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
++
++		/* pin 12 - CAM_CLK */
++		rpi_cam_io_1 {
++			gpio-hog;
++			gpios = <10 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO1";
++		};
++		/* pin 11 - CAM_GPIO - assume pwdn */
++		rpi_cam_io_0 {
++			gpio-hog;
++			gpios = <11 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "RaspB_IO0";
++		};
 +	};
 +
 +	i2cswitch4: pca9548@74 {
@@ -2589,6 +2701,9 @@ index 0000000..8d9c118
 +		status = "okay";
 +	};
 +};
++
++/* uncomment to override CN48 (Raspberry Pi) on VIN4 */
++//#include "r8a7795-h3ulcb-kf-rpi.dtsi"
 -- 
 1.9.1
 
