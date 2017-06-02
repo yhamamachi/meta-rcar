@@ -9,12 +9,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    1 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts  |  443 ++++++
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1645 ++++++++++++++++++++
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi    |   75 +
- 4 files changed, 2164 insertions(+)
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1655 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
+ arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
+ 5 files changed, 2207 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
- create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
 index 51a4ac9..24f8036 100644
@@ -479,10 +481,10 @@ index 0000000..d245bbe
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..9d04ec4
+index 0000000..075bf2c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
-@@ -0,0 +1,1645 @@
+@@ -0,0 +1,1655 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795 ES1.x
 + *
@@ -521,11 +523,19 @@ index 0000000..9d04ec4
 +		enable-active-high;
 +	};
 +
++	vcc_sdhi3: regulator@41 {
++		compatible = "regulator-fixed";
++
++		regulator-name = "SDHI3 Vcc";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++	};
++
 +	vccq_sdhi3: regulator@5 {
 +		compatible = "regulator-fixed";
 +
 +		regulator-name = "SDHI3 VccQ";
-+		/* external voltage translator to 1.8V */
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
 +	};
@@ -2127,12 +2137,14 @@ index 0000000..9d04ec4
 +};
 +
 +/* uncomment to enable CN48 on VIN4 */
-+//#include "r8a7795-h3ulcb-kf-rpi.dtsi"
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
++//#include "ulcb-kf-rpi.dtsi"
++/* uncomment to enable CN47: SD on SDHI3 */
++//#include "ulcb-kf-sd3.dtsi"
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
 new file mode 100644
 index 0000000..d3b4ece
 --- /dev/null
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
 @@ -0,0 +1,75 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board:
@@ -2208,6 +2220,45 @@ index 0000000..d3b4ece
 +			csi-rate = <280>;
 +		};
 +	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
+new file mode 100644
+index 0000000..ef481d3
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
+@@ -0,0 +1,33 @@
++/*
++ * Device Tree Source for the H3/M3ULCB Kingfisher board:
++ *  this overrides WIFI in favour SD on SDHI3
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++&sdio_switch {
++	regulator-name = "sd_on";
++	enable-active-high;
++};
++
++&sdhi3 {
++	/delete-property/non-removable;
++	/delete-property/cap-power-off-card;
++	/delete-property/keep-power-in-suspend;
++	/delete-property/enable-sdio-wakeup;
++	/delete-property/sd-uhs-sdr104;
++
++	vmmc-supply = <&vcc_sdhi3>;
++	max-frequency = <46000000>;
++	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
++	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
++};
++
++&wlcore {
++	status = "disabled";
 +};
 -- 
 1.9.1
