@@ -9,13 +9,15 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi    |   75 +
  .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  443 ++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2138 ++++++++++++++++++++
- 4 files changed, 2658 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2148 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
+ arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
+ 5 files changed, 2701 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
 index 1a0e393..7b424ab 100644
@@ -30,87 +32,6 @@ index 1a0e393..7b424ab 100644
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb \
  			      r8a7796-salvator-x-view.dtb r8a7796-m3ulcb-view.dtb
  
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
-new file mode 100644
-index 0000000..d3b4ece
---- /dev/null
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-rpi.dtsi
-@@ -0,0 +1,75 @@
-+/*
-+ * Device Tree Source for the H3ULCB Kingfisher board:
-+ * this adding conflicting resource on VIN4 for Raspberry Pi camera
-+ *
-+ * Copyright (C) 2017 Renesas Electronics Corp.
-+ * Copyright (C) 2017 Cogent Embedded, Inc.
-+ *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2.  This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
-+ */
-+
-+&i2cswitch4 {
-+	i2c@4 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <4>;
-+
-+		rpi_camera: ov5647@36 {
-+			compatible = "ovti,ov5647";
-+			reg = <0x36>;
-+
-+			port@0 {
-+				rpi_camera_in: endpoint {
-+					clock-lanes = <0>;
-+					data-lanes = <1 2>;
-+					remote-endpoint = <&vin4ep0>;
-+				};
-+			};
-+		};
-+	};
-+};
-+
-+&vin4 {
-+	ports {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		port@0 {
-+			vin4ep0: endpoint {
-+				csi,select = "csi20";
-+				virtual,channel = <0>;
-+				remote-endpoint = <&rpi_camera_in>;
-+				data-lanes = <1 2>;
-+			};
-+		};
-+		port@1 {
-+			csi2ep0: endpoint {
-+				remote-endpoint = <&csi2_20_ep>;
-+			};
-+		};
-+	};
-+};
-+
-+&csi2_20 {
-+	status = "okay";
-+
-+	virtual,channel {
-+		csi2_vc0 {
-+			data,type = "raw8";
-+			receive,vc = <0>;
-+		};
-+	};
-+
-+	port {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		csi2_20_ep: endpoint {
-+			clock-lanes = <0>;
-+			data-lanes = <1 2>;
-+			csi-rate = <280>;
-+		};
-+	};
-+};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
 index 0000000..4b10d31
@@ -562,10 +483,10 @@ index 0000000..4b10d31
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..b55449a
+index 0000000..afb6fc0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2138 @@
+@@ -0,0 +1,2148 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -743,11 +664,19 @@ index 0000000..b55449a
 +		enable-active-high;
 +	};
 +
++	vcc_sdhi3: regulator@41 {
++		compatible = "regulator-fixed";
++
++		regulator-name = "SDHI3 Vcc";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++	};
++
 +	vccq_sdhi3: regulator@5 {
 +		compatible = "regulator-fixed";
 +
 +		regulator-name = "SDHI3 VccQ";
-+		/* external voltage translator to 1.8V */
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
 +	};
@@ -2703,7 +2632,129 @@ index 0000000..b55449a
 +};
 +
 +/* uncomment to override CN48 (Raspberry Pi) on VIN4 */
-+//#include "r8a7795-h3ulcb-kf-rpi.dtsi"
++//#include "ulcb-kf-rpi.dtsi"
++/* uncomment to override CN47: SD on SDHI3 */
++//#include "ulcb-kf-sd3.dtsi"
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
+new file mode 100644
+index 0000000..d3b4ece
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
+@@ -0,0 +1,75 @@
++/*
++ * Device Tree Source for the H3ULCB Kingfisher board:
++ * this adding conflicting resource on VIN4 for Raspberry Pi camera
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++&i2cswitch4 {
++	i2c@4 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <4>;
++
++		rpi_camera: ov5647@36 {
++			compatible = "ovti,ov5647";
++			reg = <0x36>;
++
++			port@0 {
++				rpi_camera_in: endpoint {
++					clock-lanes = <0>;
++					data-lanes = <1 2>;
++					remote-endpoint = <&vin4ep0>;
++				};
++			};
++		};
++	};
++};
++
++&vin4 {
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin4ep0: endpoint {
++				csi,select = "csi20";
++				virtual,channel = <0>;
++				remote-endpoint = <&rpi_camera_in>;
++				data-lanes = <1 2>;
++			};
++		};
++		port@1 {
++			csi2ep0: endpoint {
++				remote-endpoint = <&csi2_20_ep>;
++			};
++		};
++	};
++};
++
++&csi2_20 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "raw8";
++			receive,vc = <0>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_20_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2>;
++			csi-rate = <280>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
+new file mode 100644
+index 0000000..ef481d3
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
+@@ -0,0 +1,33 @@
++/*
++ * Device Tree Source for the H3/M3ULCB Kingfisher board:
++ *  this overrides WIFI in favour SD on SDHI3
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++&sdio_switch {
++	regulator-name = "sd_on";
++	enable-active-high;
++};
++
++&sdhi3 {
++	/delete-property/non-removable;
++	/delete-property/cap-power-off-card;
++	/delete-property/keep-power-in-suspend;
++	/delete-property/enable-sdio-wakeup;
++	/delete-property/sd-uhs-sdr104;
++
++	vmmc-supply = <&vcc_sdhi3>;
++	max-frequency = <46000000>;
++	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
++	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
++};
++
++&wlcore {
++	status = "disabled";
++};
 -- 
 1.9.1
 
