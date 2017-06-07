@@ -70,6 +70,7 @@ SRC_URI_append = " \
     file://0059-arm64-renesas-TTA-R-Drive-board-support.patch \
     file://0060-arm64-renesas-V3M-Eagle-board-support.patch \
     file://0061-staging-boards-Add-V3M-Eagle-staging.patch \
+    file://0062-arm64-renesas-H3ULCB-Videobox-board-support.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0070-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0071-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0072-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
