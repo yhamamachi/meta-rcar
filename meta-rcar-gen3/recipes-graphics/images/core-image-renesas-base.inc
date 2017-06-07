@@ -22,6 +22,7 @@ IMAGE_INSTALL_append_rcar-gen3 = " \
     lmbench \
     nfs-utils \
     mpssd \
+    iio-utils \
 "
 
 # Support secure environment
