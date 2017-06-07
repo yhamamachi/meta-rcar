@@ -32,6 +32,19 @@ IMAGE_INSTALL_append = " \
     optee-client \
 "
 
+IMAGE_INSTALL_append = '${@ " \
+    si-tools \
+    linux-firmware-wl18xx \
+    wireless-tools \
+    ti-bt-firmware \
+    bluez5 \
+    bluez5-testtools \
+    pulseaudio-module-bluez5-device \
+    pulseaudio-module-bluez5-discover \
+    pulseaudio-module-bluetooth-discover \
+    pulseaudio-module-bluetooth-policy \
+" if 'ulcb-kf' in '${MACHINE_FEATURES}' else ""}'
+
 # Add overrides for selection 32 bit or 64 bit target
 OVERRIDES .= ":${TARGET_SYS}"
 
