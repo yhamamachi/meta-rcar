@@ -4808,9 +4808,9 @@ index 0000000..c325876
 +	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
 +	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
 +#if 1
-+	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS*25MHz  =1/30*25Mhz  =833333 -> FS_TIME=833333 */
-+	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS*22.5Mhz=1/30*22.5Mhz=750000 -> FS_TIME=750000 */
-+ #define FS_TIME (priv->csi_rate == 1450 ? 750000 : 833333)
++	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/2/FPS*25MHz  =1/2/30*25Mhz  =416666 -> FS_TIME=416666 */
++	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/2/FPS*22.5Mhz=1/2/30*22.5Mhz=375000 -> FS_TIME=375000 */
++ #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
 +	reg8_write(client, 0x1a, FS_TIME >> 16);		/* FrameSync time 24bit */
 +	reg8_write(client, 0x1b, (FS_TIME >> 8) & 0xff);
 +	reg8_write(client, 0x1c, FS_TIME & 0xff);
@@ -5201,9 +5201,9 @@ index 0000000..b293466
 +	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
 +	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
 +#if 1
-+	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS*25MHz  =1/30*25Mhz  =833333 -> FS_TIME=833333 */
-+	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS*22.5Mhz=1/30*22.5Mhz=750000 -> FS_TIME=750000 */
-+ #define FS_TIME (priv->csi_rate == 1450 ? 750000 : 833333)
++	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/2/FPS*25MHz  =1/2/30*25Mhz  =416666 -> FS_TIME=416666 */
++	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/2/FPS*22.5Mhz=1/2/30*22.5Mhz=375000 -> FS_TIME=375000 */
++ #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
 +	reg8_write(client, 0x1a, FS_TIME >> 16);		/* FrameSync time 24bit */
 +	reg8_write(client, 0x1b, (FS_TIME >> 8) & 0xff);
 +	reg8_write(client, 0x1c, FS_TIME & 0xff);
