@@ -9,11 +9,11 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  443 ++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2148 ++++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  427 ++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2152 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
- 5 files changed, 2701 insertions(+), 1 deletion(-)
+ 5 files changed, 2689 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
@@ -34,10 +34,10 @@ index 1a0e393..7b424ab 100644
  
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..4b10d31
+index 0000000..5590e4c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,443 @@
+@@ -0,0 +1,427 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -127,7 +127,7 @@ index 0000000..4b10d31
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
 +		/* int div 8 hscif@26.6666656MHz */
-+		baud_rate = <3333332>;
++		baud_rate = <115200>;
 +	};
 +
 +	hdmi-out {
@@ -207,22 +207,6 @@ index 0000000..4b10d31
 +&gpio5 {
 +	/delete-node/touch_irq;
 +	/delete-node/bt_strap;
-+
-+	/* V1 has h/w bug with swapped RTS and CTS on BT interface */
-+	/* Ignore these pins */
-+	hscif0_cts {
-+		gpio-hog;
-+		gpios = <15 GPIO_ACTIVE_HIGH>;
-+		input;
-+		line-name = "hscif0 CTS";
-+	};
-+
-+	hscif0_rts {
-+		gpio-hog;
-+		gpios = <16 GPIO_ACTIVE_HIGH>;
-+		input;
-+		line-name = "hscif0 RTS";
-+	};
 +};
 +
 +&gpio7 {
@@ -483,10 +467,10 @@ index 0000000..4b10d31
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..afb6fc0
+index 0000000..781d64c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2148 @@
+@@ -0,0 +1,2152 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -1318,12 +1302,12 @@ index 0000000..afb6fc0
 +			};
 +
 +			lsm9ds0_acc_mag@1d {
-+				compatible = "st,lsm9ds0_acc_mag";
++				compatible = "st,lsm9ds0_accel_magn";
 +				reg = <0x1d>;
 +			};
 +
 +			lsm9ds0_gyr@6b {
-+				compatible = "st,lsm9ds0-gyro";
++				compatible = "st,lsm9ds0_gyro";
 +				reg = <0x6b>;
 +			};
 +
@@ -2406,6 +2390,10 @@ index 0000000..afb6fc0
 +};
 +
 +&ssi1 {
++	shared-pin;
++};
++
++&ssi8 {
 +	shared-pin;
 +};
 +
