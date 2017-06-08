@@ -1168,7 +1168,7 @@ index 0000000..781d64c
 +
 +	status = "okay";
 +
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	ak4613: codec@10 {
 +		compatible = "asahi-kasei,ak4613";
