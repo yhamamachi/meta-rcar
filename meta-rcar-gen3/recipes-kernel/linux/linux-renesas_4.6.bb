@@ -127,18 +127,19 @@ SRC_URI_append_eagle = " \
     file://eagle.cfg \
 "
 
-KERNEL_DEVICETREE_append_h3ulcb = '${@ \
-    " renesas/r8a7795-h3ulcb-had-alfa.dtb renesas/r8a7795-h3ulcb-had-beta.dtb " if 'h3ulcb-had' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7795-h3ulcb-view.dtb " if 'h3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7795-h3ulcb-kf.dtb renesas/r8a7795-h3ulcb-kf-v1.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
-    ""}'
+KERNEL_DEVICETREE_append_h3ulcb = " \
+    renesas/r8a7795-h3ulcb-had-alfa.dtb renesas/r8a7795-h3ulcb-had-beta.dtb \
+    renesas/r8a7795-h3ulcb-view.dtb \
+    renesas/r8a7795-h3ulcb-kf.dtb renesas/r8a7795-h3ulcb-kf-v1.dtb \
+    renesas/r8a7795-h3ulcb-vb.dtb \
+"
 
-KERNEL_DEVICETREE_append_salvator-x = '${@ \
-    " renesas/r8a7795-salvator-x-view.dtb " if 'salvator-x-view' in '${MACHINE_FEATURES}' and 'r8a7795' in '${SOC_FAMILY}' else \
-    " renesas/r8a7796-salvator-x-view.dtb " if 'salvator-x-view' in '${MACHINE_FEATURES}' and 'r8a7796' in '${SOC_FAMILY}' else \
-    ""}'
+KERNEL_DEVICETREE_append_salvator-x = " \
+    renesas/r8a7795-salvator-x-view.dtb \
+    renesas/r8a7796-salvator-x-view.dtb \
+"
 
-KERNEL_DEVICETREE_append_m3ulcb = '${@ \
-    " renesas/r8a7796-m3ulcb-view.dtb " if 'm3ulcb-view' in '${MACHINE_FEATURES}' else \
-    " renesas/r8a7796-m3ulcb-kf.dtb renesas/r8a7796-m3ulcb-kf-v1.dtb " if 'ulcb-kf' in '${MACHINE_FEATURES}' else \
-    ""}'
+KERNEL_DEVICETREE_append_m3ulcb = " \
+    renesas/r8a7796-m3ulcb-view.dtb \
+    renesas/r8a7796-m3ulcb-kf.dtb renesas/r8a7796-m3ulcb-kf-v1.dtb \
+"
