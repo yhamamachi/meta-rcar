@@ -101,6 +101,7 @@ SRC_URI_append = " \
     file://0104-ASoC-R-Car-add-tdm16-support-enable-tdm-for-ssi78.patch \
     file://0105-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0106-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
+    file://0107-ADV7511-limit-maximum-pixelclock.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
