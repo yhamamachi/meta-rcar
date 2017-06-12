@@ -129,7 +129,7 @@ index 0000000..bb16ad1
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
 +		/* int div 8 hscif@26.6666656MHz */
-+		baud_rate = <115200>;
++		baud_rate = <460800>;
 +	};
 +
 +	hdmi-out {
