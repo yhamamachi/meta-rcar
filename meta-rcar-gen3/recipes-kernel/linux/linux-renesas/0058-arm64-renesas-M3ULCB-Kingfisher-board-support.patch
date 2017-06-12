@@ -9,9 +9,9 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  439 +++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1703 ++++++++++++++++++++
- 3 files changed, 2144 insertions(+), 1 deletion(-)
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  451 +++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1717 ++++++++++++++++++++
+ 3 files changed, 2170 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 
@@ -31,10 +31,10 @@ index 7b424ab..29191c4 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..ec1da3d
+index 0000000..c740450
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,439 @@
+@@ -0,0 +1,451 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -395,6 +395,18 @@ index 0000000..ec1da3d
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -476,10 +488,10 @@ index 0000000..ec1da3d
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..b93d899
+index 0000000..283337c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1703 @@
+@@ -0,0 +1,1717 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board
 + *
@@ -1318,6 +1330,18 @@ index 0000000..b93d899
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -2183,6 +2207,8 @@ index 0000000..b93d899
 +
 +/* uncomment to override CN47: SD on SDHI3 */
 +//#include "ulcb-kf-sd3.dtsi"
++/* CN29: (CMOS camera) on VIN5 */
++#include "ulcb-kf-cmos.dtsi"
 -- 
 1.9.1
 
