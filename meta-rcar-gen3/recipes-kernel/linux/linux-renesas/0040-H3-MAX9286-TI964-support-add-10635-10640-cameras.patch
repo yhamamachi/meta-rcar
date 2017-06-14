@@ -17,10 +17,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov106xx.c           |   95 ++
  drivers/media/i2c/soc_camera/ov490_ov10640.c     |  954 ++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   82 ++
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  661 +++++++++++++
- drivers/media/i2c/soc_camera/ov495_ov2775.h      |   18 +
- drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  414 ++++++++
- drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  382 ++++++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  656 +++++++++++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.h      |   24 +
+ drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  417 ++++++++
+ drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  385 ++++++++
  drivers/media/i2c/soc_camera/ti9x4_ti9x3.h       |  108 ++
  drivers/media/platform/soc_camera/rcar_csi2.c    |  258 +++--
  drivers/media/platform/soc_camera/rcar_vin.c     |  177 +++-
@@ -28,7 +28,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5814 insertions(+), 117 deletions(-)
+ 21 files changed, 5821 insertions(+), 117 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -3910,7 +3910,7 @@ index 0000000..18e98d7
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.h b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 new file mode 100644
-index 0000000..0e6197d
+index 0000000..dde81ef
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 @@ -0,0 +1,82 @@
@@ -3946,21 +3946,12 @@ index 0000000..0e6197d
 +{0xfffe, 0x80},
 +{0x0091, 0x00},
 +{0x00bb, 0x1d}, // bit[3]=0 - PCLK polarity workaround
-+/* ov10635 FSIN */
-+{0xfffd, 0x80},
-+{0xfffe, 0x19},
-+{0x5000, 0x00},
-+{0x5001, 0x30},
-+{0x5002, 0x8c},
-+{0x5003, 0xb2},
-+{0xfffe, 0x80},
-+{0x00c0, 0xc1},
 +/* ov10635 EMB line disable */
 +{0xfffe, 0x19},
 +{0x5000, 0x00},
 +{0x5001, 0x30},
 +{0x5002, 0x91},
-+{0x5003, 0x00},
++{0x5003, 0x08},
 +{0xfffe, 0x80},
 +{0x00c0, 0xc1},
 +/* Ov490 FSIN: app_fsin_from_fsync */
@@ -3995,13 +3986,22 @@ index 0000000..0e6197d
 +{0x0007, 0x00},
 +{0xfffe, 0x80},
 +{0x0081, 0x00}, // 03;SENSOR FSIN
++/* ov10635 FSIN */
++{0xfffd, 0x80},
++{0xfffe, 0x19},
++{0x5000, 0x00},
++{0x5001, 0x30},
++{0x5002, 0x8c},
++{0x5003, 0xb2},
++{0xfffe, 0x80},
++{0x00c0, 0xc1},
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..af3cb3e
+index 0000000..f045fa8
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-@@ -0,0 +1,661 @@
+@@ -0,0 +1,656 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera driver
 + *
@@ -4444,12 +4444,7 @@ index 0000000..af3cb3e
 +#endif
 +
 +	/* set virtual channel */
-+	reg16_write(client, 0x3516, 0x0); /* unlock write */
-+	reg16_write(client, 0xFFFD, 0x80);
-+	reg16_write(client, 0xFFFE, 0x20);
-+	reg16_write(client, 0x8017, 0x1e | (priv->port << 6));
-+	reg16_write(client, 0x3516, 0x1); /* lock write */
-+
++	ov495_regs_wizard[3].val = 0x1e | (priv->port << 6);
 +	/* Program wizard registers */
 +	ov495_set_regs(client, ov495_regs_wizard, ARRAY_SIZE(ov495_regs_wizard));
 +	/* Read OTP IDs */
@@ -4665,10 +4660,10 @@ index 0000000..af3cb3e
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.h b/drivers/media/i2c/soc_camera/ov495_ov2775.h
 new file mode 100644
-index 0000000..dc6ad86
+index 0000000..7bef2c9
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.h
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,24 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera wizard 1280x1080@30/UYVY/BT601/8bit
 + *
@@ -4685,14 +4680,20 @@ index 0000000..dc6ad86
 +	u8	val;
 +};
 +
-+static const struct ov495_reg ov495_regs_wizard[] = {
++static struct ov495_reg ov495_regs_wizard[] = {
++{0x3516, 0x00}, /* unlock write */
++{0xFFFD, 0x80},
++{0xFFFE, 0x20},
++{0x8017, 0x1e | (0 << 6)},
++{0x7c10, 0x01}, /* UYVY */
++{0x3516, 0x01}, /* lock write */
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti954_ti9x3.c b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 new file mode 100644
-index 0000000..bf11d0e
+index 0000000..f94208d
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
-@@ -0,0 +1,414 @@
+@@ -0,0 +1,417 @@
 +/*
 + * TI ti954-(ti913/ti953) FPDLinkIII driver
 + *
@@ -4807,20 +4808,23 @@ index 0000000..bf11d0e
 +	reg8_write(client, 0x32, 0x01);				/* Select TX (CSI) port 0 */
 +	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
 +	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
-+#if 1
++#if 0
 +	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/2/FPS*25MHz  =1/2/30*25Mhz  =416666 -> FS_TIME=416666 */
 +	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/2/FPS*22.5Mhz=1/2/30*22.5Mhz=375000 -> FS_TIME=375000 */
-+ #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
++// #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
++ #define FS_TIME (priv->csi_rate == 1450 ? 385000 : 428000) // FPS=29.2 (new vendor's firmware AWB restriction?)
 +	reg8_write(client, 0x1a, FS_TIME >> 16);		/* FrameSync time 24bit */
 +	reg8_write(client, 0x1b, (FS_TIME >> 8) & 0xff);
 +	reg8_write(client, 0x1c, FS_TIME & 0xff);
 +	reg8_write(client, 0x18, 0x43);				/* Enable FrameSync, 50/50 mode, Frame clock from 25MHz */
 +#else
-+	/* FrameSync setup for 30FPS: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 FPS=30.008 */
++	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 */
++	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS/13.333mks=1/30/13.333e-6=2500 -> HI=2, LO=2498 */
++ #define FS_TIME (priv->csi_rate == 1450 ? (2498+15) : (2775+15))
 +	reg8_write(client, 0x19, 2 >> 8);			/* FrameSync high time MSB */
-+	reg8_write(client, 0x1a, 2 >> 16);			/* FrameSync high time LSB */
-+	reg8_write(client, 0x1b, 2775 & 0xff);			/* FrameSync low time MSB */
-+	reg8_write(client, 0x1c, 2775 & 0xff);			/* FrameSync low time LSB */
++	reg8_write(client, 0x1a, 2 & 0xff);			/* FrameSync high time LSB */
++	reg8_write(client, 0x1b, FS_TIME >> 8);			/* FrameSync low time MSB */
++	reg8_write(client, 0x1c, FS_TIME & 0xff);			/* FrameSync low time LSB */
 +	reg8_write(client, 0x18, 0x01);				/* Enable FrameSync, HI/LO mode, Frame clock from port0 */
 +#endif
 +}
@@ -5109,10 +5113,10 @@ index 0000000..bf11d0e
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 new file mode 100644
-index 0000000..effd2ec
+index 0000000..567def1
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-@@ -0,0 +1,382 @@
+@@ -0,0 +1,385 @@
 +/*
 + * TI (ti964/ti960)-(ti913/ti953) FPDLinkIII driver
 + *
@@ -5200,20 +5204,23 @@ index 0000000..effd2ec
 +	reg8_write(client, 0x32, 0x01);				/* Select TX (CSI) port 0 */
 +	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
 +	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
-+#if 1
++#if 0
 +	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/2/FPS*25MHz  =1/2/30*25Mhz  =416666 -> FS_TIME=416666 */
 +	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/2/FPS*22.5Mhz=1/2/30*22.5Mhz=375000 -> FS_TIME=375000 */
-+ #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
++// #define FS_TIME (priv->csi_rate == 1450 ? 376000 : 417666)
++ #define FS_TIME (priv->csi_rate == 1450 ? 385000 : 428000) // FPS=29.2 (new vendor's firmware AWB restriction?)
 +	reg8_write(client, 0x1a, FS_TIME >> 16);		/* FrameSync time 24bit */
 +	reg8_write(client, 0x1b, (FS_TIME >> 8) & 0xff);
 +	reg8_write(client, 0x1c, FS_TIME & 0xff);
 +	reg8_write(client, 0x18, 0x43);				/* Enable FrameSync, 50/50 mode, Frame clock from 25MHz */
 +#else
-+	/* FrameSync setup for 30FPS: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 FPS=30.008 */
++	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 */
++	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS/13.333mks=1/30/13.333e-6=2500 -> HI=2, LO=2498 */
++ #define FS_TIME (priv->csi_rate == 1450 ? (2498+15) : (2775+15))
 +	reg8_write(client, 0x19, 2 >> 8);			/* FrameSync high time MSB */
-+	reg8_write(client, 0x1a, 2 >> 16);			/* FrameSync high time LSB */
-+	reg8_write(client, 0x1b, 2775 & 0xff);			/* FrameSync low time MSB */
-+	reg8_write(client, 0x1c, 2775 & 0xff);			/* FrameSync low time LSB */
++	reg8_write(client, 0x1a, 2 & 0xff);			/* FrameSync high time LSB */
++	reg8_write(client, 0x1b, FS_TIME >> 8);			/* FrameSync low time MSB */
++	reg8_write(client, 0x1c, FS_TIME & 0xff);			/* FrameSync low time LSB */
 +	reg8_write(client, 0x18, 0x01);				/* Enable FrameSync, HI/LO mode, Frame clock from port0 */
 +#endif
 +}
