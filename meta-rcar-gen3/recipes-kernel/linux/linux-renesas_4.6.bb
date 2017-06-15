@@ -56,6 +56,7 @@ SRC_URI_append = " \
     file://0035-usb-host-xhci-rcar-add-a-new-firmware-version-for-r8.patch \
     file://0036-usb-host-xhci-plat-add-firmware-for-the-R-Car-M3-W-x.patch \
     file://0037-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
+    file://0038-serial-sh-sci-Fix-panic-when-serial-console-and-DMA-.patch \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0041-media-i2c-Add-ov5647-sensor.patch \
     file://0042-media-i2c-Add-ov5642-sensor.patch \
