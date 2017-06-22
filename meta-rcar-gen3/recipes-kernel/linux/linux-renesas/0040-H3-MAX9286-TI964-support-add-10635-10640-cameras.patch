@@ -15,10 +15,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   95 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  954 ++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  952 ++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   82 ++
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  656 +++++++++++++
- drivers/media/i2c/soc_camera/ov495_ov2775.h      |   24 +
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  641 ++++++++++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  417 ++++++++
  drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  385 ++++++++
  drivers/media/i2c/soc_camera/ti9x4_ti9x3.h       |  108 ++
@@ -28,7 +28,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5821 insertions(+), 117 deletions(-)
+ 21 files changed, 5803 insertions(+), 117 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -2950,10 +2950,10 @@ index 0000000..0079bb2
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..18e98d7
+index 0000000..b817c7e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,954 @@
+@@ -0,0 +1,952 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2985,7 +2985,6 @@ index 0000000..18e98d7
 +#define OV490_VER		0x300b
 +#define OV490_VERSION_REG	0x0490
 +#define OV490_VERSION(pid, ver)	(((pid) << 8) | ((ver) & 0xff))
-+#define OV490_REV		0x0007
 +
 +#define OV490_ISP_HSIZE_LOW	0x60
 +#define OV490_ISP_HSIZE_HIGH	0x61
@@ -3613,7 +3612,7 @@ index 0000000..18e98d7
 +{
 +	struct ov490_priv *priv = to_ov490(client);
 +	u8 val = 0;
-+	u8 pid = 0, ver = 0, rev = 0;
++	u8 pid = 0, ver = 0;
 +	int ret = 0;
 +
 +	if (priv->is_fixed_sensor) {
@@ -3629,7 +3628,6 @@ index 0000000..18e98d7
 +	usleep_range(100, 150); /* wait 100 us */
 +	reg16_read(client, OV490_PID, &pid);
 +	reg16_read(client, OV490_VER, &ver);
-+	reg16_read(client, OV490_REV, &rev);
 +
 +	if (OV490_VERSION(pid, ver) != OV490_VERSION_REG) {
 +		dev_dbg(&client->dev, "Product ID error %x:%x\n", pid, ver);
@@ -3663,8 +3661,8 @@ index 0000000..18e98d7
 +	ov490_otp_id_read(client);
 +
 +out:
-+	dev_info(&client->dev, "ov490/ov10640 Product ID %x Manufacturer ID %x, rev 1%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 pid, ver, 0xa + rev, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++	dev_info(&client->dev, "ov490/ov10640 PID %x%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, ver, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +err:
 +	ov490_s_port(client, 0);
 +
@@ -3998,10 +3996,10 @@ index 0000000..dde81ef
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..f045fa8
+index 0000000..7cea0dc
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-@@ -0,0 +1,656 @@
+@@ -0,0 +1,641 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera driver
 + *
@@ -4032,7 +4030,6 @@ index 0000000..f045fa8
 +#define OV495_VER		0x300b
 +#define OV495_VERSION_REG	0x0495
 +#define OV495_VERSION(pid, ver)	(((pid) << 8) | ((ver) & 0xff))
-+#define OV495_REV		0x0007
 +
 +#define OV495_ISP_HSIZE_LOW	0x60
 +#define OV495_ISP_HSIZE_HIGH	0x61
@@ -4051,7 +4048,6 @@ index 0000000..f045fa8
 +	int				exposure;
 +	int				gain;
 +	int				autogain;
-+	int				dvp_order;
 +	/* serializers */
 +	int				max9286_addr;
 +	int				max9271_addr;
@@ -4340,52 +4336,42 @@ index 0000000..f045fa8
 +
 +static void ov495_otp_id_read(struct i2c_client *client)
 +{
-+#if 0
 +	struct ov495_priv *priv = to_ov495(client);
 +	int i;
 +
++#if 0
 +	/* read camera id from ov495 OTP memory */
 +	reg16_write(client, 0xFFFD, 0x80);
-+	reg16_write(client, 0xFFFE, 0x28);
++	reg16_write(client, 0xFFFE, 0x20);
 +	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0xE084, 0x40); /* manual mode, bank#0 */
-+	reg16_write(client, 0xE081, 1); /* start OTP read */
++	reg16_write(client, 0x7384, 0x40); /* manual mode, bank#0 */
++	reg16_write(client, 0x7381, 1); /* start OTP read */
 +
 +	usleep_range(25000, 26000); /* wait 25 ms */
 +
 +	for (i = 0; i < 6; i++)
-+		reg16_read(client, 0xe000 + i + 4, &priv->id[i]);
++		reg16_read(client, 0x7300 + i + 4, &priv->id[i]);
 +#else
-+#if 0
 +	/* read camera id from ov2775 OTP memory */
-+	reg16_write(client, 0xFFFD, 0x80);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0xFFFE, 0x19);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0x5000, 0x00); /* write 0x349C -> 1 */
-+	reg16_write(client, 0x5001, 0x34);
-+	reg16_write(client, 0x5002, 0x9C);
-+	reg16_write(client, 0x5003, 1);
-+	reg16_write(client, 0xFFFE, 0x80);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0x00C0, 0xc1);
++	reg16_write(client, 0x3516, 0x00); /* unlock write */
++	reg16_write(client, 0x0FFC, 0);
++	reg16_write(client, 0x0500, 0x00); /* write 0x34a1 -> 1 */
++	reg16_write(client, 0x0501, 0x34);
++	reg16_write(client, 0x0502, 0xa1);
++	reg16_write(client, 0x0503, 1);
++	reg16_write(client, 0x30C0, 0xc1);
 +
 +	usleep_range(25000, 25500); /* wait 25 ms */
 +
 +	for (i = 0; i < 6; i++) {
-+		reg16_write(client, 0xFFFE, 0x19);
-+		usleep_range(100, 150); /* wait 100 us */
-+		reg16_write(client, 0x5000, 0x01); /* read (0x349E + i) */
-+		reg16_write(client, 0x5001, 0x34);
-+		reg16_write(client, 0x5002, 0x9e + i + 6); /* first 6 bytes are equal on all ov2775 */
-+		reg16_write(client, 0xFFFE, 0x80);
-+		usleep_range(100, 150); /* wait 100 us */
-+		reg16_write(client, 0x00C0, 0xc1);
-+		reg16_write(client, 0xFFFE, 0x19);
++		reg16_write(client, 0x3516, 0x00); /* unlock write */
++		reg16_write(client, 0x0500, 0x01); /* read (0x7a00 + i) */
++		reg16_write(client, 0x0501, 0x7a);
++		reg16_write(client, 0x0502, 0x00 + i + (i < 3 ? 11 : 3)); /* take bytes 11,12,13,6,7,8 */
++		reg16_write(client, 0x30C0, 0xc1);
 +		usleep_range(1000, 1500); /* wait 1 ms */
-+		reg16_read(client, 0x5000, &priv->id[i]);
++		reg16_read(client, 0x0500, &priv->id[i]);
 +	}
-+#endif
 +#endif
 +}
 +
@@ -4405,7 +4391,7 @@ index 0000000..f045fa8
 +static int ov495_initialize(struct i2c_client *client)
 +{
 +	struct ov495_priv *priv = to_ov495(client);
-+	u8 pid = 0, ver = 0, rev = 0;
++	u8 pid = 0, ver = 0;
 +	int ret = 0;
 +
 +	/* check and show product ID and manufacturer ID */
@@ -4414,7 +4400,6 @@ index 0000000..f045fa8
 +	usleep_range(100, 150); /* wait 100 us */
 +	reg16_read(client, OV495_PID, &pid);
 +	reg16_read(client, OV495_VER, &ver);
-+	reg16_read(client, OV495_REV, &rev);
 +
 +	if (OV495_VERSION(pid, ver) != OV495_VERSION_REG) {
 +		dev_err(&client->dev, "Product ID error %x:%x\n", pid, ver);
@@ -4451,8 +4436,8 @@ index 0000000..f045fa8
 +	ov495_otp_id_read(client);
 +
 +out:
-+	dev_info(&client->dev, "ov495/ov2775 Product ID %x Manufacturer ID %x, rev 1%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 pid, ver, 0xa + rev, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++	dev_info(&client->dev, "ov495/ov2775 PID %x%x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, ver, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +err:
 +	return ret;
 +}
@@ -4470,8 +4455,6 @@ index 0000000..f045fa8
 +			break;
 +
 +		of_node_put(endpoint);
-+
-+		of_property_read_u32(endpoint, "dvp-order", &priv->dvp_order);
 +
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
@@ -4660,10 +4643,10 @@ index 0000000..f045fa8
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.h b/drivers/media/i2c/soc_camera/ov495_ov2775.h
 new file mode 100644
-index 0000000..7bef2c9
+index 0000000..3f53689
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.h
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,23 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera wizard 1280x1080@30/UYVY/BT601/8bit
 + *
@@ -4686,7 +4669,6 @@ index 0000000..7bef2c9
 +{0xFFFE, 0x20},
 +{0x8017, 0x1e | (0 << 6)},
 +{0x7c10, 0x01}, /* UYVY */
-+{0x3516, 0x01}, /* lock write */
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti954_ti9x3.c b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 new file mode 100644
