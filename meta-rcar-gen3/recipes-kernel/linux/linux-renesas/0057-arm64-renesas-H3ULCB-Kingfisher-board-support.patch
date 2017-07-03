@@ -9,12 +9,12 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile               |    3 +-
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  451 ++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2166 ++++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  445 ++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 2200 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi      |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
- 6 files changed, 2802 insertions(+), 1 deletion(-)
+ 6 files changed, 2830 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
@@ -36,7 +36,7 @@ index 1a0e393..7b424ab 100644
  
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..bb16ad1
+index 0000000..fc613d2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 @@ -0,0 +1,445 @@
@@ -487,10 +487,10 @@ index 0000000..bb16ad1
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..bafb8ca
+index 0000000..dcd7bc1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,2166 @@
+@@ -0,0 +1,2200 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board
 + *
@@ -1491,7 +1491,6 @@ index 0000000..bafb8ca
 +			ti964-ti9x3@0 {
 +				compatible = "ti,ti964-ti9x3";
 +				reg = <0x3a>;
-+				gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>;
 +				ti,sensor_delay = <350>;
 +				ti,links = <4>;
 +				ti,lanes = <4>;
@@ -1532,7 +1531,7 @@ index 0000000..bafb8ca
 +			ti954-ti9x3@0 {
 +				compatible = "ti,ti954-ti9x3";
 +				reg = <0x38>;
-+				gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>;
++				/* gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>; */
 +				ti,sensor_delay = <350>;
 +				ti,links = <2>;
 +				ti,lanes = <4>;
@@ -1559,10 +1558,10 @@ index 0000000..bafb8ca
 +				};
 +			};
 +
-+			/* MAX9286 @ 0x2a */
++			/* MAX9286 @ 0x2c */
 +			max9286-max9271@0 {
 +				compatible = "maxim,max9286-max9271";
-+				reg = <0x2a>;
++				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
 +				maxim,lanes = <4>;
@@ -1701,7 +1700,6 @@ index 0000000..bafb8ca
 +			ti964-ti9x3@1 {
 +				compatible = "ti,ti964-ti9x3";
 +				reg = <0x3a>;
-+				gpios = <&video_b_ext1 10 GPIO_ACTIVE_HIGH>;
 +				ti,sensor_delay = <350>;
 +				ti,links = <4>;
 +				ti,lanes = <4>;
@@ -1742,7 +1740,7 @@ index 0000000..bafb8ca
 +			ti954-ti9x3@1 {
 +				compatible = "ti,ti954-ti9x3";
 +				reg = <0x38>;
-+				gpios = <&video_b_ext1 10 GPIO_ACTIVE_HIGH>;
++				/* gpios = <&video_b_ext1 10 GPIO_ACTIVE_HIGH>; */
 +				ti,sensor_delay = <350>;
 +				ti,links = <2>;
 +				ti,lanes = <4>;
@@ -1769,10 +1767,10 @@ index 0000000..bafb8ca
 +				};
 +			};
 +
-+			/* MAX9286 @ 0x2a */
++			/* MAX9286 @ 0x2c */
 +			max9286-max9271@1 {
 +				compatible = "maxim,max9286-max9271";
-+				reg = <0x2a>;
++				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
 +				maxim,lanes = <4>;
@@ -1826,13 +1824,13 @@ index 0000000..bafb8ca
 +				video_b_des_cfg1 {
 +					gpio-hog;
 +					gpios = <5 GPIO_ACTIVE_HIGH>;
-+					output-high;
++					input;
 +					line-name = "Video-B cfg1";
 +				};
 +				video_b_des_cfg0 {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					output-high;
++					input;
 +					line-name = "Video-B cfg0";
 +				};
 +				video_b_pwr_shdn {
@@ -1888,19 +1886,19 @@ index 0000000..bafb8ca
 +				video_b_des_cfg2 {
 +					gpio-hog;
 +					gpios = <4 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-B cfg2";
 +				};
 +				video_b_des_cfg1 {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-B cfg1";
 +				};
 +				video_b_des_cfg0 {
 +					gpio-hog;
 +					gpios = <7 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-B cfg0";
 +				};
 +				video_b_pwr_shdn {
@@ -1921,11 +1919,29 @@ index 0000000..bafb8ca
 +					output-high;
 +					line-name = "Video-B PWR1";
 +				};
++				video_b_cam_pwr2 {
++					gpio-hog;
++					gpios = <10 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR2";
++				};
 +				video_b_cam_pwr3 {
 +					gpio-hog;
 +					gpios = <11 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "Video-B PWR3";
++				};
++				video_b_des_shdn {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B DES_SHDN";
++				};
++				video_b_led {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B LED";
 +				};
 +			};
 +		};
@@ -1945,13 +1961,13 @@ index 0000000..bafb8ca
 +				video_a_des_cfg1 {
 +					gpio-hog;
 +					gpios = <5 GPIO_ACTIVE_HIGH>;
-+					output-high;
++					input;
 +					line-name = "Video-A cfg1";
 +				};
 +				video_a_des_cfg0 {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					output-high;
++					input;
 +					line-name = "Video-A cfg0";
 +				};
 +				video_a_pwr_shdn {
@@ -2007,19 +2023,19 @@ index 0000000..bafb8ca
 +				video_a_des_cfg2 {
 +					gpio-hog;
 +					gpios = <4 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-A cfg2";
 +				};
 +				video_a_des_cfg1 {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-A cfg1";
 +				};
 +				video_a_des_cfg0 {
 +					gpio-hog;
 +					gpios = <7 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					input;
 +					line-name = "Video-A cfg0";
 +				};
 +				video_a_pwr_shdn {
@@ -2040,11 +2056,29 @@ index 0000000..bafb8ca
 +					output-high;
 +					line-name = "Video-A PWR1";
 +				};
++				video_a_cam_pwr2 {
++					gpio-hog;
++					gpios = <10 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR2";
++				};
 +				video_a_cam_pwr3 {
 +					gpio-hog;
 +					gpios = <11 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "Video-A PWR3";
++				};
++				video_a_des_shdn {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A DES_SHDN";
++				};
++				video_a_led {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A LED";
 +				};
 +			};
 +		};

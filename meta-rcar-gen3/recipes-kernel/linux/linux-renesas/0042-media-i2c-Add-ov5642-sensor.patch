@@ -7,15 +7,15 @@ Add ov5642 camera sensor driver update
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- drivers/media/i2c/soc_camera/ov5642.c      | 704 +++++-----------------------
+ drivers/media/i2c/soc_camera/ov5642.c      | 708 +++++-----------------------
  drivers/media/i2c/soc_camera/ov5642.h      | 592 ++++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov5642_720p.h | 711 +++++++++++++++++++++++++++++
- 3 files changed, 1415 insertions(+), 592 deletions(-)
+ 3 files changed, 1418 insertions(+), 593 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ov5642.h
  create mode 100644 drivers/media/i2c/soc_camera/ov5642_720p.h
 
 diff --git a/drivers/media/i2c/soc_camera/ov5642.c b/drivers/media/i2c/soc_camera/ov5642.c
-index bab9ac0..ca53932 100644
+index bab9ac0..b58859e 100644
 --- a/drivers/media/i2c/soc_camera/ov5642.c
 +++ b/drivers/media/i2c/soc_camera/ov5642.c
 @@ -22,584 +22,16 @@
@@ -813,10 +813,16 @@ index bab9ac0..ca53932 100644
  
  	priv->fmt		= &ov5642_colour_fmts[0];
  
-@@ -1039,6 +540,16 @@ static int ov5642_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		v4l2_clk_put(priv->clk);
+@@ -1036,8 +537,20 @@ static int ov5642_probe(struct i2c_client *client,
+ 		return PTR_ERR(priv->clk);
  
+ 	ret = ov5642_video_probe(client);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		v4l2_clk_put(priv->clk);
++		return ret;
++	}
++
 +	priv->pad.flags = MEDIA_PAD_FL_SOURCE;
 +	sd->entity.function = MEDIA_ENT_F_CAM_SENSOR;
 +	ret = media_entity_pads_init(&sd->entity, 1, &priv->pad);
@@ -826,11 +832,10 @@ index bab9ac0..ca53932 100644
 +	ret = v4l2_async_register_subdev(sd);
 +	if (ret < 0)
 +		media_entity_cleanup(&sd->entity);
-+
+ 
  	return ret;
  }
- 
-@@ -1060,8 +571,17 @@ static const struct i2c_device_id ov5642_id[] = {
+@@ -1060,8 +573,17 @@ static const struct i2c_device_id ov5642_id[] = {
  };
  MODULE_DEVICE_TABLE(i2c, ov5642_id);
  
