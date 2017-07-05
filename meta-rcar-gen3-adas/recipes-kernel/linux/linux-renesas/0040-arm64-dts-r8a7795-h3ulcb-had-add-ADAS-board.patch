@@ -90,7 +90,7 @@ new file mode 100644
 index 0000000..d146938
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,219 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board on r8a7795
 + *
@@ -113,6 +113,7 @@ index 0000000..d146938
 +	model = "Renesas H3ULCB.HAD board based on r8a7795";
 +
 +	aliases {
++		serial1 = &scif1;
 +		spi1 = &spi0_gpio;
 +		spi2 = &spi1_gpio;
 +	};
