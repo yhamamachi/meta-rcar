@@ -31,6 +31,7 @@ SRC_URI_append = " \
     file://0026-drm-adv7511-add-polling-mode-when-no-irq-available.patch \
     file://0027-usb-host-xhci-plat-add-firmware-for-the-R-Car-M3-W-x.patch \
     file://0028-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
+    file://0029-i2c-mux-pca954x-fix-i2c-mux-selection-caching.patch \
     file://0030-Gen3-LVDS-cameras.patch \
     file://0031-arm64-dts-r8a7795-es1-salvator-x-view-add-ADAS-board.patch \
     file://0032-arm64-dts-r8a7795-es1-h3ulcb-view-add-ADAS-board.patch \
