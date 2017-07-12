@@ -105,6 +105,13 @@ SRC_URI_append = " \
     file://0105-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0106-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
     file://0107-ADV7511-limit-maximum-pixelclock.patch \
+    file://0108-pinctrl-r8a779x-add-mlb-pinmux.patch \
+    file://0109-clk-r8a779x-add-mlp-clock.patch \
+    file://0110-dtsi-r8a779x-add-mlp-nodes.patch \
+    file://0111-MOST-dim2-add-device-tree-support.patch \
+    file://0112-MOST-dim2-add-R-Car3-related-initialization.patch \
+    file://0113-MOST-core-fix-memory-allocation-at-arm64.patch \
+    file://0114-MOST-dim2-Renesas-R-Car3-variant.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
