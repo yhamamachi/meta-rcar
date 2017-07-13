@@ -44,6 +44,7 @@ SRC_URI_append = " \
     file://0039-arm64-dts-r8a7795-h3ulcb-view-add-ADAS-board.patch \
     file://0040-arm64-dts-r8a7795-h3ulcb-had-add-ADAS-board.patch \
     file://0041-arm64-dts-r8a7795-h3ulcb-kf-add-ADAS-board.patch \
+    file://0042-arm64-dts-r8a7795-h3ulcb-vb-add-ADAS-board.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
