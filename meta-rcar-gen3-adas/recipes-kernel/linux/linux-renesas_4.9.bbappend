@@ -49,6 +49,9 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
     file://0060-media-i2c-Add-ov5647-sensor.patch \
+    ${@base_conditional("SOUND_MULTICHANNEL", "1", " file://0061-ASoC-R-Car-add-tdm16-support-enable-tdm-for-ssi78.patch", "", d)} \
+    file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
+    file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://h3ulcb.cfg"
@@ -62,11 +65,13 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-had-beta.dtb \
     renesas/r8a7795-es1-h3ulcb-kf.dtb \
     renesas/r8a7795-es1-h3ulcb-kf-v1.dtb \
+    renesas/r8a7795-es1-h3ulcb-vb.dtb \
     renesas/r8a7795-h3ulcb-view.dtb \
     renesas/r8a7795-h3ulcb-had-alfa.dtb \
     renesas/r8a7795-h3ulcb-had-beta.dtb \
     renesas/r8a7795-h3ulcb-kf.dtb \
     renesas/r8a7795-h3ulcb-kf-v1.dtb \
+    renesas/r8a7795-h3ulcb-vb.dtb \
 "
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
