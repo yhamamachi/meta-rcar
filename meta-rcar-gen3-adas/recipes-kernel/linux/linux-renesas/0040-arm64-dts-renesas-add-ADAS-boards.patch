@@ -385,7 +385,7 @@ new file mode 100644
 index 0000000..9b76ca9
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts
-@@ -0,0 +1,427 @@
+@@ -0,0 +1,439 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board on r8a7795 ES1.x
 + *
@@ -759,6 +759,18 @@ index 0000000..9b76ca9
 +			gpios = <11 GPIO_ACTIVE_HIGH>;
 +			output-high;
 +			line-name = "RaspB_IO0";
++		};
++		sam_rst {
++			gpio-hog;
++			gpios = <4 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "SAM RST";
++		};
++		sam_pwr {
++			gpio-hog;
++			gpios = <5 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "SAM PWR";
 +		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
@@ -5668,7 +5680,7 @@ new file mode 100644
 index 0000000..7bcd87d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,427 @@
+@@ -0,0 +1,439 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -6042,6 +6054,18 @@ index 0000000..7bcd87d
 +			gpios = <11 GPIO_ACTIVE_HIGH>;
 +			output-high;
 +			line-name = "RaspB_IO0";
++		};
++		sam_rst {
++			gpio-hog;
++			gpios = <4 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "SAM RST";
++		};
++		sam_pwr {
++			gpio-hog;
++			gpios = <5 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "SAM PWR";
 +		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
@@ -10665,7 +10689,7 @@ new file mode 100644
 index 0000000..e3b1ec3
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,427 @@
+@@ -0,0 +1,439 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -11039,6 +11063,18 @@ index 0000000..e3b1ec3
 +			gpios = <11 GPIO_ACTIVE_HIGH>;
 +			output-high;
 +			line-name = "RaspB_IO0";
++		};
++		sam_rst {
++			gpio-hog;
++			gpios = <4 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "SAM RST";
++		};
++		sam_pwr {
++			gpio-hog;
++			gpios = <5 GPIO_ACTIVE_HIGH>;
++			output-low;
++			line-name = "SAM PWR";
 +		};
 +		/* 0 - FPDLink output, 1 - LVDS output */
 +		lvds_vs_fpdl {
