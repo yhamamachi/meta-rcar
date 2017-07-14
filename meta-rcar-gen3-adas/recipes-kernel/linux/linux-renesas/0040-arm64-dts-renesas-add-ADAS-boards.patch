@@ -1203,7 +1203,7 @@ index 0000000..90be9f8
 +};
 +
 +&i2c2 {
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
@@ -6486,7 +6486,7 @@ index 0000000..e3a5f03
 +};
 +
 +&i2c2 {
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
@@ -11483,7 +11483,7 @@ index 0000000..5199531
 +};
 +
 +&i2c2 {
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
