@@ -41,6 +41,7 @@ SRC_URI_append = " \
     ${@base_conditional("SOUND_MULTICHANNEL", "1", " file://0061-ASoC-R-Car-add-tdm16-support-enable-tdm-for-ssi78.patch", "", d)} \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
+    file://0064-ADV7511-limit-maximum-pixelclock.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
