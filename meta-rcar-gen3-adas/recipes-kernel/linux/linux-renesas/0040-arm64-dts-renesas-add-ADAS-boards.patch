@@ -387,7 +387,7 @@ new file mode 100644
 index 0000000..f0e5ecc
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts
-@@ -0,0 +1,451 @@
+@@ -0,0 +1,445 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board on r8a7795 ES1.x
 + *
@@ -471,13 +471,7 @@ index 0000000..f0e5ecc
 +	};
 +
 +	kim {
-+		compatible = "kim";
 +		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
-+		/* serial1 */
-+		dev_name = "/dev/ttySC1";
-+		flow_cntrl = <1>;
-+		/* int div 8 hscif@26.6666656MHz */
-+		baud_rate = <3333332>;
 +	};
 +
 +	hdmi-out {
@@ -5708,7 +5702,7 @@ new file mode 100644
 index 0000000..afa71bd
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,451 @@
+@@ -0,0 +1,445 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -5792,13 +5786,7 @@ index 0000000..afa71bd
 +	};
 +
 +	kim {
-+		compatible = "kim";
 +		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
-+		/* serial1 */
-+		dev_name = "/dev/ttySC1";
-+		flow_cntrl = <1>;
-+		/* int div 8 hscif@26.6666656MHz */
-+		baud_rate = <3333332>;
 +	};
 +
 +	hdmi-out {
@@ -10743,7 +10731,7 @@ new file mode 100644
 index 0000000..63cf414
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,451 @@
+@@ -0,0 +1,445 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -10827,13 +10815,7 @@ index 0000000..63cf414
 +	};
 +
 +	kim {
-+		compatible = "kim";
 +		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
-+		/* serial1 */
-+		dev_name = "/dev/ttySC1";
-+		flow_cntrl = <1>;
-+		/* int div 8 hscif@26.6666656MHz */
-+		baud_rate = <3333332>;
 +	};
 +
 +	hdmi-out {
