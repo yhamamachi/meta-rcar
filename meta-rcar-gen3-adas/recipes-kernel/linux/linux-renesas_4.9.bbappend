@@ -33,18 +33,7 @@ SRC_URI_append = " \
     file://0028-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
     file://0029-i2c-mux-pca954x-fix-i2c-mux-selection-caching.patch \
     file://0030-Gen3-LVDS-cameras.patch \
-    file://0031-arm64-dts-r8a7795-es1-salvator-x-view-add-ADAS-board.patch \
-    file://0032-arm64-dts-r8a7795-es1-h3ulcb-view-add-ADAS-board.patch \
-    file://0033-arm64-dts-r8a7795-es1-h3ulcb-had-add-ADAS-board.patch \
-    file://0034-arm64-dts-r8a7795-es1-h3ulcb-kf-add-ADAS-board.patch \
-    file://0035-arm64-dts-r8a7796-salvator-x-view-add-ADAS-board.patch \
-    file://0036-arm64-dts-r8a7796-m3ulcb-view-add-ADAS-board.patch \
-    file://0037-arm64-dts-r8a7796-m3ulcb-kf-add-ADAS-board.patch \
-    file://0038-arm64-dts-r8a7795-salvator-x-view-add-ADAS-board.patch \
-    file://0039-arm64-dts-r8a7795-h3ulcb-view-add-ADAS-board.patch \
-    file://0040-arm64-dts-r8a7795-h3ulcb-had-add-ADAS-board.patch \
-    file://0041-arm64-dts-r8a7795-h3ulcb-kf-add-ADAS-board.patch \
-    file://0042-arm64-dts-r8a7795-h3ulcb-vb-add-ADAS-board.patch \
+    file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
@@ -54,8 +43,8 @@ SRC_URI_append = " \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
 "
 
-SRC_URI_append_h3ulcb = " file://h3ulcb.cfg"
-SRC_URI_append_m3ulcb = " file://m3ulcb.cfg"
+SRC_URI_append_h3ulcb = " file://ulcb.cfg"
+SRC_URI_append_m3ulcb = " file://ulcb.cfg"
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 SRC_URI_append_eagle = " file://eagle.cfg"
 
