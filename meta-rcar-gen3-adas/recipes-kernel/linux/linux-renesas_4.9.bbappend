@@ -37,6 +37,8 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
+    file://0041-arm64-dts-renesas-ulcb-enlarge-cma-region.patch \
+    file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
@@ -44,6 +46,7 @@ SRC_URI_append = " \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
     file://0064-ADV7511-limit-maximum-pixelclock.patch \
+    file://0065-gpio-max732x-set-gpio-ouput-low-at-init.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
