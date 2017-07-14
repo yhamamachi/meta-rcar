@@ -33,11 +33,13 @@ SRC_URI_append = " \
     file://0028-usb-host-xhci-rcar-update-firmware-for-R-Car-H3-and-.patch \
     file://0029-i2c-mux-pca954x-fix-i2c-mux-selection-caching.patch \
     file://0030-Gen3-LVDS-cameras.patch \
+    file://0031-media-i2c-Add-ov5647-sensor.patch \
+    file://0032-media-i2c-Add-ov5642-sensor.patch \
+    file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
-    file://0060-media-i2c-Add-ov5647-sensor.patch \
     ${@base_conditional("SOUND_MULTICHANNEL", "1", " file://0061-ASoC-R-Car-add-tdm16-support-enable-tdm-for-ssi78.patch", "", d)} \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \

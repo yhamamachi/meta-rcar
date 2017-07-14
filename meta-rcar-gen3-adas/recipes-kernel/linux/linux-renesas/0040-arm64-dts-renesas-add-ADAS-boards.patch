@@ -23,27 +23,28 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts    |   22 +
  .../dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts    |   23 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi   |  225 +++
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts  |  427 +++++
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1659 ++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts  |  451 +++++
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1673 ++++++++++++++++++
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts     | 1787 ++++++++++++++++++++
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts   |  546 ++++++
  .../dts/renesas/r8a7795-es1-salvator-x-view.dts    |  552 ++++++
  .../boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts   |   22 +
  .../boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts   |   23 +
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi |  219 +++
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  427 +++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1655 ++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  451 +++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1669 ++++++++++++++++++
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts  | 1787 ++++++++++++++++++++
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 ++++++
  .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 ++++++
- .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  427 +++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1242 ++++++++++++++
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  451 +++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1256 ++++++++++++++
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi      |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 24 files changed, 13383 insertions(+)
+ 25 files changed, 13572 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
@@ -64,6 +65,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
@@ -382,10 +384,10 @@ index 0000000..d50ff7a
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..9b76ca9
+index 0000000..f0e5ecc
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf-v1.dts
-@@ -0,0 +1,439 @@
+@@ -0,0 +1,451 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board on r8a7795 ES1.x
 + *
@@ -746,6 +748,18 @@ index 0000000..9b76ca9
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -827,10 +841,10 @@ index 0000000..9b76ca9
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..90be9f8
+index 0000000..549659b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
-@@ -0,0 +1,1659 @@
+@@ -0,0 +1,1673 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795 ES1.x
 + *
@@ -1346,6 +1360,18 @@ index 0000000..90be9f8
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -2490,6 +2516,8 @@ index 0000000..90be9f8
 +//#include "ulcb-kf-rpi.dtsi"
 +/* uncomment to enable CN47: SD on SDHI3 */
 +//#include "ulcb-kf-sd3.dtsi"
++/* uncomment to override CN29 (CMOS camera) on VIN5 */
++//#include "ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts
 new file mode 100644
 index 0000000..0e6ea57
@@ -5677,10 +5705,10 @@ index 0000000..4a00426
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..7bcd87d
+index 0000000..afa71bd
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,439 @@
+@@ -0,0 +1,451 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -6041,6 +6069,18 @@ index 0000000..7bcd87d
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -6122,10 +6162,10 @@ index 0000000..7bcd87d
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..e3a5f03
+index 0000000..58c5dcb
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,1655 @@
+@@ -0,0 +1,1669 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795
 + *
@@ -6641,6 +6681,18 @@ index 0000000..e3a5f03
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -7781,6 +7833,8 @@ index 0000000..e3a5f03
 +//#include "ulcb-kf-rpi.dtsi"
 +/* uncomment to enable CN47: SD on SDHI3 */
 +//#include "ulcb-kf-sd3.dtsi"
++/* uncomment to override CN29 (CMOS camera) on VIN5 */
++//#include "ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts
 new file mode 100644
 index 0000000..a26689c
@@ -10686,10 +10740,10 @@ index 0000000..fb12a39f3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..e3b1ec3
+index 0000000..63cf414
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,439 @@
+@@ -0,0 +1,451 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -11050,6 +11104,18 @@ index 0000000..e3b1ec3
 +			output-high;
 +			line-name = "Video-A A1";
 +		};
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -11131,10 +11197,10 @@ index 0000000..e3b1ec3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..5199531
+index 0000000..1e4b32a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1242 @@
+@@ -0,0 +1,1256 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board on r8a7796
 + *
@@ -11650,6 +11716,18 @@ index 0000000..5199531
 +		interrupt-parent = <&gpio7>;
 +		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +
++		cmos_pwdn {
++			gpio-hog;
++			gpios = <8 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS PWDN";
++		};
++		cmos_rst {
++			gpio-hog;
++			gpios = <9 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "CMOS RST";
++		};
 +		/* pin 12 - CAM_CLK */
 +		rpi_cam_io_1 {
 +			gpio-hog;
@@ -12377,6 +12455,8 @@ index 0000000..5199531
 +
 +/* uncomment to enable CN47: SD on SDHI3 */
 +//#include "ulcb-kf-sd3.dtsi"
++/* CN29: (CMOS camera) on VIN5 */
++#include "ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 new file mode 100644
 index 0000000..1ac0041
@@ -12993,6 +13073,87 @@ index 0000000..cc6866c
 +	pinctrl-0 = <&can1_pins>;
 +	pinctrl-names = "default";
 +	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
+new file mode 100644
+index 0000000..2145f5e
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
+@@ -0,0 +1,75 @@
++/*
++ * Device Tree Source for the H3ULCB Kingfisher board:
++ * this adding conflicting resource on VIN5 for CMOS camera
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++/ {
++	camera_clk: camera_clk {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++		clock-output-names = "mclk";
++	};
++};
++
++&pfc {
++	vin5_pins: vin5 {
++		groups = "vin5_data8", "vin5_sync", "vin5_clk";
++		function = "vin5";
++	};
++};
++
++&i2cswitch4 {
++	i2c@5 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <5>;
++
++		cmos_camera: ov5642@3c {
++			compatible = "ovti,ov5642";
++			reg = <0x3c>;
++			clocks = <&camera_clk>;
++			clock-names = "mclk";
++
++			port@0 {
++				cmos_camera_in: endpoint {
++					remote-endpoint = <&vin5ep0>;
++				};
++			};
++		};
++	};
++};
++
++&vin5 {
++	pinctrl-0 = <&vin5_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin5ep0: endpoint@0 {
++				/delete-property/csi,select;
++				/delete-property/virtual,channel;
++				/delete-property/data-lanes;
++				bus-width = <8>;
++				/* #HSYNC, #VSYNC */
++				vsync-active = <1>;
++				hsync-active = <0>;
++				remote-endpoint = <&cmos_camera_in>;
++			};
++		};
++		port@1 {
++			/delete-node/endpoint;
++		};
++	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
 new file mode 100644
