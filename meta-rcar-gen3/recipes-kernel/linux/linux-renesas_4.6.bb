@@ -112,6 +112,7 @@ SRC_URI_append = " \
     file://0112-MOST-dim2-add-R-Car3-related-initialization.patch \
     file://0113-MOST-core-fix-memory-allocation-at-arm64.patch \
     file://0114-MOST-dim2-Renesas-R-Car3-variant.patch \
+    file://0115-pci-pcie-rcar-add-regulators-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
