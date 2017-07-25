@@ -34,7 +34,7 @@ new file mode 100644
 index 0000000..9005e8c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,470 @@
+@@ -0,0 +1,469 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -123,7 +123,6 @@ index 0000000..9005e8c
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
 +		gpio = <&gpio_ext_77 14 GPIO_ACTIVE_HIGH>;
-+		startup-delay-us = <100000>;
 +		enable-active-high;
 +	};
 +
@@ -133,7 +132,7 @@ index 0000000..9005e8c
 +		regulator-min-microvolt = <1800000>;
 +		regulator-max-microvolt = <1800000>;
 +		gpio = <&gpio_ext_77 15 GPIO_ACTIVE_HIGH>;
-+		startup-delay-us = <100000>;
++		startup-delay-us = <200000>;
 +		enable-active-high;
 +	};
 +
