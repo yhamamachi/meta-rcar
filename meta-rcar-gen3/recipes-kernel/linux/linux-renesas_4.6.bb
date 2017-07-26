@@ -61,6 +61,7 @@ SRC_URI_append = " \
     file://0041-media-i2c-Add-ov5647-sensor.patch \
     file://0042-media-i2c-Add-ov5642-sensor.patch \
     file://0043-gpio-max732x-set-gpio-ouput-low-at-init.patch \
+    ${@base_conditional("LVDSCAMERA_USE_COGENT_FIRMWARE", "1", " file://0044-media-ov490-disable-stats-rows.patch", "", d)} \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
     file://0052-arm64-renesas-H3ULCB-View-board-support.patch \
