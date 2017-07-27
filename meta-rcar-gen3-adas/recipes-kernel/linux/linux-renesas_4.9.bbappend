@@ -39,6 +39,7 @@ SRC_URI_append = " \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0041-arm64-dts-renesas-ulcb-enlarge-cma-region.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
+    ${@base_conditional("LVDSCAMERA_USE_COGENT_FIRMWARE", "1", " file://0043-media-ov490-disable-stats-rows.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \

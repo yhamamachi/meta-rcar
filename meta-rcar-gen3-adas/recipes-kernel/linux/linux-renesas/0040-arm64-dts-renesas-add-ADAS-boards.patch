@@ -31,20 +31,20 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts   |   22 +
  .../boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts   |   23 +
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi |  219 +++
- .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  445 +++++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1703 +++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts      |  469 +++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1712 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts  | 1787 ++++++++++++++++++++
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 ++++++
  .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 ++++++
- .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  445 +++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1267 ++++++++++++++
+ .../boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts      |  469 +++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1284 ++++++++++++++
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi      |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   75 +
- arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   33 +
+ arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   44 +
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 25 files changed, 13633 insertions(+)
+ 25 files changed, 13718 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
@@ -5733,10 +5733,10 @@ index 0000000..4a00426
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..fc613d2
+index 0000000..f3e5bda
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,445 @@
+@@ -0,0 +1,469 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -5817,6 +5817,25 @@ index 0000000..fc613d2
 +		gpio = <&gpio_ext_74 13 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +		regulator-always-on;
++	};
++
++	mpcie_3v3: regulator@12 {
++		compatible = "regulator-fixed";
++		regulator-name = "mPCIe 3v3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio_ext_77 14 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	mpcie_1v8: regulator@13 {
++		compatible = "regulator-fixed";
++		regulator-name = "mPCIe 1v8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		gpio = <&gpio_ext_77 15 GPIO_ACTIVE_HIGH>;
++		startup-delay-us = <200000>;
++		enable-active-high;
 +	};
 +
 +	kim {
@@ -6182,12 +6201,17 @@ index 0000000..fc613d2
 +&wlcore {
 +	interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
 +};
++
++&pciec1 {
++	pcie3v3-supply = <&mpcie_3v3>;
++	pcie1v8-supply = <&mpcie_1v8>;
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..c0481dc
+index 0000000..71e8881
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,1703 @@
+@@ -0,0 +1,1712 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795
 + *
@@ -6232,7 +6256,9 @@ index 0000000..c0481dc
 +		regulator-name = "SDHI3 Vcc";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		regulator-always-on;
++
++		gpio = <&gpio4 17 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +	};
 +
 +	vccq_sdhi3: regulator@5 {
@@ -6453,6 +6479,12 @@ index 0000000..c0481dc
 +		groups = "sdhi3_data4", "sdhi3_ctrl";
 +		function = "sdhi3";
 +		power-source = <3300>;
++	};
++
++	sdhi3_pins_1v8: sd3_1v8 {
++		groups = "sdhi3_data4", "sdhi3_ctrl";
++		function = "sdhi3";
++		power-source = <1800>;
 +	};
 +
 +	sound_0_pins: sound0 {
@@ -7805,7 +7837,8 @@ index 0000000..c0481dc
 +
 +&sdhi3 {
 +	pinctrl-0 = <&sdhi3_pins_3v3>;
-+	pinctrl-names = "default";
++	pinctrl-1 = <&sdhi3_pins_1v8>;
++	pinctrl-names = "default", "state_uhs";
 +
 +	vmmc-supply = <&wlan_en>;
 +	vqmmc-supply = <&vccq_sdhi3>;
@@ -10796,10 +10829,10 @@ index 0000000..fb12a39f3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..202af9c
+index 0000000..9264680
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf-v1.dts
-@@ -0,0 +1,445 @@
+@@ -0,0 +1,469 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher V1 board
 + *
@@ -10880,6 +10913,25 @@ index 0000000..202af9c
 +		gpio = <&gpio_ext_74 13 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +		regulator-always-on;
++	};
++
++	mpcie_3v3: regulator@12 {
++		compatible = "regulator-fixed";
++		regulator-name = "mPCIe 3v3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio_ext_77 14 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	mpcie_1v8: regulator@13 {
++		compatible = "regulator-fixed";
++		regulator-name = "mPCIe 1v8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		gpio = <&gpio_ext_77 15 GPIO_ACTIVE_HIGH>;
++		startup-delay-us = <200000>;
++		enable-active-high;
 +	};
 +
 +	kim {
@@ -11245,12 +11297,17 @@ index 0000000..202af9c
 +&wlcore {
 +	interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
 +};
++
++&pciec1 {
++	pcie3v3-supply = <&mpcie_3v3>;
++	pcie1v8-supply = <&mpcie_1v8>;
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..e5aaa88
+index 0000000..5a6c38b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,1273 @@
+@@ -0,0 +1,1284 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board on r8a7796
 + *
@@ -11295,7 +11352,9 @@ index 0000000..e5aaa88
 +		regulator-name = "SDHI3 Vcc";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		regulator-always-on;
++
++		gpio = <&gpio4 17 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +	};
 +
 +	vccq_sdhi3: regulator@5 {
@@ -11516,6 +11575,12 @@ index 0000000..e5aaa88
 +		groups = "sdhi3_data4", "sdhi3_ctrl";
 +		function = "sdhi3";
 +		power-source = <3300>;
++	};
++
++	sdhi3_pins_1v8: sd3_1v8 {
++		groups = "sdhi3_data4", "sdhi3_ctrl";
++		function = "sdhi3";
++		power-source = <1800>;
 +	};
 +
 +	sound_0_pins: sound0 {
@@ -12436,7 +12501,8 @@ index 0000000..e5aaa88
 +
 +&sdhi3 {
 +	pinctrl-0 = <&sdhi3_pins_3v3>;
-+	pinctrl-names = "default";
++	pinctrl-1 = <&sdhi3_pins_1v8>;
++	pinctrl-names = "default", "state_uhs";
 +
 +	vmmc-supply = <&wlan_en>;
 +	vqmmc-supply = <&vccq_sdhi3>;
@@ -12522,6 +12588,8 @@ index 0000000..e5aaa88
 +
 +/* uncomment to enable CN47: SD on SDHI3 */
 +//#include "ulcb-kf-sd3.dtsi"
++/* CN48 (Raspberry Pi) on VIN4 */
++#include "ulcb-kf-rpi.dtsi"
 +/* CN29: (CMOS camera) on VIN5 */
 +#include "ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
@@ -13305,10 +13373,10 @@ index 0000000..d3b4ece
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
 new file mode 100644
-index 0000000..ef481d3
+index 0000000..216e800
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Device Tree Source for the H3/M3ULCB Kingfisher board:
 + *  this overrides WIFI in favour SD on SDHI3
@@ -13326,15 +13394,26 @@ index 0000000..ef481d3
 +	enable-active-high;
 +};
 +
++&vccq_sdhi3 {
++	compatible = "regulator-gpio";
++
++	regulator-min-microvolt = <1800000>;
++
++	gpios = <&gpio3 14 GPIO_ACTIVE_HIGH>;
++	gpios-states = <1>;
++	states = <3300000 1
++		  1800000 0>;
++};
++
 +&sdhi3 {
 +	/delete-property/non-removable;
 +	/delete-property/cap-power-off-card;
 +	/delete-property/keep-power-in-suspend;
 +	/delete-property/enable-sdio-wakeup;
-+	/delete-property/sd-uhs-sdr104;
++	/delete-property/max-frequency;
++	/delete-property/no-1-8-v;
 +
 +	vmmc-supply = <&vcc_sdhi3>;
-+	max-frequency = <46000000>;
 +	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
 +	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
 +};
