@@ -47,6 +47,7 @@ SRC_URI_append = " \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
     file://0064-ADV7511-limit-maximum-pixelclock.patch \
     file://0065-gpio-max732x-set-gpio-ouput-low-at-init.patch \
+    file://0066-pci-pcie-rcar-add-regulators-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
