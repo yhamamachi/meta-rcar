@@ -18,8 +18,8 @@ do_compile[noexec] = "1"
 do_configure[noexec] = "1"
 
 do_install() {
-	install -d  ${D}/lib/firmware/
-	cp *.bts ${D}/lib/firmware/
+	install -d  ${D}/lib/firmware/ti-connectivity/
+	cp *.bts ${D}/lib/firmware/ti-connectivity/
 }
 
-FILES_${PN} = "/lib/firmware/*"
+FILES_${PN} = "/lib/firmware/ti-connectivity/*"

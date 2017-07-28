@@ -567,7 +567,7 @@ index 0000000..408bf2e
 +&hscif0 {
 +	pinctrl-0 = <&hscif0_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -1217,7 +1217,7 @@ index 0000000..897da81
 +&hscif4 {
 +	pinctrl-0 = <&hscif4_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -3015,7 +3015,7 @@ index 0000000..bf550b7
 +&hscif4 {
 +	pinctrl-0 = <&hscif4_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -5935,7 +5935,7 @@ index 0000000..f3e5bda
 +&hscif0 {
 +	pinctrl-0 = <&hscif0_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -6598,7 +6598,7 @@ index 0000000..71e8881
 +&hscif4 {
 +	pinctrl-0 = <&hscif4_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -8393,7 +8393,7 @@ index 0000000..480f7d9
 +&hscif4 {
 +	pinctrl-0 = <&hscif4_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -11031,7 +11031,7 @@ index 0000000..9264680
 +&hscif0 {
 +	pinctrl-0 = <&hscif0_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
@@ -11694,7 +11694,7 @@ index 0000000..5a6c38b
 +&hscif4 {
 +	pinctrl-0 = <&hscif4_pins>;
 +	pinctrl-names = "default";
-+	ctsrts;
++	uart-has-rtscts;
 +
 +	status = "okay";
 +};
