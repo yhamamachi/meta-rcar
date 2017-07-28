@@ -44,6 +44,7 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
     ${@base_conditional("SOUND_MULTICHANNEL", "1", " file://0061-ASoC-R-Car-add-tdm16-support-enable-tdm-for-ssi78.patch", "", d)} \
+    file://0061-Sound-R-Car-support-8-channel-TDM-mode.patch \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
     file://0064-ADV7511-limit-maximum-pixelclock.patch \

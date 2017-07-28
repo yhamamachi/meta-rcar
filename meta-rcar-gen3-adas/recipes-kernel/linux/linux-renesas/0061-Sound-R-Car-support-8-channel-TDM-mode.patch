@@ -1,0 +1,44 @@
+From b0de1ee4dced476e3ee7da330602fc6e7419934b Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Mon, 24 Jul 2017 20:24:29 +0300
+Subject: [PATCH] Sound: R-Car: support 8-channel TDM mode
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ sound/soc/sh/rcar/core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
+index 448072cf9069..4807353e47d2 100644
+--- a/sound/soc/sh/rcar/core.c
++++ b/sound/soc/sh/rcar/core.c
+@@ -678,6 +678,8 @@ static int rsnd_soc_set_dai_tdm_slot(struct snd_soc_dai *dai,
+ 	struct device *dev = rsnd_priv_to_dev(priv);
+ 
+ 	switch (slots) {
++	case 8:
++		/* TDM Mode */
+ 	case 6:
+ 		/* TDM Extend Mode */
+ 		rsnd_set_slot(rdai, slots, 1);
+@@ -775,7 +777,7 @@ static int rsnd_dai_probe(struct rsnd_priv *priv)
+ 		drv->playback.rates		= RSND_RATES;
+ 		drv->playback.formats		= RSND_FMTS;
+ 		drv->playback.channels_min	= 2;
+-		drv->playback.channels_max	= 6;
++		drv->playback.channels_max	= 8;
+ 		drv->playback.stream_name	= rdai->playback.name;
+ 
+ 		snprintf(rdai->capture.name, RSND_DAI_NAME_SIZE,
+@@ -783,7 +785,7 @@ static int rsnd_dai_probe(struct rsnd_priv *priv)
+ 		drv->capture.rates		= RSND_RATES;
+ 		drv->capture.formats		= RSND_FMTS;
+ 		drv->capture.channels_min	= 2;
+-		drv->capture.channels_max	= 6;
++		drv->capture.channels_max	= 8;
+ 		drv->capture.stream_name	= rdai->capture.name;
+ 
+ 		rdai->playback.rdai		= rdai;
+-- 
+2.13.0
+
