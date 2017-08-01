@@ -62,20 +62,17 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-had-alfa.dtb \
     renesas/r8a7795-es1-h3ulcb-had-beta.dtb \
     renesas/r8a7795-es1-h3ulcb-kf.dtb \
-    renesas/r8a7795-es1-h3ulcb-kf-v1.dtb \
     renesas/r8a7795-es1-h3ulcb-vb.dtb \
     renesas/r8a7795-h3ulcb-view.dtb \
     renesas/r8a7795-h3ulcb-had-alfa.dtb \
     renesas/r8a7795-h3ulcb-had-beta.dtb \
     renesas/r8a7795-h3ulcb-kf.dtb \
-    renesas/r8a7795-h3ulcb-kf-v1.dtb \
     renesas/r8a7795-h3ulcb-vb.dtb \
 "
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-view.dtb \
     renesas/r8a7796-m3ulcb-kf.dtb \
-    renesas/r8a7796-m3ulcb-kf-v1.dtb \
 "
 
 KERNEL_DEVICETREE_append_salvator-x = " \
