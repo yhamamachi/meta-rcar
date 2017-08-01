@@ -9,6 +9,7 @@ SRC_URI_append_rcar-gen3 = " \
     file://system.pa \
     file://system-mch.pa \
     file://daemon.conf \
+    file://pulseaudio-bluetooth.conf \
 "
 
 inherit update-rc.d
@@ -33,10 +34,12 @@ do_install_append_rcar-gen3() {
 
     install -m 0644 ${WORKDIR}/rsnddai0ak4613h.conf ${D}${datadir}/alsa/ucm/rsnddai0ak4613h/rsnddai0ak4613h.conf
     install -m 0644 ${WORKDIR}/hifi ${D}${datadir}/alsa/ucm/rsnddai0ak4613h/hifi
-    
+
+    install -d ${D}/${sysconfdir}/dbus-1/system.d
+    install -m 644 ${WORKDIR}/pulseaudio-bluetooth.conf ${D}/${sysconfdir}/dbus-1/
 }
 
 FILES_${PN} += " \
 	    ${datadir}/alsa/ucm \
+	    ${datadir}/dbus-1/ \
 "
-

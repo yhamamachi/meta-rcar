@@ -59,15 +59,24 @@ load-module module-always-sink
 ### Enable positioned event sounds
 # load-module module-position-event-sounds
 
-### Split multichannel card output to Bluetooth PCM and 5.1
-# load-module module-remap-sink sink_name=Surround51 remix=no master=pcm3168a_output channels=6 master_channel_map=front-left,front-right,rear-left,rear-right,front-center,lfe channel_map=front-left,front-right,rear-left,rear-right,front-center,lfe
-# load-module module-remap-sink sink_name=BluetoothPCM_output remix=no master=pcm3168a_output channels=2 master_channel_map=side-left,side-right channel_map=front-left,front-right
+### Automatically load driver modules for Bluetooth hardware
+.ifexists module-bluetooth-policy.so
+load-module module-bluetooth-policy
+.endif
 
-### Split multichannel card input to 3 x microphone/line-ins and Bluetooth PCM input
+.ifexists module-bluetooth-discover.so
+load-module module-bluetooth-discover
+.endif
+
+### Split multichannel card output to Stereo and 5.1
+# load-module module-remap-sink sink_name=Surround51 remix=no master=pcm3168a_output channels=6 master_channel_map=front-left,front-right,rear-left,rear-right,front-center,lfe channel_map=front-left,front-right,rear-left,rear-right,front-center,lfe
+# load-module module-remap-sink sink_name=StereoOut remix=no master=pcm3168a_output channels=2 master_channel_map=side-left,side-right channel_map=front-left,front-right
+
+### Split multichannel card input to 4 x microphone/line-ins
 # load-module module-remap-source source_name=mic0 remix=no master=pcm3168a_input channels=2 master_channel_map=front-left,front-right channel_map=front-left,front-right
 # load-module module-remap-source source_name=mic1 remix=no master=pcm3168a_input channels=2 master_channel_map=rear-left,rear-right channel_map=front-left,front-right
 # load-module module-remap-source source_name=mic2 remix=no master=pcm3168a_input channels=2 master_channel_map=front-center,lfe channel_map=front-left,front-right
-# load-module module-remap-source source_name=BluetoothPCM_inout remix=no master=pcm3168a_input channels=2 master_channel_map=side-left,side-right channel_map=front-left,front-right
+# load-module module-remap-source source_name=mic3 remix=no master=pcm3168a_input channels=2 master_channel_map=side-left,side-right channel_map=front-left,front-right
 
 ### Set default source and sink to multichannel soundcard
 # set-default-sink Surround51
