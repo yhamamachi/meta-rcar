@@ -4758,7 +4758,7 @@ index 0000000..0ac577a
 +	};
 +
 +	sound_1_pins: sound1 {
-+		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
++		groups = "ssi0129_ctrl", "ssi0_data", "ssi1_data_a";
 +		function = "ssi";
 +	};
 +
@@ -6771,7 +6771,7 @@ index 0000000..f117af0
 +	};
 +
 +	sound_1_pins: sound1 {
-+		groups = "ssi0129_ctrl", "ssi0_data", "ssi1_data_a";
++		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
 +		function = "ssi";
 +	};
 +
@@ -11872,7 +11872,7 @@ index 0000000..5b61059
 +	};
 +
 +	sound_1_pins: sound1 {
-+		groups = "ssi0129_ctrl", "ssi0_data", "ssi1_data_a";
++		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
 +		function = "ssi";
 +	};
 +
