@@ -242,7 +242,7 @@ index 0000000..b3ac95aa4
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* pca9535@i2c2.0x20 pin 3 */
++		shutdown-gpios = <&gpio_ext_20 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
@@ -1926,7 +1926,7 @@ index 0000000..1672384
 +	};
 +
 +	kim {
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	hdmi-out {
@@ -2411,7 +2411,7 @@ index 0000000..2a7ded7
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* pca9535@i2c2.0x20 pin 3 */
++		shutdown-gpios = <&gpio_ext_20 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
@@ -4117,7 +4117,7 @@ index 0000000..119f58c
 +	};
 +
 +	kim {
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	hdmi-out {
@@ -4607,7 +4607,7 @@ index 0000000..0ac577a
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* pca9535@i2c2.0x20 pin 3 */
++		shutdown-gpios = <&gpio_ext_20 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
@@ -5807,7 +5807,7 @@ index 0000000..1344152
 +	};
 +
 +	kim {
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	hdmi-out {
@@ -6588,7 +6588,7 @@ index 0000000..f117af0
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
@@ -11689,7 +11689,7 @@ index 0000000..5b61059
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
@@ -16504,7 +16504,7 @@ index 0000000..a037f16
 +
 +	kim {
 +		compatible = "kim";
-+		nshutdown_gpio = <343>;  /* gpio_ext_74 pin 3 */
++		shutdown-gpios = <&gpio_ext_74 3 GPIO_ACTIVE_HIGH>;
 +		/* serial1 */
 +		dev_name = "/dev/ttySC1";
 +		flow_cntrl = <1>;
