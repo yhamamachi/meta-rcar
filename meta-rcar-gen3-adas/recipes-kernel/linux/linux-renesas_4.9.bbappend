@@ -50,6 +50,7 @@ SRC_URI_append = " \
     file://0065-gpio-max732x-set-gpio-ouput-low-at-init.patch \
     file://0066-pci-pcie-rcar-add-regulators-support.patch \
     file://0067-ti-st-use-proper-way-to-get-shutdown-gpio.patch \
+    file://0068-drm-adv7511-use-smbus-to-retrieve-edid.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

@@ -514,7 +514,7 @@ index 0000000..b3ac95aa4
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
@@ -2123,8 +2123,8 @@ index 0000000..1672384
 +		hdmi@3d {
 +			compatible = "adi,adv7511w";
 +			reg = <0x3d>;
-+			interrupt-parent = <&gpio2>;
-+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//			interrupt-parent = <&gpio2>;
++//			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +			pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +			adi,input-depth = <8>;
@@ -2288,7 +2288,7 @@ new file mode 100644
 index 0000000..2a7ded7
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
-@@ -0,0 +1,1720 @@
+@@ -0,0 +1,1724 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V0 board on r8a7795
 + *
@@ -2683,7 +2683,7 @@ index 0000000..2a7ded7
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
@@ -3953,6 +3953,10 @@ index 0000000..2a7ded7
 +	status = "okay";
 +};
 +
++&hsusb0 {
++	status = "okay";
++};
++
 +&ehci0 {
 +	status = "okay";
 +};
@@ -4314,8 +4318,8 @@ index 0000000..119f58c
 +		hdmi@3d {
 +			compatible = "adi,adv7511w";
 +			reg = <0x3d>;
-+			interrupt-parent = <&gpio2>;
-+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//			interrupt-parent = <&gpio2>;
++//			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +			pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +			adi,input-depth = <8>;
@@ -4879,7 +4883,7 @@ index 0000000..0ac577a
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_20: pca9535@20 {
 +		compatible = "nxp,pca9535";
@@ -6004,8 +6008,8 @@ index 0000000..1344152
 +		hdmi@3d {
 +			compatible = "adi,adv7511w";
 +			reg = <0x3d>;
-+			interrupt-parent = <&gpio2>;
-+			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//			interrupt-parent = <&gpio2>;
++//			interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +			pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +			adi,input-depth = <8>;
@@ -6870,7 +6874,7 @@ index 0000000..f117af0
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_74: pca9539@74 {
 +		compatible = "nxp,pca9539";
@@ -6985,8 +6989,8 @@ index 0000000..f117af0
 +			hdmi@3d {
 +				compatible = "adi,adv7511w";
 +				reg = <0x3d>;
-+				interrupt-parent = <&gpio2>;
-+				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//				interrupt-parent = <&gpio2>;
++//				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +				pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +				adi,input-depth = <8>;
@@ -11563,7 +11567,7 @@ new file mode 100644
 index 0000000..5b61059
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -0,0 +1,1906 @@
+@@ -0,0 +1,1910 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board on r8a7795
 + *
@@ -11971,7 +11975,7 @@ index 0000000..5b61059
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_74: pca9539@74 {
 +		compatible = "nxp,pca9539";
@@ -12086,8 +12090,8 @@ index 0000000..5b61059
 +			hdmi@3d {
 +				compatible = "adi,adv7511w";
 +				reg = <0x3d>;
-+				interrupt-parent = <&gpio2>;
-+				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//				interrupt-parent = <&gpio2>;
++//				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +				pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +				adi,input-depth = <8>;
@@ -13406,6 +13410,10 @@ index 0000000..5b61059
 +	pinctrl-0 = <&usb0_pins>;
 +	pinctrl-names = "default";
 +
++	status = "okay";
++};
++
++&hsusb0 {
 +	status = "okay";
 +};
 +
@@ -16786,7 +16794,7 @@ index 0000000..a037f16
 +};
 +
 +&i2c2 {
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	gpio_ext_74: pca9539@74 {
 +		compatible = "nxp,pca9539";
@@ -16901,8 +16909,8 @@ index 0000000..a037f16
 +			hdmi@3d {
 +				compatible = "adi,adv7511w";
 +				reg = <0x3d>;
-+				interrupt-parent = <&gpio2>;
-+				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
++//				interrupt-parent = <&gpio2>;
++//				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +				pd-gpios = <&gpio_ext_75 5 GPIO_ACTIVE_LOW>;
 +
 +				adi,input-depth = <8>;
