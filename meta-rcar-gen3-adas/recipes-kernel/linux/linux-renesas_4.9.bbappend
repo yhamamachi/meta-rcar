@@ -51,6 +51,7 @@ SRC_URI_append = " \
     file://0066-pci-pcie-rcar-add-regulators-support.patch \
     file://0067-ti-st-use-proper-way-to-get-shutdown-gpio.patch \
     file://0068-drm-adv7511-use-smbus-to-retrieve-edid.patch \
+    file://0069-ASoC-ak4613-Improve-counting-DAI-number.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
