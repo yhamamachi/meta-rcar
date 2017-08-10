@@ -29,6 +29,8 @@ load-module module-alsa-source source_name=pcm3168a_input device=hw:pcm3168a for
 load-module module-alsa-card device_id=ak4613 rate=48000 use_ucm=1 tsched=yes sink_name=ak4613_output source_name=ak4613_input
 ## Radio input (Kingfisher only)
 load-module module-alsa-source source_name=radio device=hw:radio channels=2 rate=48000
+## WL18xx PCM interface (Kingfisher only)
+load-module module-alsa-card device_id=wl18xx rate=8000 sink_name=bt_output source_name=bt_input
 
 ### Load several protocols
 .ifexists module-esound-protocol-unix.so
