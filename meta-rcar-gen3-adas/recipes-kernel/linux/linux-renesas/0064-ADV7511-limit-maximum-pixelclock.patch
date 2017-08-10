@@ -3,6 +3,9 @@ From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 9 Jun 2017 20:12:26 +0300
 Subject: [PATCH] ADV7511: limit maximum pixelclock
 
+DU0 (RGB) supports clock freq up to 100MHz only.
+Temporary set limitation in the driver since it KF is the only user atm
+
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
  drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 2 +-
@@ -17,7 +20,7 @@ index 9698c21813dc..8914d64b7589 100644
  			      struct drm_display_mode *mode)
  {
 -	if (mode->clock > 165000)
-+	if (mode->clock > 133000)
++	if (mode->clock > 100000)
  		return MODE_CLOCK_HIGH;
  
  	return MODE_OK;
