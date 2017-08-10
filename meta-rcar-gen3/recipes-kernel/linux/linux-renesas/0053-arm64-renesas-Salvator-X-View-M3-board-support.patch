@@ -823,7 +823,7 @@ index 0000000..1778c58
 +	vmmc-supply = <&fixedregulator3v3>;
 +	vqmmc-supply = <&fixedregulator1v8>;
 +	bus-width = <8>;
-+	status = "okay";
++	status = "disabled";
 +};
 +
 +&ssi1 {
