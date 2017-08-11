@@ -55,6 +55,7 @@ SRC_URI_append = " \
     file://0069-ASoC-ak4613-Improve-counting-DAI-number.patch \
     file://0070-clk-clk-5p49x-add-5P49V5925-chip.patch \
     file://0071-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch \
+    file://0072-usb-hub-disable-autosuspend-for-SMSC-hubs.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
