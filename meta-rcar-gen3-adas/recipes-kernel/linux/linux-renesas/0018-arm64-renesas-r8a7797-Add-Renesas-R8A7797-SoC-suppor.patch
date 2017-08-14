@@ -8,12 +8,15 @@ This adds Renesas R8A7797 SoC support
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    6 +
- arch/arm64/boot/dts/renesas/r8a7797.dtsi      |  986 ++++++++++
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi      |  992 ++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
- drivers/clk/renesas/r8a7797-cpg-mssr.c        |  217 ++
+ drivers/clk/renesas/r8a7797-cpg-mssr.c        |  218 +++
+ drivers/clk/renesas/rcar-gen3-cpg.c           |   41 +-
+ drivers/clk/renesas/rcar-gen3-cpg.h           |    6 +
  drivers/clk/renesas/renesas-cpg-mssr.c        |    6 +
  drivers/clk/renesas/renesas-cpg-mssr.h        |    1 +
+ drivers/cpufreq/cpufreq-dt-platdev.c          |    1 +
  drivers/gpio/gpio-rcar.c                      |    6 +-
  drivers/gpu/drm/rcar-du/rcar_du_drv.c         |   25 +
  drivers/gpu/drm/rcar-du/rcar_du_group.c       |   12 +-
@@ -22,20 +25,21 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/i2c/busses/i2c-rcar.c                 |    1 +
  drivers/iommu/ipmmu-vmsa.c                    |    7 +-
  drivers/media/platform/soc_camera/Kconfig     |    2 +-
- drivers/media/platform/soc_camera/rcar_csi2.c |   25 +-
+ drivers/media/platform/soc_camera/rcar_csi2.c |   26 +-
  drivers/media/platform/soc_camera/rcar_vin.c  |   86 +-
- drivers/media/platform/vsp1/vsp1_drv.c        |    8 +
- drivers/media/platform/vsp1/vsp1_lif.c        |   13 +
+ drivers/media/platform/vsp1/vsp1_drv.c        |    9 +
+ drivers/media/platform/vsp1/vsp1_lif.c        |   12 +-
  drivers/media/platform/vsp1/vsp1_regs.h       |    7 +
- drivers/mmc/host/sh_mobile_sdhi.c             |    1 +
+ drivers/mmc/host/sh_mobile_sdhi.c             |    2 +
  drivers/net/ethernet/renesas/ravb_main.c      |    1 +
  drivers/pinctrl/sh-pfc/Kconfig                |    5 +
  drivers/pinctrl/sh-pfc/Makefile               |    1 +
  drivers/pinctrl/sh-pfc/core.c                 |    7 +
- drivers/pinctrl/sh-pfc/pfc-r8a7797.c          | 2615 +++++++++++++++++++++++++
+ drivers/pinctrl/sh-pfc/pfc-r8a7797.c          | 2586 +++++++++++++++++++++++++
  drivers/pinctrl/sh-pfc/sh_pfc.h               |   12 +
- drivers/soc/renesas/Makefile                  |    3 +
+ drivers/soc/renesas/Makefile                  |    4 +
  drivers/soc/renesas/r8a7797-sysc.c            |   39 +
+ drivers/soc/renesas/rcar-rst.c                |    1 +
  drivers/soc/renesas/rcar-sysc.c               |    3 +
  drivers/soc/renesas/rcar-sysc.h               |    1 +
  drivers/soc/renesas/rcar_ems_ctrl.c           |   10 +
@@ -44,7 +48,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/thermal/rcar_gen3_thermal.c           |   29 +
  include/dt-bindings/clock/r8a7797-cpg-mssr.h  |   48 +
  include/dt-bindings/power/r8a7797-sysc.h      |   32 +
- 37 files changed, 4247 insertions(+), 28 deletions(-)
+ 41 files changed, 4275 insertions(+), 30 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797.dtsi
  create mode 100644 drivers/clk/renesas/r8a7797-cpg-mssr.c
  create mode 100644 drivers/pinctrl/sh-pfc/pfc-r8a7797.c
@@ -71,10 +75,10 @@ index 7c104ca..9380fc6 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
 new file mode 100644
-index 0000000..c09df87
+index 0000000..5bd447a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-@@ -0,0 +1,986 @@
+@@ -0,0 +1,992 @@
 +/*
 + * Device Tree Source for the r8a7797 SoC
 + *
@@ -262,7 +266,7 @@ index 0000000..c09df87
 +			interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;		/* SPI5:GPIO.ch1 */
 +			#gpio-cells = <2>;
 +			gpio-controller;
-+			gpio-ranges = <&pfc 0 32 27>;
++			gpio-ranges = <&pfc 0 32 28>;
 +			#interrupt-cells = <2>;
 +			interrupt-controller;
 +			clocks = <&cpg CPG_MOD 911>;				/* RMSTPCR9/bit11:GPIO1 */
@@ -370,6 +374,16 @@ index 0000000..c09df87
 +			clocks = <&cpg CPG_MOD 716>;				/* RMSTPCR7/bit16:CSI40 */
 +			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
 +			status = "disabled";
++		};
++
++		prr: chipid@fff00044 {
++			compatible = "renesas,prr";
++			reg = <0 0xfff00044 0 4>;
++		};
++
++		rst: reset-controller@e6160000 {
++			compatible = "renesas,r8a7797-rst";
++			reg = <0 0xe6160000 0 0x0200>;
 +		};
 +
 +		sysc: system-controller@e6180000 {
@@ -897,12 +911,12 @@ index 0000000..c09df87
 +			status = "disabled";
 +		};
 +
-+/*
++
 +		sdhi2: sd@ee140000 {
 +			compatible = "renesas,sdhi-r8a7797";
 +			reg = <0 0xee140000 0 0x2000>;
-+			interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;		 ** SPI165:SDHI.ch0 **
-+			clocks = <&cpg CPG_MOD 314>;				 ** RMSTPCR3/bit14:SDIF **
++			interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;		 /* SPI165:SDHI.ch0 */
++			clocks = <&cpg CPG_MOD 314>;				 /* RMSTPCR3/bit14:SDIF */
 +			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
 +			renesas,clk-rate = <200000000>;
 +			cap-sd-highspeed;
@@ -911,7 +925,7 @@ index 0000000..c09df87
 +			renesas,mmc-scc-tapnum = <8>;
 +			status = "disabled";
 +		};
-+*/
++
 +		mmc0: mmc@ee140000 {
 +			compatible = "renesas,mmc-r8a7797";
 +			reg = <0 0xee140000 0 0x2000>;
@@ -919,11 +933,7 @@ index 0000000..c09df87
 +			clocks = <&cpg CPG_MOD 314>;				/* RMSTPCR3/bit14:SDIF */
 +			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
 +			renesas,clk-rate = <200000000>;
-+/*			cap-sd-highspeed;
-+			sd-uhs-sdr104;
-+			sd-uhs-sdr50;
 +			cap-mmc-highspeed;
-+*/
 +			mmc-hs200-1_8v;
 +			renesas,mmc-scc-tapnum = <8>;
 +			status = "disabled";
@@ -1087,10 +1097,10 @@ index 1072f76..c6f0abb 100644
  obj-$(CONFIG_CLK_RENESAS_CPG_MSSR)	+= renesas-cpg-mssr.o clk-div6.o
 diff --git a/drivers/clk/renesas/r8a7797-cpg-mssr.c b/drivers/clk/renesas/r8a7797-cpg-mssr.c
 new file mode 100644
-index 0000000..e758685
+index 0000000..c69bf31
 --- /dev/null
 +++ b/drivers/clk/renesas/r8a7797-cpg-mssr.c
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,218 @@
 +/*
 + * r8a7797 Clock Pulse Generator / Module Standby and Software Reset
 + *
@@ -1156,7 +1166,7 @@ index 0000000..e758685
 +	DEF_FIXED(".s2",        CLK_S2,            CLK_PLL1_DIV2,  6, 1),
 +
 +	/* Core Clock Outputs */
-+	DEF_BASE("z2",          R8A7797_CLK_Z2,    CLK_TYPE_GEN3_Z2, CLK_PLL0),
++	DEF_BASE("z2",          R8A7797_CLK_Z2,    CLK_TYPE_GEN3_Z2, CLK_PLL1_DIV4),
 +	DEF_FIXED("ztr",        R8A7797_CLK_ZTR,   CLK_PLL1_DIV2,  6, 1),
 +	DEF_FIXED("ztrd2",      R8A7797_CLK_ZTRD2, CLK_PLL1_DIV2, 12, 1),
 +	DEF_FIXED("zt",         R8A7797_CLK_ZT,    CLK_PLL1_DIV2,  4, 1),
@@ -1168,13 +1178,14 @@ index 0000000..e758685
 +	DEF_FIXED("s2d2",       R8A7797_CLK_S2D2,  CLK_S2,         2, 1),
 +	DEF_FIXED("s2d4",       R8A7797_CLK_S2D4,  CLK_S2,         4, 1),
 +
-+	DEF_GEN3_SD("sd0",      R8A7797_CLK_SD0,   CLK_PLL1_DIV4, 0x0074),      /* FIXME */
++	DEF_GEN3_SD0H("sd0h",   R8A7797_CLK_SD0H,  CLK_PLL1_DIV4, 0x0074),
++	DEF_GEN3_SD0("sd0",     R8A7797_CLK_SD0,   CLK_PLL1_DIV4, 0x0074),
 +
 +	DEF_FIXED("cl",         R8A7797_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
 +	DEF_FIXED("cp",         R8A7797_CLK_CP,    CLK_EXTAL,      2, 1),
 +
-+	DEF_FIXED("mso",        R8A7797_CLK_MSO,   CLK_PLL1_DIV4,  6, 1),
-+	DEF_FIXED("canfd",      R8A7797_CLK_CANFD, CLK_PLL1_DIV4, 20, 1),
++	DEF_DIV6P1("mso",       R8A7797_CLK_MSO,   CLK_PLL1_DIV4, 0x014),
++	DEF_DIV6P1("canfd",     R8A7797_CLK_CANFD, CLK_PLL1_DIV4, 0x244),
 +	DEF_DIV6P1("csi0",      R8A7797_CLK_CSI0,  CLK_PLL1_DIV4, 0x00c),
 +
 +	DEF_FIXED("osc",        R8A7797_CLK_OSC,   CLK_PLL1_DIV2, (12*1024), 1),
@@ -1259,14 +1270,14 @@ index 0000000..e758685
 +
 +static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[8] __initconst = {
 +	/* EXTAL div	PLL1 mult	PLL3 mult */
-+	{ 1,		192,		96,		},
-+	{ 1,		192,		80,		},
-+	{ 1,		160,		80,		},
-+	{ 1,		160,		66,		},
++	{ 1,		192,		96,	},
++	{ 1,		192,		80,	},
++	{ 1,		160,		80,	},
++	{ 1,		160,		66,	},
 +	{ 2,		236,		118,	},
-+	{ 2,		236,		98,		},
-+	{ 2,		192,		96,		},
-+	{ 2,		192,		80,		},
++	{ 2,		236,		98,	},
++	{ 2,		192,		96,	},
++	{ 2,		192,		80,	},
 +};
 +
 +static int __init r8a7797_cpg_mssr_init(struct device *dev)
@@ -1308,6 +1319,116 @@ index 0000000..e758685
 +	.init = r8a7797_cpg_mssr_init,
 +	.cpg_clk_register = rcar_gen3_cpg_clk_register,
 +};
+diff --git a/drivers/clk/renesas/rcar-gen3-cpg.c b/drivers/clk/renesas/rcar-gen3-cpg.c
+index f9d1763..96de154 100644
+--- a/drivers/clk/renesas/rcar-gen3-cpg.c
++++ b/drivers/clk/renesas/rcar-gen3-cpg.c
+@@ -26,6 +26,13 @@
+ #include "renesas-cpg-mssr.h"
+ #include "rcar-gen3-cpg.h"
+ 
++static spinlock_t cpg_lock;
++
++static const struct soc_device_attribute r8a7797[] = {
++	{ .soc_id = "r8a7797" },
++	{ /* sentinel */ }
++};
++
+ #define CPG_PLL0CR		0x00d8
+ #define CPG_PLL2CR		0x002c
+ #define CPG_PLL4CR		0x01f4
+@@ -227,7 +234,10 @@ static unsigned long cpg_z2_clk_recalc_rate(struct clk_hw *hw,
+ 	unsigned int val;
+ 	unsigned long rate;
+ 
+-	val = (clk_readl(zclk->reg) & CPG_FRQCRC_Z2FC_MASK);
++	if (!soc_device_match(r8a7797))
++		val = (clk_readl(zclk->reg) & CPG_FRQCRC_Z2FC_MASK);
++	else
++		val = 0;
+ 	mult = 32 - val;
+ 
+ 	rate = div_u64((u64)parent_rate * mult + 16, 32);
+@@ -339,6 +349,11 @@ static int cpg_z2_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	u32 val, kick;
+ 	unsigned int i;
+ 
++	if (soc_device_match(r8a7797)){
++		pr_info("Do not support V3M's Z2 clock changing\n");
++		return 0;
++	}
++
+ 	mult = div_u64((u64)rate * 32 + parent_rate/2, parent_rate);
+ 	mult = clamp(mult, 1U, 32U);
+ 
+@@ -451,6 +466,19 @@ static struct clk * __init cpg_z2_clk_register(const char *name,
+ /*
+  * SDn Clock
+  */
++/* SDHI divisors */
++static const struct clk_div_table cpg_sdh_div_table[] = {
++	{  0,  2 }, {  1,  3 }, {  2,  4 }, {  3,  6 },
++	{  4,  8 }, {  5, 12 }, {  6, 16 }, {  7, 18 },
++	{  8, 24 }, { 10, 36 }, { 11, 48 }, {  0,  0 },
++};
++
++static const struct clk_div_table cpg_sd01_div_table[] = {
++	{  4,  8 },
++	{  5, 12 }, {  6, 16 }, {  7, 18 }, {  8, 24 },
++	{ 10, 36 }, { 11, 48 }, { 12, 10 }, {  0,  0 },
++};
++
+ #define CPG_SD_STP_HCK		BIT(9)
+ #define CPG_SD_STP_CK		BIT(8)
+ 
+@@ -749,6 +777,14 @@ struct clk * __init rcar_gen3_cpg_clk_register(struct device *dev,
+ 	case CLK_TYPE_GEN3_SD:
+ 		return cpg_sd_clk_register(core, base, __clk_get_name(parent));
+ 
++	case CLK_TYPE_GEN3_SD0:
++		return clk_register_divider_table(NULL, core->name, __clk_get_name(parent), 0, base + 0x0074,
++						4, 4,0, cpg_sd01_div_table, &cpg_lock);
++
++	case CLK_TYPE_GEN3_SD0H:
++		return clk_register_divider_table(NULL, core->name, __clk_get_name(parent), 0, base + 0x0074,
++						8, 4,0, cpg_sdh_div_table, &cpg_lock);
++
+ 	case CLK_TYPE_GEN3_R:
+ 		if (cpg_quirks & RCKCR_CKSEL) {
+ 			/*
+@@ -799,5 +835,8 @@ int __init rcar_gen3_cpg_init(const struct rcar_gen3_cpg_pll_config *config,
+ 	if (attr)
+ 		cpg_quirks = (uintptr_t)attr->data;
+ 	pr_debug("%s: mode = 0x%x quirks = 0x%x\n", __func__, mode, cpg_quirks);
++
++	spin_lock_init(&cpg_lock);
++
+ 	return 0;
+ }
+diff --git a/drivers/clk/renesas/rcar-gen3-cpg.h b/drivers/clk/renesas/rcar-gen3-cpg.h
+index 4155023..f0c0a92 100644
+--- a/drivers/clk/renesas/rcar-gen3-cpg.h
++++ b/drivers/clk/renesas/rcar-gen3-cpg.h
+@@ -19,6 +19,8 @@ enum rcar_gen3_clk_types {
+ 	CLK_TYPE_GEN3_PLL3,
+ 	CLK_TYPE_GEN3_PLL4,
+ 	CLK_TYPE_GEN3_SD,
++	CLK_TYPE_GEN3_SD0,
++	CLK_TYPE_GEN3_SD0H,
+ 	CLK_TYPE_GEN3_R,
+ 	CLK_TYPE_GEN3_Z,
+ 	CLK_TYPE_GEN3_Z2,
+@@ -26,6 +28,10 @@ enum rcar_gen3_clk_types {
+ 
+ #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
+ 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
++#define DEF_GEN3_SD0(_name, _id, _parent, _offset)	\
++	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD0, _parent, .offset = _offset)
++#define DEF_GEN3_SD0H(_name, _id, _parent, _offset)	\
++	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD0H, _parent, .offset = _offset)
+ 
+ struct rcar_gen3_cpg_pll_config {
+ 	unsigned int extal_div;
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
 index 494e4e8..e523ab7 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.c
@@ -1337,6 +1458,18 @@ index 148f4f0a..77c27d8 100644
  
  
      /*
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 29f76a4..809a6e1 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -59,6 +59,7 @@
+ 	{ .compatible = "renesas,r8a7794", },
+ 	{ .compatible = "renesas,r8a7795", },
+ 	{ .compatible = "renesas,r8a7796", },
++	{ .compatible = "renesas,r8a7797", },
+ 	{ .compatible = "renesas,sh73a0", },
+ 
+ 	{ .compatible = "rockchip,rk2928", },
 diff --git a/drivers/gpio/gpio-rcar.c b/drivers/gpio/gpio-rcar.c
 index f721a89..118e579 100644
 --- a/drivers/gpio/gpio-rcar.c
@@ -1362,7 +1495,7 @@ index f721a89..118e579 100644
  		.data = &gpio_rcar_info_gen1,
  	}, {
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index 6295c73..0f9fe44 100644
+index 6295c73..ac9cf2a 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 @@ -289,6 +289,30 @@
@@ -1390,7 +1523,7 @@ index 6295c73..0f9fe44 100644
 +		},
 +	},
 +	.num_lvds = 1,
-+	.dpll_ch =  0,
++	.dpll_ch = BIT(1),
 +};
 +
  static const struct of_device_id rcar_du_of_table[] = {
@@ -1588,7 +1721,7 @@ index 17178ad..5539c5d 100644
  	  This is a v4l2 driver for the R-Car CSI-2 Interface
  
 diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
-index 851a4ca..1b8a6c6 100644
+index 05f623468..5faac64 100644
 --- a/drivers/media/platform/soc_camera/rcar_csi2.c
 +++ b/drivers/media/platform/soc_camera/rcar_csi2.c
 @@ -25,6 +25,7 @@
@@ -1643,7 +1776,7 @@ index 851a4ca..1b8a6c6 100644
  				priv->base + RCAR_CSI2_PHYPLL);
  	return 0;
  
-@@ -488,6 +509,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+@@ -488,6 +510,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
  
  #ifdef CONFIG_OF
  static const struct of_device_id rcar_csi2_of_table[] = {
@@ -1651,7 +1784,7 @@ index 851a4ca..1b8a6c6 100644
  	{ .compatible = "renesas,r8a7796-csi2", .data = (void *)RCAR_GEN3 },
  	{ .compatible = "renesas,r8a7795-csi2", .data = (void *)RCAR_GEN3 },
  	{ },
-@@ -496,6 +518,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+@@ -496,6 +519,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
  #endif
  
  static struct platform_device_id rcar_csi2_id_table[] = {
@@ -1875,15 +2008,16 @@ index 400958b..74fb005 100644
  
  	for (i = 0; i < num; i++) {
 diff --git a/drivers/media/platform/vsp1/vsp1_drv.c b/drivers/media/platform/vsp1/vsp1_drv.c
-index 45bd0f3..50eea8a 100644
+index 45bd0f3..90f7109 100644
 --- a/drivers/media/platform/vsp1/vsp1_drv.c
 +++ b/drivers/media/platform/vsp1/vsp1_drv.c
-@@ -888,6 +888,14 @@ void vsp1_device_put(struct vsp1_device *vsp1)
+@@ -888,6 +888,15 @@ void vsp1_device_put(struct vsp1_device *vsp1)
  		.wpf_count = 2,
  		.num_bru_inputs = 5,
  		.header_mode = true,
-+	}, {
++	}, { 
 +		.version = VI6_IP_VERSION_MODEL_VSPD_V3M,
++		.model = "VSP2-D",
 +		.gen = 3,
 +		.features = VSP1_HAS_BRU | VSP1_HAS_LIF,
 +		.rpf_count = 5,
@@ -1894,7 +2028,7 @@ index 45bd0f3..50eea8a 100644
  };
  
 diff --git a/drivers/media/platform/vsp1/vsp1_lif.c b/drivers/media/platform/vsp1/vsp1_lif.c
-index b442d14..536ee4a 100644
+index b442d14..e79f9e6 100644
 --- a/drivers/media/platform/vsp1/vsp1_lif.c
 +++ b/drivers/media/platform/vsp1/vsp1_lif.c
 @@ -13,6 +13,7 @@
@@ -1917,17 +2051,16 @@ index b442d14..536ee4a 100644
  /* -----------------------------------------------------------------------------
   * Device Access
   */
-@@ -142,6 +148,9 @@ static void lif_configure(struct vsp1_entity *entity,
- 	if (params != VSP1_ENTITY_PARAMS_INIT)
- 		return;
- 
-+	if (soc_device_match(r8a7797))
-+		obth = 1500;
-+
+@@ -145,7 +151,7 @@ static void lif_configure(struct vsp1_entity *entity,
  	format = vsp1_entity_get_pad_format(&lif->entity, lif->entity.config,
  					    LIF_PAD_SOURCE);
  
-@@ -158,6 +167,10 @@ static void lif_configure(struct vsp1_entity *entity,
+-	if (vsp1_gen3_vspdl_check(vsp1))
++	if (vsp1_gen3_vspdl_check(vsp1) || soc_device_match(r8a7797))
+ 		obth = 1500;
+ 	else
+ 		obth = 3000;
+@@ -158,6 +164,10 @@ static void lif_configure(struct vsp1_entity *entity,
  			(obth << VI6_LIF_CTRL_OBTH_SHIFT) |
  			(format->code == 0 ? VI6_LIF_CTRL_CFMT : 0) |
  			VI6_LIF_CTRL_REQSEL | VI6_LIF_CTRL_LIF_EN);
@@ -1964,14 +2097,15 @@ index 885f60b..2d863a7 100644
  #define VI6_IP_VERSION_SOC_MASK		(0xff << 0)
  #define VI6_IP_VERSION_SOC_H		(0x01 << 0)
 diff --git a/drivers/mmc/host/sh_mobile_sdhi.c b/drivers/mmc/host/sh_mobile_sdhi.c
-index 98c4e11..ee7b188 100644
+index 136ebac..fe4e022 100644
 --- a/drivers/mmc/host/sh_mobile_sdhi.c
 +++ b/drivers/mmc/host/sh_mobile_sdhi.c
-@@ -137,6 +137,7 @@ struct sh_mobile_sdhi_of_data {
+@@ -150,6 +150,8 @@ struct sh_mobile_sdhi_of_data {
  	{ .compatible = "renesas,sdhi-r8a7794", .data = &of_rcar_gen2_compatible, },
  	{ .compatible = "renesas,sdhi-r8a7795", .data = &of_rcar_gen3_compatible, },
  	{ .compatible = "renesas,sdhi-r8a7796", .data = &of_rcar_gen3_compatible, },
 +	{ .compatible = "renesas,sdhi-r8a7797", .data = &of_rcar_gen3_compatible, },
++	{ .compatible = "renesas,mmc-r8a7797", .data = &of_rcar_gen3_compatible, },
  	{},
  };
  MODULE_DEVICE_TABLE(of, sh_mobile_sdhi_of_match);
@@ -2042,10 +2176,10 @@ index 6399eb1..9bb3665 100644
  		.compatible = "renesas,pfc-sh73a0",
 diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7797.c b/drivers/pinctrl/sh-pfc/pfc-r8a7797.c
 new file mode 100644
-index 0000000..a528b44
+index 0000000..d58ccb3
 --- /dev/null
 +++ b/drivers/pinctrl/sh-pfc/pfc-r8a7797.c
-@@ -0,0 +1,2615 @@
+@@ -0,0 +1,2586 @@
 +/*
 + * R8A7797 processor support - PFC hardware block.
 + *
@@ -2064,6 +2198,7 @@ index 0000000..a528b44
 +
 +#include <linux/io.h>
 +#include <linux/kernel.h>
++#include <linux/sys_soc.h>
 +
 +#include "core.h"
 +#include "sh_pfc.h"
@@ -2072,7 +2207,8 @@ index 0000000..a528b44
 +	PORT_GP_CFG_22(0, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH),	\
 +	PORT_GP_CFG_28(1, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH),	\
 +	PORT_GP_CFG_17(2, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH),	\
-+	PORT_GP_CFG_17(3, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH),	\
++	PORT_GP_CFG_17(3, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH |	\
++				   SH_PFC_PIN_CFG_IO_VOLTAGE),		\
 +	PORT_GP_CFG_6(4, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH),	\
 +	PORT_GP_CFG_15(5, fn, sfx, SH_PFC_PIN_CFG_DRIVE_STRENGTH)
 +/*
@@ -2336,25 +2472,28 @@ index 0000000..a528b44
 +			Set Value = H'0			Set Value = H'1
 +Register	Function	Pin			Function	Pin
 +------------------------------------------------------------
++sel_i2c3	SDA3_A		VI0_DATA2	SDA3_B		VI1_DATA10
++		SCL3_A		VI0_DATA3	SCL3_B		VI1_DATA9
 +sel_hscif0	HSCIF0_A	SCIF_CLK	HSCIF0_B	SCIF_CLK
-+sel_scif1	SCIF1_A		RX1			SCIF1_B		TX1
-+			SCIF1_A		TX1			SCIF1_B		RX1
++sel_scif1	SCIF1_A		RX1		SCIF1_B		TX1
++		SCIF1_A		TX1		SCIF1_B		RX1
 +sel_canfd0	CANFD0_A	CANFD0_TX	CANFD0_B	CANFD0_TX
-+			CANFD0_A	CANFD0_RX	CANFD0_B	CANFD0_RX
-+			CANFD0_A	CANFD_CLK	CANFD0_B	CANFD_CLK
++		CANFD0_A	CANFD0_RX	CANFD0_B	CANFD0_RX
++		CANFD0_A	CANFD_CLK	CANFD0_B	CANFD_CLK
 +sel_pwm4	PWM4_A		PWM4		PWM4_B		PWM4
 +sel_pwm3	PWM3_A		PWM3		PWM3_B		PWM3
 +sel_pwm2	PWM2_A		PWM2		PWM2_B		PWM2
 +sel_pwm1	PWM1_A		PWM1		PWM1_B		PWM1
 +sel_pwm0	PWM0_A		PWM0		PWM0_B		PWM0
 +sel_rfso	RFSO_A		FSO_CFE_0_N	RFSO_B		FSO_CFE_0_N
-+			RFSO_A		FSO_CFE_1_N	RFSO_B		FSO_CFE_1_N
-+			RFSO_A		FSO_TOE_N	RFSO_B		FSO_TOE_N
++		RFSO_A		FSO_CFE_1_N	RFSO_B		FSO_CFE_1_N
++		RFSO_A		FSO_TOE_N	RFSO_B		FSO_TOE_N
 +sel_rsp		RSP_A		SPEEDIN		RSP_B		SPEEDIN
 +sel_tmu		TMU_A		TCLK1		TMU_B		TCLK1
-+			TMU_A		TCLK2		TMU_B		TCLK2
++		TMU_A		TCLK2		TMU_B		TCLK2
 +*/
 +/* MOD_SEL0 */		/* 0 */			/* 1 */			/* 2 */	/* 3 */	/* 4 */	/* 5 */	/* 6 */	/* 7 */
++#define MOD_SEL0_11	FM(SEL_I2C3_0)		FM(SEL_I2C3_1)
 +#define MOD_SEL0_10	FM(SEL_HSCIF0_0)	FM(SEL_HSCIF0_1)
 +#define MOD_SEL0_9	FM(SEL_SCIF1_0)		FM(SEL_SCIF1_1)
 +#define MOD_SEL0_8	FM(SEL_CANFD0_0)	FM(SEL_CANFD0_1)
@@ -2369,6 +2508,7 @@ index 0000000..a528b44
 +
 +#define PINMUX_MOD_SELS \
 +\
++MOD_SEL0_11 \
 +MOD_SEL0_10 \
 +MOD_SEL0_9 \
 +MOD_SEL0_8 \
@@ -3011,21 +3151,27 @@ index 0000000..a528b44
 +/* - DU --------------------------------------------------------------------- */
 +static const unsigned int du_rgb666_pins[] = {
 +	/* R[7:0] */
-+	RCAR_GP_PIN(0, 5), RCAR_GP_PIN(0, 4), RCAR_GP_PIN(0, 3),
-+	RCAR_GP_PIN(0, 2), RCAR_GP_PIN(0, 1), RCAR_GP_PIN(0, 0),
++	RCAR_GP_PIN(0, 5), RCAR_GP_PIN(0, 4),
++	RCAR_GP_PIN(0, 3), RCAR_GP_PIN(0, 2),
++	RCAR_GP_PIN(0, 1), RCAR_GP_PIN(0, 0),
 +	/* G[7:0] */
-+	RCAR_GP_PIN(0, 11), RCAR_GP_PIN(0, 10), RCAR_GP_PIN(0, 9),
-+	RCAR_GP_PIN(0, 8), RCAR_GP_PIN(0, 7), RCAR_GP_PIN(0, 6),
++	RCAR_GP_PIN(0, 11), RCAR_GP_PIN(0, 10),
++	RCAR_GP_PIN(0, 9), RCAR_GP_PIN(0, 8),
++	RCAR_GP_PIN(0, 7), RCAR_GP_PIN(0, 6),
 +	/* B[7:0] */
-+	RCAR_GP_PIN(0, 17),  RCAR_GP_PIN(0, 16),  RCAR_GP_PIN(0, 15),
-+	RCAR_GP_PIN(0, 14),  RCAR_GP_PIN(0, 13),  RCAR_GP_PIN(0, 12),
++	RCAR_GP_PIN(0, 17), RCAR_GP_PIN(0, 16),
++	RCAR_GP_PIN(0, 15), RCAR_GP_PIN(0, 14),
++	RCAR_GP_PIN(0, 13), RCAR_GP_PIN(0, 12),
 +};
 +static const unsigned int du_rgb666_mux[] = {
-+	DU_DR7_MARK, DU_DR6_MARK, DU_DR5_MARK, DU_DR4_MARK,
++	DU_DR7_MARK, DU_DR6_MARK,
++	DU_DR5_MARK, DU_DR4_MARK,
 +	DU_DR3_MARK, DU_DR2_MARK,
-+	DU_DG7_MARK, DU_DG6_MARK, DU_DG5_MARK, DU_DG4_MARK,
++	DU_DG7_MARK, DU_DG6_MARK,
++	DU_DG5_MARK, DU_DG4_MARK,
 +	DU_DG3_MARK, DU_DG2_MARK,
-+	DU_DB7_MARK, DU_DB6_MARK, DU_DB5_MARK, DU_DB4_MARK,
++	DU_DB7_MARK, DU_DB6_MARK,
++	DU_DB5_MARK, DU_DB4_MARK,
 +	DU_DB3_MARK, DU_DB2_MARK,
 +};
 +static const unsigned int du_clk_out_0_pins[] = {
@@ -3047,7 +3193,7 @@ index 0000000..a528b44
 +	RCAR_GP_PIN(0, 20), RCAR_GP_PIN(0, 19),
 +};
 +static const unsigned int du_sync_mux[] = {
-+	DU_EXVSYNC_DU_VSYNC_MARK, DU_EXHSYNC_DU_HSYNC_MARK
++	DU_EXVSYNC_DU_VSYNC_MARK, DU_EXHSYNC_DU_HSYNC_MARK,
 +};
 +static const unsigned int du_oddf_pins[] = {
 +	/* EXDISP/EXODDF/EXCDE */
@@ -3461,7 +3607,7 @@ index 0000000..a528b44
 +	PWM1_A_MARK,
 +};
 +static const unsigned int pwm1_b_pins[] = {
-+	/* PWM */
++	/* PWM1 */
 +	RCAR_GP_PIN(1, 22),
 +};
 +static const unsigned int pwm1_b_mux[] = {
@@ -3515,6 +3661,7 @@ index 0000000..a528b44
 +static const unsigned int pwm4_b_mux[] = {
 +	PWM4_B_MARK,
 +};
++
 +/* - SCIF0 ------------------------------------------------------------------ */
 +static const unsigned int scif0_data_pins[] = {
 +	/* RX, TX */
@@ -3530,7 +3677,7 @@ index 0000000..a528b44
 +static const unsigned int scif0_clk_mux[] = {
 +	SCK0_MARK,
 +};
-+#if 0
++
 +static const unsigned int scif0_ctrl_pins[] = {
 +	/* RTS, CTS */
 +	RCAR_GP_PIN(4, 3), RCAR_GP_PIN(4, 2),
@@ -3538,7 +3685,7 @@ index 0000000..a528b44
 +static const unsigned int scif0_ctrl_mux[] = {
 +	RTS0_N_TANS_MARK, CTS0_N_MARK,
 +};
-+#endif
++
 +/* - SCIF1 ------------------------------------------------------------------ */
 +static const unsigned int scif1_data_a_pins[] = {
 +	/* RX, TX */
@@ -3819,24 +3966,24 @@ index 0000000..a528b44
 +	VI1_HSYNC_N_MARK, VI1_VSYNC_N_MARK,
 +};
 +static const unsigned int vin1_field_pins[] = {
++	/* FIELD */
 +	RCAR_GP_PIN(3, 16),
 +};
 +static const unsigned int vin1_field_mux[] = {
-+	/* FIELD */
 +	VI1_FIELD_MARK,
 +};
 +static const unsigned int vin1_clkenb_pins[] = {
++	/* CLKENB */
 +	RCAR_GP_PIN(3, 1),
 +};
 +static const unsigned int vin1_clkenb_mux[] = {
-+	/* CLKENB */
 +	VI1_CLKENB_MARK,
 +};
 +static const unsigned int vin1_clk_pins[] = {
++	/* CLK */
 +	RCAR_GP_PIN(3, 0),
 +};
 +static const unsigned int vin1_clk_mux[] = {
-+	/* CLK */
 +	VI1_CLK_MARK,
 +};
 +
@@ -3936,8 +4083,8 @@ index 0000000..a528b44
 +	SH_PFC_PIN_GROUP(pwm4_a),
 +	SH_PFC_PIN_GROUP(pwm4_b),
 +	SH_PFC_PIN_GROUP(scif0_data),
-+	//SH_PFC_PIN_GROUP(scif0_clk),
-+	//SH_PFC_PIN_GROUP(scif0_ctrl),
++	SH_PFC_PIN_GROUP(scif0_clk),
++	SH_PFC_PIN_GROUP(scif0_ctrl),
 +	SH_PFC_PIN_GROUP(scif1_data_a),
 +	SH_PFC_PIN_GROUP(scif1_clk),
 +	SH_PFC_PIN_GROUP(scif1_ctrl),
@@ -3996,9 +4143,9 @@ index 0000000..a528b44
 +
 +static const char * const canfd0_groups[] = {
 +	"canfd0_data_a",
-+	"canfd0_clk_a",
++	"canfd_clk_a",
 +	"canfd0_data_b",
-+	"canfd0_clk_b",
++	"canfd_clk_b",
 +};
 +
 +static const char * const canfd1_groups[] = {
@@ -4137,26 +4284,26 @@ index 0000000..a528b44
 +static const char * const scif0_groups[] = {
 +	"scif0_data",
 +//	"scif0_clk",
-+//	"scif0_ctl",
++//	"scif0_ctrl",
 +};
 +
 +static const char * const scif1_groups[] = {
 +	"scif1_data_a",
 +	"scif1_clk",
-+	"scif1_ctl",
++	"scif1_ctrl",
 +	"scif1_data_b",
 +};
 +
 +static const char * const scif3_groups[] = {
 +	"scif3_data",
 +	"scif3_clk",
-+	"scif3_ctl",
++	"scif3_ctrl",
 +};
 +
 +static const char * const scif4_groups[] = {
 +	"scif4_data",
 +	"scif4_clk",
-+	"scif4_ctl",
++	"scif4_ctrl",
 +};
 +
 +static const char * const mmc_groups[] = {
@@ -4200,64 +4347,9 @@ index 0000000..a528b44
 +#define PIN2POCCTRL0_SHIFT(a) ({ \
 +	int _gp = (a) >> 5; \
 +	int _bit = (a) & 0x1f; \
-+	((_gp == 3) && (_bit < 12)) ? _bit : \
-+	((_gp == 4) && (_bit < 18)) ? _bit + 12 : -1; \
++	((_gp == 3) && (_bit < 17)) ? _bit + 7 : -1; \
 +})
 +
-+#if 0
-+static int r8a7797_get_io_voltage(struct sh_pfc *pfc, unsigned int pin)
-+{
-+	void __iomem *reg;
-+	u32 data, mask;
-+	int shift;
-+
-+	/* Bits in POCCTRL0 are numbered in opposite order to pins */
-+	shift = PIN2POCCTRL0_SHIFT(pin);
-+
-+	if (WARN(shift < 0, "invalid pin %#x", pin))
-+		return -EINVAL;
-+
-+	reg = pfc->windows->virt + POCCTRL0;
-+	data = ioread32(reg);
-+
-+	mask = 0x1 << shift;
-+
-+	return (data & mask) ? 3300 : 1800;
-+}
-+
-+static int r8a7797_set_io_voltage(struct sh_pfc *pfc, unsigned int pin, u16 mV)
-+{
-+	void __iomem *reg;
-+	u32 data, mask;
-+	int shift;
-+
-+	/* Bits in POCCTRL0 are numbered in opposite order to pins */
-+	shift = PIN2POCCTRL0_SHIFT(pin);
-+
-+	if (WARN(shift < 0, "invalid pin %#x", pin))
-+		return -EINVAL;
-+
-+	if (mV != 1800 && mV != 3300)
-+		return -EINVAL;
-+
-+	reg = pfc->windows->virt + POCCTRL0;
-+	data = ioread32(reg);
-+
-+	mask = 0x1 << shift;
-+
-+	if (mV == 3300)
-+		data |= mask;
-+	else
-+		data &= ~mask;
-+
-+
-+	iowrite32(~data, pfc->windows->virt +
-+				(pfc->info->unlock_reg - pfc->windows->phys));
-+	iowrite32(data, reg);
-+
-+	return 0;
-+}
-+#endif
 +
 +static const struct sh_pfc_function pinmux_functions[] = {
 +	SH_PFC_FUNCTION(avb0),
@@ -4601,25 +4693,29 @@ index 0000000..a528b44
 +
 +#define F_(x, y)	x,
 +#define FM(x)		FN_##x,
-+	{ PINMUX_CFG_REG_VAR("MOD_SEL0", 0xe6060500, 32,
-+			     4, 4, 4, 4, 1,
-+			     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1) {
-+		/* RESERVED 31, 30, 29, 28 */
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		/* RESERVED 27, 26, 25, 24 */
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		/* RESERVED 23, 22, 21, 20 */
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		/* RESERVED 19, 18, 17, 16 */
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		/* RESERVED 15, 14, 13, 12 */
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, 0, 0, 0, 0, 0, 0,
-+		0, 0, /* RESERVED 11 */
++	{ PINMUX_CFG_REG("MOD_SEL0", 0xe6060500, 32, 1) {
++		/* RESERVED 31..12 */
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		0, 0,
++		MOD_SEL0_11
 +		MOD_SEL0_10
 +		MOD_SEL0_9
 +		MOD_SEL0_8
@@ -4635,11 +4731,20 @@ index 0000000..a528b44
 +	{ },
 +};
 +
++static int r8a7797_pin_to_pocctrl(struct sh_pfc *pfc, unsigned int pin, u32 *pocctrl)
++{
++	int bit = -EINVAL;
++
++	*pocctrl = 0xe6060384;
++
++	if (pin >= RCAR_GP_PIN(3, 0) && pin <= RCAR_GP_PIN(3, 16))
++		bit = (pin & 0x1f) + 7;
++
++	return bit;
++}
++
 +static const struct sh_pfc_soc_operations pinmux_ops = {
-+#if 0
-+	.get_io_voltage = r8a7797_get_io_voltage,
-+	.set_io_voltage = r8a7797_set_io_voltage,
-+#endif
++	.pin_to_pocctrl = r8a7797_pin_to_pocctrl,
 +};
 +
 +const struct sh_pfc_soc_info r8a7797_pinmux_info = {
@@ -4699,10 +4804,18 @@ index c6a1855..a673a00 100644
  	PORT_GP_CFG_18(bank, fn, sfx, cfg),				\
  	PORT_GP_CFG_1(bank, 18, fn, sfx, cfg),				\
 diff --git a/drivers/soc/renesas/Makefile b/drivers/soc/renesas/Makefile
-index 504fb05..df143fe 100644
+index 504fb05..37cca0b 100644
 --- a/drivers/soc/renesas/Makefile
 +++ b/drivers/soc/renesas/Makefile
-@@ -16,11 +16,14 @@ obj-$(CONFIG_ARCH_R8A7793)	+= rcar-sysc.o r8a7791-sysc.o
+@@ -4,6 +4,7 @@ obj-$(CONFIG_ARCH_RCAR_GEN1)	+= rcar-rst.o
+ obj-$(CONFIG_ARCH_RCAR_GEN2)	+= rcar-rst.o
+ obj-$(CONFIG_ARCH_R8A7795)	+= rcar-rst.o
+ obj-$(CONFIG_ARCH_R8A7796)	+= rcar-rst.o
++obj-$(CONFIG_ARCH_R8A7797)	+= rcar-rst.o
+ 
+ obj-$(CONFIG_ARCH_R8A7743)	+= rcar-sysc.o r8a7743-sysc.o
+ obj-$(CONFIG_ARCH_R8A7745)	+= rcar-sysc.o r8a7745-sysc.o
+@@ -16,11 +17,14 @@ obj-$(CONFIG_ARCH_R8A7793)	+= rcar-sysc.o r8a7791-sysc.o
  obj-$(CONFIG_ARCH_R8A7794)	+= rcar-sysc.o r8a7794-sysc.o
  obj-$(CONFIG_ARCH_R8A7795)	+= rcar-sysc.o r8a7795-sysc.o
  obj-$(CONFIG_ARCH_R8A7796)	+= rcar-sysc.o r8a7796-sysc.o
@@ -4762,6 +4875,18 @@ index 0000000..b71bdedb
 +	.areas = r8a7797_areas,
 +	.num_areas = ARRAY_SIZE(r8a7797_areas),
 +};
+diff --git a/drivers/soc/renesas/rcar-rst.c b/drivers/soc/renesas/rcar-rst.c
+index a6d1c26..2e87293 100644
+--- a/drivers/soc/renesas/rcar-rst.c
++++ b/drivers/soc/renesas/rcar-rst.c
+@@ -41,6 +41,7 @@ struct rst_config {
+ 	/* R-Car Gen3 is handled like R-Car Gen2 */
+ 	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen2 },
+ 	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen2 },
++	{ .compatible = "renesas,r8a7797-rst", .data = &rcar_rst_gen2 },
+ 	{ /* sentinel */ }
+ };
+ 
 diff --git a/drivers/soc/renesas/rcar-sysc.c b/drivers/soc/renesas/rcar-sysc.c
 index 042500a..e6165b6 100644
 --- a/drivers/soc/renesas/rcar-sysc.c
