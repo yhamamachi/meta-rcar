@@ -17,40 +17,42 @@ Kingfisher board on R8A7796 SoC
 Videobox board on R8A7795 ES1.x SoC
 Videobox board on R8A7795 SoC
 Eagle board on R8A7797 SoC
+V3MSK board on R8A7797 SoC
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   14 +
+ arch/arm64/boot/dts/renesas/Makefile               |   15 +
  arch/arm64/boot/dts/renesas/legacy/Makefile        |    7 +
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts    | 1717 +++++++++++++++++
- .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  440 +++++
+ .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 +++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts    | 1724 +++++++++++++++++
- .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  464 +++++
+ .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  465 +++++
  .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 ++++++++++++
- .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  464 +++++
+ .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  465 +++++
  .../dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts    |   22 +
  .../dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts    |   23 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi   |  225 +++
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1940 ++++++++++++++++++++
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     | 1941 ++++++++++++++++++++
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts     | 1787 ++++++++++++++++++
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts   |  546 ++++++
  .../dts/renesas/r8a7795-es1-salvator-x-view.dts    |  552 ++++++
  .../boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts   |   22 +
  .../boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts   |   23 +
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi |  219 +++
- arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1940 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  | 1941 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts  | 1787 ++++++++++++++++++
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 ++++++
  .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 ++++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1430 +++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  | 1431 +++++++++++++++
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 +++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  620 +++++++
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  561 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  294 +++
  arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi      |   75 +
  arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi       |   77 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 30 files changed, 19596 insertions(+)
+ 31 files changed, 19838 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -76,16 +78,17 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-rpi.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index 32fb4d9..5fffb48 100644
+index 32fb4d9..de2770e 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -4,5 +4,19 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-salvator-x.dtb r8a7795-es1-h3ulcb.dtb
+@@ -4,5 +4,20 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-salvator-x.dtb r8a7795-es1-h3ulcb.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
  
@@ -99,6 +102,7 @@ index 32fb4d9..5fffb48 100644
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-kf.dtb r8a7795-es1-h3ulcb-kf.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-vb.dtb r8a7795-es1-h3ulcb-vb.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-eagle.dtb
++dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk.dtb
 +
 +# ADAS legacy boards
 +subdir-y	:= legacy
@@ -1843,7 +1847,7 @@ index 0000000..cd23797
 +//#include "../ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..c012d2f
+index 0000000..ac6a12b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
 @@ -0,0 +1,441 @@
@@ -4020,7 +4024,7 @@ index 0000000..15e20b1
 +//#include "../ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..7fc2ede
+index 0000000..14b6f52
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts
 @@ -0,0 +1,465 @@
@@ -5711,7 +5715,7 @@ index 0000000..9da289b
 +#include "../ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts
 new file mode 100644
-index 0000000..9b173a2
+index 0000000..637c840
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts
 @@ -0,0 +1,465 @@
@@ -6470,7 +6474,7 @@ index 0000000..d50ff7a
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..7203407
+index 0000000..f365849
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
 @@ -0,0 +1,1941 @@
@@ -11602,7 +11606,7 @@ index 0000000..4a00426
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 new file mode 100644
-index 0000000..f6c58c9
+index 0000000..6193129
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 @@ -0,0 +1,1941 @@
@@ -16452,7 +16456,7 @@ index 0000000..fb12a39f3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..8c2607f
+index 0000000..b3571f2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 @@ -0,0 +1,1431 @@
@@ -18506,10 +18510,10 @@ index 0000000..cc6866c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..5aeb3b50
+index 0000000..f71addf
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,620 @@
+@@ -0,0 +1,561 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -18580,30 +18584,6 @@ index 0000000..5aeb3b50
 +		compatible = "renesas,mmngrbuf";
 +	};
 +
-+	x12_clk: x12_clk {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24576000>;
-+	};
-+
-+	fixedregulator3v3: regulator@0 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "fixed-3.3V";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		regulator-boot-on;
-+		regulator-always-on;
-+	};
-+
-+	fixedregulator1v8: regulator@1 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "fixed-1.8V";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		regulator-boot-on;
-+		regulator-always-on;
-+	};
-+
 +	vspm_if {
 +		compatible = "renesas,vspm_if";
 +	};
@@ -18666,28 +18646,10 @@ index 0000000..5aeb3b50
 +		};
 +	};
 +
-+	dclkin_p0: clock_out0 {
++	dclkin_p0: clock-out0 {
 +		compatible = "fixed-clock";
 +		#clock-cells = <0>;
 +		clock-frequency = <148500000>;
-+	};
-+
-+	x21_clk: x21-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <33000000>;
-+	};
-+
-+	x22_clk: x22-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <33000000>;
-+	};
-+
-+	dclkin_p3: clock_out1 {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <108000000>;
 +	};
 +
 +	msiof_ref_clk: msiof-ref-clock {
@@ -18744,19 +18706,13 @@ index 0000000..5aeb3b50
 +	};
 +
 +	avb_pins: avb {
-+		groups = "avb0_mdc", "avb0_rx_ctrl", "avb0_rxc", "avb0_rd4", "avb0_tx_ctrl", "avb0_txc", "avb0_td4", "avb0_txcrefclk";
++		groups = "avb0_mdc";
 +		function = "avb0";
 +	};
 +
 +	du_pins: du {
 +		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
 +		function = "du";
-+	};
-+
-+	mmc0_pins_1v8: mmc0_1v8 {
-+		groups = "mmc_data8", "mmc_ctrl";
-+		function = "mmc";
-+		power-source = <1800>;
 +	};
 +};
 +
@@ -18941,17 +18897,6 @@ index 0000000..5aeb3b50
 +	};
 +};
 +
-+&mmc0 {
-+	pinctrl-0 = <&mmc0_pins_1v8>;
-+	pinctrl-1 = <&mmc0_pins_1v8>;
-+	pinctrl-names = "default", "state_uhs";
-+
-+	vmmc-supply = <&fixedregulator3v3>;
-+	vqmmc-supply = <&fixedregulator1v8>;
-+	bus-width = <8>;
-+	status = "okay";
-+};
-+
 +&wdt0 {
 +	status = "okay";
 +};
@@ -19130,6 +19075,306 @@ index 0000000..5aeb3b50
 +	};
 +};
 +
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+new file mode 100644
+index 0000000..61f7e8b
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+@@ -0,0 +1,294 @@
++/*
++ * Device Tree Source for the V3M Starter Kit board on r8a7797
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++/dts-v1/;
++#include "r8a7797.dtsi"
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "Renesas V3M Starter Kit board based on r8a7797";
++	compatible = "renesas,v3msk", "renesas,r8a7797";
++
++	aliases {
++		serial0 = &scif0;
++		ethernet0 = &avb;
++	};
++
++	chosen {
++		bootargs = "ignore_loglevel rw root=/dev/nfs ip=dhcp";
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@48000000 {
++		device_type = "memory";
++		/* first 128MB is reserved for secure area. */
++		reg = <0x0 0x48000000 0x0 0x38000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/* device specific region for Lossy Decompression */
++		lossy_decompress: linux,lossy_decompress {
++			no-map;
++			reg = <0x00000000 0x64000000 0x0 0x03000000>;
++		};
++
++		/* global autoconfigured region for contiguous allocations */
++		linux,cma {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x67000000 0x0 0x09000000>;
++			linux,cma-default;
++		};
++
++		/* device specific region for contiguous allocations */
++		linux,multimedia {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x70000000 0x0 0x10000000>;
++		};
++	};
++
++	mmngr {
++		compatible = "renesas,mmngr";
++		memory-region = <&lossy_decompress>;
++	};
++
++	mmngrbuf {
++		compatible = "renesas,mmngrbuf";
++	};
++
++	vspm_if {
++		compatible = "renesas,vspm_if";
++	};
++
++	lvds-encoder {
++		compatible = "thine,thc63lvdm83d";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++				lvds_enc_in: endpoint {
++					remote-endpoint = <&du_out_lvds0>;
++				};
++			};
++			port@1 {
++				reg = <1>;
++				lvds_enc_out: endpoint {
++					remote-endpoint = <&lvds_in>;
++				};
++			};
++		};
++	};
++
++	lvds {
++		compatible = "lvds-connector";
++
++		width-mm = <210>;
++		height-mm = <158>;
++
++		panel-timing {
++			clock-frequency = <133000000>;
++			hactive = <1024>;
++			vactive = <768>;
++			hsync-len = <136>;
++			hfront-porch = <20>;
++			hback-porch = <160>;
++			vfront-porch = <3>;
++			vback-porch = <29>;
++			vsync-len = <6>;
++		};
++
++		port {
++			lvds_in: endpoint {
++				remote-endpoint = <&lvds_enc_out>;
++			};
++		};
++	};
++
++	hdmi-out {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_con: endpoint {
++			remote-endpoint = <&adv7511_out>;
++			};
++		};
++	};
++
++	dclkin_p0: clock-out0 {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <148500000>;
++	};
++
++	msiof_ref_clk: msiof-ref-clock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <66666666>;
++	};
++};
++
++&du {
++	pinctrl-0 = <&du_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	ports {
++		port@0 {
++			endpoint {
++				remote-endpoint = <&adv7511_in>;
++			};
++		};
++	};
++};
++
++&extal_clk {
++	clock-frequency = <16666666>;
++};
++
++&extalr_clk {
++	clock-frequency = <32768>;
++};
++
++&pfc {
++	pinctrl-0 = <&scif_clk_pins>;
++	pinctrl-names = "default";
++
++	scif0_pins: scif0 {
++		groups = "scif0_data";
++		function = "scif0";
++	};
++
++	scif_clk_pins: scif_clk {
++		groups = "scif_clk_b";
++		function = "scif_clk";
++	};
++
++	i2c0_pins: i2c0 {
++		groups = "i2c0";
++		function = "i2c0";
++	};
++
++	i2c3_pins: i2c3 {
++		groups = "i2c3";
++		function = "i2c3";
++	};
++
++	avb_pins: avb {
++		groups = "avb0_mdc";
++		function = "avb0";
++	};
++
++	du_pins: du {
++		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
++		function = "du";
++	};
++};
++
++&scif0 {
++	pinctrl-0 = <&scif0_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
++&scif_clk {
++	clock-frequency = <14745600>;
++	status = "okay";
++};
++
++&i2c0 {
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++	clock-frequency = <400000>;
++
++	hdmi@39{
++		compatible = "adi,adv7511w";
++		#sound-dai-cells = <0>;
++		reg = <0x39>;
++		interrupt-parent = <&gpio1>;
++		interrupts = <20 IRQ_TYPE_LEVEL_LOW>;
++
++		adi,input-depth = <8>;
++		adi,input-colorspace = "rgb";
++		adi,input-clock = "1x";
++		adi,input-style = <1>;
++		adi,input-justification = "evenly";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++				adv7511_in: endpoint {
++					remote-endpoint = <&lvds_enc_out>;
++				};
++			};
++			port@1 {
++				reg = <1>;
++				adv7511_out: endpoint {
++					remote-endpoint = <&hdmi_con>;
++				};
++			};
++		};
++	};
++};
++
++&i2c3 {
++	pinctrl-0 = <&i2c3_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++	clock-frequency = <400000>;
++};
++
++&wdt0 {
++	status = "okay";
++};
++
++&avb {
++	pinctrl-0 = <&avb_pins>;
++	pinctrl-names = "default";
++	renesas,no-ether-link;
++	phy-handle = <&phy0>;
++	status = "okay";
++	phy-int-gpio = <&gpio1 17 GPIO_ACTIVE_LOW>;
++
++	phy0: ethernet-phy@0 {
++		rxc-skew-ps = <1500>;
++		rxdv-skew-ps = <420>; /* default */
++		rxd0-skew-ps = <420>; /* default */
++		rxd1-skew-ps = <420>; /* default */
++		rxd2-skew-ps = <420>; /* default */
++		rxd3-skew-ps = <420>; /* default */
++		txc-skew-ps = <900>; /* default */
++		txen-skew-ps = <420>; /* default */
++		txd0-skew-ps = <420>; /* default */
++		txd1-skew-ps = <420>; /* default */
++		txd2-skew-ps = <420>; /* default */
++		txd3-skew-ps = <420>; /* default */
++		reg = <0>;
++		interrupt-parent = <&gpio1>;
++		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++		max-speed = <1000>;
++	};
++};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cmos.dtsi
 new file mode 100644
 index 0000000..2145f5e
