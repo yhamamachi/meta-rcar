@@ -5806,7 +5806,7 @@ index 5faac64..cf70414 100644
  {
 @@ -265,7 +364,7 @@ static int rcar_csi2_set_phy_freq(struct rcar_csi2 *priv)
  		0x16, 0x36, 0x56, 0x76, 0x18,	/* 1150M, 1200M, 1250M, 1300M, 1350M */
- 		0x38, 0x58, 0x38		/* 1400M, 1450M, 1500M */
+ 		0x38, 0x58, 0x78		/* 1400M, 1450M, 1500M */
  	};
 -	const uint32_t const hs_freq_range[43] = {
 +	const uint32_t const hs_freq_range_m3[43] = {

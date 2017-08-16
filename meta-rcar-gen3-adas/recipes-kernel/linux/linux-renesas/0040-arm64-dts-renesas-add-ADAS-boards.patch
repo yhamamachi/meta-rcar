@@ -15426,7 +15426,7 @@ index 0000000..b904a0d
 +		};
 +	};
 +
-+	i2cswitch2: pca9548@74 {
++	i2cswitch2: pca9548@71 {
 +		compatible = "nxp,pca9548";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
