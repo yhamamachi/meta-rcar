@@ -13,13 +13,13 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile            |    7 +
  drivers/media/i2c/soc_camera/max9286_max9271.c   |  566 +++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
- drivers/media/i2c/soc_camera/ov10635.c           |  751 ++++++++++++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  759 ++++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   95 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  971 ++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  979 +++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   88 ++
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  650 ++++++++++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 +++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  417 ++++++++
  drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  385 ++++++++
@@ -30,7 +30,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5881 insertions(+), 109 deletions(-)
+ 21 files changed, 5905 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -899,10 +899,10 @@ index 0000000..87c040b
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..f5d136c
+index 0000000..45169de
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,751 @@
+@@ -0,0 +1,759 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -1348,6 +1348,9 @@ index 0000000..f5d136c
 +			val &= ~0xc0;
 +		ret = reg16_write(client, 0x381c, val);
 +		break;
++	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
++		ret = 0;
++		break;
 +	}
 +
 +out:
@@ -1531,6 +1534,7 @@ index 0000000..f5d136c
 +			 const struct i2c_device_id *did)
 +{
 +	struct ov10635_priv *priv;
++	struct v4l2_ctrl *ctrl;
 +	int ret;
 +
 +	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
@@ -1566,6 +1570,10 @@ index 0000000..f5d136c
 +			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov10635_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	ctrl = v4l2_ctrl_new_std(&priv->hdl, &ov10635_ctrl_ops,
++			  V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, 1, 32, 1, 9);
++	if (ctrl)
++		ctrl->flags &= ~V4L2_CTRL_FLAG_READ_ONLY;
 +	priv->sd.ctrl_handler = &priv->hdl;
 +
 +	ret = priv->hdl.error;
@@ -2962,10 +2970,10 @@ index 0000000..0079bb2
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..867379a
+index 0000000..71cb68a
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,971 @@
+@@ -0,0 +1,979 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -3538,6 +3546,9 @@ index 0000000..867379a
 +		ret |= reg16_write(client, 0x00C0, 0xc1);
 +#endif
 +		break;
++	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
++		ret = 0;
++		break;
 +	}
 +
 +	return ret;
@@ -3809,6 +3820,7 @@ index 0000000..867379a
 +		       const struct i2c_device_id *did)
 +{
 +	struct ov490_priv *priv;
++	struct v4l2_ctrl *ctrl;
 +	int ret;
 +
 +	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
@@ -3844,6 +3856,10 @@ index 0000000..867379a
 +			  V4L2_CID_HFLIP, 0, 1, 1, 1);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	ctrl = v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, 1, 32, 1, 9);
++	if (ctrl)
++		ctrl->flags &= ~V4L2_CTRL_FLAG_READ_ONLY;
 +	priv->sd.ctrl_handler = &priv->hdl;
 +
 +	ret = priv->hdl.error;
@@ -4033,10 +4049,10 @@ index 0000000..d3290c7
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..56891ff
+index 0000000..881615e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-@@ -0,0 +1,650 @@
+@@ -0,0 +1,658 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera driver
 + *
@@ -4351,6 +4367,9 @@ index 0000000..56891ff
 +		ret |= reg16_write(client, 0x30C0, 0xdc);
 +		ret |= reg16_write(client, 0x3516, 0x01);
 +		break;
++	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
++		ret = 0;
++		break;
 +	}
 +
 +	return ret;
@@ -4559,6 +4578,7 @@ index 0000000..56891ff
 +		       const struct i2c_device_id *did)
 +{
 +	struct ov495_priv *priv;
++	struct v4l2_ctrl *ctrl;
 +	int ret;
 +
 +	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
@@ -4594,6 +4614,10 @@ index 0000000..56891ff
 +			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov495_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	ctrl = v4l2_ctrl_new_std(&priv->hdl, &ov495_ctrl_ops,
++			  V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, 1, 32, 1, 9);
++	if (ctrl)
++		ctrl->flags &= ~V4L2_CTRL_FLAG_READ_ONLY;
 +	priv->sd.ctrl_handler = &priv->hdl;
 +
 +	ret = priv->hdl.error;
