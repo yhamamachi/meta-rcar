@@ -11,14 +11,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   47 +
  drivers/media/i2c/soc_camera/Makefile            |    7 +
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  562 +++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c   |  566 +++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  196 ++++
  drivers/media/i2c/soc_camera/ov10635.c           |  751 ++++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |   95 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     |  961 ++++++++++++++++++
- drivers/media/i2c/soc_camera/ov490_ov10640.h     |   82 ++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     |  971 ++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.h     |   88 ++
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  650 ++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  417 ++++++++
@@ -30,7 +30,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 21 files changed, 5861 insertions(+), 109 deletions(-)
+ 21 files changed, 5881 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
@@ -125,10 +125,10 @@ index 6f994f9..7d4c1ab 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..1261e45
+index 0000000..a663a66
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,562 @@
+@@ -0,0 +1,566 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -203,6 +203,24 @@ index 0000000..1261e45
 +	usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
 +}
 +
++static void max9286_max9271_sensor_reset(struct i2c_client *client, int addr)
++{
++	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++
++	if (priv->gpio_resetb < 1 || priv->gpio_resetb > 5)
++		return;
++
++	/* get out from sensor reset */
++	client->addr = addr;					/* MAX9271-CAMx I2C */
++	reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
++		   (priv->active_low_resetb ? 0 : BIT(priv->gpio_resetb))); /* set GPIOn value to reset */
++	reg8_write(client, 0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
++	mdelay(10);
++	reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
++		   (priv->active_low_resetb ? BIT(priv->gpio_resetb) : 0)); /* set GPIOn value to un-reset */
++	usleep_range(2000, 2500);				/* wait 2ms */
++}
++
 +static void max9286_max9271_postinit(struct i2c_client *client, int addr)
 +{
 +	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
@@ -214,10 +232,6 @@ index 0000000..1261e45
 +	reg8_write(client, 0x15, 0x9b);				/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +	reg8_write(client, 0x1b, priv->links_mask);		/* enable equalizer for CAMs */
 +	usleep_range(5000, 5500);				/* wait 2ms after any change of reverse channel settings */
-+
-+	/* wait for sensor firmware up (f.e. ov490) if we did sensor reset */
-+	if (priv->gpio_resetb >= 1 && priv->gpio_resetb <= 5)
-+		mdelay(300);
 +}
 +
 +static int max9286_max9271_reverse_channel_setup(struct i2c_client *client, int idx)
@@ -268,6 +282,8 @@ index 0000000..1261e45
 +			break;
 +		}
 +	}
++
++	max9286_max9271_sensor_reset(client, client->addr);	/* sensor reset */
 +
 +	if (!timeout) {
 +		ret = -ETIMEDOUT;
@@ -365,17 +381,6 @@ index 0000000..1261e45
 +	client->addr = priv->max9271_addr_map[idx];		/* MAX9271-CAMx I2C new */
 +	maxim_max927x_dump_regs(client);
 +#endif
-+	if (priv->gpio_resetb >= 1 && priv->gpio_resetb <= 5) {
-+		/* get out from sensor reset */
-+		client->addr = priv->max9271_addr_map[idx];	/* MAX9271-CAMx I2C new */
-+		reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
-+				 (priv->active_low_resetb ? 0 : BIT(priv->gpio_resetb))); /* set GPIOn value to reset */
-+		reg8_write(client, 0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
-+		usleep_range(2000, 2500);			/* wait 2ms */
-+		reg8_write(client, 0x0f, (0xfe & ~BIT(priv->gpio_resetb)) |
-+				 (priv->active_low_resetb ? BIT(priv->gpio_resetb) : 0)); /* set GPIOn value to un-reset */
-+		usleep_range(2000, 2500);			/* wait 2ms */
-+	}
 +}
 +
 +static int max9286_max9271_initialize(struct i2c_client *client)
@@ -512,9 +517,8 @@ index 0000000..1261e45
 +		err = gpio_request_one(pwen, GPIOF_OUT_INIT_HIGH, dev_name(&client->dev));
 +		if (err)
 +			dev_err(&client->dev, "cannot request PWEN gpio %d: %d\n", pwen, err);
-+		else
-+			mdelay(250);
-+	}
++	} else
++		mdelay(250);
 +
 +	reg8_read(client, 0x1e, &val);				/* read max9286 ID */
 +	if (val != MAX9286_ID) {
@@ -895,7 +899,7 @@ index 0000000..87c040b
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..fd72396
+index 0000000..f5d136c
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
 @@ -0,0 +1,751 @@
@@ -1504,7 +1508,6 @@ index 0000000..fd72396
 +		reg8_write(client, 0x5d, OV10635_I2C_ADDR << 1);	/* Sensor native I2C address */
 +
 +		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - resetb, GPIO1 - fsin */
-+		udelay(100);
 +	}
 +
 +	if (priv->ti954_addr) {
@@ -1516,9 +1519,10 @@ index 0000000..fd72396
 +		reg8_write(client, 0x5d, OV10635_I2C_ADDR << 1);	/* Sensor native I2C address */
 +
 +		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - resetb, GPIO1 - fsin */
-+		udelay(100);
 +	}
 +	client->addr = tmp_addr;
++
++	udelay(100);
 +
 +	return 0;
 +}
@@ -2958,10 +2962,10 @@ index 0000000..0079bb2
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..308fe1b
+index 0000000..867379a
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,961 @@
+@@ -0,0 +1,971 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -3630,7 +3634,7 @@ index 0000000..308fe1b
 +	struct ov490_priv *priv = to_ov490(client);
 +	u8 val = 0;
 +	u8 pid = 0, ver = 0;
-+	int ret = 0;
++	int ret = 0, timeout = 1000;
 +
 +	if (priv->is_fixed_sensor) {
 +		dev_info(&client->dev, "ov490/ov10640 fixed-sensor res %dx%d\n", priv->max_width, priv->max_height);
@@ -3654,6 +3658,20 @@ index 0000000..308fe1b
 +
 +	if (unlikely(force_conf_link))
 +		goto out;
++
++	/* Check if firmware booted by reading stream-on status */
++	reg16_write(client, 0xFFFD, 0x80);
++	reg16_write(client, 0xFFFE, 0x29);
++	usleep_range(100, 150); /* wait 100 us */
++	for (;;) {
++		reg16_read(client, 0xd000, &val);
++		if (val == 0x0c || --timeout == 0)
++			break;
++		mdelay(1);
++	}
++
++	if (!timeout)
++		dev_err(&client->dev, "Timeout firmware boot wait\n");
 +
 +	/* read resolution used by current firmware */
 +	reg16_write(client, 0xFFFD, 0x80);
@@ -3750,8 +3768,6 @@ index 0000000..308fe1b
 +		reg8_write(client, 0x5d, OV490_I2C_ADDR << 1);		/* Sensor native I2C address */
 +
 +		reg8_write(client, 0x6e, 0x9a);				/* GPIO0 - fsin, GPIO1 - resetb */
-+		/* TODO: why too long? move logic to workqueue? */
-+		mdelay(350);						/* time needed to boot all sensor IPs */
 +	}
 +	if (priv->ti954_addr) {
 +		client->addr = priv->ti954_addr;			/* Deserializer I2C address */
@@ -3762,8 +3778,6 @@ index 0000000..308fe1b
 +		reg8_write(client, 0x5d, OV490_I2C_ADDR << 1);		/* Sensor native I2C address */
 +
 +		reg8_write(client, 0x6e, 0x9a);				/* GPIO0 - fsin, GPIO1 - resetb */
-+		/* TODO: why too long? move logic to workqueue? */
-+		mdelay(350);						/* time needed to boot all sensor IPs */
 +	}
 +	client->addr = tmp_addr;
 +
@@ -3925,7 +3939,7 @@ index 0000000..308fe1b
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.h b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 new file mode 100644
-index 0000000..dde81ef
+index 0000000..d3290c7
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 @@ -0,0 +1,88 @@
@@ -4704,7 +4718,7 @@ index 0000000..3f53689
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti954_ti9x3.c b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 new file mode 100644
-index 0000000..f94208d
+index 0000000..fc7ccda
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti954_ti9x3.c
 @@ -0,0 +1,417 @@
@@ -4865,7 +4879,7 @@ index 0000000..f94208d
 +	}
 +	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
 +	reg8_write(client, 0x7c, 0x81);				/* BIT(7) - magic to Use RAW10 as 8-bit mode */
-+	reg8_write(client, 0x6e, 0x99);				/* Backchannel GPIO0/GPIO1 set high */
++	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
 +}
 +
 +static int ti954_ti9x3_initialize(struct i2c_client *client)
@@ -5127,7 +5141,7 @@ index 0000000..f94208d
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 new file mode 100644
-index 0000000..567def1
+index 0000000..8dd0f99
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 @@ -0,0 +1,385 @@
@@ -5261,7 +5275,7 @@ index 0000000..567def1
 +	}
 +	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
 +	reg8_write(client, 0x7c, 0x81);				/* BIT(7) - magic to Use RAW10 as 8-bit mode */
-+	reg8_write(client, 0x6e, 0x99);				/* Backchannel GPIO0/GPIO1 set high */
++	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
 +}
 +
 +static int ti964_ti9x3_initialize(struct i2c_client *client)
@@ -5631,7 +5645,7 @@ index 0000000..0cee5f1
 +}
 +#endif /* _TI9X4_H */
 diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
-index 5faac64..cf70414 100644
+index 4d95da6..2ef27e8 100644
 --- a/drivers/media/platform/soc_camera/rcar_csi2.c
 +++ b/drivers/media/platform/soc_camera/rcar_csi2.c
 @@ -37,8 +37,9 @@
