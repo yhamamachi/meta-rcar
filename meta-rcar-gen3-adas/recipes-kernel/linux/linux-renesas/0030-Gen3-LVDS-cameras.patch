@@ -4,8 +4,8 @@ Date: Sun, 14 May 2017 15:20:01 +0300
 Subject: [PATCH] Gen3: LVDS cameras
 
 This add Gen3 LVDS cameras support:
-- deserializers: MAX9286, TI964, TI953, TI960
-- cameras: 10635, ov490+ov10640, ov495+OV2775
+- deserializers: MAX9286, TI964, TI954, TI960
+- cameras: ov10635, ov490+ov10640, ov495+OV2775
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
@@ -128,7 +128,7 @@ new file mode 100644
 index 0000000..a663a66
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,566 @@
+@@ -0,0 +1,567 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -517,8 +517,9 @@ index 0000000..a663a66
 +		err = gpio_request_one(pwen, GPIOF_OUT_INIT_HIGH, dev_name(&client->dev));
 +		if (err)
 +			dev_err(&client->dev, "cannot request PWEN gpio %d: %d\n", pwen, err);
-+	} else
-+		mdelay(250);
++	}
++
++	mdelay(250);
 +
 +	reg8_read(client, 0x1e, &val);				/* read max9286 ID */
 +	if (val != MAX9286_ID) {
