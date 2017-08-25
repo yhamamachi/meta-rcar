@@ -8,8 +8,8 @@ Add support for V3M Eagle board
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/Makefile          |   1 +
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts | 620 ++++++++++++++++++++++++++
- 2 files changed, 621 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts | 561 ++++++++++++++++++++++++++
+ 2 files changed, 562 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
@@ -26,10 +26,10 @@ index e201b02..da2a619 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..067958d
+index 0000000..f71addf
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,620 @@
+@@ -0,0 +1,561 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -100,30 +100,6 @@ index 0000000..067958d
 +		compatible = "renesas,mmngrbuf";
 +	};
 +
-+	x12_clk: x12_clk {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24576000>;
-+	};
-+
-+	fixedregulator3v3: regulator@0 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "fixed-3.3V";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		regulator-boot-on;
-+		regulator-always-on;
-+	};
-+
-+	fixedregulator1v8: regulator@1 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "fixed-1.8V";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		regulator-boot-on;
-+		regulator-always-on;
-+	};
-+
 +	vspm_if {
 +		compatible = "renesas,vspm_if";
 +	};
@@ -186,28 +162,10 @@ index 0000000..067958d
 +		};
 +	};
 +
-+	dclkin_p0: clock_out0 {
++	dclkin_p0: clock-out0 {
 +		compatible = "fixed-clock";
 +		#clock-cells = <0>;
 +		clock-frequency = <148500000>;
-+	};
-+
-+	x21_clk: x21-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <33000000>;
-+	};
-+
-+	x22_clk: x22-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <33000000>;
-+	};
-+
-+	dclkin_p3: clock_out1 {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <108000000>;
 +	};
 +
 +	msiof_ref_clk: msiof-ref-clock {
@@ -264,19 +222,13 @@ index 0000000..067958d
 +	};
 +
 +	avb_pins: avb {
-+		groups = "avb0_mdc", "avb0_rx_ctrl", "avb0_rxc", "avb0_rd4", "avb0_tx_ctrl", "avb0_txc", "avb0_td4", "avb0_txcrefclk";
++		groups = "avb0_mdc";
 +		function = "avb0";
 +	};
 +
 +	du_pins: du {
 +		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
 +		function = "du";
-+	};
-+
-+	mmc0_pins_1v8: mmc0_1v8 {
-+		groups = "sdhi2_data8", "sdhi2_ctrl";
-+		function = "sdhi2";
-+		power-source = <1800>;
 +	};
 +};
 +
@@ -297,7 +249,7 @@ index 0000000..067958d
 +	pinctrl-names = "default";
 +
 +	status = "okay";
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	hdmi@39{
 +		compatible = "adi,adv7511w";
@@ -459,17 +411,6 @@ index 0000000..067958d
 +			};
 +		};
 +	};
-+};
-+
-+&mmc0 {
-+	pinctrl-0 = <&mmc0_pins_1v8>;
-+	pinctrl-1 = <&mmc0_pins_1v8>;
-+	pinctrl-names = "default", "state_uhs";
-+
-+	vmmc-supply = <&fixedregulator3v3>;
-+	vqmmc-supply = <&fixedregulator1v8>;
-+	bus-width = <8>;
-+	status = "okay";
 +};
 +
 +&wdt0 {

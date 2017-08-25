@@ -39,7 +39,7 @@ new file mode 100644
 index 0000000..60bb999
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf-v1.dts
-@@ -0,0 +1,469 @@
+@@ -0,0 +1,470 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V1 board
 + *
@@ -354,6 +354,7 @@ index 0000000..60bb999
 +			adi,input-style = <1>;
 +			adi,input-justification = "evenly";
 +			adi,clock-delay = <1200>;
++			adi,clock-max-rate = <100000>;
 +
 +			ports {
 +				#address-cells = <1>;
