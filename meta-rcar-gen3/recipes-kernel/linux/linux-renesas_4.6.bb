@@ -113,6 +113,7 @@ SRC_URI_append = " \
     file://0114-MOST-dim2-Renesas-R-Car3-variant.patch \
     file://0115-pci-pcie-rcar-add-regulators-support.patch \
     file://0116-drm-adv7511-use-smbus-to-retrieve-edid.patch \
+    file://0117-usb-hub-disable-autosuspend-for-SMSC-hubs.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
