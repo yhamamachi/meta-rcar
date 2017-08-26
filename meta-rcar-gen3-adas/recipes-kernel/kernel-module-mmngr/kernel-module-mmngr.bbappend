@@ -1,0 +1,1 @@
+MMNGR_CFG_eagle = "MMNGR_SALVATORX_X"
