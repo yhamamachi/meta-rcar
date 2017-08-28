@@ -18,18 +18,19 @@ Videobox board on R8A7795 ES1.x SoC
 Videobox board on R8A7795 SoC
 Eagle board on R8A7797 SoC
 V3MSK board on R8A7797 SoC
-Kingfisher board on V3M SoC
+Kingfisher board on R8A7797 SoC
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   15 +
- arch/arm64/boot/dts/renesas/legacy/Makefile        |    7 +
+ arch/arm64/boot/dts/renesas/Makefile               |   16 +
+ arch/arm64/boot/dts/renesas/legacy/Makefile        |    8 +
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts    | 1717 +++++++++++++++++++
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 +++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts    | 1724 +++++++++++++++++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  465 +++++
  .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 +++++++++++++
  .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  465 +++++
+ .../dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts     |   20 +
  .../boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi      |   75 +
  .../arm64/boot/dts/renesas/legacy/ulcb-kf-rpi.dtsi |   77 +
  .../dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts    |   22 +
@@ -56,7 +57,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1523 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 34 files changed, 17221 insertions(+)
+ 35 files changed, 17243 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -64,6 +65,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/ulcb-kf-rpi.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts
@@ -92,10 +94,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index 32fb4d9..de2770e 100644
+index 32fb4d9..fd17456 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -4,5 +4,20 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-salvator-x.dtb r8a7795-es1-h3ulcb.dtb
+@@ -4,5 +4,21 @@ dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-salvator-x.dtb r8a7795-es1-h3ulcb.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
  
@@ -110,6 +112,7 @@ index 32fb4d9..de2770e 100644
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-vb.dtb r8a7795-es1-h3ulcb-vb.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-eagle.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk.dtb
++dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk-kf.dtb
 +
 +# ADAS legacy boards
 +subdir-y	:= legacy
@@ -118,14 +121,15 @@ index 32fb4d9..de2770e 100644
  clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/legacy/Makefile b/arch/arm64/boot/dts/renesas/legacy/Makefile
 new file mode 100644
-index 0000000..f7de935
+index 0000000..7f25079
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/Makefile
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,8 @@
 +# Legacy KF board: V0, V1 (V2 is the same as V1), V3 is latest and deployed in default directory
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-es1-h3ulcb-kf-v0.dtb r8a7795-es1-h3ulcb-kf-v1.dtb
 +dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf-v0.dtb r8a7796-m3ulcb-kf-v1.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-kf-v0.dtb r8a7795-h3ulcb-kf-v1.dtb
++dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk-kf-v0.dtb
 +
 +always		:= $(dtb-y)
 +clean-files	:= *.dtb
@@ -6190,6 +6194,32 @@ index 0000000..637c840
 +&pciec1 {
 +	pcie3v3-supply = <&mpcie_3v3>;
 +	pcie1v8-supply = <&mpcie_1v8>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts
+new file mode 100644
+index 0000000..cc04429
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts
+@@ -0,0 +1,20 @@
++/*
++ * Device Tree Source for the V3MSK Kingfisher V0 board on r8a7797
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "../r8a7797-v3msk-kf.dts"
++
++/ {
++	model = "Renesas V3MSK Kingfisher V0 board based on r8a7797";
++};
++
++&i2cswitch4 {
++	reg = <0x74>;
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi b/arch/arm64/boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi
 new file mode 100644
@@ -14049,7 +14079,7 @@ index 0000000..f71addf
 +
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 new file mode 100644
-index 0000000..903d73e
+index 0000000..9837e17
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 @@ -0,0 +1,541 @@
