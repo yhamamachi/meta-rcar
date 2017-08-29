@@ -12856,7 +12856,7 @@ new file mode 100644
 index 0000000..730cd2a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,40 @@
 +/*
 + * Device Tree Source for the M3ULCB Kingfisher board on r8a7796
 + *
@@ -12892,6 +12892,10 @@ index 0000000..730cd2a
 +
 +&hsusb {
 +	status = "okay";
++};
++
++&xhci0 {
++	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 new file mode 100644
