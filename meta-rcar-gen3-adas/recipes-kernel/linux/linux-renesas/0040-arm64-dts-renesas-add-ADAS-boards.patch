@@ -224,7 +224,7 @@ index 0000000..cd23797
 +		regulator-name = "lvds_on";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		gpio = <&gpio1 24 0>;
++		/* gpio = <&gpio1 24 0>; */
 +		enable-active-high;
 +		regulator-always-on;
 +	};
@@ -2394,7 +2394,7 @@ index 0000000..f640350
 +		regulator-name = "lvds_on";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		gpio = <&gpio1 24 0>;
++		/* gpio = <&gpio1 24 0>; */
 +		enable-active-high;
 +		regulator-always-on;
 +	};
@@ -4595,7 +4595,7 @@ index 0000000..7be2370
 +		regulator-name = "lvds_on";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		gpio = <&gpio1 24 0>;
++		/* gpio = <&gpio1 24 0>; */
 +		enable-active-high;
 +		regulator-always-on;
 +	};
