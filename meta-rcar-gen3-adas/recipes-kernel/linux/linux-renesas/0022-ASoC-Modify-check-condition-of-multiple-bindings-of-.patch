@@ -1,0 +1,42 @@
+From 2fc4f16b075264fae016ea3db1f1f81d30cb0ab6 Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Tue, 13 Dec 2016 18:08:39 +0300
+Subject: [PATCH 102/104] ASoC: Modify check condition of multiple bindings of
+ components
+
+https://patchwork.kernel.org/patch/7385501/
+...and some more hacks to bind one component (with several DAIs)
+to more than one sound card.
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ sound/soc/soc-core.c            |    6 ++++--
+ 2 files changed, 4 insertions(+), 14 deletions(-)
+
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 16369ca..899d013 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -1373,7 +1373,8 @@ static int soc_probe_component(struct snd_soc_card *card,
+ 		return 0;
+ 
+ 	if (component->card) {
+-		if (component->card != card) {
++		if (component->card != card &&
++		    component->registered_as_component) {
+ 			dev_err(component->dev,
+ 				"Trying to bind component to card \"%s\" but is already bound to card \"%s\"\n",
+ 				card->name, component->card->name);
+@@ -3049,7 +3050,8 @@ int snd_soc_register_component(struct device *dev,
+ 		goto err_free;
+ 
+ 	cmpnt->ignore_pmdown_time = true;
+-	cmpnt->registered_as_component = true;
++	if (num_dai == 1)
++		cmpnt->registered_as_component = true;
+ 
+ 	ret = snd_soc_register_dais(cmpnt, dai_drv, num_dai, true);
+ 	if (ret < 0) {
+-- 
+1.7.10.4
+
