@@ -1609,11 +1609,11 @@ index ecae864..42eb45c 100644
 -		pllcr = LVDPLLCR_PLLDIVCNT_148M;
 +	if (soc_device_match(r8a7797)) {
 +		if (freq < 39000)
-+			pllcr = LVDPLLCR_PLLDLYCNT_38M;
++			pllcr = LVDPLLCR_CEEN | LVDPLLCR_COSEL | LVDPLLCR_PLLDLYCNT_38M;
 +		else if (freq < 61000)
-+			pllcr = LVDPLLCR_PLLDLYCNT_60M;
++			pllcr = LVDPLLCR_CEEN | LVDPLLCR_COSEL | LVDPLLCR_PLLDLYCNT_60M;
 +		else if (freq < 121000)
-+			pllcr = LVDPLLCR_PLLDLYCNT_121M;
++			pllcr = LVDPLLCR_CEEN | LVDPLLCR_COSEL | LVDPLLCR_PLLDLYCNT_121M;
 +		else
 +			pllcr = LVDPLLCR_PLLDLYCNT_150M;
 +	} else {
