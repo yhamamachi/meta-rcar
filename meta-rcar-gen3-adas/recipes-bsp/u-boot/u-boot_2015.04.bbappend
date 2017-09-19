@@ -12,7 +12,6 @@ SRC_URI_append = " \
     file://0009-configs-rcar-gen3-common-Enable-askenv-command.patch \
     file://0010-configs-rcar-gen3-common-Enable-hush-parser.patch \
     file://0011-configs-rcar-gen3-common-Enable-GPT-support.patch \
-    file://0012-board-ulcb-Fix-reset-command-clock-setting.patch \
     file://0013-mtd-spi-QSPI-flash-support.patch \
     file://0014-arm-renesas-Add-Renesas-R8A7797-SoC-support.patch \
     file://0015-board-renesas-Add-V3M-Eagle-board.patch \

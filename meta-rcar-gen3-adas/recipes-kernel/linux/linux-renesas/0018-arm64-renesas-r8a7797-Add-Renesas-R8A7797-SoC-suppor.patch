@@ -1189,7 +1189,7 @@ index 0000000..c69bf31
 +	DEF_DIV6P1("csi0",      R8A7797_CLK_CSI0,  CLK_PLL1_DIV4, 0x00c),
 +
 +	DEF_FIXED("osc",        R8A7797_CLK_OSC,   CLK_PLL1_DIV2, (12*1024), 1),
-+	DEF_DIV6_RO("r_int",    CLK_RINT,          CLK_EXTAL, CPG_RCKCR, 32),
++	DEF_BASE("r_int",       CLK_RINT,          CLK_TYPE_GEN3_RINT, CLK_EXTAL),
 +
 +	DEF_BASE("r",           R8A7797_CLK_R, CLK_TYPE_GEN3_R, CLK_RINT),
 +};
@@ -1393,9 +1393,9 @@ index f9d1763..96de154 100644
 +		return clk_register_divider_table(NULL, core->name, __clk_get_name(parent), 0, base + 0x0074,
 +						8, 4,0, cpg_sdh_div_table, &cpg_lock);
 +
- 	case CLK_TYPE_GEN3_R:
- 		if (cpg_quirks & RCKCR_CKSEL) {
- 			/*
+ 	case CLK_TYPE_GEN3_RINT:
+ 		div = cpg_pll_config->rint;
+ 		break;
 @@ -799,5 +835,8 @@ int __init rcar_gen3_cpg_init(const struct rcar_gen3_cpg_pll_config *config,
  	if (attr)
  		cpg_quirks = (uintptr_t)attr->data;

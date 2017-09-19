@@ -12,7 +12,6 @@ SRC_URI_append = " \
     file://0004-xhci-rcar-add-firmware-for-R-Car-H2-M2-USB-3.0-host-.patch \
     file://0005-usb-host-xhci-plat-add-support-for-the-R-Car-H3-xHCI.patch \
     file://0006-spi-spi-gpio-fix-set-CPOL-default-inverted.patch \
-    file://0007-mmc-sh_mobile_sdhi-Add-R-CarGen3-SDHI-SEQUENCER-supp.patch \
     file://0008-arm64-do-not-set-dma-masks-that-device-connection-ca.patch \
     file://0009-swiotlb-ensure-that-page-sized-mappings-are-page-ali.patch \
     file://0010-can-rcar_can-add-enable-and-standby-control-pins.patch \
@@ -47,14 +46,12 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
-    file://0061-Sound-R-Car-support-8-channel-TDM-mode.patch \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
     file://0064-ADV7511-limit-maximum-pixelclock.patch \
     file://0066-pci-pcie-rcar-add-regulators-support.patch \
     file://0067-ti-st-use-proper-way-to-get-shutdown-gpio.patch \
     file://0068-drm-adv7511-use-smbus-to-retrieve-edid.patch \
-    file://0069-ASoC-ak4613-Improve-counting-DAI-number.patch \
     file://0070-clk-clk-5p49x-add-5P49V5925-chip.patch \
     file://0071-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch \
     file://0072-usb-hub-disable-autosuspend-for-SMSC-hubs.patch \
@@ -77,17 +74,11 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-h3ulcb-had-beta.dtb \
     renesas/r8a7795-h3ulcb-kf.dtb \
     renesas/r8a7795-h3ulcb-vb.dtb \
-    renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dtb \
-    renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dtb \
-    renesas/legacy/r8a7795-h3ulcb-kf-v0.dtb \
-    renesas/legacy/r8a7795-h3ulcb-kf-v1.dtb \
 "
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-view.dtb \
     renesas/r8a7796-m3ulcb-kf.dtb \
-    renesas/legacy/r8a7796-m3ulcb-kf-v0.dtb \
-    renesas/legacy/r8a7796-m3ulcb-kf-v1.dtb \
 "
 
 KERNEL_DEVICETREE_append_salvator-x = " \
@@ -103,5 +94,4 @@ KERNEL_DEVICETREE_append_eagle = " \
 KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a7797-v3msk.dtb \
     renesas/r8a7797-v3msk-kf.dtb \
-    renesas/legacy/r8a7797-v3msk-kf-v0.dtb \
 "

@@ -44,12 +44,13 @@ diff --git a/arch/arm/cpu/armv8/rcar_gen3/Makefile b/arch/arm/cpu/armv8/rcar_gen
 index 2bf2416..e85ca94 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/Makefile
 +++ b/arch/arm/cpu/armv8/rcar_gen3/Makefile
-@@ -13,3 +13,5 @@ obj-$(CONFIG_R8A7795) += lowlevel_init.o cpu_info-r8a7795.o \
- 				pfc.o pfc-r8a7795.o pfc-r8a7795_es.o prr_depend.o
+@@ -13,3 +13,6 @@ obj-$(CONFIG_R8A7795) += lowlevel_init.o cpu_info-r8a7795.o \
  obj-$(CONFIG_R8A7796) += lowlevel_init.o cpu_info-r8a7796.o \
- 				pfc.o pfc-r8a7796.o prr_depend.o
+ 				pfc.o pfc-r8a7796.o prr_depend.o \
+ 				board.o
 +obj-$(CONFIG_R8A7797) += lowlevel_init.o cpu_info-r8a7797.o \
-+				pfc.o pfc-r8a7797.o prr_depend.o
++				pfc.o pfc-r8a7797.o prr_depend.o \
++				board.o
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c b/arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c
 new file mode 100644
 index 0000000..cc8e1e6
