@@ -22,7 +22,6 @@ RDEPENDS_packagegroup-surroundview = '${@ " \
 RDEPENDS_packagegroup-opencv-sdk = '${@ " \
     opencv \
     opencv-apps \
-    opencv-samples \
     opencv-dbg \
     libopencv-calib3d \
     libopencv-core \
