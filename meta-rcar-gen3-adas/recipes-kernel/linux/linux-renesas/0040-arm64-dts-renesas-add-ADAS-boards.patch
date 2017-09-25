@@ -15509,7 +15509,7 @@ new file mode 100644
 index 0000000..4ead97a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1520 @@
+@@ -0,0 +1,1542 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -15887,6 +15887,11 @@ index 0000000..4ead97a
 +		groups = "vin5_data8", "vin5_sync", "vin5_clk";
 +		function = "vin5";
 +	};
++
++	mlp_pins: mlp {
++		groups = "mlb_3pin";
++		function = "mlb_3pin";
++	};
 +};
 +
 +&du {
@@ -15900,6 +15905,15 @@ index 0000000..4ead97a
 +		gpios = <3 GPIO_ACTIVE_HIGH>;
 +		output-high;
 +		line-name = "BL PWM 100%";
++	};
++};
++
++&gpio4 {
++	most_rst {
++		gpio-hog;
++		gpios = <14 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "MOST RST";
 +	};
 +};
 +
@@ -17026,6 +17040,14 @@ index 0000000..4ead97a
 +&pciec1 {
 +	pcie3v3-supply = <&mpcie_3v3>;
 +	pcie1v8-supply = <&mpcie_1v8>;
++};
++
++&mlp {
++	pinctrl-0 = <&mlp_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	clock-speed = "1024fs";
 +};
 +
 +/* uncomment to enable CN47: SD on SDHI3 */
