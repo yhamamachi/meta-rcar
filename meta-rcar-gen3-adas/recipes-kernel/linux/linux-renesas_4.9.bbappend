@@ -43,6 +43,9 @@ SRC_URI_append = " \
     file://0041-arm64-dts-renesas-ulcb-enlarge-cma-region.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0043-arm64-dts-renesas-ulcb-use-versaclock-for-du-rgb-and-lvds.patch \
+    file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
+    file://0045-clk-r8a779x-add-mlp-clock.patch \
+    file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
@@ -55,6 +58,11 @@ SRC_URI_append = " \
     file://0070-clk-clk-5p49x-add-5P49V5925-chip.patch \
     file://0071-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch \
     file://0072-usb-hub-disable-autosuspend-for-SMSC-hubs.patch \
+    file://0073-MOST-dim2-add-device-tree-support.patch \
+    file://0074-MOST-dim2-add-R-Car3-related-initialization.patch \
+    file://0075-MOST-core-fix-memory-allocation-at-arm64.patch \
+    file://0076-MOST-dim2-Renesas-R-Car3-variant.patch \
+    file://0077-MOST-dim2-add-timeouts.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
