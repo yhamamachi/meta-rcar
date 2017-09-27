@@ -110,7 +110,7 @@ index 000000000000..50ebbd4c0013
 +
 +static struct platform_driver wl18xx_driver = {
 +	.driver = {
-+		.name = "wl18xx",
++		.name = "wl18xx-codec",
 +		.of_match_table = wl18xx_of_match,
 +		.owner = THIS_MODULE,
 +	},

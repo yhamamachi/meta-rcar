@@ -15715,7 +15715,7 @@ index 0000000..4ead97a
 +		compatible = "simple-audio-card";
 +
 +		simple-audio-card,format = "i2s";
-+		simple-audio-card,name = "wl18xx";
++		simple-audio-card,name = "wl18xx-codec";
 +
 +		simple-audio-card,bitclock-master = <&sound_wl18xx_master>;
 +		simple-audio-card,frame-master = <&sound_wl18xx_master>;
