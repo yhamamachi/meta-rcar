@@ -46,6 +46,8 @@ SRC_URI_append = " \
     file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
     file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
+    ${@base_conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
+    ${@base_conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
@@ -63,6 +65,7 @@ SRC_URI_append = " \
     file://0075-MOST-core-fix-memory-allocation-at-arm64.patch \
     file://0076-MOST-dim2-Renesas-R-Car3-variant.patch \
     file://0077-MOST-dim2-add-timeouts.patch \
+    file://0078-MOST-aim-fix-null-pointer-crash.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

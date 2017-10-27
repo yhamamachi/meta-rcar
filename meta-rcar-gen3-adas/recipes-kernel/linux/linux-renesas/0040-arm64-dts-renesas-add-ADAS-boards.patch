@@ -47,17 +47,18 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts  | 1787 ++++++++++++++++++++
  .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 ++++++
  .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 ++++++
- arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  |   36 +
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  |   40 +
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
  arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  561 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  541 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  294 ++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  518 ++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1520 +++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1531 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 35 files changed, 17240 insertions(+)
+ 36 files changed, 17285 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -89,6 +90,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
@@ -135,10 +137,10 @@ index 0000000..7f25079
 +clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..cd23797
+index 0000000..ec6d86d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
-@@ -0,0 +1,1717 @@
+@@ -0,0 +1,1710 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher V0 board on r8a7795 ES1.x
 + *
@@ -1849,13 +1851,6 @@ index 0000000..cd23797
 +&ssi8 {
 +	shared-pin;
 +};
-+
-+/* uncomment to enable CN48 on VIN4 */
-+//#include "../ulcb-kf-rpi.dtsi"
-+/* uncomment to enable CN47: SD on SDHI3 */
-+//#include "../ulcb-kf-sd3.dtsi"
-+/* uncomment to override CN29 (CMOS camera) on VIN5 */
-+//#include "../ulcb-kf-cmos.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
 new file mode 100644
 index 0000000..ac6a12b
@@ -2305,7 +2300,7 @@ index 0000000..ac6a12b
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..f640350
+index 0000000..78c766b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 @@ -0,0 +1,1724 @@
@@ -4506,7 +4501,7 @@ index 0000000..14b6f52
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..7be2370
+index 0000000..ffa1879
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 @@ -0,0 +1,1214 @@
@@ -12853,7 +12848,7 @@ index 0000000..fb12a39f3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 new file mode 100644
-index 0000000..730cd2a
+index 0000000..a409402
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 @@ -0,0 +1,40 @@
@@ -15452,6 +15447,42 @@ index 0000000..4ca502f
 +		};
 +	};
 +};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi
+new file mode 100644
+index 0000000..4af5ca0
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi
+@@ -0,0 +1,30 @@
++/*
++ * Device Tree Source for the H3/M3ULCB Kingfisher board:
++ *  this overrides GPS in favour MOST on GP5_24/GP5_25 R-CAR pins
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++&pfc {
++	mlp_pins: mlp {
++		groups = "mlb_3pin";
++		function = "mlb_3pin";
++	};
++};
++
++&scif1 {
++	status = "disabled";
++};
++
++&mlp {
++	pinctrl-0 = <&mlp_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	clock-speed = "1024fs";
++};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi
 new file mode 100644
 index 0000000..b854216
@@ -15506,10 +15537,10 @@ index 0000000..b854216
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 new file mode 100644
-index 0000000..4ead97a
+index 0000000..3990648
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1542 @@
+@@ -0,0 +1,1529 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -15886,11 +15917,6 @@ index 0000000..4ead97a
 +	vin5_pins: vin5 {
 +		groups = "vin5_data8", "vin5_sync", "vin5_clk";
 +		function = "vin5";
-+	};
-+
-+	mlp_pins: mlp {
-+		groups = "mlb_3pin";
-+		function = "mlb_3pin";
 +	};
 +};
 +
@@ -17042,16 +17068,8 @@ index 0000000..4ead97a
 +	pcie1v8-supply = <&mpcie_1v8>;
 +};
 +
-+&mlp {
-+	pinctrl-0 = <&mlp_pins>;
-+	pinctrl-names = "default";
-+	status = "okay";
 +
-+	clock-speed = "1024fs";
-+};
 +
-+/* uncomment to enable CN47: SD on SDHI3 */
-+//#include "ulcb-kf-sd3.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 new file mode 100644
 index 0000000..92ed4a4
