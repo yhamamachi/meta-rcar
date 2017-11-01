@@ -9,6 +9,7 @@ SRC_URI_append_rcar-gen3 = " \
     file://system.pa \
     file://daemon.conf \
     file://pulseaudio-bluetooth.conf \
+    file://pulseaudio-ofono.conf \
 "
 
 inherit update-rc.d
@@ -31,6 +32,7 @@ do_install_append_rcar-gen3() {
 
     install -d ${D}/${sysconfdir}/dbus-1/system.d
     install -m 644 ${WORKDIR}/pulseaudio-bluetooth.conf ${D}/${sysconfdir}/dbus-1/system.d/
+    install -m 644 ${WORKDIR}/pulseaudio-ofono.conf ${D}/${sysconfdir}/dbus-1/system.d/
 
     update-rc.d -r ${D} pulseaudio defaults 30
 }
