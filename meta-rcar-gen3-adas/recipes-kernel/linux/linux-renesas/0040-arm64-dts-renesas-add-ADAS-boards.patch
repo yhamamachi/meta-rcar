@@ -14085,7 +14085,7 @@ new file mode 100644
 index 0000000..4467ab3
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
-@@ -0,0 +1,567 @@
+@@ -0,0 +1,578 @@
 +/*
 + * Device Tree Source for the V3MSK Kingfisher board on r8a7797
 + *
@@ -14104,12 +14104,12 @@ index 0000000..4467ab3
 +};
 +
 +&canfd {
-+	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
++	pinctrl-0 = </*&canfd0_pins*/ &canfd1_pins>;
 +	pinctrl-names = "default";
 +	status = "okay";
 +
 +	channel0 {
-+		status = "okay";
++		status = "disabled";
 +	};
 +
 +	channel1 {
@@ -14157,6 +14157,12 @@ index 0000000..4467ab3
 +};
 +
 +&i2c3 {
++	pinctrl-0 = <&i2c3_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	clock-frequency = <400000>;
++
 +	i2cswitch4: pca9548@71 {
 +		compatible = "nxp,pca9548";
 +		#address-cells = <1>;
@@ -14522,6 +14528,11 @@ index 0000000..4467ab3
 +		groups = "canfd1_data";
 +		function = "canfd1";
 +	};
++
++	i2c3_pins: i2c3 {
++		groups = "i2c3";
++		function = "i2c3";
++	};
 +};
 +
 +&vin0 {
@@ -14680,12 +14691,12 @@ index 0000000..edc41ad
 +};
 +
 +&canfd {
-+	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
++	pinctrl-0 = </*&canfd0_pins*/ &canfd1_pins>;
 +	pinctrl-names = "default";
 +	status = "okay";
 +
 +	channel0 {
-+		status = "okay";
++		status = "disabled";
 +	};
 +
 +	channel1 {
