@@ -52,7 +52,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
  arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  561 ++++++
- arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  567 +++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  578 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vb.dts   |  498 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  320 ++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  518 ++++++
@@ -60,7 +60,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1529 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- 37 files changed, 17827 insertions(+)
+ 37 files changed, 17838 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -14082,7 +14082,7 @@ index 0000000..f71addf
 +
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 new file mode 100644
-index 0000000..4467ab3
+index 0000000..979cebe
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 @@ -0,0 +1,578 @@
@@ -14104,12 +14104,12 @@ index 0000000..4467ab3
 +};
 +
 +&canfd {
-+	pinctrl-0 = </*&canfd0_pins*/ &canfd1_pins>;
++	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
 +	pinctrl-names = "default";
 +	status = "okay";
 +
 +	channel0 {
-+		status = "disabled";
++		status = "okay";
 +	};
 +
 +	channel1 {
@@ -14666,7 +14666,7 @@ index 0000000..4467ab3
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vb.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vb.dts
 new file mode 100644
-index 0000000..edc41ad
+index 0000000..1b531d8
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vb.dts
 @@ -0,0 +1,498 @@
@@ -14691,12 +14691,12 @@ index 0000000..edc41ad
 +};
 +
 +&canfd {
-+	pinctrl-0 = </*&canfd0_pins*/ &canfd1_pins>;
++	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
 +	pinctrl-names = "default";
 +	status = "okay";
 +
 +	channel0 {
-+		status = "disabled";
++		status = "okay";
 +	};
 +
 +	channel1 {
@@ -14743,7 +14743,7 @@ index 0000000..edc41ad
 +	pinctrl-names = "default";
 +	status = "okay";
 +
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
 +	i2cswitch1: i2c-switch@74 {
 +		compatible = "nxp,pca9548";
@@ -15170,7 +15170,7 @@ index 0000000..edc41ad
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
 new file mode 100644
-index 0000000..fb2976e
+index 0000000..bf2501e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
 @@ -0,0 +1,320 @@
@@ -15386,7 +15386,7 @@ index 0000000..fb2976e
 +	};
 +
 +	du_pins: du {
-+		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
++		groups = "du_rgb666", "du_sync", "du_clk_out_0";
 +		function = "du";
 +	};
 +
