@@ -66,6 +66,7 @@ SRC_URI_append = " \
     file://0076-MOST-dim2-Renesas-R-Car3-variant.patch \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
+    file://0079-ASoC-fix-pcm-creation-regression.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

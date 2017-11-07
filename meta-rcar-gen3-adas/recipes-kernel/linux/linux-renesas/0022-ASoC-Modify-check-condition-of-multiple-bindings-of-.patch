@@ -18,8 +18,7 @@ Or we have to enable only one of them in dts file as it is designed.
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
  sound/soc/soc-core.c            |    6 ++++--
- sound/soc/soc-pcm.c             |    9 +++++++++
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
 diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
 index 16369ca..899d013 100644
@@ -45,44 +44,5 @@ index 16369ca..899d013 100644
  
  	ret = snd_soc_register_dais(cmpnt, dai_drv, num_dai, true);
  	if (ret < 0) {
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index f6667e4..719c866 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2632,11 +2632,16 @@ static void soc_pcm_free(struct snd_pcm *pcm)
- {
- 	struct snd_soc_pcm_runtime *rtd = pcm->private_data;
- 	struct snd_soc_component *component;
-+	struct snd_soc_platform *platform = rtd->platform;
- 
- 	list_for_each_entry(component, &rtd->card->component_dev_list,
- 			    card_list) {
-+		if (!component->registered_as_component)
-+			component = &platform->component;
- 		if (component->pcm_free)
- 			component->pcm_free(pcm);
-+		if (!component->registered_as_component)
-+			break;
- 	}
- }
- 
-@@ -2756,6 +2761,8 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
- 		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &rtd->ops);
- 
- 	list_for_each_entry(component, &rtd->card->component_dev_list, card_list) {
-+		if (!component->registered_as_component)
-+			component = &platform->component;
- 		if (component->pcm_new) {
- 			ret = component->pcm_new(rtd);
- 			if (ret < 0) {
-@@ -2765,6 +2772,8 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
- 				return ret;
- 			}
- 		}
-+		if (!component->registered_as_component)
-+			break;
- 	}
- 	pcm->private_free = soc_pcm_free;
- out:
 -- 
 1.7.10.4
