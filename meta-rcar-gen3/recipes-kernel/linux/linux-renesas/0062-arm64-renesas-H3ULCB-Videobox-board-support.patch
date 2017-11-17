@@ -946,7 +946,7 @@ index 0000000..0f2c7dd
 +				ti,links = <4>;
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
-+				ti,cable-mode = "coax";
++				ti,cable-mode = "stp";
 +
 +				port@0 {
 +					ti964_des0ep0: endpoint@0 {
@@ -987,7 +987,7 @@ index 0000000..0f2c7dd
 +				ti,links = <2>;
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
-+				ti,cable-mode = "coax";
++				ti,cable-mode = "stp";
 +
 +				port@0 {
 +					ti954_des0ep0: endpoint@0 {
@@ -1155,7 +1155,7 @@ index 0000000..0f2c7dd
 +				ti,links = <4>;
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
-+				ti,cable-mode = "coax";
++				ti,cable-mode = "stp";
 +
 +				port@0 {
 +					ti964_des1ep0: endpoint@0 {
@@ -1196,7 +1196,7 @@ index 0000000..0f2c7dd
 +				ti,links = <2>;
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
-+				ti,cable-mode = "coax";
++				ti,cable-mode = "stp";
 +
 +				port@0 {
 +					ti954_des1ep0: endpoint@0 {
