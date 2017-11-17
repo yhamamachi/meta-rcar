@@ -1060,14 +1060,14 @@ index 0000000..5095b07
 +void spi_set_addr(uint32_t addr)
 +{
 +	debug_print("Set Addr: %08X\n", addr);
-+	out_le32(RPC_SMADR, addr);
++	out_le32(SH_QSPI_BASE + RPC_SMADR, addr);
 +	return;
 +}
 +
 +static void rcar_gen3_qspi_init(void)
 +{
-+	out_le32(RPC_PHYCNT, 0x80000260);
-+	out_le32(RPC_CMNCR, 0x81FFF300);
++	out_le32(SH_QSPI_BASE + RPC_PHYCNT, 0x80000260);
++	out_le32(SH_QSPI_BASE + RPC_CMNCR, 0x81FFF300);
 +
 +	return;
 +}
@@ -1079,17 +1079,17 @@ index 0000000..5095b07
 +
 +void spi_cs_activate(struct spi_slave *slave)
 +{
-+	out_le32(RPC_PHYCNT, 0x80000260);
++	out_le32(SH_QSPI_BASE + RPC_PHYCNT, 0x80000260);
 +
 +	return;
 +}
 +
 +void spi_cs_deactivate(struct spi_slave *slave)
 +{
-+	out_le32(RPC_SMCR, SPI_SMCR_SPIE);
++	out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIE);
 +	WaitRpcTxEnd();
-+	out_le32(RPC_PHYCNT, 0x00000274);
-+	out_le32(RPC_DRCR, 0x01FF0301);
++	out_le32(SH_QSPI_BASE + RPC_PHYCNT, 0x00000274);
++	out_le32(SH_QSPI_BASE + RPC_DRCR, 0x01FF0301);
 +
 +	return;
 +}
@@ -1164,10 +1164,10 @@ index 0000000..5095b07
 +	}
 +
 +	/* Set Data Enable 32bit */
-+	readVal = in_le32(RPC_SMENR);
++	readVal = in_le32(SH_QSPI_BASE + RPC_SMENR);
 +	writeVal = (readVal & 0xffff0000);
 +	writeVal |= SPI_SMENR_SPIDE_32BIT;
-+	out_le32(RPC_SMENR, writeVal);
++	out_le32(SH_QSPI_BASE + RPC_SMENR, writeVal);
 +
 +	nbyte = bitlen / 8;
 +	if (tdata_l != NULL)
@@ -1184,12 +1184,12 @@ index 0000000..5095b07
 +		if (wnbyte < BYTE_32BIT) {
 +			out_8(RPC_SMWDR0, *(uint8_t*)tdata_l);
 +			/* Set Data Enable 8bit */
-+			readVal = in_le32(RPC_SMENR);
++			readVal = in_le32(SH_QSPI_BASE + RPC_SMENR);
 +			writeVal = (readVal & 0xffff0000);
 +			writeVal |= SPI_SMENR_SPIDE_8BIT;
-+			out_le32(RPC_SMENR, writeVal);
++			out_le32(SH_QSPI_BASE + RPC_SMENR, writeVal);
 +		}else{
-+			out_le32(RPC_SMWDR0, *tdata_l);
++			out_le32(SH_QSPI_BASE + RPC_SMWDR0, *tdata_l);
 +		}
 +
 +		if (wnbyte >= BYTE_32BIT) {
@@ -1203,9 +1203,9 @@ index 0000000..5095b07
 +		}
 +
 +		if (wnbyte > 0) {
-+			out_le32(RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
++			out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
 +		}else{
-+			out_le32(RPC_SMCR, SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
++			out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
 +		}
 +
 +		WaitRpcTxEnd();
@@ -1217,31 +1217,31 @@ index 0000000..5095b07
 +
 +	while (rnbyte > 0) {
 +		if (rnbyte < BYTE_32BIT) {
-+			readVal = in_le32(RPC_SMRDR0);
++			readVal = in_le32(SH_QSPI_BASE + RPC_SMRDR0);
 +			ptr_b = (uint8_t*) rdata_l;
 +			for(i=0; i<rnbyte; i++) {
 +				*ptr_b = (readVal >> (8*i)) & 0x000000ff;
 +				ptr_b++;
 +			}
 +		}else{
-+			*rdata_l = in_le32(RPC_SMRDR0);
++			*rdata_l = in_le32(SH_QSPI_BASE + RPC_SMRDR0);
 +		}
 +
 +		rdata_l++;
 +
 +		if(slave->spi_cmd->cmd_code == CMD_READ_ARRAY_FAST_ADDR4) {
-+			readVal = in_le32(RPC_SMENR);
++			readVal = in_le32(SH_QSPI_BASE + RPC_SMENR);
 +			writeVal = readVal | 0x0000CF00;
-+			out_le32(RPC_SMENR, writeVal);
-+			readVal = in_le32(RPC_SMADR);
++			out_le32(SH_QSPI_BASE + RPC_SMENR, writeVal);
++			readVal = in_le32(SH_QSPI_BASE + RPC_SMADR);
 +			readVal += BYTE_32BIT;
 +			spi_set_addr(readVal);
-+			out_le32(RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++			out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +		}else{
 +			if (rnbyte > BYTE_32BIT) {
-+				out_le32(RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +			}else{
-+				out_le32(RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +			}
 +		}
 +
@@ -1276,10 +1276,10 @@ index 0000000..5095b07
 +		slave->spi_cmd = cur_cmd_tbl;
 +
 +		spi_cs_activate(slave);
-+		out_le32(RPC_SMCMR, cmd_no << SPI_SMCMR_CMD_BIT);
++		out_le32(SH_QSPI_BASE + RPC_SMCMR, cmd_no << SPI_SMCMR_CMD_BIT);
 +		debug_print("SPI CODE:0x%02X [ %s ]\n", cur_cmd_tbl->cmd_code, cur_cmd_tbl->cmd_desc);
 +
-+		readVal = in_le32(RPC_SMENR);
++		readVal = in_le32(SH_QSPI_BASE + RPC_SMENR);
 +		writeVal = readVal & 0xFFFF0000;
 +		writeVal |= SPI_SMENR_CDE;
 +
@@ -1300,39 +1300,39 @@ index 0000000..5095b07
 +		if (cur_cmd_tbl->dummy_len != 0) {
 +			writeVal |= SPI_SMENR_DME;
 +			dummy_cyc = cur_cmd_tbl->dummy_len - 1;
-+			out_le32(RPC_SMDMCR, dummy_cyc);
++			out_le32(SH_QSPI_BASE + RPC_SMDMCR, dummy_cyc);
 +		}
-+		out_le32(RPC_SMENR, writeVal);
++		out_le32(SH_QSPI_BASE + RPC_SMENR, writeVal);
 +
 +		switch(cur_cmd_tbl->rw_type) {
 +		case SPI_CMD_READ:
-+			readVal = in_le32(RPC_SMENR);
++			readVal = in_le32(SH_QSPI_BASE + RPC_SMENR);
 +			writeVal = readVal & 0xFFFFFFF0;
 +			writeVal |= SPI_SMENR_SPIDE_32BIT;
-+			out_le32(RPC_SMENR, writeVal);
++			out_le32(SH_QSPI_BASE + RPC_SMENR, writeVal);
 +
 +			if(cur_cmd_tbl->data_enable == SPI_DATA_ENABLE) {
 +				if(cur_cmd_tbl->cmd_code == CMD_READ_ARRAY_FAST_ADDR4) {
-+					out_le32(RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++					out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +				}else{
-+					out_le32(RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++					out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +				}
 +			}else{
-+				out_le32(RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIRE | SPI_SMCR_SPIE);
 +			}
 +			break;
 +		case SPI_CMD_WRITE:
 +			if(cur_cmd_tbl->data_enable == SPI_DATA_ENABLE) {
-+				out_le32(RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
 +			}else{
-+				out_le32(RPC_SMCR, SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIWE | SPI_SMCR_SPIE);
 +			}
 +			break;
 +		default:
 +			if(cur_cmd_tbl->data_enable == SPI_DATA_ENABLE) {
-+				out_le32(RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SSLKP | SPI_SMCR_SPIE);
 +			}else{
-+				out_le32(RPC_SMCR, SPI_SMCR_SPIE);
++				out_le32(SH_QSPI_BASE + RPC_SMCR, SPI_SMCR_SPIE);
 +			}
 +			break;
 +		}
@@ -1357,7 +1357,7 @@ index 0000000..5095b07
 +	uint32_t dataL=0;
 +
 +	while(1) {
-+		dataL = in_le32(RPC_CMNSR);
++		dataL = in_le32(SH_QSPI_BASE + RPC_CMNSR);
 +		if(dataL & 0x00000001) {
 +			break;
 +		}

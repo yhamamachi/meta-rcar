@@ -11,6 +11,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm/cpu/armv8/rcar_gen3/Makefile              |    2 +
  arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c    |   39 +
  arch/arm/cpu/armv8/rcar_gen3/cpu_info.c            |    8 +
+ arch/arm/cpu/armv8/rcar_gen3/pfc.c                 |    2 +
  arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c         | 2764 ++++++++++++++++++++
  arch/arm/cpu/armv8/rcar_gen3/prr_depend.c          |   29 +
  arch/arm/include/asm/arch-rcar_gen3/gpio.h         |    4 +
@@ -20,7 +21,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h    |    2 +
  drivers/serial/serial_sh.h                         |    3 +-
  include/configs/rcar-gen3-common.h                 |   12 +
- 13 files changed, 3359 insertions(+), 1 deletion(-)
+ 14 files changed, 3361 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c
  create mode 100644 arch/arm/include/asm/arch-rcar_gen3/r8a7797-gpio.h
@@ -114,6 +115,18 @@ index c3fd92b..1d5127d 100644
 +		break;
  	}
  	return 0;
+ }
+diff --git a/arch/arm/cpu/armv8/rcar_gen3/pfc.c b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
+index b7158b0..dc7d0ab 100644
+--- a/arch/arm/cpu/armv8/rcar_gen3/pfc.c
++++ b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
+@@ -20,5 +20,7 @@ void pinmux_init(void)
+ 		r8a7795_pinmux_init();
+ #elif defined(CONFIG_R8A7796)
+ 	r8a7796_pinmux_init();
++#elif defined(CONFIG_R8A7797)
++	r8a7797_pinmux_init();
+ #endif
  }
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c b/arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c
 new file mode 100644
@@ -2938,7 +2951,7 @@ index 27e40aa..67d3838 100644
  	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
  		return SDH400_SD200;
 +	else if (RCAR_PRR_IS_PRODUCT(V3M) && (!RCAR_PRR_CHK_CUT(V3M, ES10)))
-+		return (SD_SDHFC_DIV2 | SD_SD0FC_DIV16);
++		return (SD_SDHFC_DIV2 | SD_SD0FC_DIV8);
  	else
  		return SDH800_SD200;
  }
