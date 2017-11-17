@@ -69,6 +69,12 @@ SRC_URI_append = " \
     file://0079-ASoC-fix-pcm-creation-regression.patch \
 "
 
+SRC_URI_append_r8a7797 = " \
+    file://0103-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
+    file://0104-media-vsp1-extend-DRM-VSP1-interface.patch \
+    file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
+"
+
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
 SRC_URI_append_m3ulcb = " file://ulcb.cfg"
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
