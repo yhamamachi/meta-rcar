@@ -4001,7 +4001,7 @@ new file mode 100644
 index 0000000..8e49f97
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,93 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera wizard 1280x1080@30/UYVY/BT601/8bit
 + *
@@ -4081,7 +4081,6 @@ index 0000000..8e49f97
 +{0xfffe, 0x80},
 +{0x0081, 0x00}, // 03;SENSOR FSIN
 +/* ov10640 FSIN enable */
-+{0xfffd, 0x80},
 +{0xfffe, 0x19},
 +{0x5000, 0x00},
 +{0x5001, 0x30},
@@ -4089,6 +4088,12 @@ index 0000000..8e49f97
 +{0x5003, 0xb2},
 +{0xfffe, 0x80},
 +{0x00c0, 0xc1},
++/* ov10640 HFLIP=1 by default */
++{0xfffe, 0x19},
++{0x5000, 0x01},
++{0x5001, 0x00},
++{0xfffe, 0x80},
++{0x00c0, 0xdc},
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
