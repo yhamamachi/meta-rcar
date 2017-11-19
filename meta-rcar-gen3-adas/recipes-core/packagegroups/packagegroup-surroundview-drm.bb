@@ -4,7 +4,7 @@ LICENSE = "GPL"
 inherit packagegroup
 
 PACKAGES = " \
-	packagegroup-surroundview-drm \
+    packagegroup-surroundview-drm \
 "
 
 RDEPENDS_packagegroup-surroundview-drm = '${@ " \
@@ -16,5 +16,4 @@ RDEPENDS_packagegroup-surroundview-drm = '${@ " \
     kernel-module-mmngr \
     kernel-module-mmngrbuf \
     mmngr-user-module \
-    vspmif-user-module \
 " if 'surroundview' in '${DISTRO_FEATURES}' else ""}'
