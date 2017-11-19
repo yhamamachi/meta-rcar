@@ -1,6 +1,6 @@
 [Match]
 Name=dummy0
 
-[Network] 
+[Network]
 DHCP=no
 

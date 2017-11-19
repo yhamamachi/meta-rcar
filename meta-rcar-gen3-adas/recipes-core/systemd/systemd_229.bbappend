@@ -9,7 +9,7 @@ SRC_URI_append= '${@ " \
 " if 'surroundview' in '${DISTRO_FEATURES}' else ""}'
 
 FILES_${PN} += "${sysconfdir}/systemd/network/*"
- 
+
 USERADD_PARAM_${PN} += "; --system systemd-network "
 
 do_install_append() {
