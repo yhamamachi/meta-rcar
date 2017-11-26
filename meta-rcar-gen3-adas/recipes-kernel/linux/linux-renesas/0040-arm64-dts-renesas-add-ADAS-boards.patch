@@ -56,19 +56,19 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  |   40 +
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  561 +++++++
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  560 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  578 +++++++
- arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  498 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  518 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  298 ++++
- arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  313 ++++
- arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  518 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  314 ++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  545 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1529 +++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1554 ++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 ++++++++++++++++++++
- arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  557 +++++++
- 42 files changed, 17091 insertions(+)
+ arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
+ 42 files changed, 17184 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -10219,10 +10219,10 @@ index 0000000..cc6866c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..eef10af
+index 0000000..3fb3bf1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,561 @@
+@@ -0,0 +1,560 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -10783,7 +10783,6 @@ index 0000000..eef10af
 +		};
 +	};
 +};
-+
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 new file mode 100644
 index 0000000..979cebe
@@ -11370,10 +11369,10 @@ index 0000000..979cebe
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 new file mode 100644
-index 0000000..28a0b92
+index 0000000..4292b7b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
-@@ -0,0 +1,498 @@
+@@ -0,0 +1,518 @@
 +/*
 + * Device Tree Source for the V3MSK Videobox Mini board on r8a7797
 + *
@@ -11391,6 +11390,42 @@ index 0000000..28a0b92
 +
 +	aliases {
 +		serial1 = &scif3;
++	};
++
++	pwr0: regulator-pwr0 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR0";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 8 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr1: regulator-pwr1 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR1";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 9 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr2: regulator-pwr2 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR2";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 10 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr3: regulator-pwr3 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR3";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 11 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +	};
 +};
 +
@@ -11447,7 +11482,7 @@ index 0000000..28a0b92
 +	pinctrl-names = "default";
 +	status = "okay";
 +
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	i2cswitch1: i2c-switch@74 {
 +		compatible = "nxp,pca9548";
@@ -11554,6 +11589,10 @@ index 0000000..28a0b92
 +				maxim,resetb-gpio = <1>;
 +				maxim,fsync-mode = "automatic";
 +				maxim,timeout = <100>;
++				POC0-supply = <&pwr0>;
++				POC1-supply = <&pwr1>;
++				POC2-supply = <&pwr2>;
++				POC3-supply = <&pwr3>;
 +
 +				port@0 {
 +					max9286_des0ep0: endpoint@0 {
@@ -11593,6 +11632,10 @@ index 0000000..28a0b92
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
 +				ti,cable-mode = "coax";
++				POC0-supply = <&pwr0>;
++				POC1-supply = <&pwr1>;
++				POC2-supply = <&pwr2>;
++				POC3-supply = <&pwr3>;
 +
 +				port@0 {
 +					ti964_des0ep0: endpoint@0 {
@@ -11640,55 +11683,31 @@ index 0000000..28a0b92
 +					gpio-hog;
 +					gpios = <5 GPIO_ACTIVE_HIGH>;
 +					input;
-+					line-name = "Video VIRQ";
++					line-name = "VIRQ";
 +				};
 +				des_cfg {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
 +					input;
-+					line-name = "Video CNFG0";
++					line-name = "CNFG0";
 +				};
 +				pwr_shdn {
 +					gpio-hog;
 +					gpios = <14 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video PWR_SHDN";
-+				};
-+				cam_pwr0 {
-+					gpio-hog;
-+					gpios = <8 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR0";
-+				};
-+				cam_pwr1 {
-+					gpio-hog;
-+					gpios = <9 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR1";
-+				};
-+				cam_pwr2 {
-+					gpio-hog;
-+					gpios = <10 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR2";
-+				};
-+				cam_pwr3 {
-+					gpio-hog;
-+					gpios = <11 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR3";
++					line-name = "PWR_SHDN";
 +				};
 +				des_shdn {
 +					gpio-hog;
 +					gpios = <13 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video DES_SHDN";
++					line-name = "Des_SHDN";
 +				};
 +				fpdl_shdn {
 +					gpio-hog;
 +					gpios = <15 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video FPDL_SHDN";
++					line-name = "FPDL_SHDN";
 +				};
 +			};
 +		};
@@ -12178,10 +12197,10 @@ index 0000000..573e2bc
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
 new file mode 100644
-index 0000000..efb1576
+index 0000000..91d10c5
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
-@@ -0,0 +1,313 @@
+@@ -0,0 +1,314 @@
 +/*
 + * Device Tree Source for the V3M Starter Kit board on r8a7797
 + *
@@ -12354,6 +12373,7 @@ index 0000000..efb1576
 +		port@0 {
 +			endpoint {
 +				remote-endpoint = <&adv7511_in>;
++//				remote-endpoint = <&lvds_in>;
 +			};
 +		};
 +	};
@@ -12497,10 +12517,10 @@ index 0000000..efb1576
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
 new file mode 100644
-index 0000000..4ca502f
+index 0000000..589a774
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
-@@ -0,0 +1,518 @@
+@@ -0,0 +1,545 @@
 +/*
 + * Device Tree Source for the H3ULCB Kingfisher board:
 + *  this adding conflicting resource on VIN4/VIN5/VIN6/VIN7 for CN11
@@ -12513,6 +12533,44 @@ index 0000000..4ca502f
 + * version 2.  This program is licensed "as is" without any warranty of any
 + * kind, whether express or implied.
 + */
++
++/ {
++	pwr0B: regulator-pwr0B {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR0B";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_b_5c 8 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr1B: regulator-pwr1B {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR1B";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_b_5c 9 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr2B: regulator-pwr2B {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR2B";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_b_5c 10 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr3B: regulator-pwr3B {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR3B";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_b_5c 11 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++};
 +
 +&i2cswitch4 {
 +	i2c@2 {
@@ -12618,6 +12676,10 @@ index 0000000..4ca502f
 +			ti,lanes = <4>;
 +			ti,forwarding-mode = "round-robin";
 +			ti,cable-mode = "coax";
++			POC0-supply = <&pwr0B>;
++			POC1-supply = <&pwr1B>;
++			POC2-supply = <&pwr2B>;
++			POC3-supply = <&pwr3B>;
 +
 +			port@0 {
 +				ti964_des1ep0: endpoint@0 {
@@ -12659,6 +12721,10 @@ index 0000000..4ca502f
 +			ti,lanes = <4>;
 +			ti,forwarding-mode = "round-robin";
 +			ti,cable-mode = "coax";
++			POC0-supply = <&pwr0B>;
++			POC1-supply = <&pwr1B>;
++			POC2-supply = <&pwr2B>;
++			POC3-supply = <&pwr3B>;
 +
 +			port@0 {
 +				ti954_des1ep0: endpoint@0 {
@@ -12690,6 +12756,10 @@ index 0000000..4ca502f
 +			maxim,resetb-gpio = <1>;
 +			maxim,fsync-mode = "automatic";
 +			maxim,timeout = <100>;
++			POC0-supply = <&pwr0B>;
++			POC1-supply = <&pwr1B>;
++			POC2-supply = <&pwr2B>;
++			POC3-supply = <&pwr3B>;
 +
 +			port@0 {
 +				max9286_des1ep0: endpoint@0 {
@@ -12728,7 +12798,8 @@ index 0000000..4ca502f
 +		reg = <6>;
 +		/* Slot B (CN11) */
 +
-+		video_b_ext0: pca9535@27 {
++		/* PCA9535 is a redundand/deprecated card */
++		gpio_exp_b_27: gpio@27 {
 +			compatible = "nxp,pca9535";
 +			reg = <0x27>;
 +			gpio-controller;
@@ -12790,7 +12861,7 @@ index 0000000..4ca502f
 +			};
 +		};
 +
-+		video_b_ext1: max7325@5c {
++		gpio_exp_b_5c: gpio@5c {
 +			compatible = "maxim,max7325";
 +			reg = <0x5c>;
 +			gpio-controller;
@@ -12819,30 +12890,6 @@ index 0000000..4ca502f
 +				gpios = <14 GPIO_ACTIVE_HIGH>;
 +				output-high;
 +				line-name = "Video-B PWR_SHDN";
-+			};
-+			video_b_cam_pwr0 {
-+				gpio-hog;
-+				gpios = <8 GPIO_ACTIVE_HIGH>;
-+				output-high;
-+				line-name = "Video-B PWR0";
-+			};
-+			video_b_cam_pwr1 {
-+				gpio-hog;
-+				gpios = <9 GPIO_ACTIVE_HIGH>;
-+				output-high;
-+				line-name = "Video-B PWR1";
-+			};
-+			video_b_cam_pwr2 {
-+				gpio-hog;
-+				gpios = <10 GPIO_ACTIVE_HIGH>;
-+				output-high;
-+				line-name = "Video-B PWR2";
-+			};
-+			video_b_cam_pwr3 {
-+				gpio-hog;
-+				gpios = <11 GPIO_ACTIVE_HIGH>;
-+				output-high;
-+				line-name = "Video-B PWR3";
 +			};
 +			video_b_des_shdn {
 +				gpio-hog;
@@ -13109,10 +13156,10 @@ index 0000000..b854216
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 new file mode 100644
-index 0000000..8ffafb2
+index 0000000..917dbab
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1529 @@
+@@ -0,0 +1,1554 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -13229,6 +13276,42 @@ index 0000000..8ffafb2
 +		regulator-max-microvolt = <1800000>;
 +		gpio = <&gpio_ext_77 15 GPIO_ACTIVE_HIGH>;
 +		startup-delay-us = <200000>;
++		enable-active-high;
++	};
++
++	pwr0A: regulator-pwr0A {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR0A";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_a_5c 8 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr1A: regulator-pwr1A {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR1A";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_a_5c 9 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr2A: regulator-pwr2A {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR2A";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_a_5c 10 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr3A: regulator-pwr3A {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR3A";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_a_5c 11 GPIO_ACTIVE_HIGH>;
 +		enable-active-high;
 +	};
 +
@@ -13987,6 +14070,10 @@ index 0000000..8ffafb2
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
 +				ti,cable-mode = "coax";
++				POC0-supply = <&pwr0A>;
++				POC1-supply = <&pwr1A>;
++				POC2-supply = <&pwr2A>;
++				POC3-supply = <&pwr3A>;
 +
 +				port@0 {
 +					ti964_des0ep0: endpoint@0 {
@@ -14028,6 +14115,10 @@ index 0000000..8ffafb2
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
 +				ti,cable-mode = "coax";
++				POC0-supply = <&pwr0A>;
++				POC1-supply = <&pwr1A>;
++				POC2-supply = <&pwr2A>;
++				POC3-supply = <&pwr3A>;
 +
 +				port@0 {
 +					ti954_des0ep0: endpoint@0 {
@@ -14059,6 +14150,10 @@ index 0000000..8ffafb2
 +				maxim,resetb-gpio = <1>;
 +				maxim,fsync-mode = "automatic";
 +				maxim,timeout = <100>;
++				POC0-supply = <&pwr0A>;
++				POC1-supply = <&pwr1A>;
++				POC2-supply = <&pwr2A>;
++				POC3-supply = <&pwr3A>;
 +
 +				port@0 {
 +					max9286_des0ep0: endpoint@0 {
@@ -14142,7 +14237,8 @@ index 0000000..8ffafb2
 +			reg = <7>;
 +			/* Slot A (CN10) */
 +
-+			video_a_ext0: pca9535@26 {
++			/* PCA9535 is a redundant/deprecated card */
++			gpio_exp_a_26: gpio@26 {
 +				compatible = "nxp,pca9535";
 +				reg = <0x26>;
 +				gpio-controller;
@@ -14204,7 +14300,7 @@ index 0000000..8ffafb2
 +				};
 +			};
 +
-+			video_a_ext1: max7325@5c {
++			gpio_exp_a_5c: gpio@5c {
 +				compatible = "maxim,max7325";
 +				reg = <0x5c>;
 +				gpio-controller;
@@ -14233,30 +14329,6 @@ index 0000000..8ffafb2
 +					gpios = <14 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "Video-A PWR_SHDN";
-+				};
-+				video_a_cam_pwr0 {
-+					gpio-hog;
-+					gpios = <8 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video-A PWR0";
-+				};
-+				video_a_cam_pwr1 {
-+					gpio-hog;
-+					gpios = <9 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video-A PWR1";
-+				};
-+				video_a_cam_pwr2 {
-+					gpio-hog;
-+					gpios = <10 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video-A PWR2";
-+				};
-+				video_a_cam_pwr3 {
-+					gpio-hog;
-+					gpios = <11 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video-A PWR3";
 +				};
 +				video_a_des_shdn {
 +					gpio-hog;
@@ -16897,10 +16969,10 @@ index 0000000..193153e
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 new file mode 100644
-index 0000000..3d4bcde
+index 0000000..beb52e9
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
-@@ -0,0 +1,557 @@
+@@ -0,0 +1,578 @@
 +/*
 + * Device Tree Source for the ULCB Videobox Mini board
 + *
@@ -16914,6 +16986,42 @@ index 0000000..3d4bcde
 +/ {
 +	aliases {
 +		serial1 = &scif1;
++	};
++
++	pwr0: regulator-pwr0 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR0";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 8 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr1: regulator-pwr1 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR1";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 9 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr2: regulator-pwr2 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR2";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 10 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	pwr3: regulator-pwr3 {
++		compatible = "regulator-fixed";
++		regulator-name = "PWR3";
++		regulator-min-microvolt = <9000000>;
++		regulator-max-microvolt = <9000000>;
++		gpio = <&gpio_exp_6c 11 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +	};
 +
 +	lvds-encoder {
@@ -17030,7 +17138,7 @@ index 0000000..3d4bcde
 +	pinctrl-names = "default";
 +	status = "okay";
 +
-+	clock-frequency = <100000>;
++	clock-frequency = <400000>;
 +
 +	i2cswitch1: i2c-switch@74 {
 +		compatible = "nxp,pca9548";
@@ -17137,6 +17245,10 @@ index 0000000..3d4bcde
 +				maxim,resetb-gpio = <1>;
 +				maxim,fsync-mode = "automatic";
 +				maxim,timeout = <100>;
++				POC0-supply = <&pwr0>;
++				POC1-supply = <&pwr1>;
++				POC2-supply = <&pwr2>;
++				POC3-supply = <&pwr3>;
 +
 +				port@0 {
 +					max9286_des0ep0: endpoint@0 {
@@ -17176,6 +17288,10 @@ index 0000000..3d4bcde
 +				ti,lanes = <4>;
 +				ti,forwarding-mode = "round-robin";
 +				ti,cable-mode = "coax";
++				POC0-supply = <&pwr0>;
++				POC1-supply = <&pwr1>;
++				POC2-supply = <&pwr2>;
++				POC3-supply = <&pwr3>;
 +
 +				port@0 {
 +					ti964_des0ep0: endpoint@0 {
@@ -17223,55 +17339,31 @@ index 0000000..3d4bcde
 +					gpio-hog;
 +					gpios = <5 GPIO_ACTIVE_HIGH>;
 +					input;
-+					line-name = "Video VIRQ";
++					line-name = "VIRQ";
 +				};
 +				des_cfg {
 +					gpio-hog;
 +					gpios = <6 GPIO_ACTIVE_HIGH>;
 +					input;
-+					line-name = "Video CNFG0";
++					line-name = "CNFG0";
 +				};
 +				pwr_shdn {
 +					gpio-hog;
 +					gpios = <14 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video PWR_SHDN";
-+				};
-+				cam_pwr0 {
-+					gpio-hog;
-+					gpios = <8 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR0";
-+				};
-+				cam_pwr1 {
-+					gpio-hog;
-+					gpios = <9 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR1";
-+				};
-+				cam_pwr2 {
-+					gpio-hog;
-+					gpios = <10 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR2";
-+				};
-+				cam_pwr3 {
-+					gpio-hog;
-+					gpios = <11 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "Video PWR3";
++					line-name = "PWR_SHDN";
 +				};
 +				des_shdn {
 +					gpio-hog;
 +					gpios = <13 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video DES_SHDN";
++					line-name = "Des_SHDN";
 +				};
 +				fpdl_shdn {
 +					gpio-hog;
 +					gpios = <15 GPIO_ACTIVE_HIGH>;
 +					output-high;
-+					line-name = "Video FPDL_SHDN";
++					line-name = "FPDL_SHDN";
 +				};
 +			};
 +		};
@@ -17458,6 +17550,7 @@ index 0000000..3d4bcde
 +		};
 +	};
 +};
++
 -- 
 1.9.1
 
