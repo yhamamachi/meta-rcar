@@ -60,6 +60,7 @@ SRC_URI_append = " \
     file://0040-H3-MAX9286-TI964-support-add-10635-10640-cameras.patch \
     file://0041-media-i2c-Add-ov5647-sensor.patch \
     file://0042-media-i2c-Add-ov5642-sensor.patch \
+    file://0045-regulator-fixed-probe-after-i2c.patch \
     file://0050-arm64-renesas-Salvator-X-View-H3-board-support.patch \
     file://0051-arm64-renesas-H3ULCB-HAD-support.patch \
     file://0052-arm64-renesas-H3ULCB-View-board-support.patch \
