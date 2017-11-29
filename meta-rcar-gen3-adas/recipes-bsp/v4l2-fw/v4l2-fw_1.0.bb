@@ -28,6 +28,13 @@ do_install() {
     install -m 755 ${S}/ov10640_ov490_flash_0-3.sh ${D}/usr/share/factory/
     install -m 755 ${S}/ov10640_ov490_flash_4-7.sh ${D}/usr/share/factory/
     install -m 755 ${S}/rdcam21_rdcam24_flash_0-3.sh ${D}/usr/share/factory/
+
+    install -m 755 ${S}/otp_10640_read_bank1.sh ${D}/usr/share/factory/
+    install -m 755 ${S}/otp_10640_write_bank1.sh ${D}/usr/share/factory/
+    install -m 755 ${S}/ov10640_read.sh ${D}/usr/share/factory/
+    install -m 755 ${S}/ov10640_write.sh ${D}/usr/share/factory/
+    install -m 755 ${S}/ov490_read.sh ${D}/usr/share/factory/
+    install -m 755 ${S}/ov490_write.sh ${D}/usr/share/factory/
 }
 
 FILES_${PN} = " \
@@ -42,4 +49,10 @@ FILES_${PN} = " \
     /usr/share/factory/ov10640_ov490_flash_0-3.sh \
     /usr/share/factory/ov10640_ov490_flash_4-7.sh \
     /usr/share/factory/rdcam21_rdcam24_flash_0-3.sh \
+    /usr/share/factory/otp_10640_read_bank1.sh \
+    /usr/share/factory/otp_10640_write_bank1.sh \
+    /usr/share/factory/ov10640_read.sh \
+    /usr/share/factory/ov10640_write.sh \
+    /usr/share/factory/ov490_read.sh \
+    /usr/share/factory/ov490_write.sh \
 "

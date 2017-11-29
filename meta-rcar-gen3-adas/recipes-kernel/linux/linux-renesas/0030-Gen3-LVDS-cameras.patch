@@ -19,7 +19,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  106 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1064 ++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1092 +++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   93 ++
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 +++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
@@ -32,7 +32,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 23 files changed, 6976 insertions(+), 109 deletions(-)
+ 23 files changed, 7004 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
@@ -3879,10 +3879,10 @@ index 0000000..f2bb706
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..bee9293
+index 0000000..813c08e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,1064 @@
+@@ -0,0 +1,1092 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -4031,6 +4031,42 @@ index 0000000..bee9293
 +	}
 +
 +	return 0;
++}
++
++static u8 ov490_ov10640_read(struct i2c_client *client, u16 addr)
++{
++	u8 reg_val = 0;
++
++	reg16_write(client, 0xFFFD, 0x80);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0xFFFE, 0x19);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0x5000, 0x01); /* read operation */
++	reg16_write(client, 0x5001, addr >> 8);
++	reg16_write(client, 0x5002, addr & 0xff);
++	reg16_write(client, 0xFFFE, 0x80);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0x00C0, 0xc1);
++	reg16_write(client, 0xFFFE, 0x19);
++	usleep_range(1000, 1500); /* wait 1 ms */
++	reg16_read(client, 0x5000, &reg_val);
++
++	return reg_val;
++}
++
++static void ov490_ov10640_write(struct i2c_client *client, u16 addr, u8 val)
++{
++	reg16_write(client, 0xFFFD, 0x80);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0xFFFE, 0x19);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0x5000, 0x00); /* write operation */
++	reg16_write(client, 0x5001, addr >> 8);
++	reg16_write(client, 0x5002, addr & 0xff);
++	reg16_write(client, 0x5003, val);
++	reg16_write(client, 0xFFFE, 0x80);
++	usleep_range(100, 150); /* wait 100 us */
++	reg16_write(client, 0x00C0, 0xc1);
 +}
 +
 +static int ov490_s_stream(struct v4l2_subdev *sd, int enable)
@@ -4533,6 +4569,7 @@ index 0000000..bee9293
 +{
 +	struct ov490_priv *priv = to_ov490(client);
 +	int i;
++	int otp_bank0_allzero = 1;
 +
 +#if 0
 +	/* read camera id from ov490 OTP memory */
@@ -4548,32 +4585,23 @@ index 0000000..bee9293
 +		reg16_read(client, 0xe000 + i + 4, &priv->id[i]);
 +#else
 +	/* read camera id from ov10640 OTP memory */
-+	reg16_write(client, 0xFFFD, 0x80);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0xFFFE, 0x19);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0x5000, 0x00); /* write 0x349C -> 1 */
-+	reg16_write(client, 0x5001, 0x34);
-+	reg16_write(client, 0x5002, 0x9C);
-+	reg16_write(client, 0x5003, 1);
-+	reg16_write(client, 0xFFFE, 0x80);
-+	usleep_range(100, 150); /* wait 100 us */
-+	reg16_write(client, 0x00C0, 0xc1);
-+
++	ov490_ov10640_write(client, 0x349C, 1);
 +	usleep_range(25000, 25500); /* wait 25 ms */
 +
 +	for (i = 0; i < 6; i++) {
-+		reg16_write(client, 0xFFFE, 0x19);
-+		usleep_range(100, 150); /* wait 100 us */
-+		reg16_write(client, 0x5000, 0x01); /* read (0x349E + i) */
-+		reg16_write(client, 0x5001, 0x34);
-+		reg16_write(client, 0x5002, 0x9e + i + 6); /* first 6 bytes are equal on all ov10640 */
-+		reg16_write(client, 0xFFFE, 0x80);
-+		usleep_range(100, 150); /* wait 100 us */
-+		reg16_write(client, 0x00C0, 0xc1);
-+		reg16_write(client, 0xFFFE, 0x19);
-+		usleep_range(1000, 1500); /* wait 1 ms */
-+		reg16_read(client, 0x5000, &priv->id[i]);
++		/* first 6 bytes are equal on all ov10640 */
++		priv->id[i] = ov490_ov10640_read(client, 0x349e + i + 6);
++		if (priv->id[i])
++			otp_bank0_allzero = 0;
++	}
++
++	if (otp_bank0_allzero) {
++		ov490_ov10640_write(client, 0x3495, 0x41); /* bank#1 */
++		ov490_ov10640_write(client, 0x349C, 1);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i++)
++			priv->id[i] = ov490_ov10640_read(client, 0x34ae + i);
 +	}
 +#endif
 +}
