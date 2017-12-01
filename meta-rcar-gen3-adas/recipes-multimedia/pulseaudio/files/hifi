@@ -3,7 +3,7 @@
 SectionVerb {
         EnableSequence [
                 exec "echo Setting defaults for ak4613"
-                cdev "hw:0"
+                cdev "hw:ak4613"
                 cset "name='DVC Out Playback Volume' 30%"
                 cset "name='DVC In Capture Volume' 10%"
         ]
@@ -20,11 +20,11 @@ SectionDevice."Headphone".0 {
         }
 
         EnableSequence [
-                cdev "hw:0"
+                cdev "hw:ak4613"
                 cset "name='DVC Out Playback Volume' 30%"
         ]
         DisableSequence [
-                cdev "hw:0"
+                cdev "hw:ak4613"
                 cset "name='DVC Out Playback Volume' 0%"
         ]
 }
@@ -37,12 +37,12 @@ SectionDevice."Mic".0 {
         }
 
         EnableSequence [
-                cdev "hw:0"
+                cdev "hw:ak4613"
                 cset "name='DVC In Capture Volume' 10%"
         ]
 
         DisableSequence [
-                cdev "hw:0"
+                cdev "hw:ak4613"
                 cset "name='DVC In Capture Volume' 0%"
         ]
 }
