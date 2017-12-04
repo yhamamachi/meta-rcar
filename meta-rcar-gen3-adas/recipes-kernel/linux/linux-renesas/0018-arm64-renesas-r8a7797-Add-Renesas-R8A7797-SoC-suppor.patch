@@ -8,7 +8,7 @@ This adds Renesas R8A7797 SoC support
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    6 +
- arch/arm64/boot/dts/renesas/r8a7797.dtsi      | 1005 ++++++++++
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi      | 1002 ++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
  drivers/clk/renesas/r8a7797-cpg-mssr.c        |  222 +++
@@ -21,7 +21,6 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/gpu/drm/rcar-du/rcar_du_drv.c         |   25 +
  drivers/gpu/drm/rcar-du/rcar_du_group.c       |   12 +-
  drivers/gpu/drm/rcar-du/rcar_du_lvdsenc.c     |   38 +-
- drivers/hwspinlock/rcar_hwspinlock.c          |    8 +-
  drivers/i2c/busses/i2c-rcar.c                 |    1 +
  drivers/iommu/ipmmu-vmsa.c                    |    7 +-
  drivers/media/platform/soc_camera/Kconfig     |    2 +-
@@ -30,7 +29,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/vsp1/vsp1_drv.c        |    9 +
  drivers/media/platform/vsp1/vsp1_lif.c        |   12 +-
  drivers/media/platform/vsp1/vsp1_regs.h       |    7 +
- drivers/mmc/host/sh_mobile_sdhi.c             |    2 +
+ drivers/mmc/host/sh_mobile_sdhi.c             |    1 +
  drivers/net/ethernet/renesas/ravb_main.c      |    1 +
  drivers/pinctrl/sh-pfc/Kconfig                |    5 +
  drivers/pinctrl/sh-pfc/Makefile               |    1 +
@@ -48,7 +47,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/thermal/rcar_gen3_thermal.c           |   29 +
  include/dt-bindings/clock/r8a7797-cpg-mssr.h  |   48 +
  include/dt-bindings/power/r8a7797-sysc.h      |   32 +
- 41 files changed, 4292 insertions(+), 30 deletions(-)
+ 40 files changed, 4281 insertions(+), 29 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797.dtsi
  create mode 100644 drivers/clk/renesas/r8a7797-cpg-mssr.c
  create mode 100644 drivers/pinctrl/sh-pfc/pfc-r8a7797.c
@@ -57,12 +56,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 include/dt-bindings/power/r8a7797-sysc.h
 
 diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
-index 7c104ca..9380fc6 100644
+index ebe0a37..d3b6771 100644
 --- a/arch/arm64/Kconfig.platforms
 +++ b/arch/arm64/Kconfig.platforms
-@@ -160,6 +160,12 @@ config ARCH_R8A7796
+@@ -166,6 +166,12 @@ config ARCH_R8A77965
  	help
- 	  This enables support for the Renesas R-Car M3-W SoC.
+ 	  This enables support for the Renesas R-Car M3N SoC.
  
 +config ARCH_R8A7797
 +	bool "Renesas R-Car V3M SoC Platform"
@@ -75,10 +74,10 @@ index 7c104ca..9380fc6 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
 new file mode 100644
-index 0000000..1be93e8
+index 0000000..6eaa5ba
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-@@ -0,0 +1,1005 @@
+@@ -0,0 +1,1002 @@
 +/*
 + * Device Tree Source for the r8a7797 SoC
 + *
@@ -697,8 +696,8 @@ index 0000000..1be93e8
 +				 <&scif_clk>;					/* RMSTPCR2/bit7:SCIF0 */
 +			/*clock-names = "fck", "sck", "brg_int", "scif_clk"; */
 +			clock-names = "fck";
-+			dmas = <&dmac1 0x51>, <&dmac1 0x50>;
-+			dma-names = "tx", "rx";
++//			dmas = <&dmac1 0x51>, <&dmac1 0x50>;
++//			dma-names = "tx", "rx";
 +			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
 +			status = "disabled";
 +		};
@@ -1034,20 +1033,17 @@ index 0000000..1be93e8
 +		mfis: mfis@e6260000 {
 +			compatible = "renesas,mfis-r8a7797", "renesas,mfis";
 +			reg = <0 0xe6260000 0 0x0200>;
-+			interrupts = <GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;		/* SPI180:MFIS eicr0 */
-+			interrupt-names = "eicr0";
-+			clocks = <&cpg CPG_MOD 213>;				/* RMSTPCR2/bit13:MFIS */
++			clocks = <&cpg CPG_MOD 213>;
 +			clock-names = "mfis";
-+			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 180 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "eicr0";
 +			status = "okay";
 +		};
 +
-+		mfis_lock: mfis-lock {
++		mfis_lock: mfis-lock@e62600c0 {
 +			compatible =    "renesas,mfis-lock-r8a7797",
 +					"renesas,mfis-lock";
-+			reg = <0 0xe62600c0 0 0x0750>;				/* @@ transitional 0x20->0x750 */
-+			clocks = <&cpg CPG_MOD 213>;				/* RMSTPCR2/bit13:MFIS */
-+			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			reg = <0 0xe62600c0 0 0x0020>;
 +			status = "okay";
 +		};
 +
@@ -1085,25 +1081,25 @@ index 0000000..1be93e8
 +	};
 +};
 diff --git a/drivers/clk/renesas/Kconfig b/drivers/clk/renesas/Kconfig
-index 2586dfa..f86f2bf 100644
+index bbd9701..b52e907 100644
 --- a/drivers/clk/renesas/Kconfig
 +++ b/drivers/clk/renesas/Kconfig
-@@ -4,6 +4,7 @@ config CLK_RENESAS_CPG_MSSR
- 	default y if ARCH_R8A7745
+@@ -5,6 +5,7 @@ config CLK_RENESAS_CPG_MSSR
  	default y if ARCH_R8A7795
  	default y if ARCH_R8A7796
+ 	default y if ARCH_R8A77965
 +	default y if ARCH_R8A7797
  
  config CLK_RENESAS_CPG_MSTP
  	bool
 diff --git a/drivers/clk/renesas/Makefile b/drivers/clk/renesas/Makefile
-index 1072f76..c6f0abb 100644
+index 2c224e9..c2ef11e 100644
 --- a/drivers/clk/renesas/Makefile
 +++ b/drivers/clk/renesas/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_ARCH_R8A7793)		+= clk-rcar-gen2.o clk-div6.o
- obj-$(CONFIG_ARCH_R8A7794)		+= clk-rcar-gen2.o clk-div6.o
+@@ -14,6 +14,7 @@ obj-$(CONFIG_ARCH_R8A7794)		+= clk-rcar-gen2.o clk-div6.o
  obj-$(CONFIG_ARCH_R8A7795)		+= r8a7795-cpg-mssr.o rcar-gen3-cpg.o
  obj-$(CONFIG_ARCH_R8A7796)		+= r8a7796-cpg-mssr.o rcar-gen3-cpg.o
+ obj-$(CONFIG_ARCH_R8A77965)		+= r8a77965-cpg-mssr.o rcar-gen3-cpg.o
 +obj-$(CONFIG_ARCH_R8A7797)		+= r8a7797-cpg-mssr.o rcar-gen3-cpg.o
  obj-$(CONFIG_ARCH_SH73A0)		+= clk-sh73a0.o clk-div6.o
  
@@ -1447,11 +1443,11 @@ index 51ae7b8..694bedc 100644
  struct rcar_gen3_cpg_pll_config {
  	unsigned int extal_div;
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
-index 494e4e8..e523ab7 100644
+index 8c261e1..bd901a6 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.c
 +++ b/drivers/clk/renesas/renesas-cpg-mssr.c
-@@ -588,6 +588,12 @@ static int __init cpg_mssr_add_clk_domain(struct device *dev,
- 		.data = &r8a7796_cpg_mssr_info,
+@@ -594,6 +594,12 @@ static int __init cpg_mssr_add_clk_domain(struct device *dev,
+ 		.data = &r8a77965_cpg_mssr_info,
  	},
  #endif
 +#ifdef CONFIG_ARCH_R8A7797
@@ -1464,31 +1460,31 @@ index 494e4e8..e523ab7 100644
  };
  
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.h b/drivers/clk/renesas/renesas-cpg-mssr.h
-index 148f4f0a..77c27d8 100644
+index 145b738..ce3546a 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.h
 +++ b/drivers/clk/renesas/renesas-cpg-mssr.h
-@@ -134,6 +134,7 @@ struct cpg_mssr_info {
- extern const struct cpg_mssr_info r8a7745_cpg_mssr_info;
+@@ -135,6 +135,7 @@ struct cpg_mssr_info {
  extern const struct cpg_mssr_info r8a7795_cpg_mssr_info;
  extern const struct cpg_mssr_info r8a7796_cpg_mssr_info;
+ extern const struct cpg_mssr_info r8a77965_cpg_mssr_info;
 +extern const struct cpg_mssr_info r8a7797_cpg_mssr_info;
  
  
      /*
 diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
-index 29f76a4..809a6e1 100644
+index 515d0e7..5a2ec23 100644
 --- a/drivers/cpufreq/cpufreq-dt-platdev.c
 +++ b/drivers/cpufreq/cpufreq-dt-platdev.c
-@@ -59,6 +59,7 @@
- 	{ .compatible = "renesas,r8a7794", },
+@@ -60,6 +60,7 @@
  	{ .compatible = "renesas,r8a7795", },
  	{ .compatible = "renesas,r8a7796", },
+ 	{ .compatible = "renesas,r8a77965", },
 +	{ .compatible = "renesas,r8a7797", },
  	{ .compatible = "renesas,sh73a0", },
  
  	{ .compatible = "rockchip,rk2928", },
 diff --git a/drivers/gpio/gpio-rcar.c b/drivers/gpio/gpio-rcar.c
-index 7685d31..02e42ba 100644
+index 6917932..fd15649 100644
 --- a/drivers/gpio/gpio-rcar.c
 +++ b/drivers/gpio/gpio-rcar.c
 @@ -1,7 +1,7 @@
@@ -1500,7 +1496,7 @@ index 7685d31..02e42ba 100644
   *  Copyright (C) 2013 Magnus Damm
   *
   * This program is free software; you can redistribute it and/or modify
-@@ -363,6 +363,10 @@ struct gpio_rcar_info {
+@@ -367,6 +367,10 @@ struct gpio_rcar_info {
  		/* Gen3 GPIO is identical to Gen2. */
  		.data = &gpio_rcar_info_gen2,
  	}, {
@@ -1512,11 +1508,11 @@ index 7685d31..02e42ba 100644
  		.data = &gpio_rcar_info_gen1,
  	}, {
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index eb088cb..62612cd 100644
+index b234918..f74f264 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -289,6 +289,30 @@
- 	{/*sentinel*/}
+@@ -312,6 +312,30 @@
+ 	.skip_ch = BIT(2),
  };
  
 +static const struct rcar_du_device_info rcar_du_r8a7797_info = {
@@ -1543,19 +1539,19 @@ index eb088cb..62612cd 100644
 +	.dpll_ch = BIT(1),
 +};
 +
- static const struct of_device_id rcar_du_of_table[] = {
- 	{ .compatible = "renesas,du-r8a7779", .data = &rcar_du_r8a7779_info },
- 	{ .compatible = "renesas,du-r8a7790", .data = &rcar_du_r8a7790_info },
-@@ -298,6 +322,7 @@
- 	{ .compatible = "renesas,du-r8a7794", .data = &rcar_du_r8a7794_info },
+ static const struct soc_device_attribute ths_quirks_match[]  = {
+ 	{ .soc_id = "r8a7795", .revision = "ES1.*",
+ 	  .data = (void *)(RCAR_DU_DPLL_DUTY_RATE_WA
+@@ -335,6 +359,7 @@
  	{ .compatible = "renesas,du-r8a7795", .data = &rcar_du_r8a7795_info },
  	{ .compatible = "renesas,du-r8a7796", .data = &rcar_du_r8a7796_info },
+ 	{ .compatible = "renesas,du-r8a77965", .data = &rcar_du_r8a77965_info },
 +	{ .compatible = "renesas,du-r8a7797", .data = &rcar_du_r8a7797_info },
  	{ }
  };
  
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_group.c b/drivers/gpu/drm/rcar-du/rcar_du_group.c
-index ccf5159..4c9e008 100644
+index 1af5eb7..3916b63 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_group.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_group.c
 @@ -29,11 +29,17 @@
@@ -1576,7 +1572,7 @@ index ccf5159..4c9e008 100644
  u32 rcar_du_group_read(struct rcar_du_group *rgrp, u32 reg)
  {
  	return rcar_du_read(rgrp->dev, rgrp->mmio_offset + reg);
-@@ -147,8 +153,10 @@ static void rcar_du_group_setup(struct rcar_du_group *rgrp)
+@@ -155,8 +161,10 @@ static void rcar_du_group_setup(struct rcar_du_group *rgrp)
  
  	/* Apply planes to CRTCs association. */
  	mutex_lock(&rgrp->lock);
@@ -1658,42 +1654,20 @@ index ecae864..d5fa06c 100644
  	usleep_range(100, 150);
  
  	lvdcr0 |= LVDCR0_LVRES;
-diff --git a/drivers/hwspinlock/rcar_hwspinlock.c b/drivers/hwspinlock/rcar_hwspinlock.c
-index b92db1b..a656c0a 100644
---- a/drivers/hwspinlock/rcar_hwspinlock.c
-+++ b/drivers/hwspinlock/rcar_hwspinlock.c
-@@ -21,10 +21,16 @@
- #include <linux/of_address.h>
- #include <linux/platform_device.h>
- #include <linux/io.h>
-+#include <linux/sys_soc.h>
- 
- #include "hwspinlock_internal.h"
- 
--#define RCAR_HWSPINLOCK_NUM	(8)
-+static const struct soc_device_attribute r8a7797[] = {
-+	{ .soc_id = "r8a7797" },
-+	{ }
-+};
-+
-+#define RCAR_HWSPINLOCK_NUM	(soc_device_match(r8a7797) ? 64 : 8)
- 
- static int rcar_hwspinlock_trylock(struct hwspinlock *lock)
- {
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 73ff520..306ba97 100644
+index 74c17d8..149c107 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
 @@ -807,6 +807,7 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
- 	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
  	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
  	{ .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
+ 	{ .compatible = "renesas,i2c-r8a77965", .data = (void *)I2C_RCAR_GEN3 },
 +	{ .compatible = "renesas,i2c-r8a7797", .data = (void *)I2C_RCAR_GEN3 },
  	{},
  };
  MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
 diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 4cf30c8..3fdd96e 100644
+index e2baed1..1ae9174 100644
 --- a/drivers/iommu/ipmmu-vmsa.c
 +++ b/drivers/iommu/ipmmu-vmsa.c
 @@ -1,7 +1,7 @@
@@ -1705,7 +1679,7 @@ index 4cf30c8..3fdd96e 100644
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
-@@ -1274,6 +1274,9 @@ static void ipmmu_device_reset(struct ipmmu_vmsa_device *mmu)
+@@ -1277,6 +1277,9 @@ static void ipmmu_device_reset(struct ipmmu_vmsa_device *mmu)
  		.compatible = "renesas,ipmmu-r8a7796",
  		.data = &ipmmu_features_rcar_gen3,
  	}, {
@@ -1715,7 +1689,7 @@ index 4cf30c8..3fdd96e 100644
  		/* Terminator */
  	},
  };
-@@ -1643,6 +1646,8 @@ static int __init ipmmu_vmsa_iommu_of_setup(struct device_node *np)
+@@ -1648,6 +1651,8 @@ static int __init ipmmu_vmsa_iommu_of_setup(struct device_node *np)
  		 ipmmu_vmsa_iommu_of_setup);
  IOMMU_OF_DECLARE(ipmmu_r8a7796_iommu_of, "renesas,ipmmu-r8a7796",
  		 ipmmu_vmsa_iommu_of_setup);
@@ -2025,7 +1999,7 @@ index 400958b..74fb005 100644
  
  	for (i = 0; i < num; i++) {
 diff --git a/drivers/media/platform/vsp1/vsp1_drv.c b/drivers/media/platform/vsp1/vsp1_drv.c
-index 57b1b81..2f711bb 100644
+index cdaa097..6daeab4 100644
 --- a/drivers/media/platform/vsp1/vsp1_drv.c
 +++ b/drivers/media/platform/vsp1/vsp1_drv.c
 @@ -893,6 +893,15 @@ void vsp1_device_put(struct vsp1_device *vsp1)
@@ -2089,7 +2063,7 @@ index b442d14..e79f9e6 100644
  
  static const struct vsp1_entity_operations lif_entity_ops = {
 diff --git a/drivers/media/platform/vsp1/vsp1_regs.h b/drivers/media/platform/vsp1/vsp1_regs.h
-index fb6d56c..bcba968 100644
+index 9134dbd..6c971f7 100644
 --- a/drivers/media/platform/vsp1/vsp1_regs.h
 +++ b/drivers/media/platform/vsp1/vsp1_regs.h
 @@ -789,6 +789,12 @@
@@ -2110,41 +2084,40 @@ index fb6d56c..bcba968 100644
  #define VI6_IP_VERSION_MODEL_VSPBC_GEN3	(0x16 << 8)
  #define VI6_IP_VERSION_MODEL_VSPD_GEN3	(0x17 << 8)
 +#define VI6_IP_VERSION_MODEL_VSPD_V3M	(0x18 << 8)
- #define VI6_IP_VERSION_MODEL_VSPDL_H3	(0x19 << 8)
+ #define VI6_IP_VERSION_MODEL_VSPDL_GEN3	(0x19 << 8)
+ 
  #define VI6_IP_VERSION_SOC_MASK		(0xff << 0)
- #define VI6_IP_VERSION_SOC_H		(0x01 << 0)
 diff --git a/drivers/mmc/host/sh_mobile_sdhi.c b/drivers/mmc/host/sh_mobile_sdhi.c
-index 359a981..49276282 100644
+index a7fb054..040f474 100644
 --- a/drivers/mmc/host/sh_mobile_sdhi.c
 +++ b/drivers/mmc/host/sh_mobile_sdhi.c
-@@ -138,6 +138,8 @@ struct sh_mobile_sdhi_of_data {
- 	{ .compatible = "renesas,sdhi-r8a7794", .data = &of_rcar_gen2_compatible, },
- 	{ .compatible = "renesas,sdhi-r8a7795", .data = &of_rcar_gen3_compatible, },
+@@ -140,6 +140,7 @@ struct sh_mobile_sdhi_of_data {
  	{ .compatible = "renesas,sdhi-r8a7796", .data = &of_rcar_gen3_compatible, },
+ 	{ .compatible = "renesas,sdhi-r8a77965",
+ 					.data = &of_rcar_gen3_compatible, },
 +	{ .compatible = "renesas,sdhi-r8a7797", .data = &of_rcar_gen3_compatible, },
-+	{ .compatible = "renesas,mmc-r8a7797", .data = &of_rcar_gen3_compatible, },
  	{},
  };
  MODULE_DEVICE_TABLE(of, sh_mobile_sdhi_of_match);
 diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 68019d9..cd4f25a 100644
+index 5ad4d13..73fa286 100644
 --- a/drivers/net/ethernet/renesas/ravb_main.c
 +++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1906,6 +1906,7 @@ static int ravb_mdio_release(struct ravb_private *priv)
- 	{ .compatible = "renesas,etheravb-rcar-gen2", .data = (void *)RCAR_GEN2 },
+@@ -1920,6 +1920,7 @@ static int ravb_mdio_release(struct ravb_private *priv)
  	{ .compatible = "renesas,etheravb-r8a7795", .data = (void *)RCAR_GEN3 },
  	{ .compatible = "renesas,etheravb-r8a7796", .data = (void *)RCAR_GEN3 },
+ 	{ .compatible = "renesas,etheravb-r8a77965", .data = (void *)RCAR_GEN3 },
 +	{ .compatible = "renesas,etheravb-r8a7797", .data = (void *)RCAR_GEN3 },
  	{ .compatible = "renesas,etheravb-rcar-gen3", .data = (void *)RCAR_GEN3 },
  	{ }
  };
 diff --git a/drivers/pinctrl/sh-pfc/Kconfig b/drivers/pinctrl/sh-pfc/Kconfig
-index 07eca54..002541f 100644
+index 6d2cdf8..4aaf0be 100644
 --- a/drivers/pinctrl/sh-pfc/Kconfig
 +++ b/drivers/pinctrl/sh-pfc/Kconfig
-@@ -79,6 +79,11 @@ config PINCTRL_PFC_R8A7796
-         depends on ARCH_R8A7796
-         select PINCTRL_SH_PFC
+@@ -84,6 +84,11 @@ config PINCTRL_PFC_R8A77965
+ 	depends on ARCH_R8A77965
+ 	select PINCTRL_SH_PFC
  
 +config PINCTRL_PFC_R8A7797
 +	def_bool y
@@ -2155,19 +2128,19 @@ index 07eca54..002541f 100644
  	def_bool y
  	depends on CPU_SUBTYPE_SH7203
 diff --git a/drivers/pinctrl/sh-pfc/Makefile b/drivers/pinctrl/sh-pfc/Makefile
-index 8e08684..10adc18 100644
+index f12017b..e263c14 100644
 --- a/drivers/pinctrl/sh-pfc/Makefile
 +++ b/drivers/pinctrl/sh-pfc/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_PINCTRL_PFC_R8A7794)	+= pfc-r8a7794.o
- obj-$(CONFIG_PINCTRL_PFC_R8A7795)	+= pfc-r8a7795.o
+@@ -14,6 +14,7 @@ obj-$(CONFIG_PINCTRL_PFC_R8A7795)	+= pfc-r8a7795.o
  obj-$(CONFIG_PINCTRL_PFC_R8A7795)	+= pfc-r8a7795-es1.o
  obj-$(CONFIG_PINCTRL_PFC_R8A7796)	+= pfc-r8a7796.o
+ obj-$(CONFIG_PINCTRL_PFC_R8A77965)	+= pfc-r8a77965.o
 +obj-$(CONFIG_PINCTRL_PFC_R8A7797)	+= pfc-r8a7797.o
  obj-$(CONFIG_PINCTRL_PFC_SH7203)	+= pfc-sh7203.o
  obj-$(CONFIG_PINCTRL_PFC_SH7264)	+= pfc-sh7264.o
  obj-$(CONFIG_PINCTRL_PFC_SH7269)	+= pfc-sh7269.o
 diff --git a/drivers/pinctrl/sh-pfc/core.c b/drivers/pinctrl/sh-pfc/core.c
-index 7ea6c8e..b536aeb 100644
+index a6a8f65..9aba933 100644
 --- a/drivers/pinctrl/sh-pfc/core.c
 +++ b/drivers/pinctrl/sh-pfc/core.c
 @@ -5,6 +5,7 @@
@@ -2178,8 +2151,8 @@ index 7ea6c8e..b536aeb 100644
   *
   * This file is subject to the terms and conditions of the GNU General Public
   * License.  See the file "COPYING" in the main directory of this archive
-@@ -539,6 +540,12 @@ static int sh_pfc_init_ranges(struct sh_pfc *pfc)
- 		.data = &r8a7796_pinmux_info,
+@@ -545,6 +546,12 @@ static int sh_pfc_init_ranges(struct sh_pfc *pfc)
+ 		.data = &r8a77965_pinmux_info,
  	},
  #endif
 +#ifdef CONFIG_PINCTRL_PFC_R8A7797
@@ -4784,18 +4757,18 @@ index 0000000..9b6127f
 +	.pinmux_data_size = ARRAY_SIZE(pinmux_data),
 +};
 diff --git a/drivers/pinctrl/sh-pfc/sh_pfc.h b/drivers/pinctrl/sh-pfc/sh_pfc.h
-index 93cce90..0da3ee4 100644
+index 5a0da3c..062af89 100644
 --- a/drivers/pinctrl/sh-pfc/sh_pfc.h
 +++ b/drivers/pinctrl/sh-pfc/sh_pfc.h
-@@ -287,6 +287,7 @@ struct sh_pfc_soc_info {
- extern const struct sh_pfc_soc_info r8a7795_pinmux_info;
+@@ -288,6 +288,7 @@ struct sh_pfc_soc_info {
  extern const struct sh_pfc_soc_info r8a7795_es1_pinmux_info;
  extern const struct sh_pfc_soc_info r8a7796_pinmux_info;
+ extern const struct sh_pfc_soc_info r8a77965_pinmux_info;
 +extern const struct sh_pfc_soc_info r8a7797_pinmux_info;
  extern const struct sh_pfc_soc_info sh7203_pinmux_info;
  extern const struct sh_pfc_soc_info sh7264_pinmux_info;
  extern const struct sh_pfc_soc_info sh7269_pinmux_info;
-@@ -392,6 +393,11 @@ struct sh_pfc_soc_info {
+@@ -393,6 +394,11 @@ struct sh_pfc_soc_info {
  	PORT_GP_CFG_1(bank, 3,  fn, sfx, cfg)
  #define PORT_GP_4(bank, fn, sfx)	PORT_GP_CFG_4(bank, fn, sfx, 0)
  
@@ -4807,7 +4780,7 @@ index 93cce90..0da3ee4 100644
  #define PORT_GP_CFG_8(bank, fn, sfx, cfg)				\
  	PORT_GP_CFG_4(bank, fn, sfx, cfg),				\
  	PORT_GP_CFG_1(bank, 4,  fn, sfx, cfg),				\
-@@ -438,6 +444,12 @@ struct sh_pfc_soc_info {
+@@ -439,6 +445,12 @@ struct sh_pfc_soc_info {
  	PORT_GP_CFG_1(bank, 17, fn, sfx, cfg)
  #define PORT_GP_18(bank, fn, sfx)	PORT_GP_CFG_18(bank, fn, sfx, 0)
  
@@ -4821,29 +4794,31 @@ index 93cce90..0da3ee4 100644
  	PORT_GP_CFG_18(bank, fn, sfx, cfg),				\
  	PORT_GP_CFG_1(bank, 18, fn, sfx, cfg),				\
 diff --git a/drivers/soc/renesas/Makefile b/drivers/soc/renesas/Makefile
-index 504fb05..37cca0b 100644
+index 29b8a4d..2ba6a76 100644
 --- a/drivers/soc/renesas/Makefile
 +++ b/drivers/soc/renesas/Makefile
-@@ -4,6 +4,7 @@ obj-$(CONFIG_ARCH_RCAR_GEN1)	+= rcar-rst.o
- obj-$(CONFIG_ARCH_RCAR_GEN2)	+= rcar-rst.o
+@@ -5,6 +5,7 @@ obj-$(CONFIG_ARCH_RCAR_GEN2)	+= rcar-rst.o
  obj-$(CONFIG_ARCH_R8A7795)	+= rcar-rst.o
  obj-$(CONFIG_ARCH_R8A7796)	+= rcar-rst.o
+ obj-$(CONFIG_ARCH_R8A77965)	+= rcar-rst.o
 +obj-$(CONFIG_ARCH_R8A7797)	+= rcar-rst.o
  
  obj-$(CONFIG_ARCH_R8A7743)	+= rcar-sysc.o r8a7743-sysc.o
  obj-$(CONFIG_ARCH_R8A7745)	+= rcar-sysc.o r8a7745-sysc.o
-@@ -16,11 +17,14 @@ obj-$(CONFIG_ARCH_R8A7793)	+= rcar-sysc.o r8a7791-sysc.o
- obj-$(CONFIG_ARCH_R8A7794)	+= rcar-sysc.o r8a7794-sysc.o
+@@ -18,13 +19,16 @@ obj-$(CONFIG_ARCH_R8A7794)	+= rcar-sysc.o r8a7794-sysc.o
  obj-$(CONFIG_ARCH_R8A7795)	+= rcar-sysc.o r8a7795-sysc.o
  obj-$(CONFIG_ARCH_R8A7796)	+= rcar-sysc.o r8a7796-sysc.o
+ obj-$(CONFIG_ARCH_R8A77965)	+= rcar-sysc.o r8a77965-sysc.o
 +obj-$(CONFIG_ARCH_R8A7797)	+= rcar-sysc.o r8a7797-sysc.o
  
  obj-$(CONFIG_ARCH_R8A7795)	+= rcar-avs.o
  obj-$(CONFIG_ARCH_R8A7796)	+= rcar-avs.o
+ obj-$(CONFIG_ARCH_R8A77965)	+= rcar-avs.o
 +obj-$(CONFIG_ARCH_R8A7797)	+= rcar-avs.o
  # EMS for R-Car Gen3
  obj-$(CONFIG_ARCH_R8A7795)	+= rcar_ems_ctrl.o
  obj-$(CONFIG_ARCH_R8A7796)	+= rcar_ems_ctrl.o
+ obj-$(CONFIG_ARCH_R8A77965)	+= rcar_ems_ctrl.o
 +obj-$(CONFIG_ARCH_R8A7797)	+= rcar_ems_ctrl.o
  
  obj-$(CONFIG_RCAR_DDR_BACKUP)	+= s2ram_ddr_backup.o
@@ -4893,24 +4868,24 @@ index 0000000..b71bdedb
 +	.num_areas = ARRAY_SIZE(r8a7797_areas),
 +};
 diff --git a/drivers/soc/renesas/rcar-rst.c b/drivers/soc/renesas/rcar-rst.c
-index a6d1c26..2e87293 100644
+index 61c2f2c..bc3632b 100644
 --- a/drivers/soc/renesas/rcar-rst.c
 +++ b/drivers/soc/renesas/rcar-rst.c
-@@ -41,6 +41,7 @@ struct rst_config {
- 	/* R-Car Gen3 is handled like R-Car Gen2 */
+@@ -42,6 +42,7 @@ struct rst_config {
  	{ .compatible = "renesas,r8a7795-rst", .data = &rcar_rst_gen2 },
  	{ .compatible = "renesas,r8a7796-rst", .data = &rcar_rst_gen2 },
+ 	{ .compatible = "renesas,r8a77965-rst", .data = &rcar_rst_gen2 },
 +	{ .compatible = "renesas,r8a7797-rst", .data = &rcar_rst_gen2 },
  	{ /* sentinel */ }
  };
  
 diff --git a/drivers/soc/renesas/rcar-sysc.c b/drivers/soc/renesas/rcar-sysc.c
-index 072f94c..7e59c72 100644
+index b25c5cf..1d5d440 100644
 --- a/drivers/soc/renesas/rcar-sysc.c
 +++ b/drivers/soc/renesas/rcar-sysc.c
-@@ -321,6 +321,9 @@ static void __init rcar_sysc_pd_setup(struct rcar_sysc_pd *pd)
- #ifdef CONFIG_ARCH_R8A7796
- 	{ .compatible = "renesas,r8a7796-sysc", .data = &r8a7796_sysc_info },
+@@ -324,6 +324,9 @@ static void __init rcar_sysc_pd_setup(struct rcar_sysc_pd *pd)
+ #ifdef CONFIG_ARCH_R8A77965
+ 	{ .compatible = "renesas,r8a77965-sysc", .data = &r8a77965_sysc_info },
  #endif
 +#ifdef CONFIG_ARCH_R8A7797
 +	{ .compatible = "renesas,r8a7797-sysc", .data = &r8a7797_sysc_info },
@@ -4919,13 +4894,13 @@ index 072f94c..7e59c72 100644
  };
  
 diff --git a/drivers/soc/renesas/rcar-sysc.h b/drivers/soc/renesas/rcar-sysc.h
-index cd8bc52..e367715 100644
+index 04b5d01..1eb4e6d 100644
 --- a/drivers/soc/renesas/rcar-sysc.h
 +++ b/drivers/soc/renesas/rcar-sysc.h
-@@ -60,4 +60,5 @@ struct rcar_sysc_info {
- extern const struct rcar_sysc_info r8a7794_sysc_info;
+@@ -61,4 +61,5 @@ struct rcar_sysc_info {
  extern const struct rcar_sysc_info r8a7795_sysc_info;
  extern const struct rcar_sysc_info r8a7796_sysc_info;
+ extern const struct rcar_sysc_info r8a77965_sysc_info;
 +extern const struct rcar_sysc_info r8a7797_sysc_info;
  #endif /* __SOC_RENESAS_RCAR_SYSC_H__ */
 diff --git a/drivers/soc/renesas/rcar_ems_ctrl.c b/drivers/soc/renesas/rcar_ems_ctrl.c
@@ -4962,11 +4937,11 @@ index ca9af73..388c570 100644
  			continue;
  		for (i = 0; i < total_target_cpu; i++) {
 diff --git a/drivers/soc/renesas/renesas-soc.c b/drivers/soc/renesas/renesas-soc.c
-index 5cab1b5..9d6fdb0 100644
+index 1b33c50..63f943d 100644
 --- a/drivers/soc/renesas/renesas-soc.c
 +++ b/drivers/soc/renesas/renesas-soc.c
-@@ -134,6 +134,11 @@ struct renesas_soc {
- 	.id	= 0x52,
+@@ -139,6 +139,11 @@ struct renesas_soc {
+ 	.id	= 0x55,
  };
  
 +static const struct renesas_soc soc_rcar_v3m __initconst __maybe_unused = {
@@ -4977,9 +4952,9 @@ index 5cab1b5..9d6fdb0 100644
  static const struct renesas_soc soc_shmobile_ag5 __initconst __maybe_unused = {
  	.family	= &fam_shmobile,
  	.id	= 0x37,
-@@ -183,6 +188,9 @@ struct renesas_soc {
- #ifdef CONFIG_ARCH_R8A7796
- 	{ .compatible = "renesas,r8a7796",	.data = &soc_rcar_m3_w },
+@@ -191,6 +196,9 @@ struct renesas_soc {
+ #ifdef CONFIG_ARCH_R8A77965
+ 	{ .compatible = "renesas,r8a77965",	.data = &soc_rcar_m3_n },
  #endif
 +#ifdef CONFIG_ARCH_R8A7797
 +	{ .compatible = "renesas,r8a7797",	.data = &soc_rcar_v3m },
@@ -4988,29 +4963,29 @@ index 5cab1b5..9d6fdb0 100644
  	{ .compatible = "renesas,sh73a0",	.data = &soc_shmobile_ag5 },
  #endif
 diff --git a/drivers/spi/spi-sh-msiof.c b/drivers/spi/spi-sh-msiof.c
-index 996869e..3281dc7 100644
+index 36e70db..a2606fe 100644
 --- a/drivers/spi/spi-sh-msiof.c
 +++ b/drivers/spi/spi-sh-msiof.c
-@@ -215,7 +215,8 @@ static int msiof_rcar_is_gen3(struct device *dev)
- 	struct device_node *node = dev->of_node;
+@@ -216,7 +216,8 @@ static int msiof_rcar_is_gen3(struct device *dev)
  
  	return of_device_is_compatible(node, "renesas,msiof-r8a7795") ||
--		of_device_is_compatible(node, "renesas,msiof-r8a7796");
-+		of_device_is_compatible(node, "renesas,msiof-r8a7796") ||
+ 		of_device_is_compatible(node, "renesas,msiof-r8a7796") ||
+-		of_device_is_compatible(node, "renesas,msiof-r8a77965");
++		of_device_is_compatible(node, "renesas,msiof-r8a77965") ||
 +		of_device_is_compatible(node, "renesas,msiof-r8a7797");
  }
  
  static u32 sh_msiof_read(struct sh_msiof_spi_priv *p, int reg_offs)
-@@ -1188,6 +1189,7 @@ static int sh_msiof_transfer_one(struct spi_master *master,
- 	{ .compatible = "renesas,msiof-r8a7794",   .data = &r8a779x_data },
+@@ -1190,6 +1191,7 @@ static int sh_msiof_transfer_one(struct spi_master *master,
  	{ .compatible = "renesas,msiof-r8a7795",   .data = &r8a779x_data },
  	{ .compatible = "renesas,msiof-r8a7796",   .data = &r8a779x_data },
+ 	{ .compatible = "renesas,msiof-r8a77965",  .data = &r8a779x_data },
 +	{ .compatible = "renesas,msiof-r8a7797",   .data = &r8a779x_data },
  	{},
  };
  MODULE_DEVICE_TABLE(of, sh_msiof_match);
 diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index 6700dda..a9f4d96 100644
+index 6eb7395..a23dd44 100644
 --- a/drivers/thermal/rcar_gen3_thermal.c
 +++ b/drivers/thermal/rcar_gen3_thermal.c
 @@ -391,6 +391,30 @@ static int rcar_gen3_r8a7795_thermal_init(struct rcar_thermal_priv *priv)
@@ -5044,7 +5019,7 @@ index 6700dda..a9f4d96 100644
  /*
   *		Interrupt
   */
-@@ -472,9 +496,14 @@ static int rcar_gen3_thermal_remove(struct platform_device *pdev)
+@@ -472,10 +496,15 @@ static int rcar_gen3_thermal_remove(struct platform_device *pdev)
  	.thermal_init = rcar_gen3_r8a7796_thermal_init,
  };
  
@@ -5055,6 +5030,7 @@ index 6700dda..a9f4d96 100644
  static const struct of_device_id rcar_thermal_dt_ids[] = {
  	{ .compatible = "renesas,thermal-r8a7795", .data = &r8a7795_data},
  	{ .compatible = "renesas,thermal-r8a7796", .data = &r8a7796_data},
+ 	{ .compatible = "renesas,thermal-r8a77965", .data = &r8a7796_data},
 +	{ .compatible = "renesas,thermal-r8a7797", .data = &r8a7797_data},
  	{},
  };

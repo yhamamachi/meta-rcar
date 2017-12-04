@@ -8,12 +8,12 @@ This adds Renesas R8A7797 SoC support
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm/cpu/armv8/Kconfig                         |    3 +
- arch/arm/cpu/armv8/rcar_gen3/Makefile              |    2 +
+ arch/arm/cpu/armv8/rcar_gen3/Makefile              |    3 +
  arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c    |   39 +
  arch/arm/cpu/armv8/rcar_gen3/cpu_info.c            |    8 +
- arch/arm/cpu/armv8/rcar_gen3/pfc.c                 |    2 +
  arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c         | 2764 ++++++++++++++++++++
- arch/arm/cpu/armv8/rcar_gen3/prr_depend.c          |   29 +
+ arch/arm/cpu/armv8/rcar_gen3/pfc.c                 |    2 +
+ arch/arm/cpu/armv8/rcar_gen3/prr_depend.c          |   27 +
  arch/arm/include/asm/arch-rcar_gen3/gpio.h         |    4 +
  arch/arm/include/asm/arch-rcar_gen3/r8a7797-gpio.h |  456 ++++
  arch/arm/include/asm/arch-rcar_gen3/r8a7797.h      |   33 +
@@ -21,19 +21,19 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h    |    2 +
  drivers/serial/serial_sh.h                         |    3 +-
  include/configs/rcar-gen3-common.h                 |   12 +
- 14 files changed, 3361 insertions(+), 1 deletion(-)
+ 14 files changed, 3360 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7797.c
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c
  create mode 100644 arch/arm/include/asm/arch-rcar_gen3/r8a7797-gpio.h
  create mode 100644 arch/arm/include/asm/arch-rcar_gen3/r8a7797.h
 
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
-index 415a9ee..36b7983 100644
+index 01646e9..dfd9bab 100644
 --- a/arch/arm/cpu/armv8/Kconfig
 +++ b/arch/arm/cpu/armv8/Kconfig
-@@ -27,6 +27,9 @@ config R8A7795
- config R8A7796
- 	bool "Renesas SoC R8A7796"
+@@ -35,6 +35,9 @@ config R8A77965
+ 	bool "Renesas SoC R8A77965"
+ 	select R8A7796X
  
 +config R8A7797
 +       bool "Renesas SoC R8A7797"
@@ -42,11 +42,11 @@ index 415a9ee..36b7983 100644
  
  config SYS_SOC
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/Makefile b/arch/arm/cpu/armv8/rcar_gen3/Makefile
-index 2bf2416..e85ca94 100644
+index 01ecaa1..a7a8f79 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/Makefile
 +++ b/arch/arm/cpu/armv8/rcar_gen3/Makefile
-@@ -13,3 +13,6 @@ obj-$(CONFIG_R8A7795) += lowlevel_init.o cpu_info-r8a7795.o \
- obj-$(CONFIG_R8A7796) += lowlevel_init.o cpu_info-r8a7796.o \
+@@ -15,3 +15,6 @@ obj-$(CONFIG_R8A7795) += lowlevel_init.o cpu_info-r8a7795.o \
+ obj-$(CONFIG_R8A7796X) += lowlevel_init.o cpu_info-r8a7796.o \
  				pfc.o pfc-r8a7796.o prr_depend.o \
  				board.o
 +obj-$(CONFIG_R8A7797) += lowlevel_init.o cpu_info-r8a7797.o \
@@ -98,10 +98,10 @@ index 0000000..cc8e1e6
 +	return (u32)(product & 0x0000000F);
 +}
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/cpu_info.c b/arch/arm/cpu/armv8/rcar_gen3/cpu_info.c
-index c3fd92b..1d5127d 100644
+index 1a699e4..0046c75 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/cpu_info.c
 +++ b/arch/arm/cpu/armv8/rcar_gen3/cpu_info.c
-@@ -73,6 +73,14 @@ int print_cpuinfo(void)
+@@ -81,6 +81,14 @@ int print_cpuinfo(void)
  			       CONFIG_RCAR_TARGET_STRING);
  		}
  		break;
@@ -115,18 +115,6 @@ index c3fd92b..1d5127d 100644
 +		break;
  	}
  	return 0;
- }
-diff --git a/arch/arm/cpu/armv8/rcar_gen3/pfc.c b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
-index b7158b0..dc7d0ab 100644
---- a/arch/arm/cpu/armv8/rcar_gen3/pfc.c
-+++ b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
-@@ -20,5 +20,7 @@ void pinmux_init(void)
- 		r8a7795_pinmux_init();
- #elif defined(CONFIG_R8A7796)
- 	r8a7796_pinmux_init();
-+#elif defined(CONFIG_R8A7797)
-+	r8a7797_pinmux_init();
- #endif
  }
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c b/arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c
 new file mode 100644
@@ -2898,26 +2886,23 @@ index 0000000..3b2f75e
 +{
 +	register_pinmux(&r8a7797_pinmux_info);
 +}
+diff --git a/arch/arm/cpu/armv8/rcar_gen3/pfc.c b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
+index 0543f11..bd3aa0a 100644
+--- a/arch/arm/cpu/armv8/rcar_gen3/pfc.c
++++ b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
+@@ -20,5 +20,7 @@ void pinmux_init(void)
+ 		r8a7795_pinmux_init();
+ #elif defined(CONFIG_R8A7796X)
+ 	r8a7796_pinmux_init();
++#elif defined(CONFIG_R8A7797)
++	r8a7797_pinmux_init();
+ #endif
+ }
 diff --git a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c b/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
-index 27e40aa..67d3838 100644
+index 776c596..8de3a16 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
 +++ b/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
-@@ -16,12 +16,14 @@
- /* PRR PRODUCT for RCAR */
- #define PRR_PRODUCT_RCAR_H3		(0x4f00ul)
- #define PRR_PRODUCT_RCAR_M3		(0x5200ul)
-+#define PRR_PRODUCT_RCAR_V3M	(0x5400ul)
- #define PRR_PRODUCT_MASK		(0x7f00ul)
- 
- /* PRR PRODUCT and CUT for RCAR */
- #define PRR_PRODUCT_CUT_RCAR_H3_WS10	(PRR_PRODUCT_RCAR_H3   | 0x00ul)
- #define PRR_PRODUCT_CUT_RCAR_H3_WS11	(PRR_PRODUCT_RCAR_H3   | 0x01ul)
- #define PRR_PRODUCT_CUT_RCAR_M3_ES10	(PRR_PRODUCT_RCAR_M3   | 0x00ul)
-+#define PRR_PRODUCT_CUT_RCAR_V3M_ES10	(PRR_PRODUCT_RCAR_V3M  | 0x00ul)
- #define PRR_PRODUCT_CUT_MASK		(PRR_PRODUCT_MASK      | 0xfful)
- 
- #define RCAR_PRR_INIT()			rcar_prr_init()
-@@ -93,10 +95,37 @@ int rcar_need_reconfig_sdhi_drvctrl(void)
+@@ -98,10 +98,37 @@ int rcar_need_reconfig_sdhi_drvctrl(void)
  #define SDH800_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV4)
  #define SDH400_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV2)
  
@@ -2950,18 +2935,18 @@ index 27e40aa..67d3838 100644
  {
  	if (RCAR_PRR_IS_PRODUCT(H3) && (!RCAR_PRR_CHK_CUT(H3, WS10)))
  		return SDH400_SD200;
-+	else if (RCAR_PRR_IS_PRODUCT(V3M) && (!RCAR_PRR_CHK_CUT(V3M, ES10)))
++	else if (RCAR_PRR_IS_PRODUCT(V3M))
 +		return (SD_SDHFC_DIV2 | SD_SD0FC_DIV8);
  	else
  		return SDH800_SD200;
  }
 diff --git a/arch/arm/include/asm/arch-rcar_gen3/gpio.h b/arch/arm/include/asm/arch-rcar_gen3/gpio.h
-index 339da49..01d3c59 100644
+index c58edf4..fb8b758 100644
 --- a/arch/arm/include/asm/arch-rcar_gen3/gpio.h
 +++ b/arch/arm/include/asm/arch-rcar_gen3/gpio.h
 @@ -16,6 +16,8 @@
  #include <asm/arch/r8a7795-gpio.h>
- #elif defined(CONFIG_R8A7796)
+ #elif defined(CONFIG_R8A7796X)
  #include <asm/arch/r8a7796-gpio.h>
 +#elif defined(CONFIG_R8A7797)
 +#include <asm/arch/r8a7797-gpio.h>
@@ -2970,7 +2955,7 @@ index 339da49..01d3c59 100644
  #if defined(CONFIG_R8A7795)
 @@ -23,6 +25,8 @@ void r8a7795_pinmux_init(void);
  void r8a7795_es_pinmux_init(void);
- #elif defined(CONFIG_R8A7796)
+ #elif defined(CONFIG_R8A7796X)
  void r8a7796_pinmux_init(void);
 +#elif defined(CONFIG_R8A7797)
 +void r8a7797_pinmux_init(void);
@@ -3479,7 +3464,7 @@ index 0000000..09e83ba
 +
 +#endif /* __ASM_ARCH_R8A7797_H */
 diff --git a/arch/arm/include/asm/arch-rcar_gen3/rcar-base.h b/arch/arm/include/asm/arch-rcar_gen3/rcar-base.h
-index dde46ea..a51a060 100644
+index 18c1a74..fa24fc4 100644
 --- a/arch/arm/include/asm/arch-rcar_gen3/rcar-base.h
 +++ b/arch/arm/include/asm/arch-rcar_gen3/rcar-base.h
 @@ -70,6 +70,11 @@
@@ -3495,12 +3480,12 @@ index dde46ea..a51a060 100644
  #define CONFIG_SYS_I2C_SH_BASE0	0xE60B0000
  
 diff --git a/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h b/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
-index 584bd1c..568fc6e 100644
+index b412fad..c2ba0fb 100644
 --- a/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
 +++ b/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
 @@ -14,6 +14,8 @@
   #include <asm/arch/r8a7795.h>
-  #elif defined(CONFIG_R8A7796)
+  #elif defined(CONFIG_R8A7796X)
   #include <asm/arch/r8a7796.h>
 + #elif defined(CONFIG_R8A7797)
 + #include <asm/arch/r8a7797.h>
@@ -3508,21 +3493,21 @@ index 584bd1c..568fc6e 100644
   #error "SOC Name not defined"
   #endif
 diff --git a/drivers/serial/serial_sh.h b/drivers/serial/serial_sh.h
-index d4efe9a..0d532c2 100644
+index fe71e9a..478824e 100644
 --- a/drivers/serial/serial_sh.h
 +++ b/drivers/serial/serial_sh.h
 @@ -226,7 +226,8 @@ struct uart_port {
  # define SCSCR_INIT(port)	0x38	/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
  #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
  	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
--	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796)
-+	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || \
+-	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X)
++	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
 +	defined(CONFIG_R8A7797)
  # define SCIF_ORER	0x0001
  # define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
  				/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
 diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
-index 2fe7d3c..32cd265 100644
+index 0a959f7..ec20aba 100644
 --- a/include/configs/rcar-gen3-common.h
 +++ b/include/configs/rcar-gen3-common.h
 @@ -93,7 +93,11 @@
@@ -3537,8 +3522,8 @@ index 2fe7d3c..32cd265 100644
  #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE + 0x7fff0)
  
  
-@@ -118,6 +122,14 @@
- #define PHYS_SDRAM_2_SIZE		((unsigned long)0x80000000)
+@@ -124,6 +128,14 @@
+ #define PHYS_SDRAM_1_SIZE		((unsigned long)(0x80000000 - DRAM_RSV_SIZE))
  #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
  #define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_1_SIZE
 +#elif defined(CONFIG_R8A7797)

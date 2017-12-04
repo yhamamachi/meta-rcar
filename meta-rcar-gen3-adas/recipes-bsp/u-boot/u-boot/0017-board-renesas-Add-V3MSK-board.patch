@@ -27,7 +27,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 include/configs/v3msk.h
 
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
-index fb2806d..761f4e6 100644
+index c857214..343b121 100644
 --- a/arch/arm/cpu/armv8/Kconfig
 +++ b/arch/arm/cpu/armv8/Kconfig
 @@ -19,6 +19,9 @@ config TARGET_ULCB
@@ -39,8 +39,8 @@ index fb2806d..761f4e6 100644
 +
  endchoice
  
- choice
-@@ -41,5 +44,6 @@ config SYS_SOC
+ config R8A7796X
+@@ -49,5 +52,6 @@ config SYS_SOC
  source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
  source "board/renesas/eagle/Kconfig"

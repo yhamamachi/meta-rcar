@@ -7,14 +7,14 @@ V3M Eagle is a board based on R-Car V3M SoC (R8A7797)
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm/cpu/armv8/Kconfig      |    6 
- board/renesas/eagle/Kconfig     |   15 +
- board/renesas/eagle/MAINTAINERS |    6 
- board/renesas/eagle/Makefile    |    9 
- board/renesas/eagle/eagle.c     |  398 ++++++++++++++++++++++++++++++++++++++++
- configs/r8a7797_eagle_defconfig |    9 
- include/configs/r8a7797_eagle.h |  155 +++++++++++++++
- 7 files changed, 597 insertions(+), 1 deletion(-)
+ arch/arm/cpu/armv8/Kconfig      |   4 +
+ board/renesas/eagle/Kconfig     |  15 +++
+ board/renesas/eagle/MAINTAINERS |   6 ++
+ board/renesas/eagle/Makefile    |   9 ++
+ board/renesas/eagle/eagle.c     | 224 ++++++++++++++++++++++++++++++++++++++++
+ configs/r8a7797_eagle_defconfig |   9 ++
+ include/configs/r8a7797_eagle.h | 152 +++++++++++++++++++++++++++
+ 7 files changed, 419 insertions(+)
  create mode 100644 board/renesas/eagle/Kconfig
  create mode 100644 board/renesas/eagle/MAINTAINERS
  create mode 100644 board/renesas/eagle/Makefile
@@ -23,10 +23,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 include/configs/r8a7797_eagle.h
 
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
-index 2daadc9..a645e21 100644
+index dfd9bab..c857214 100644
 --- a/arch/arm/cpu/armv8/Kconfig
 +++ b/arch/arm/cpu/armv8/Kconfig
-@@ -13,6 +13,9 @@ choice
+@@ -16,6 +16,9 @@ config TARGET_SALVATOR_X
  config TARGET_ULCB
          bool "ULCB board"
  
@@ -35,8 +35,8 @@ index 2daadc9..a645e21 100644
 +
  endchoice
  
- choice
-@@ -40,5 +43,6 @@ config SYS_SOC
+ config R8A7796X
+@@ -45,5 +48,6 @@ config SYS_SOC
  
  source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
@@ -45,7 +45,7 @@ index 2daadc9..a645e21 100644
  endif
 diff --git a/board/renesas/eagle/Kconfig b/board/renesas/eagle/Kconfig
 new file mode 100644
-index 0000000..3024836
+index 0000000..dffbbeb
 --- /dev/null
 +++ b/board/renesas/eagle/Kconfig
 @@ -0,0 +1,15 @@
@@ -93,7 +93,7 @@ index 0000000..87d63e1
 +obj-y	:= eagle.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/eagle/eagle.c b/board/renesas/eagle/eagle.c
 new file mode 100644
-index 0000000..137097d
+index 0000000..4eda15c
 --- /dev/null
 +++ b/board/renesas/eagle/eagle.c
 @@ -0,0 +1,224 @@
@@ -323,7 +323,7 @@ index 0000000..137097d
 +#endif
 diff --git a/configs/r8a7797_eagle_defconfig b/configs/r8a7797_eagle_defconfig
 new file mode 100644
-index 0000000..fd745a8
+index 0000000..d68e28f
 --- /dev/null
 +++ b/configs/r8a7797_eagle_defconfig
 @@ -0,0 +1,9 @@
@@ -338,7 +338,7 @@ index 0000000..fd745a8
 +CONFIG_SPI_FLASH_SPANSION=y
 diff --git a/include/configs/r8a7797_eagle.h b/include/configs/r8a7797_eagle.h
 new file mode 100644
-index 0000000..c4e3e5e
+index 0000000..a4ae6bf
 --- /dev/null
 +++ b/include/configs/r8a7797_eagle.h
 @@ -0,0 +1,152 @@

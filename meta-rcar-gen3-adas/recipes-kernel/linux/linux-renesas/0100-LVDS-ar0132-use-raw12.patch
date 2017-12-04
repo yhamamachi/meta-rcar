@@ -141,7 +141,7 @@ index 8dd0f99..caa3f74 100644
  	}
  	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
 -	reg8_write(client, 0x7c, 0x81);				/* BIT(7) - magic to Use RAW10 as 8-bit mode */
-+	reg8_write(client, 0x71, (idx << 6) | 0x2a);		/* CSI data type: RAW12, assign VC */
++	reg8_write(client, 0x71, (idx << 6) | 0x2a);		/* CSI data type: RAW8 (for RAW12 and bits reodering), assign VC */
 +	reg8_write(client, 0x7c, 0x00);				/* RAW12 mode */
 +	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
  	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
