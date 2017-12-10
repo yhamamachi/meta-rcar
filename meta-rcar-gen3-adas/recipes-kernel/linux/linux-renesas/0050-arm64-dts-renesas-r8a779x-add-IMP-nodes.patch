@@ -307,7 +307,7 @@ diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/rene
 index 1be93e8..232eb19 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7797.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-@@ -970,6 +970,105 @@
+@@ -970,6 +970,112 @@
  			status = "okay";
  		};
  
@@ -408,6 +408,13 @@ index 1be93e8..232eb19 100644
 +			reg = <0 0xed000000 0 0x100000>;
 +			clocks = <&cpg CPG_MOD 830>;
 +			power-domains = <&sysc R8A7797_PD_A3IR>;
++		};
++
++		impcnn0 {
++			compatible = "renesas,impx4-legacy";
++			reg = <0 0xff9e0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A7797_PD_A2IR3>;
 +		};
 +
  		imrlx4_ch0: imr-lx4@fe860000 {
