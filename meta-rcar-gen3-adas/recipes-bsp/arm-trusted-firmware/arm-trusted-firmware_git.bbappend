@@ -5,6 +5,7 @@ ATFW_OPT_append += " ${@base_conditional("DISABLE_RPC_ACCESS", "1", " RCAR_DISAB
 
 SRC_URI_append = " \
     file://0001-plat-renesas-rcar-Make-RPC-secure-settings-optional.patch \
+    file://0002-plat-renesas-rcar-kingfisher-reboot-fix-power-off-on-reset.diff \
 "
 
 do_deploy_append() {
