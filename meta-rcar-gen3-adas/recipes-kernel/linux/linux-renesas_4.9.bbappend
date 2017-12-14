@@ -70,6 +70,7 @@ SRC_URI_append = " \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
     file://0079-ASoC-fix-pcm-creation-regression.patch \
+    file://0082-gpio-pca953x-fix-interrupt-trigger.patch \
 "
 
 SRC_URI_append_r8a7797 = " \
