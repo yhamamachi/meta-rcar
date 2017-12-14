@@ -113,6 +113,7 @@ KERNEL_DEVICETREE_append_salvator-x = " \
 
 KERNEL_DEVICETREE_append_eagle = " \
     renesas/r8a7797-eagle.dtb \
+    renesas/r8a7797-eagle-function.dtb \
 "
 
 KERNEL_DEVICETREE_append_v3msk = " \
