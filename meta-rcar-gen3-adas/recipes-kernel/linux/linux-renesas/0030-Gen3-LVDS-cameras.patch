@@ -938,7 +938,7 @@ new file mode 100644
 index 0000000..91223a0
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,607 @@
+@@ -0,0 +1,608 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver
 + *
@@ -1183,6 +1183,7 @@ index 0000000..91223a0
 +	reg8_write(client, 0x63, 0);				/* disable overlap window */
 +	reg8_write(client, 0x64, 0);
 +	reg8_write(client, 0x0c, 0x89);				/* enable HS/VS encoding, use D14/15 for HS/VS, invert VS */
++	reg8_write(client, 0x19, 0x0c);				/* Drive HSTRAIL state for 120ns after the last payload bit */
 +}
 +
 +static void max9286_max9271_gmsl_link_setup(struct i2c_client *client, int idx)
