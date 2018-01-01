@@ -38,10 +38,12 @@ ATFW_OPT_BKUP_m3ulcb = "RCAR_BKUP_ENABLE=0"
 ATFW_OPT_r8a7795 = " \
     LSI=H3 RCAR_DRAM_SPLIT=1 ${ATFW_OPT_LOSSY} ${ATFW_OPT_BKUP} \
     ${@base_conditional("CA57CA53BOOT", "1", " PSCI_DISABLE_BIGLITTLE_IN_CA57BOOT=0", "", d)} \
+    LIFEC_DBSC_PROTECT_ENABLE=0 \
 "
 ATFW_OPT_r8a7796 = " \
     LSI=M3 RCAR_DRAM_SPLIT=2 ${ATFW_OPT_LOSSY} ${ATFW_OPT_BKUP} \
     ${@base_conditional("CA57CA53BOOT", "1", " PSCI_DISABLE_BIGLITTLE_IN_CA57BOOT=0", "", d)} \
+    LIFEC_DBSC_PROTECT_ENABLE=0 \
 "
 
 # requires CROSS_COMPILE set by hand as there is no configure script
