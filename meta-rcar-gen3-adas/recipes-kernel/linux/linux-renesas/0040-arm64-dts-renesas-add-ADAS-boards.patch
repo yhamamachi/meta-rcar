@@ -11732,7 +11732,7 @@ index 0000000..4292b7b
 +				};
 +				port@1 {
 +					ti964_csi0ep0: endpoint {
-+						csi-rate = <1450>;
++						csi-rate = <700>;
 +						remote-endpoint = <&csi2_40_ep>;
 +					};
 +				};

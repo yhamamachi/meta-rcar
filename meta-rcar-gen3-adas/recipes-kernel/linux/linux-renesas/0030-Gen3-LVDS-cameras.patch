@@ -134,7 +134,7 @@ index 0000000..decbf5f
 +++ b/drivers/media/i2c/soc_camera/ar0132.c
 @@ -0,0 +1,581 @@
 +/*
-+ * Aptina AR0132 sensor camera driver
++ * ON Semiconductor AR0132 sensor camera driver
 + *
 + * Copyright (C) 2017 Cogent Embedded, Inc.
 + *
@@ -721,7 +721,7 @@ index 0000000..055841d
 +++ b/drivers/media/i2c/soc_camera/ar0132.h
 @@ -0,0 +1,213 @@
 +/*
-+ * OmniVision ar0132 sensor camera wizard 1110x620@30/BGGR/BT601/12bit
++ * ON Semiconductor ar0132 sensor camera wizard 1110x620@30/BGGR/BT601/12bit
 + *
 + * Copyright (C) 2017 Cogent Embedded, Inc.
 + *
@@ -6281,7 +6281,8 @@ index 0000000..770d306
 +		reg8_write(client, 0x1f, 0x00);			/* CSI rate 1.5/1.6Gbps */
 +		break;
 +	case 800: /* REFCLK = 25MHZ */
-+		reg8_write(client, 0x1f, 0x02);			/* CSI rate 800Mbps */
++	case 700: /* REFCLK = 22.5MHZ */
++		reg8_write(client, 0x1f, 0x02);			/* CSI rate 700/800Mbps */
 +		break;
 +	case 400: /* REFCLK = 25MHZ */
 +		reg8_write(client, 0x1f, 0x03);			/* CSI rate 400Mbps */
