@@ -6526,7 +6526,7 @@ new file mode 100644
 index 0000000..d50ff7a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,221 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board on r8a7795 ES1.x
 + *
@@ -6549,13 +6549,9 @@ index 0000000..d50ff7a
 +	model = "Renesas H3ULCB.HAD board based on r8a7795";
 +
 +	aliases {
-+		serial1 = &scif1;
++		serial0 = &scif1;
 +		spi1 = &spi0_gpio;
 +		spi2 = &spi1_gpio;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial1:115200n8";
 +	};
 +
 +	spi0_gpio: spi_gpio@0 {
@@ -8076,7 +8072,7 @@ new file mode 100644
 index 0000000..4a00426
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,215 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board on r8a7795
 + *
@@ -8099,13 +8095,9 @@ index 0000000..4a00426
 +	model = "Renesas H3ULCB.HAD board based on r8a7795";
 +
 +	aliases {
-+		serial1 = &scif1;
++		serial0 = &scif1;
 +		spi1 = &spi0_gpio;
 +		spi2 = &spi1_gpio;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial1:115200n8";
 +	};
 +
 +	spi0_gpio: spi_gpio@0 {
