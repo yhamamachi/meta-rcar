@@ -13,15 +13,15 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile            |    7 +
  drivers/media/i2c/soc_camera/ar0132.c            |  581 +++++++++++
  drivers/media/i2c/soc_camera/ar0132.h            |  213 ++++
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  607 ++++++++++++
+ drivers/media/i2c/soc_camera/max9286_max9271.c   |  608 ++++++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h   |  244 +++++
  drivers/media/i2c/soc_camera/ov10635.c           |  758 ++++++++++++++
- drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  106 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1092 +++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1156 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |   93 ++
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 +++++++++++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 ++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  431 ++++++++
  drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  399 ++++++++
@@ -32,7 +32,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 23 files changed, 7004 insertions(+), 109 deletions(-)
+ 23 files changed, 7069 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
@@ -129,7 +129,7 @@ index 6f994f9..7d4c1ab 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/ar0132.c b/drivers/media/i2c/soc_camera/ar0132.c
 new file mode 100644
-index 0000000..decbf5f
+index 0000000..bbaeeaae
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0132.c
 @@ -0,0 +1,581 @@
@@ -716,7 +716,7 @@ index 0000000..decbf5f
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0132.h b/drivers/media/i2c/soc_camera/ar0132.h
 new file mode 100644
-index 0000000..055841d
+index 0000000..bcee0e5
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0132.h
 @@ -0,0 +1,213 @@
@@ -935,7 +935,7 @@ index 0000000..055841d
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..91223a0
+index 0000000..be2ca5e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
 @@ -0,0 +1,608 @@
@@ -3880,10 +3880,10 @@ index 0000000..f2bb706
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..813c08e
+index 0000000..b5a3c16
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,1092 @@
+@@ -0,0 +1,1156 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -3934,6 +3934,11 @@ index 0000000..813c08e
 +	int				exposure;
 +	int				gain;
 +	int				autogain;
++	int				red;
++	int				green_r;
++	int				green_b;
++	int				blue;
++	int				awb;
 +	int				dvp_order;
 +	/* serializers */
 +	int				max9286_addr;
@@ -4369,6 +4374,54 @@ index 0000000..813c08e
 +		ret |= reg16_write(client, 0xFFFE, 0x80);
 +		usleep_range(100, 150); /* wait 100 us */
 +		ret |= reg16_write(client, 0x00C0, 0xea);
++		break;
++	case V4L2_CID_AUTO_WHITE_BALANCE:
++	case V4L2_CID_RED_BALANCE:
++	case V4L2_CID_BLUE_BALANCE:
++		if (ctrl->id == V4L2_CID_AUTO_WHITE_BALANCE)
++			priv->awb = ctrl->val;
++		if (ctrl->id == V4L2_CID_RED_BALANCE) {
++			priv->red = ctrl->val;
++			priv->red <<= 8;
++			priv->green_r = priv->red / 2;
++		}
++		if (ctrl->id == V4L2_CID_BLUE_BALANCE) {
++			priv->blue = ctrl->val;
++			priv->blue <<= 8;
++			priv->green_b = priv->blue / 2;
++		}
++
++		ret = reg16_write(client, 0xFFFD, 0x80);
++		ret |= reg16_write(client, 0xFFFE, 0x19);
++		usleep_range(100, 150); /* wait 100 us */
++		ret |= reg16_write(client, 0x5000, !priv->awb);
++		ret |= reg16_write(client, 0x5001, priv->red >> 8);
++		ret |= reg16_write(client, 0x5002, priv->red & 0xff);
++		ret |= reg16_write(client, 0x5003, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x5004, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x5005, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x5006, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x5007, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5008, priv->blue & 0xff);
++		ret |= reg16_write(client, 0x5009, priv->red >> 8);
++		ret |= reg16_write(client, 0x500a, priv->red & 0xff);
++		ret |= reg16_write(client, 0x500b, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x500c, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x500d, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x500e, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x500f, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5010, priv->blue & 0xff);
++		ret |= reg16_write(client, 0x5011, priv->red >> 8);
++		ret |= reg16_write(client, 0x5012, priv->red & 0xff);
++		ret |= reg16_write(client, 0x5013, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x5014, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x5015, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x5016, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x5017, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5018, priv->blue & 0xff);
++		ret |= reg16_write(client, 0xFFFE, 0x80);
++		usleep_range(100, 150); /* wait 100 us */
++		ret |= reg16_write(client, 0x00C0, 0xeb);
 +		break;
 +	case V4L2_CID_HFLIP:
 +#if 1
@@ -4856,6 +4909,11 @@ index 0000000..813c08e
 +	priv->exposure = 0x100;
 +	priv->gain = 0x100;
 +	priv->autogain = 1;
++	priv->red = 0x400;
++	priv->blue = 0x400;
++	priv->green_r = priv->red / 2;
++	priv->green_b = priv->blue / 2;
++	priv->awb = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
@@ -4875,6 +4933,12 @@ index 0000000..813c08e
 +			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_AUTO_WHITE_BALANCE, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_RED_BALANCE, 2, 0xf, 1, priv->red >> 8);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_BLUE_BALANCE, 2, 0xf, 1, priv->blue >> 8);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_HFLIP, 0, 1, 1, 1);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
@@ -6207,10 +6271,10 @@ index 0000000..1672173
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 new file mode 100644
-index 0000000..770d306
+index 0000000..c2039f8
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-@@ -0,0 +1,399 @@
+@@ -0,0 +1,400 @@
 +/*
 + * TI (ti964/ti960)-(ti913/ti953) FPDLinkIII driver
 + *
