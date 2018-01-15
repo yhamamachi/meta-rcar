@@ -66,11 +66,11 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  545 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1541 +++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1542 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 43 files changed, 17233 insertions(+)
+ 43 files changed, 17234 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -159,7 +159,7 @@ index 0000000..7f25079
 +clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..2fee788
+index 0000000..fe07e22
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
 @@ -0,0 +1,1710 @@
@@ -898,8 +898,8 @@ index 0000000..2fee788
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -1107,8 +1107,8 @@ index 0000000..2fee788
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -2322,7 +2322,7 @@ index 0000000..ac6a12b
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..78c766b
+index 0000000..c19bc58
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 @@ -0,0 +1,1724 @@
@@ -3061,8 +3061,8 @@ index 0000000..78c766b
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -3270,8 +3270,8 @@ index 0000000..78c766b
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -4523,7 +4523,7 @@ index 0000000..14b6f52
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..ffa1879
+index 0000000..8e7de0f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 @@ -0,0 +1,1214 @@
@@ -5262,8 +5262,8 @@ index 0000000..ffa1879
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -6902,7 +6902,7 @@ index 0000000..323722c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
 new file mode 100644
-index 0000000..de56fa4
+index 0000000..6eb7cac
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
 @@ -0,0 +1,546 @@
@@ -7068,8 +7068,8 @@ index 0000000..de56fa4
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -7110,8 +7110,8 @@ index 0000000..de56fa4
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio5 25 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -7454,7 +7454,7 @@ index 0000000..de56fa4
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
 new file mode 100644
-index 0000000..3f3d66a
+index 0000000..d4caf46
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
 @@ -0,0 +1,552 @@
@@ -7635,8 +7635,8 @@ index 0000000..3f3d66a
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -7677,8 +7677,8 @@ index 0000000..3f3d66a
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		maxim,sensor_delay = <0>;
 +		maxim,links = <4>;
@@ -8441,7 +8441,7 @@ index 0000000..87f1889
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
 new file mode 100644
-index 0000000..2c24b85
+index 0000000..8541518
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
 @@ -0,0 +1,546 @@
@@ -8607,8 +8607,8 @@ index 0000000..2c24b85
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -8649,8 +8649,8 @@ index 0000000..2c24b85
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio5 25 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -8993,7 +8993,7 @@ index 0000000..2c24b85
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
 new file mode 100644
-index 0000000..fb12a39f3
+index 0000000..14539ea
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
 @@ -0,0 +1,552 @@
@@ -9174,8 +9174,8 @@ index 0000000..fb12a39f3
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -9216,8 +9216,8 @@ index 0000000..fb12a39f3
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		maxim,sensor_delay = <0>;
 +		maxim,links = <4>;
@@ -9597,7 +9597,7 @@ index 0000000..a409402
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 new file mode 100644
-index 0000000..1ac0041
+index 0000000..ea7f378
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 @@ -0,0 +1,287 @@
@@ -9691,8 +9691,8 @@ index 0000000..1ac0041
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -9890,7 +9890,7 @@ index 0000000..1ac0041
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
 new file mode 100644
-index 0000000..cc6866c
+index 0000000..319120f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
 @@ -0,0 +1,318 @@
@@ -9999,8 +9999,8 @@ index 0000000..cc6866c
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -10282,7 +10282,7 @@ index 0000000..82d6513
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..3fb3bf1
+index 0000000..c896fe0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 @@ -0,0 +1,560 @@
@@ -10626,8 +10626,8 @@ index 0000000..3fb3bf1
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x48>;
 +		gpios = <&gpio_ext 0 GPIO_ACTIVE_LOW>; /* CSI0 DE_PDn */
 +		maxim,gpio0 = <0>;
@@ -10848,7 +10848,7 @@ index 0000000..3fb3bf1
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 new file mode 100644
-index 0000000..979cebe
+index 0000000..b92fe83
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 @@ -0,0 +1,578 @@
@@ -11104,8 +11104,8 @@ index 0000000..979cebe
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -11432,7 +11432,7 @@ index 0000000..979cebe
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 new file mode 100644
-index 0000000..4292b7b
+index 0000000..26f8c70
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 @@ -0,0 +1,518 @@
@@ -11643,8 +11643,8 @@ index 0000000..4292b7b
 +				};
 +			};
 +
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -11956,7 +11956,7 @@ index 0000000..4292b7b
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts
 new file mode 100644
-index 0000000..573e2bc
+index 0000000..6f82385
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts
 @@ -0,0 +1,298 @@
@@ -12089,8 +12089,8 @@ index 0000000..573e2bc
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -12580,7 +12580,7 @@ index 0000000..91d10c5
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
 new file mode 100644
-index 0000000..589a774
+index 0000000..b469ca6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
 @@ -0,0 +1,545 @@
@@ -12810,8 +12810,8 @@ index 0000000..589a774
 +		};
 +
 +		/* MAX9286 @ 0x2c */
-+		max9286-max9271@1 {
-+			compatible = "maxim,max9286-max9271";
++		max9286@1 {
++			compatible = "maxim,max9286";
 +			reg = <0x2c>;
 +			maxim,sensor_delay = <350>;
 +			maxim,links = <4>;
@@ -12819,10 +12819,10 @@ index 0000000..589a774
 +			maxim,resetb-gpio = <1>;
 +			maxim,fsync-mode = "automatic";
 +			maxim,timeout = <100>;
-+			POC0-supply = <&pwr0B>;
-+			POC1-supply = <&pwr1B>;
-+			POC2-supply = <&pwr2B>;
-+			POC3-supply = <&pwr3B>;
++			POC0-supply = <&pwr1B>;
++			POC1-supply = <&pwr0B>;
++			POC2-supply = <&pwr3B>;
++			POC3-supply = <&pwr2B>;
 +
 +			port@0 {
 +				max9286_des1ep0: endpoint@0 {
@@ -13219,10 +13219,10 @@ index 0000000..b854216
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 new file mode 100644
-index 0000000..5958450
+index 0000000..d7ffd79
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1541 @@
+@@ -0,0 +1,1542 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -14193,19 +14193,20 @@ index 0000000..5958450
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
 +				maxim,lanes = <4>;
 +				maxim,resetb-gpio = <1>;
 +				maxim,fsync-mode = "automatic";
++
 +				maxim,timeout = <100>;
-+				POC0-supply = <&pwr0A>;
-+				POC1-supply = <&pwr1A>;
-+				POC2-supply = <&pwr2A>;
-+				POC3-supply = <&pwr3A>;
++				POC0-supply = <&pwr1A>;
++				POC1-supply = <&pwr0A>;
++				POC2-supply = <&pwr3A>;
++				POC3-supply = <&pwr2A>;
 +
 +				port@0 {
 +					max9286_des0ep0: endpoint@0 {
@@ -14766,7 +14767,7 @@ index 0000000..5958450
 +
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 new file mode 100644
-index 0000000..92ed4a4
+index 0000000..d5c4f46
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 @@ -0,0 +1,515 @@
@@ -14951,8 +14952,8 @@ index 0000000..92ed4a4
 +		};
 +
 +		/* MAX9286 @ 0x2c */
-+		max9286-max9271@2 {
-+			compatible = "maxim,max9286-max9271";
++		max9286@2 {
++			compatible = "maxim,max9286";
 +			reg = <0x2c>;
 +			maxim,sensor_delay = <350>;
 +			maxim,links = <4>;
@@ -15287,7 +15288,7 @@ index 0000000..92ed4a4
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
 new file mode 100644
-index 0000000..193153e
+index 0000000..4fcb320
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
 @@ -0,0 +1,1726 @@
@@ -15894,8 +15895,8 @@ index 0000000..193153e
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -16103,8 +16104,8 @@ index 0000000..193153e
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -17019,7 +17020,7 @@ index 0000000..193153e
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 new file mode 100644
-index 0000000..beb52e9
+index 0000000..7728bdd
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 @@ -0,0 +1,578 @@
@@ -17286,8 +17287,8 @@ index 0000000..beb52e9
 +				};
 +			};
 +
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
