@@ -15,7 +15,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  581 +++++++++++
  drivers/media/i2c/soc_camera/ar0132.h            |  213 ++++
- drivers/media/i2c/soc_camera/max9286.c           |  672 +++++++++++++
+ drivers/media/i2c/soc_camera/max9286.c           |  688 +++++++++++++
  drivers/media/i2c/soc_camera/max9286.h           |  244 +++++
  drivers/media/i2c/soc_camera/ov10635.c           |  758 ++++++++++++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++++++++++++++++
@@ -34,7 +34,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 25 files changed, 7755 insertions(+), 109 deletions(-)
+ 25 files changed, 7771 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -1515,10 +1515,10 @@ index 0000000..bcee0e5
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..20ef2de
+index 0000000..8a62b91
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
-@@ -0,0 +1,672 @@
+@@ -0,0 +1,688 @@
 +/*
 + * MAXIM max9286 GMSL driver
 + *
@@ -1580,6 +1580,8 @@ index 0000000..20ef2de
 +	struct regulator	*poc_supply[4]; /* PoC power supply */
 +};
 +
++static char fsync_mode_default[20] = "manual"; /* manual, automatic, semi-automatic, external */
++
 +static int conf_link;
 +module_param(conf_link, int, 0644);
 +MODULE_PARM_DESC(conf_link, " Force configuration link. Used only if robust firmware flashing required (f.e. recovery)");
@@ -1603,6 +1605,14 @@ index 0000000..20ef2de
 +static int vsync = 1;
 +module_param(vsync, int, 0644);
 +MODULE_PARM_DESC(vsync, " VSYNC invertion (default: 1 - inverted) */");
++
++static int gpio_resetb;
++module_param(gpio_resetb, int, 0644);
++MODULE_PARM_DESC(gpio_resetb, " Serializer GPIO reset (default: 0 - not used) */");
++
++static int active_low_resetb;
++module_param(active_low_resetb, int, 0644);
++MODULE_PARM_DESC(active_low_resetb, " Serializer GPIO reset level (default: 0 - active high) */");
 +
 +static char* ser_name(int id)
 +{
@@ -1661,6 +1671,16 @@ index 0000000..20ef2de
 +	reg8_write(client, 0x15, 0x9b);				/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
 +	reg8_write(client, 0x1b, priv->links_mask);		/* enable equalizer for CAMs */
 +	usleep_range(5000, 5500);				/* wait 2ms after any change of reverse channel settings */
++
++	if (strcmp(priv->fsync_mode, "manual") == 0) {
++		reg8_write(client, 0x01, 0x00);			/* manual: FRAMESYNC set manually via [0x06:0x08] regs */
++	} else if (strcmp(priv->fsync_mode, "automatic") == 0) {
++		reg8_write(client, 0x01, 0x02);			/* automatic: FRAMESYNC taken from the slowest Link */
++	} else if (strcmp(priv->fsync_mode, "semi-automatic") == 0) {
++		reg8_write(client, 0x01, 0x01);			/* semi-automatic: FRAMESYNC taken from the slowest Link */
++	} else if (strcmp(priv->fsync_mode, "external") == 0) {
++		reg8_write(client, 0x01, 0xc0);			/* ECU (aka MCU) based FrameSync using GPI-to-GPO */
++	}
 +}
 +
 +static int max9286_reverse_channel_setup(struct i2c_client *client, int idx)
@@ -1771,19 +1791,11 @@ index 0000000..20ef2de
 +		dev_err(&client->dev, "CSI2 lanes number is invalid (%d)\n", priv->lanes);
 +	}
 +
++	/* Start GMSL initialization with FSYNC disabled. This is required for some odd LVDS cameras */
++	reg8_write(client, 0x01, 0xc0);				/* ECU (aka MCU) based FrameSync using GPI-to-GPO */
 +	reg8_write(client, 0x06, priv->fsync_period & 0xff);
 +	reg8_write(client, 0x07, (priv->fsync_period >> 8) & 0xff);
 +	reg8_write(client, 0x08, priv->fsync_period >> 16);
-+
-+	if (strcmp(priv->fsync_mode, "manual") == 0) {
-+		reg8_write(client, 0x01, 0x00);			/* manual: FRAMESYNC set manually via [0x06:0x08] regs */
-+	} else if (strcmp(priv->fsync_mode, "automatic") == 0) {
-+		reg8_write(client, 0x01, 0x02);			/* automatic: FRAMESYNC taken from the slowest Link */
-+	} else if (strcmp(priv->fsync_mode, "semi-automatic") == 0) {
-+		reg8_write(client, 0x01, 0x01);			/* semi-automatic: FRAMESYNC taken from the slowest Link */
-+	} else if (strcmp(priv->fsync_mode, "external") == 0) {
-+		reg8_write(client, 0x01, 0xc0);			/* ECU (aka MCU) based FrameSync using GPI-to-GPO */
-+	}
 +
 +	reg8_write(client, 0x63, 0);				/* disable overlap window */
 +	reg8_write(client, 0x64, 0);
@@ -1975,7 +1987,7 @@ index 0000000..20ef2de
 +	struct property *prop;
 +	int err, pwen, i;
 +	int sensor_delay, gpio0 = 1, gpio1 = 1;
-+	char fsync_mode_default[20] = "manual"; /* manual, automatic, semi-automatic, external */
++
 +	u8 val = 0;
 +
 +	if (of_property_read_u32(np, "maxim,links", &priv->links))
@@ -2009,9 +2021,9 @@ index 0000000..20ef2de
 +		priv->gpio_resetb = -1;
 +	} else {
 +		if (of_property_read_bool(np, "maxim,resetb-active-high"))
-+			priv->active_low_resetb = false;
++			priv->active_low_resetb = 0;
 +		else
-+			priv->active_low_resetb = true;
++			priv->active_low_resetb = 1;
 +	}
 +
 +	if (!of_property_read_u32(np, "maxim,sensor_delay", &sensor_delay))
@@ -2047,6 +2059,10 @@ index 0000000..20ef2de
 +		priv->hsync = hsync;
 +	if (!vsync)
 +		priv->vsync = vsync;
++	if (gpio_resetb)
++		priv->gpio_resetb = gpio_resetb;
++	if (active_low_resetb)
++		priv->active_low_resetb = active_low_resetb;
 +
 +	for (i = 0; i < priv->links; i++) {
 +		endpoint = of_graph_get_next_endpoint(np, endpoint);
