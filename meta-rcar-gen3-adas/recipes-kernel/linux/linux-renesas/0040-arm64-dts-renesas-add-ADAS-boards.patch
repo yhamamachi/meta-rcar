@@ -35,7 +35,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 +++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts    | 1724 +++++++++++++++++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  465 +++++
- .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 +++++++++++++
+ .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 ++++++++++++++
  .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  465 +++++
  .../dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts     |   82 +
  .../boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi      |   75 +
@@ -73,9 +73,9 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1542 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 +++++++++++++++++++
- arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1792 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1772 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 46 files changed, 19179 insertions(+)
+ 46 files changed, 19159 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -17201,10 +17201,10 @@ index 0000000..4fcb320
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
 new file mode 100644
-index 0000000..67b6085
+index 0000000..4b25a2f0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -0,0 +1,1792 @@
+@@ -0,0 +1,1772 @@
 +/*
 + * Device Tree Source for the ULCB Videobox V2 board
 + *
@@ -17502,9 +17502,21 @@ index 0000000..67b6085
 +		input;
 +		line-name = "Video-C irq";
 +	};
++	can2_irq {
++		gpio-hog;
++		gpios = <15 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "CAN2 irq";
++	};
 +};
 +
 +&gpio1 {
++	can3_irq {
++		gpio-hog;
++		gpios = <5 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "CAN3 irq";
++	};
 +	gpioext_4_22_irq {
 +		gpio-hog;
 +		gpios = <25 GPIO_ACTIVE_HIGH>;
@@ -18083,18 +18095,6 @@ index 0000000..67b6085
 +				gpio-controller;
 +				#gpio-cells = <2>;
 +
-+				video_a_des_cfg1 {
-+					gpio-hog;
-+					gpios = <5 GPIO_ACTIVE_HIGH>;
-+					input;
-+					line-name = "Video-A cfg1";
-+				};
-+				video_a_des_cfg0 {
-+					gpio-hog;
-+					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					input;
-+					line-name = "Video-A cfg0";
-+				};
 +				video_a_pwr_shdn {
 +					gpio-hog;
 +					gpios = <3 GPIO_ACTIVE_HIGH>;
@@ -18145,18 +18145,6 @@ index 0000000..67b6085
 +				gpio-controller;
 +				#gpio-cells = <2>;
 +
-+				video_a_des_cfg2 {
-+					gpio-hog;
-+					gpios = <4 GPIO_ACTIVE_HIGH>;
-+					input;
-+					line-name = "Video-A cfg2";
-+				};
-+				video_a_des_cfg1 {
-+					gpio-hog;
-+					gpios = <6 GPIO_ACTIVE_HIGH>;
-+					input;
-+					line-name = "Video-A cfg1";
-+				};
 +				video_a_des_cfg0 {
 +					gpio-hog;
 +					gpios = <7 GPIO_ACTIVE_HIGH>;
@@ -18460,7 +18448,7 @@ index 0000000..67b6085
 +				can0_load {
 +					gpio-hog;
 +					gpios = <0 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					output-high;
 +					line-name = "can0_120R_load";
 +				};
 +				/* CAN1 */
@@ -18473,7 +18461,7 @@ index 0000000..67b6085
 +				can1_load {
 +					gpio-hog;
 +					gpios = <1 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					output-high;
 +					line-name = "can1_120R_load";
 +				};
 +				/* CAN2 */
@@ -18486,7 +18474,7 @@ index 0000000..67b6085
 +				can2_load {
 +					gpio-hog;
 +					gpios = <2 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					output-high;
 +					line-name = "can2_120R_load";
 +				};
 +				can2_rst {
@@ -18505,7 +18493,7 @@ index 0000000..67b6085
 +				can3_load {
 +					gpio-hog;
 +					gpios = <3 GPIO_ACTIVE_HIGH>;
-+					output-low;
++					output-high;
 +					line-name = "can3_120R_load";
 +				};
 +				can3_rst {
@@ -18514,10 +18502,6 @@ index 0000000..67b6085
 +					output-high;
 +					line-name = "can3_rst";
 +				};
-+			};
-+			rtc@68 {
-+				compatible = "dallas,ds1338";
-+				reg = <0x68>;
 +			};
 +		};
 +
@@ -18901,10 +18885,6 @@ index 0000000..67b6085
 +
 +	/* Multi DAI */
 +	#sound-dai-cells = <1>;
-+};
-+
-+&sata {
-+	status = "okay";
 +};
 +
 +&ssi1 {
