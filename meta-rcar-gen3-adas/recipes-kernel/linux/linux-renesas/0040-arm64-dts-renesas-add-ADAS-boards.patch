@@ -62,7 +62,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
  .../boot/dts/renesas/r8a7797-eagle-function.dts    |   62 +
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  560 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  575 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  578 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  518 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  298 ++++
@@ -75,7 +75,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1792 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 46 files changed, 19164 insertions(+)
+ 46 files changed, 19179 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -10448,10 +10448,10 @@ index 0000000..82d6513
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..c896fe0
+index 0000000..ce7a88e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,560 @@
+@@ -0,0 +1,575 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -10622,6 +10622,11 @@ index 0000000..c896fe0
 +&pfc {
 +	pinctrl-0 = <&scif_clk_pins>;
 +	pinctrl-names = "default";
++
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
 +
 +	scif0_pins: scif0 {
 +		groups = "scif0_data";
@@ -10976,6 +10981,16 @@ index 0000000..c896fe0
 +				remote-endpoint = <&max9286_des0ep3>;
 +			};
 +		};
++	};
++};
++
++&canfd {
++	pinctrl-0 = <&canfd0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	channel0 {
++		status = "okay";
 +	};
 +};
 +
