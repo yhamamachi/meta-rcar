@@ -74,6 +74,7 @@ RDEPENDS_packagegroup-qt5 =  '${@ " \
     ${QT_WAYLAND_PKGS} \
     icu libicudata libicuuc libicui18n \
     qt-env \
+    packagegroup-fonts-truetype \
 " if 'qt5' in '${DISTRO_FEATURES}' else ""}'
 
 RDEPENDS_packagegroup-opencv-sdk = '${@ " \
