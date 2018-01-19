@@ -7,7 +7,6 @@ PACKAGES = " \
 	packagegroup-common \
 	packagegroup-qt5 \
 	packagegroup-opencv-sdk \
-	packagegroup-surroundview \
 "
 QT_WAYLAND_PKGS = '${@ " \
     qtwayland \
