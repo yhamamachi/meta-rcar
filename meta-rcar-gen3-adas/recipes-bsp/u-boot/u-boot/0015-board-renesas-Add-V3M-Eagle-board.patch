@@ -9,12 +9,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm/cpu/armv8/Kconfig      |   4 +
  board/renesas/eagle/Kconfig     |  15 +++
- board/renesas/eagle/MAINTAINERS |   6 ++
+ board/renesas/eagle/MAINTAINERS |   6 +
  board/renesas/eagle/Makefile    |   9 ++
- board/renesas/eagle/eagle.c     | 224 ++++++++++++++++++++++++++++++++++++++++
+ board/renesas/eagle/eagle.c     | 246 ++++++++++++++++++++++++++++++++++++++++
  configs/r8a7797_eagle_defconfig |   9 ++
- include/configs/r8a7797_eagle.h | 152 +++++++++++++++++++++++++++
- 7 files changed, 419 insertions(+)
+ include/configs/r8a7797_eagle.h | 152 +++++++++++++++++++++++++
+ 7 files changed, 441 insertions(+)
  create mode 100644 board/renesas/eagle/Kconfig
  create mode 100644 board/renesas/eagle/MAINTAINERS
  create mode 100644 board/renesas/eagle/Makefile
@@ -93,10 +93,10 @@ index 0000000..87d63e1
 +obj-y	:= eagle.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/eagle/eagle.c b/board/renesas/eagle/eagle.c
 new file mode 100644
-index 0000000..4eda15c
+index 0000000..b38c579
 --- /dev/null
 +++ b/board/renesas/eagle/eagle.c
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,246 @@
 +/*
 + * board/renesas/eagle/eagle.c
 + *     This file is Eagle board support.
@@ -128,6 +128,7 @@ index 0000000..4eda15c
 +DECLARE_GLOBAL_DATA_PTR;
 +
 +#define SCIF0_MSTP207		(1 << 7)
++#define SD2_MSTP314		(1 << 14)
 +#define ETHERAVB_MSTP812	(1 << 12)
 +#define RPC_MSTP917			(1 << 17)
 +
@@ -156,6 +157,8 @@ index 0000000..4eda15c
 +	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, 0x02000000);
 +	/* SCIF0 */
 +	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIF0_MSTP207);
++	/* SDHI2/MMC */
++	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD2_MSTP314);
 +	/* EHTERAVB */
 +	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 +	/* QSPI */
@@ -265,7 +268,26 @@ index 0000000..4eda15c
 +
 +int board_mmc_init(bd_t *bis)
 +{
-+	return -ENODEV;
++	int ret = -ENODEV;
++#ifdef CONFIG_SH_SDHI
++	/* SDHI2/eMMC */
++	gpio_request(GPIO_FN_MMC_D0, NULL);
++	gpio_request(GPIO_FN_MMC_D1, NULL);
++	gpio_request(GPIO_FN_MMC_D2, NULL);
++	gpio_request(GPIO_FN_MMC_D3, NULL);
++	gpio_request(GPIO_FN_MMC_D4, NULL);
++	gpio_request(GPIO_FN_MMC_D5, NULL);
++	gpio_request(GPIO_FN_MMC_D6, NULL);
++	gpio_request(GPIO_FN_MMC_D7, NULL);
++	gpio_request(GPIO_FN_MMC_CLK, NULL);
++	gpio_request(GPIO_FN_MMC_CMD, NULL);
++	gpio_request(GPIO_FN_MMC_CD, NULL);
++	gpio_request(GPIO_FN_MMC_WP, NULL);
++
++	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 0,
++			   SH_SDHI_QUIRK_64BIT_BUF);
++#endif
++	return ret;
 +}
 +
 +
