@@ -2,6 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_eagle = "eagle"
 COMPATIBLE_MACHINE_v3msk = "v3msk"
+COMPATIBLE_MACHINE_condor = "condor"
 
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
@@ -51,6 +52,7 @@ SRC_URI_append = " \
     ${@base_conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     file://0049-clk-r8a779x-add-IMP-clock.patch \
     file://0050-arm64-dts-renesas-r8a779x-add-IMP-nodes.patch \
+    file://0051-arm64-renesas-r8a7798-Add-Renesas-R8A7798-SoC-suppor.patch \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE1", "1", " file://0050-arm64-dts-Gen3-view-boards-TYPE1-first-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SECOND4_TYPE1", "1", " file://0051-arm64-dts-Gen3-view-boards-TYPE1-second-4-cameras.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIRST4_TYPE2", "1", " file://0052-arm64-dts-Gen3-view-boards-TYPE2-first-4-cameras.patch", "", d)} \
@@ -71,9 +73,6 @@ SRC_URI_append = " \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
     file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
     file://0082-gpio-pca953x-fix-interrupt-trigger.patch \
-"
-
-SRC_URI_append_r8a7797 = " \
     file://0103-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     file://0104-media-vsp1-extend-DRM-VSP1-interface.patch \
     file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
@@ -84,6 +83,7 @@ SRC_URI_append_m3ulcb = " file://ulcb.cfg"
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 SRC_URI_append_eagle = " file://eagle.cfg"
 SRC_URI_append_v3msk = " file://v3msk.cfg"
+SRC_URI_append_condor = " file://condor.cfg"
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-view.dtb \
@@ -123,4 +123,8 @@ KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a7797-v3msk-kf.dtb \
     renesas/r8a7797-v3msk-vbm.dtb \
     renesas/r8a7797-v3msk-view.dtb \
+"
+
+KERNEL_DEVICETREE_append_condor = " \
+    renesas/r8a7798-condor.dtb \
 "
