@@ -690,9 +690,9 @@ index 0000000..ee8e282
 +		};
 +
 +
-+		cmt0: timer@ffca0000 {
++		cmt0: timer@e60f0000 {
 +			compatible = "renesas,cmt-48-r8a7798", "renesas,cmt-48-gen2";
-+			reg = <0 0xffca0000 0 0x1004>;
++			reg = <0 0xe60f0000 0 0x1004>;
 +			interrupts = <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>,
 +				     <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
 +			clocks = <&cpg CPG_MOD 303>;
