@@ -497,7 +497,7 @@ index 0000000..b0de041
 +	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, 0x02000000);
 +	/* SCIF0 */
 +	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIF0_MSTP207);
-+	/* SDHI0/MMC */
++	/* SDHI2/MMC */
 +	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
 +	/* EHTERAVB */
 +	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
@@ -804,7 +804,7 @@ index 0000000..8998da4
 +	"root=/dev/nfs rw ip=dhcp"
 +
 +#define CONFIG_BOOTCOMMAND \
-+	"bootp 0x48080000 Image; tftp 0x48000000 Image-r8a7797-v3msk.dtb; " \
++	"bootp 0x48080000 Image; tftp 0x48000000 r8a7797-v3msk.dtb; " \
 +	"booti 0x48080000 - 0x48000000"
 +
 +#endif /* __V3MSK_H */
