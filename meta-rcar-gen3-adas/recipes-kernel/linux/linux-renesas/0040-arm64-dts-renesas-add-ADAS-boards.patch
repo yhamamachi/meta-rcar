@@ -11994,7 +11994,7 @@ index 0000000..8612f64
 +
 +	status = "okay";
 +	spidev@0 {
-+		compatible = "spidev";
++		compatible = "renesas,sh-msiof";
 +		reg = <0>;
 +		spi-max-frequency = <66666666>;
 +	};

@@ -80,7 +80,6 @@ SRC_URI_append = " \
     file://0087-spi-slave-Add-SPI-slave-handler-reporting-uptime-at-.patch \
     file://0088-spi-slave-Add-SPI-slave-handler-controlling-system-s.patch \
     file://0089-spi-Generalize-SPI-master-to-controller.patch \
-    file://0090-spidev-Do-not-automatically-bind-to-MSIOF-spi-may-be.patch \
     file://0103-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     file://0104-media-vsp1-extend-DRM-VSP1-interface.patch \
     file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
