@@ -65,10 +65,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../boot/dts/renesas/r8a7797-eagle-function.dts    |   62 +
  arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  575 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  578 +++++++
- arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  518 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  550 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  298 ++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  314 ++++
- arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  939 +++++++++++
+ arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  940 +++++++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  545 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
@@ -77,7 +77,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1772 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 47 files changed, 20099 insertions(+)
+ 47 files changed, 20132 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -11617,10 +11617,10 @@ index 0000000..b92fe83
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 new file mode 100644
-index 0000000..26f8c70
+index 0000000..8612f64
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
-@@ -0,0 +1,518 @@
+@@ -0,0 +1,550 @@
 +/*
 + * Device Tree Source for the V3MSK Videobox Mini board on r8a7797
 + *
@@ -11987,6 +11987,28 @@ index 0000000..26f8c70
 +	};
 +};
 +
++&msiof1 {
++	pinctrl-0 = <&msiof1_pins>;
++	pinctrl-names = "default";
++	cs-gpios = <&gpio3 3 0>;
++
++	status = "okay";
++	spidev@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <66666666>;
++	};
++
++};
++
++&msiof3 {
++	pinctrl-0 = <&msiof3_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++	slave;
++};
++
 +&pfc {
 +	canfd0_pins: canfd0 {
 +		groups = "canfd0_data_a";
@@ -12001,6 +12023,16 @@ index 0000000..26f8c70
 +	i2c1_pins: i2c1 {
 +		groups = "i2c1";
 +		function = "i2c1";
++	};
++
++	msiof1_pins: msiof1 {
++		groups = "msiof1_clk", "msiof1_txd", "msiof1_rxd";
++		function = "msiof1";
++	};
++
++	msiof3_pins: msiof3 {
++		groups = "msiof3_clk", "msiof3_txd", "msiof3_rxd", "msiof3_sync";
++		function = "msiof3";
 +	};
 +
 +	scif3_pins: scif3 {
@@ -12765,7 +12797,7 @@ index 0000000..91d10c5
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798-condor.dts b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
 new file mode 100644
-index 0000000..ed9cc28
+index 0000000..b236d66
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
 @@ -0,0 +1,940 @@

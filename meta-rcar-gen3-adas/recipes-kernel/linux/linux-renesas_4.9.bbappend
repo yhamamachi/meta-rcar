@@ -73,6 +73,14 @@ SRC_URI_append = " \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
     file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
     file://0082-gpio-pca953x-fix-interrupt-trigger.patch \
+    file://0083-spi-Document-DT-bindings-for-SPI-controllers-in-slav.patch \
+    file://0084-spi-core-Add-support-for-registering-SPI-slave-contr.patch \
+    file://0085-spi-Document-SPI-slave-controller-support.patch \
+    file://0086-spi-sh-msiof-Add-slave-mode-support.patch \
+    file://0087-spi-slave-Add-SPI-slave-handler-reporting-uptime-at-.patch \
+    file://0088-spi-slave-Add-SPI-slave-handler-controlling-system-s.patch \
+    file://0089-spi-Generalize-SPI-master-to-controller.patch \
+    file://0090-spidev-Do-not-automatically-bind-to-MSIOF-spi-may-be.patch \
     file://0103-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     file://0104-media-vsp1-extend-DRM-VSP1-interface.patch \
     file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
