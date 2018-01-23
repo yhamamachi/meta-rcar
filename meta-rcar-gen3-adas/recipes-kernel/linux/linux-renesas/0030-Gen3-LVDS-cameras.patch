@@ -21,7 +21,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  117 +++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1156 ++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1160 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |  102 ++
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 ++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
@@ -34,7 +34,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 25 files changed, 7816 insertions(+), 109 deletions(-)
+ 25 files changed, 7820 insertions(+), 109 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -4596,10 +4596,10 @@ index 0000000..4c797f9
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..be7098e
+index 0000000..690eac0
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,1156 @@
+@@ -0,0 +1,1160 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -4668,16 +4668,21 @@ index 0000000..be7098e
 +	int				gpio_fsin;
 +};
 +
-+static int force_conf_link;
++static int conf_link;
++module_param(conf_link, int, 0644);
++MODULE_PARM_DESC(conf_link, " Force configuration link. Used only if robust firmware flashing required (f.e. recovery)");
 +
-+static __init int ov490_force_conf_link(char *str)
-+{
-+	/* force configuration link */
-+	/* used only if robust firmware flashing required (f.e. recovery) */
-+	force_conf_link = 1;
-+	return 0;
-+}
-+early_param("force_conf_link", ov490_force_conf_link);
++static int dvp_order;
++module_param(dvp_order, int, 0644);
++MODULE_PARM_DESC(dvp_order, " DVP bus bits order");
++
++static int max_width;
++module_param(max_width, int, 0644);
++MODULE_PARM_DESC(max_width, " Fixed sensor width");
++
++static int max_height;
++module_param(max_height, int, 0644);
++MODULE_PARM_DESC(max_height, " Fixed sensor height");
 +
 +static inline struct ov490_priv *to_ov490(const struct i2c_client *client)
 +{
@@ -5416,7 +5421,7 @@ index 0000000..be7098e
 +		goto err;
 +	}
 +
-+	if (unlikely(force_conf_link))
++	if (unlikely(conf_link))
 +		goto out;
 +
 +again:
@@ -5501,7 +5506,7 @@ index 0000000..be7098e
 +static int ov490_parse_dt(struct device_node *np, struct ov490_priv *priv)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
-+	int err, i;
++	int i;
 +	const char *fixed_sensor;
 +	struct device_node *endpoint = NULL, *rendpoint = NULL;
 +	int tmp_addr = 0;
@@ -5584,28 +5589,27 @@ index 0000000..be7098e
 +	}
 +	client->addr = tmp_addr;
 +
-+	err = of_property_read_string(np, "maxim,fixed-sensor", &fixed_sensor);
-+	if (err)
-+		return 0;
++	if (!of_property_read_string(np, "maxim,fixed-sensor", &fixed_sensor) &&
++	    strcmp(fixed_sensor, "ov490") == 0) {
++		if (of_property_read_u32(np, "maxim,width", &priv->max_width))
++			priv->max_width = 1280;
 +
-+	if (strcmp(fixed_sensor, "ov490") == 0) {
-+		err = of_property_read_u32(np, "maxim,width", &priv->max_width);
-+		if (err) {
-+			dev_err(&client->dev, "maxim,width must be set for fixed-sensor\n");
-+			goto out;
-+		}
-+
-+		err = of_property_read_u32(np, "maxim,height", &priv->max_height);
-+		if (err) {
-+			dev_err(&client->dev, "maxim,height must be set for fixed-sensor\n");
-+			goto out;
-+		}
++		if (of_property_read_u32(np, "maxim,height", &priv->max_height))
++			priv->max_height = 966;
 +
 +		priv->is_fixed_sensor = true;
 +	}
 +
-+out:
-+	return err;
++	/* module params override dts */
++	if (dvp_order)
++		priv->dvp_order = dvp_order;
++	if (max_width && max_height) {
++		priv->max_width = max_width;
++		priv->max_height = max_height;
++		priv->is_fixed_sensor = true;
++	}
++
++	return 0;
 +}
 +
 +static int ov490_probe(struct i2c_client *client,
