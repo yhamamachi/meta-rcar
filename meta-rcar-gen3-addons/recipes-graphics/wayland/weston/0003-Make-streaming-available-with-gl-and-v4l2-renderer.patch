@@ -1,0 +1,79 @@
+From 201ec6ba277940035846c754253af76f0f45326e Mon Sep 17 00:00:00 2001
+From: Roman Meshkevich <roman.meshkevich@cogentembedded.com>
+Date: Wed, 24 Jan 2018 18:24:26 +0300
+Subject: [PATCH] Make streaming available with gl and v4l2 renderer Get DMA fd
+ on fbo
+
+---
+ src/compositor-drm.c | 10 +++++-----
+ src/gst-recorder.c   | 11 +++++++++--
+ 2 files changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index ef5925b..f52969f 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -507,6 +507,10 @@ drm_fb_get_from_bo(struct gbm_bo *bo,
+ 		weston_log("failed to create kms fb: %m\n");
+ 		goto err_free;
+ 	}
++	ret = drmPrimeHandleToFD(backend->drm.fd, fb->handle, DRM_CLOEXEC,
++                                         &fb->dmafd);
++        if (ret)
++	     goto err_free;
+ 
+ 	gbm_bo_set_user_data(bo, fb, drm_fb_destroy_callback);
+ 
+@@ -3543,12 +3547,8 @@ recorder_frame_notify(struct wl_listener *listener, void *data)
+ 		return;
+ 	}
+ 
+-	ret = drmPrimeHandleToFD(c->drm.fd, output->current->handle, DRM_CLOEXEC, &fd);
+-	if (!ret) {
+-		ret = gst_recorder_frame_dmafd(output->recorder, fd,
++	ret = gst_recorder_frame_dmafd(output->recorder, output->current->dmafd,
+ 					       output->current->stride);
+-	}
+-
+ 	if (ret < 0) {
+ 		weston_log("[gst recorder] aborted: %m\n");
+ 		recorder_destroy(c, output);
+diff --git a/src/gst-recorder.c b/src/gst-recorder.c
+index 36746b7..cf21fc3 100644
+--- a/src/gst-recorder.c
++++ b/src/gst-recorder.c
+@@ -959,7 +959,7 @@ gst_recorder_create(struct gst_recorder_settings *settings)
+ 
+ 	/* omx */
+ 	ptr += sprintf(ptr,
+-		"omxh264enc target-bitrate=%d control-rate=2 name=my_encoder ! "
++		"omxh264enc target-bitrate=%d control-rate=2 no-copy=true name=my_encoder ! "
+ 		"video/x-h264,width=%d,height=%d ! ",
+ 		r->set->bitrate, r->set->crop.width, r->set->crop.height);
+ 
+@@ -969,7 +969,7 @@ gst_recorder_create(struct gst_recorder_settings *settings)
+ 
+ 	/* usp sink */
+ 	ptr += sprintf(ptr,
+-		"udpsink host=%s ", r->set->ip);
++		"udpsink host=%s sync=false", r->set->ip);
+ 	if (r->set->port > 0)
+ 		ptr += sprintf(ptr,
+ 			" port=%d name=my_udpsink", r->set->port);
+@@ -1012,6 +1012,13 @@ gst_recorder_create(struct gst_recorder_settings *settings)
+ 					"framerate", GST_TYPE_FRACTION, 0, DEFAULT_FPS,
+ 					NULL), NULL);
+ 
++	g_object_set (	G_OBJECT (r->appsrc),
++			"stream-type", 0, // GST_APP_STREAM_TYPE_STREAM
++			"format", GST_FORMAT_TIME,
++			"is-live", TRUE,
++			NULL);
++
++
+ 	r->appsrc_pad = gst_element_get_static_pad(GST_ELEMENT_CAST(r->appsrc), "src");
+ 	if (!r->appsrc_pad)
+ 		weston_log("Failed to get src0 pad of appsrc\n");
+-- 
+2.7.4
+

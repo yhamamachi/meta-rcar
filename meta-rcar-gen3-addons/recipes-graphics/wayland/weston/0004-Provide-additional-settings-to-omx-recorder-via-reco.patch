@@ -1,0 +1,136 @@
+From 98bb42912ed884c5b0bd0271126968c739d8f070 Mon Sep 17 00:00:00 2001
+From: Roman Meshkevich <roman.meshkevich@cogentembedded.com>
+Date: Wed, 24 Jan 2018 18:41:37 +0300
+Subject: [PATCH] Provide additional settings to omx recorder via recorder
+ section and add media device for recorder as option Example [recorder]
+ device=/dev/mediaX
+
+[output]
+...
+bitrate=300000
+control-rate=1
+num-p-frames=29
+...
+---
+ src/compositor-drm.c | 27 ++++++++++++++++++++++++++-
+ src/gst-recorder.c   | 18 ++++++++++++------
+ src/gst-recorder.h   |  9 +++++++--
+ 3 files changed, 45 insertions(+), 9 deletions(-)
+
+diff --git a/src/compositor-drm.c b/src/compositor-drm.c
+index f52969f..be1e53a 100644
+--- a/src/compositor-drm.c
++++ b/src/compositor-drm.c
+@@ -3592,6 +3592,11 @@ recorder_enable(struct drm_backend *c, struct drm_output *output)
+ 	weston_config_section_get_int(section, "port", &settings->port, -1);
+ 	/* default gives about 16 Mbit/s at 1280x720@60FPS */
+ 	weston_config_section_get_int(section, "bitrate", &settings->bitrate, 300000);
++	weston_config_section_get_int(section, "num-p-frames", &settings->num_p_frames, 29);
++	weston_config_section_get_int(section, "control-rate", &settings->control_rate, 2);
++	weston_config_section_get_int(section, "quant-i-frames", &settings->q_i_frames, 255);
++	weston_config_section_get_int(section, "quant-p-frames", &settings->q_p_frames, 255);
++	weston_config_section_get_int(section, "quant-b-frames", &settings->q_b_frames, 255);
+ 
+ 	settings->width = output->base.current_mode->width;
+ 	settings->height = output->base.current_mode->height;
+@@ -3818,7 +3823,27 @@ drm_backend_create(struct weston_compositor *compositor,
+ 	}
+ 
+ #ifdef BUILD_GST_RECORDER
+-	gst_recorder_init();
++	if (b->enable_recorder) {
++		int ret;
++		char *vsp_device = NULL;
++		struct weston_config_section *recorder_section;
++
++
++		recorder_section = weston_config_get_section(compositor->config, "recorder",
++							     NULL, NULL);
++		if (recorder_section)
++			weston_config_section_get_string(recorder_section, "device",
++							 &vsp_device, NULL);
++
++		/* default */
++		if (vsp_device == NULL)
++			vsp_device = "/dev/media0";
++		ret = gst_recorder_init(vsp_device);
++		if (ret != 0) {
++			weston_log("failed to init GST recorder. Disabling\n");
++			b->enable_recorder = 0;
++		}
++	}
+ #endif
+ 
+ 	b->base.destroy = drm_destroy;
+diff --git a/src/gst-recorder.c b/src/gst-recorder.c
+index cf21fc3..4a27b4d 100644
+--- a/src/gst-recorder.c
++++ b/src/gst-recorder.c
+@@ -810,15 +810,20 @@ void weston_debug_function(GstDebugCategory* category, GstDebugLevel level,
+ 	weston_log("[GST]:%s %s:%d %s\n", file, function, line, gst_debug_message_get(message));
+ }
+ 
+-void
+-gst_recorder_init(void)
++int gst_recorder_init(const char *device)
+ {
++	if (!device)
++		return -1;
++
+ 	gst_init(NULL, 0);
+ 
+ 	/* VSP init */
+-	vsp_g = vsp_init("/dev/media0");
+-	if (!vsp_g)
++	vsp_g = vsp_init(device);
++	if (!vsp_g) {
+ 		weston_log("[gst recorder] VSP init failed");
++		return -1;
++	}
++	return 0;
+ }
+ 
+ static int
+@@ -959,9 +964,10 @@ gst_recorder_create(struct gst_recorder_settings *settings)
+ 
+ 	/* omx */
+ 	ptr += sprintf(ptr,
+-		"omxh264enc target-bitrate=%d control-rate=2 no-copy=true name=my_encoder ! "
++		"omxh264enc num-p-frames=%d control-rate=%d target-bitrate=%d no-copy=true name=my_encoder ! "
+ 		"video/x-h264,width=%d,height=%d ! ",
+-		r->set->bitrate, r->set->crop.width, r->set->crop.height);
++		r->set->num_p_frames,
++		r->set->control_rate, r->set->bitrate, r->set->crop.width, r->set->crop.height);
+ 
+ 	/* rtp payloader */
+ 	ptr += sprintf(ptr,
+diff --git a/src/gst-recorder.h b/src/gst-recorder.h
+index 78290c1..d387d10 100644
+--- a/src/gst-recorder.h
++++ b/src/gst-recorder.h
+@@ -33,6 +33,11 @@ struct gst_recorder_settings {
+ 	int width;
+ 	int height;
+ 	int bitrate;
++	int num_p_frames;
++	int control_rate;
++	int q_i_frames;
++	int q_p_frames;
++	int q_b_frames;
+ 	char *ip;
+ 	int port;
+ 	int latency_test;
+@@ -42,8 +47,8 @@ struct gst_recorder_settings {
+ 	struct v4l2_rect crop;
+ };
+ 
+-void
+-gst_recorder_init(void);
++int
++gst_recorder_init(const char* device);
+ struct gst_recorder *
+ gst_recorder_create(struct gst_recorder_settings *settings);
+ void
+-- 
+2.7.4
+
