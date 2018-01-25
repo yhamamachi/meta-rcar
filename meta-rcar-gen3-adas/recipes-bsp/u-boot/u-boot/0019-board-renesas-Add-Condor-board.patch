@@ -11,10 +11,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  board/renesas/condor/Kconfig     |  15 +++
  board/renesas/condor/MAINTAINERS |   6 +
  board/renesas/condor/Makefile    |  10 ++
- board/renesas/condor/condor.c    | 239 +++++++++++++++++++++++++++++++++++++++
+ board/renesas/condor/condor.c    | 250 +++++++++++++++++++++++++++++++++++++++
  configs/r8a7798_condor_defconfig |  10 ++
- include/configs/r8a7798_condor.h | 160 ++++++++++++++++++++++++++
- 7 files changed, 444 insertions(+)
+ include/configs/r8a7798_condor.h | 160 +++++++++++++++++++++++++
+ 7 files changed, 455 insertions(+)
  create mode 100644 board/renesas/condor/Kconfig
  create mode 100644 board/renesas/condor/MAINTAINERS
  create mode 100644 board/renesas/condor/Makefile
@@ -94,10 +94,10 @@ index 0000000..d11d859
 +obj-y	:= condor.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/condor/condor.c b/board/renesas/condor/condor.c
 new file mode 100644
-index 0000000..30c155b
+index 0000000..67571f6
 --- /dev/null
 +++ b/board/renesas/condor/condor.c
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,250 @@
 +/*
 + * board/renesas/condor/condor.c
 + *     This is Condor board support.
@@ -136,6 +136,10 @@ index 0000000..30c155b
 +#define SD0_MSTP314	(1 << 14)
 +
 +#define SD0CKCR		0xE6150074
++
++#define PFC_PMMR	0xe6060000
++#define PFC_POC1	0xe6060384
++#define POC_MMC_3V3	0x00fff800
 +
 +void s_init(void)
 +{
@@ -289,6 +293,8 @@ index 0000000..30c155b
 +{
 +	int ret = -ENODEV;
 +#ifdef CONFIG_SH_SDHI
++	u32 val;
++
 +	/* SDHI2/eMMC */
 +	gpio_request(GPIO_FN_MMC_D0, NULL);
 +	gpio_request(GPIO_FN_MMC_D1, NULL);
@@ -302,6 +308,11 @@ index 0000000..30c155b
 +	gpio_request(GPIO_FN_MMC_CMD, NULL);
 +	gpio_request(GPIO_FN_MMC_CD, NULL);
 +	gpio_request(GPIO_FN_MMC_WP, NULL);
++
++	val = readl(PFC_POC1);
++	val &= ~POC_MMC_3V3;		/* POC = 1.8V */
++	writel(~val, PFC_PMMR);
++	writel(val, PFC_POC1);
 +
 +	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 0,
 +			   SH_SDHI_QUIRK_64BIT_BUF);
