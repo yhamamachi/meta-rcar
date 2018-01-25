@@ -68,7 +68,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  550 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  298 ++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  314 ++++
- arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  940 +++++++++++
+ arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  963 +++++++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  545 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
@@ -77,7 +77,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1772 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 47 files changed, 20132 insertions(+)
+ 47 files changed, 20155 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -11617,7 +11617,7 @@ index 0000000..b92fe83
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 new file mode 100644
-index 0000000..8612f64
+index 0000000..25970c9
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 @@ -0,0 +1,550 @@
@@ -12797,10 +12797,10 @@ index 0000000..91d10c5
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798-condor.dts b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
 new file mode 100644
-index 0000000..b236d66
+index 0000000..cdd9844
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
-@@ -0,0 +1,940 @@
+@@ -0,0 +1,963 @@
 +/*
 + * Device Tree Source for the Condor board
 + *
@@ -12823,6 +12823,7 @@ index 0000000..b236d66
 +	aliases {
 +		serial0 = &scif0;
 +		ethernet0 = &avb;
++		ethernet1 = &gether;
 +	};
 +
 +	chosen {
@@ -13018,6 +13019,11 @@ index 0000000..b236d66
 +	avb_pins: avb {
 +		groups = "avb_mdc";
 +		function = "avb";
++	};
++
++	gether_pins: gether {
++		groups = "gether_mdc_a";
++		function = "gether";
 +	};
 +
 +	sdhi2_pins_1v8: sdhi2_1v8 {
@@ -13417,7 +13423,7 @@ index 0000000..b236d66
 +	pinctrl-names = "default";
 +	renesas,no-ether-link;
 +	phy-handle = <&phy0>;
-+	status = "okay";
++//	status = "okay";
 +	phy-int-gpio = <&gpio1 17 GPIO_ACTIVE_LOW>;
 +
 +	phy0: ethernet-phy@0 {
@@ -13436,6 +13442,23 @@ index 0000000..b236d66
 +		reg = <0>;
 +		interrupt-parent = <&gpio1>;
 +		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++		max-speed = <1000>;
++	};
++};
++
++&gether {
++	pinctrl-0 = <&gether_pins>;
++	pinctrl-names = "default";
++	renesas,no-ether-link;
++	phy-handle = <&gether_phy>;
++	status = "okay";
++	phy-gpios = <&gpio4 23 GPIO_ACTIVE_LOW>;
++	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
++
++	gether_phy: ethernet-phy@0 {
++		reg = <0>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <23 IRQ_TYPE_LEVEL_LOW>;
 +		max-speed = <1000>;
 +	};
 +};

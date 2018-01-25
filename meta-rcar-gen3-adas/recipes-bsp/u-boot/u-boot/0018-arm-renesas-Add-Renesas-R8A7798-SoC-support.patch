@@ -19,10 +19,11 @@ Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
  arch/arm/include/asm/arch-rcar_gen3/r8a7798.h      |   34 +
  arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h    |    2 +
  drivers/mtd/spi/sf_probe.c                         |    2 +-
- drivers/net/sh_eth.h                               |    5 +-
+ drivers/net/sh_eth.c                               |   11 +-
+ drivers/net/sh_eth.h                               |    7 +-
  drivers/serial/serial_sh.h                         |    2 +-
- include/configs/rcar-gen3-common.h                 |    4 +
- 14 files changed, 3701 insertions(+), 4 deletions(-)
+ include/configs/rcar-gen3-common.h                 |    6 +
+ 15 files changed, 3714 insertions(+), 6 deletions(-)
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/cpu_info-r8a7798.c
  create mode 100644 arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7798.c
  create mode 100644 arch/arm/include/asm/arch-rcar_gen3/r8a7798-gpio.h
@@ -3826,36 +3827,75 @@ index 4b9a61b..95129ce 100644
  	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
  	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
  	     ((flash->dual_flash > SF_SINGLE_FLASH) &&
+diff --git a/drivers/net/sh_eth.c b/drivers/net/sh_eth.c
+index 4bf493e..8226591 100644
+--- a/drivers/net/sh_eth.c
++++ b/drivers/net/sh_eth.c
+@@ -380,8 +380,12 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
+ 	struct phy_device *phy;
+ 
+ 	/* Configure e-dmac registers */
++	val = EMDR_DESC | EDMR_EL;
++#if defined(CONFIG_R8A7798)
++	val |= EDMR_NBST;
++#endif
+ 	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) |
+-			(EMDR_DESC | EDMR_EL), EDMR);
++			val, EDMR);
+ 
+ 	sh_eth_write(eth, 0, EESIPR);
+ 	sh_eth_write(eth, 0, TRSCER);
+@@ -417,7 +421,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
+ #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
+ 	sh_eth_write(eth, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
+ #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
++	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
++	defined(CONFIG_R8A7798)
+ 	sh_eth_write(eth, sh_eth_read(eth, RMIIMR) | 0x1, RMIIMR);
+ #endif
+ 	/* Configure phy */
+@@ -444,7 +449,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
+ 		sh_eth_write(eth, 1, RTRATE);
+ #elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_R8A7790) || \
+ 		defined(CONFIG_R8A7791) || defined(CONFIG_R8A7793) || \
+-		defined(CONFIG_R8A7794)
++		defined(CONFIG_R8A7794) || defined(CONFIG_R8A7798)
+ 		val = ECMR_RTM;
+ #endif
+ 	} else if (phy->speed == 10) {
 diff --git a/drivers/net/sh_eth.h b/drivers/net/sh_eth.h
-index 5cb520c..591e75d 100644
+index 5cb520c..3c30d42 100644
 --- a/drivers/net/sh_eth.h
 +++ b/drivers/net/sh_eth.h
-@@ -226,7 +226,6 @@ static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
- 	[RMII_MII] =  0x0790,
- };
- 
--#if defined(SH_ETH_TYPE_RZ)
- static const u16 sh_eth_offset_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
- 	[EDSR]	= 0x0000,
- 	[EDMR]	= 0x0400,
-@@ -279,7 +278,6 @@ static const u16 sh_eth_offset_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
- 	[MAFCR]	= 0x0778,
- 	[RMII_MII] =  0x0790,
- };
--#endif
- 
- static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
- 	[ECMR]	= 0x0100,
-@@ -361,6 +359,9 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
+@@ -361,6 +361,9 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
  #elif defined(CONFIG_R7S72100)
  #define SH_ETH_TYPE_RZ
  #define BASE_IO_ADDR	0xE8203000
 +#elif defined(CONFIG_R8A7798)
-+#define SH_ETH_TYPE_RZ
++#define SH_ETH_TYPE_GETHER
 +#define BASE_IO_ADDR	0xE7400000
  #endif
  
  /*
+@@ -377,6 +380,7 @@ enum EDSR_BIT {
+ 
+ /* EDMR */
+ enum DMAC_M_BIT {
++	EDMR_NBST	= 0x80, /* DMA transfer burst mode */
+ 	EDMR_DL1 = 0x20, EDMR_DL0 = 0x10,
+ #if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
+ 	EDMR_SRST	= 0x03, /* Receive/Send reset */
+@@ -567,7 +571,8 @@ enum FELIC_MODE_BIT {
+ #ifdef CONFIG_CPU_SH7724
+ 	ECMR_RTM = 0x00000010,
+ #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
++	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
++	defined(CONFIG_R8A7798)
+ 	ECMR_RTM = 0x00000004,
+ #endif
+ 
 diff --git a/drivers/serial/serial_sh.h b/drivers/serial/serial_sh.h
 index 478824e..ded0d3d 100644
 --- a/drivers/serial/serial_sh.h
@@ -3870,10 +3910,10 @@ index 478824e..ded0d3d 100644
  # define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
  				/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
 diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
-index 39d86dd..8124369 100644
+index dc5560d..a3721ad 100644
 --- a/include/configs/rcar-gen3-common.h
 +++ b/include/configs/rcar-gen3-common.h
-@@ -133,6 +133,12 @@
+@@ -134,6 +134,12 @@
   #endif
  #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
  #define CONFIG_SYS_SDRAM_SIZE		PHYS_SDRAM_1_SIZE

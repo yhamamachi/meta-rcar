@@ -7,14 +7,14 @@ Condor is a board based on R-Car V3H SoC (R8A7798)
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm/cpu/armv8/Kconfig       |   7 ++
+ arch/arm/cpu/armv8/Kconfig       |   4 +
  board/renesas/condor/Kconfig     |  15 +++
  board/renesas/condor/MAINTAINERS |   6 +
- board/renesas/condor/Makefile    |   9 ++
- board/renesas/condor/condor.c    | 251 +++++++++++++++++++++++++++++++++++++++
+ board/renesas/condor/Makefile    |  10 ++
+ board/renesas/condor/condor.c    | 239 +++++++++++++++++++++++++++++++++++++++
  configs/r8a7798_condor_defconfig |  10 ++
- include/configs/r8a7798_condor.h | 159 +++++++++++++++++++++++++
- 7 files changed, 457 insertions(+)
+ include/configs/r8a7798_condor.h | 160 ++++++++++++++++++++++++++
+ 7 files changed, 444 insertions(+)
  create mode 100644 board/renesas/condor/Kconfig
  create mode 100644 board/renesas/condor/MAINTAINERS
  create mode 100644 board/renesas/condor/Makefile
@@ -23,7 +23,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 include/configs/r8a7798_condor.h
 
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
-index 343b121..0edd5db 100644
+index 58a9259..0edd5db 100644
 --- a/arch/arm/cpu/armv8/Kconfig
 +++ b/arch/arm/cpu/armv8/Kconfig
 @@ -22,6 +22,9 @@ config TARGET_EAGLE
@@ -36,7 +36,7 @@ index 343b121..0edd5db 100644
  endchoice
  
  config R8A7796X
-@@ -53,5 +59,6 @@ source "board/renesas/salvator-x/Kconfig"
+@@ -56,5 +59,6 @@ source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
  source "board/renesas/eagle/Kconfig"
  source "board/renesas/v3msk/Kconfig"
@@ -66,7 +66,7 @@ index 0000000..21ba79f
 +endif
 diff --git a/board/renesas/condor/MAINTAINERS b/board/renesas/condor/MAINTAINERS
 new file mode 100644
-index 0000000..d0442b8
+index 0000000..9076b24
 --- /dev/null
 +++ b/board/renesas/condor/MAINTAINERS
 @@ -0,0 +1,6 @@
@@ -78,7 +78,7 @@ index 0000000..d0442b8
 +F:	configs/r8a7798_condor_defconfig
 diff --git a/board/renesas/condor/Makefile b/board/renesas/condor/Makefile
 new file mode 100644
-index 0000000..4c5d29b
+index 0000000..d11d859
 --- /dev/null
 +++ b/board/renesas/condor/Makefile
 @@ -0,0 +1,10 @@
@@ -94,10 +94,10 @@ index 0000000..4c5d29b
 +obj-y	:= condor.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/condor/condor.c b/board/renesas/condor/condor.c
 new file mode 100644
-index 0000000..d31e5fd
+index 0000000..30c155b
 --- /dev/null
 +++ b/board/renesas/condor/condor.c
-@@ -0,0 +1,252 @@
+@@ -0,0 +1,239 @@
 +/*
 + * board/renesas/condor/condor.c
 + *     This is Condor board support.
@@ -160,10 +160,13 @@ index 0000000..d31e5fd
 +	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIF0_MSTP207);
 +	/* SDHI0/MMC */
 +	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
-+	/* Gigabit Ethernet */
-+	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, GETHER_MSTP813);
++#if defined(CONFIG_RAVB)
 +	/* RAVB Ethernet */
 +	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, RAVB_MSTP812);
++#elif defined(CONFIG_SH_ETHER)
++	/* Gigabit Ethernet */
++	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, GETHER_MSTP813);
++#endif
 +	/* QSPI/RPC */
 +	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, RPC_MSTP917);
 +
@@ -175,17 +178,17 @@ index 0000000..d31e5fd
 +
 +int board_init(void)
 +{
-+	/* adress of boot parameters */
++	/* address of boot parameters */
 +	gd->bd->bi_boot_params = CONFIG_SYS_TEXT_BASE + 0x50000;
 +
 +	/* Init PFC controller */
 +	pinmux_init();
-+#ifdef CONFIG_RAVB
++#if defined(CONFIG_RAVB)
 +	gpio_request(GPIO_GFN_AVB0_AVTP_CAPTURE, NULL);
 +	gpio_request(GPIO_GFN_AVB0_AVTP_MATCH, NULL);
 +	gpio_request(GPIO_FN_AVB0_LINK, NULL);
 +	gpio_request(GPIO_FN_AVB0_PHY_INT, NULL);
-+	/* gpio_request(GPIO_FN_AVB0_MAGIC, NULL); */
++	/* gpio_request(GPIO_FN_AVB0_MAGIC, NULL); - PHY reset gpio  */
 +	gpio_request(GPIO_FN_AVB0_MDC, NULL);
 +	gpio_request(GPIO_FN_AVB0_MDIO, NULL);
 +	gpio_request(GPIO_FN_AVB0_TXCREFCLK, NULL);
@@ -203,11 +206,10 @@ index 0000000..d31e5fd
 +	gpio_request(GPIO_FN_AVB0_RX_CTL, NULL);
 +	gpio_request(GPIO_IFN_AVB0_AVTP_CAPTURE, NULL);
 +	gpio_request(GPIO_FN_AVB0_AVTP_PPS, NULL);
-+#endif
-+#ifdef CONFIG_SH_ETHER
++#elif defined(CONFIG_SH_ETHER)
 +	gpio_request(GPIO_FN_GETHER_LINK_A, NULL);
 +	gpio_request(GPIO_FN_GETHER_PHY_INT_A, NULL);
-+	/* GPIO_FN_GETHER_MAGIC: PHY reset gpio  */
++	/* gpio_request(GPIO_FN_GETHER_MAGIC, NULL); - PHY reset gpio  */
 +	gpio_request(GPIO_FN_GETHER_MDC_A, NULL);
 +	gpio_request(GPIO_FN_GETHER_MDIO_A, NULL);
 +	gpio_request(GPIO_FN_GETHER_TXCREFCLK, NULL);
@@ -245,18 +247,17 @@ index 0000000..d31e5fd
 +	return 0;
 +}
 +
-+#ifdef CONFIG_RAVB
++#if defined(CONFIG_RAVB)
 +#define MAHR 0xE68005C0
 +#define MALR 0xE68005C8
-+#endif
-+#ifdef CONFIG_SH_ETHER
++#elif defined(CONFIG_SH_ETHER)
 +#define MAHR 0xE74005C0
 +#define MALR 0xE74005C8
 +#endif
 +int board_eth_init(bd_t *bis)
 +{
 +	int ret = -ENODEV;
-+#ifdef CONFIG_RAVB
++
 +	u32 val;
 +	unsigned char enetaddr[6];
 +
@@ -270,24 +271,10 @@ index 0000000..d31e5fd
 +
 +	val = enetaddr[4] << 8 | enetaddr[5];
 +	writel(val, MALR);
-+
++#if defined(CONFIG_RAVB)
 +	ret = ravb_initialize(bis);
-+#endif
-+#ifdef CONFIG_SH_ETHER
-+	u32 val;
-+	unsigned char enetaddr[6];
-+
++#elif defined(CONFIG_SH_ETHER)
 +	ret = sh_eth_initialize(bis);
-+	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
-+		return ret;
-+
-+	/* Set Mac address */
-+	val = enetaddr[0] << 24 | enetaddr[1] << 16 |
-+	    enetaddr[2] << 8 | enetaddr[3];
-+	writel(val, MAHR);
-+
-+	val = enetaddr[4] << 8 | enetaddr[5];
-+	writel(val, MALR);
 +#endif
 +	return ret;
 +}
@@ -368,7 +355,7 @@ index 0000000..1cab2ae
 +CONFIG_SPI_FLASH_BAR=y
 diff --git a/include/configs/r8a7798_condor.h b/include/configs/r8a7798_condor.h
 new file mode 100644
-index 0000000..f0b2e0b
+index 0000000..a7cc2a0
 --- /dev/null
 +++ b/include/configs/r8a7798_condor.h
 @@ -0,0 +1,160 @@
@@ -421,7 +408,7 @@ index 0000000..f0b2e0b
 +#undef CONFIG_SPI_FLASH_SPANSION
 +#endif
 +
-+#if 1
++#if 0
 +/* Ethernet RAVB */
 +#define CONFIG_RAVB
 +#define CONFIG_RAVB_PHY_ADDR	0x0
@@ -433,7 +420,7 @@ index 0000000..f0b2e0b
 +#define CONFIG_BITBANGMII_MULTI
 +#define CONFIG_SH_ETHER_BITBANG
 +#else
-+/* SH Ether */
++/* GETHER */
 +#define CONFIG_NET_MULTI
 +#define CONFIG_SH_ETHER
 +#define CONFIG_SH_ETHER_USE_PORT	0
