@@ -17,6 +17,7 @@ PACKAGECONFIG_append = " \
 	icu \
 	accessibility \
 	examples \
+	fontconfig \
 	alsa \
 	glib \
 "
