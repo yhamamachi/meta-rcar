@@ -2,6 +2,8 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 PATHCTOOL="git"
 
+DEPENDS += " gstreamer1.0-plugins-base "
+
 SRC_URI_append_rcar-gen3 = " \
     file://0001-Add-virtual-output-support.patch \
     file://0002-Add-gst-recorder-for-h264-output-streaming.patch \
