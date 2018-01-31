@@ -11,12 +11,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  board/renesas/v3msk/Kconfig     |  15 +++
  board/renesas/v3msk/MAINTAINERS |   6 ++
  board/renesas/v3msk/Makefile    |   9 ++
- board/renesas/v3msk/cpld.c      | 164 +++++++++++++++++++++++++++++++
+ board/renesas/v3msk/cpld.c      | 164 ++++++++++++++++++++++++++++++++
  board/renesas/v3msk/mdio_bb.h   | 156 ++++++++++++++++++++++++++++++
- board/renesas/v3msk/v3msk.c     | 209 ++++++++++++++++++++++++++++++++++++++++
+ board/renesas/v3msk/v3msk.c     | 204 ++++++++++++++++++++++++++++++++++++++++
  configs/v3msk_defconfig         |   9 ++
- include/configs/v3msk.h         | 145 ++++++++++++++++++++++++++++
- 9 files changed, 717 insertions(+)
+ include/configs/v3msk.h         | 133 ++++++++++++++++++++++++++
+ 9 files changed, 700 insertions(+)
  create mode 100644 board/renesas/v3msk/Kconfig
  create mode 100644 board/renesas/v3msk/MAINTAINERS
  create mode 100644 board/renesas/v3msk/Makefile
@@ -429,10 +429,10 @@ index 0000000..0311006
 +}
 diff --git a/board/renesas/v3msk/v3msk.c b/board/renesas/v3msk/v3msk.c
 new file mode 100644
-index 0000000..b0de041
+index 0000000..4e4ee1f
 --- /dev/null
 +++ b/board/renesas/v3msk/v3msk.c
-@@ -0,0 +1,209 @@
+@@ -0,0 +1,203 @@
 +/*
 + * board/renesas/v3msk/v3msk.c
 + *     This is V3MSK board support.
@@ -470,20 +470,14 @@ index 0000000..b0de041
 +
 +#define SD0CKCR		0xE6150074
 +
-+#define CLK2MHZ(clk)	(clk / 1000 / 1000)
 +void s_init(void)
 +{
 +	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
 +	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
-+	u32 stc;
 +
 +	/* Watchdog init */
 +	writel(0xA5A5A500, &rwdt->rwtcsra);
 +	writel(0xA5A5A500, &swdt->swtcsra);
-+
-+	/* CPU frequency setting. Set to 0.8GHz */
-+	stc = ((800 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1) << PLL0_STC_BIT;
-+	clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
 +}
 +
 +int board_early_init_f(void)
@@ -659,10 +653,10 @@ index 0000000..d32840c
 +CONFIG_SPI_FLASH_SPANSION=y
 diff --git a/include/configs/v3msk.h b/include/configs/v3msk.h
 new file mode 100644
-index 0000000..8998da4
+index 0000000..225d462
 --- /dev/null
 +++ b/include/configs/v3msk.h
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,133 @@
 +/*
 + * include/configs/v3msk.h
 + *     This file is V3MSK board configuration.
@@ -741,18 +735,6 @@ index 0000000..8998da4
 +#define GICD_BASE	(0xF1010000)
 +#define GICC_BASE	(0xF1020000)
 +#define CONFIG_GICV2
-+
-+/* i2c */
-+#define CONFIG_SYS_I2C
-+#define CONFIG_SYS_I2C_SH
-+#define CONFIG_SYS_I2C_SLAVE		0x60
-+#define CONFIG_SYS_I2C_SH_NUM_CONTROLLERS	1
-+#define CONFIG_SYS_I2C_SH_SPEED0	400000
-+#define CONFIG_SH_I2C_DATA_HIGH		4
-+#define CONFIG_SH_I2C_DATA_LOW		5
-+#define CONFIG_SH_I2C_CLOCK		10000000
-+
-+#define CONFIG_SYS_I2C_POWERIC_ADDR	0x30
 +
 +/* USB */
 +#undef CONFIG_CMD_USB

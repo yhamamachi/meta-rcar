@@ -11,10 +11,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  board/renesas/condor/Kconfig     |  15 +++
  board/renesas/condor/MAINTAINERS |   6 +
  board/renesas/condor/Makefile    |  10 ++
- board/renesas/condor/condor.c    | 250 +++++++++++++++++++++++++++++++++++++++
+ board/renesas/condor/condor.c    | 264 +++++++++++++++++++++++++++++++++++++++
  configs/r8a7798_condor_defconfig |  10 ++
- include/configs/r8a7798_condor.h | 160 +++++++++++++++++++++++++
- 7 files changed, 455 insertions(+)
+ include/configs/r8a7798_condor.h | 160 ++++++++++++++++++++++++
+ 7 files changed, 469 insertions(+)
  create mode 100644 board/renesas/condor/Kconfig
  create mode 100644 board/renesas/condor/MAINTAINERS
  create mode 100644 board/renesas/condor/Makefile
@@ -94,10 +94,10 @@ index 0000000..d11d859
 +obj-y	:= condor.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/condor/condor.c b/board/renesas/condor/condor.c
 new file mode 100644
-index 0000000..67571f6
+index 0000000..a46a1a7
 --- /dev/null
 +++ b/board/renesas/condor/condor.c
-@@ -0,0 +1,250 @@
+@@ -0,0 +1,264 @@
 +/*
 + * board/renesas/condor/condor.c
 + *     This is Condor board support.
@@ -210,6 +210,13 @@ index 0000000..67571f6
 +	gpio_request(GPIO_FN_AVB0_RX_CTL, NULL);
 +	gpio_request(GPIO_IFN_AVB0_AVTP_CAPTURE, NULL);
 +	gpio_request(GPIO_FN_AVB0_AVTP_PPS, NULL);
++
++	/* PHY_RST */
++	gpio_request(GPIO_GP_1_16, NULL);
++	gpio_direction_output(GPIO_GP_1_16, 0);
++	mdelay(20);
++	gpio_set_value(GPIO_GP_1_16, 1);
++	udelay(1);
 +#elif defined(CONFIG_SH_ETHER)
 +	gpio_request(GPIO_FN_GETHER_LINK_A, NULL);
 +	gpio_request(GPIO_FN_GETHER_PHY_INT_A, NULL);
@@ -230,6 +237,13 @@ index 0000000..67571f6
 +	gpio_request(GPIO_FN_GETHER_RD0, NULL);
 +	gpio_request(GPIO_FN_GETHER_RXC, NULL);
 +	gpio_request(GPIO_FN_GETHER_RX_CTL, NULL);
++
++	/* PHY_RST */
++	gpio_request(GPIO_GP_4_22, NULL);
++	gpio_direction_output(GPIO_GP_4_22, 0);
++	mdelay(20);
++	gpio_set_value(GPIO_GP_4_22, 1);
++	udelay(1);
 +#endif
 +	/* QSPI/RPC */
 +	gpio_request(GPIO_FN_QSPI0_SPCLK, NULL);
