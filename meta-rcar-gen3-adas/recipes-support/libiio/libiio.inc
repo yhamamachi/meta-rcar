@@ -7,5 +7,5 @@ LIC_FILES_CHKSUM ??= "file://COPYING.txt;md5=7c13b3376cea0ce68d2d2da0a1b3a72c"
 
 inherit cmake pkgconfig
 
-DEPENDS = "libxml2 bison-native flex-native systemd"
+DEPENDS = "libxml2 bison-native flex-native systemd dbus"
 
