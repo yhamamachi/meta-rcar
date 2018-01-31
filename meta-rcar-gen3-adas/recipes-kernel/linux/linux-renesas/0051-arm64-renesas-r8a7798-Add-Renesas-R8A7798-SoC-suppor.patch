@@ -9,10 +9,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    8 +
- arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1594 +++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1628 +++++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
- drivers/clk/renesas/r8a7798-cpg-mssr.c        |  284 +++
+ drivers/clk/renesas/r8a7798-cpg-mssr.c        |  282 +++
  drivers/clk/renesas/rcar-gen3-cpg.c           |   10 +
  drivers/clk/renesas/renesas-cpg-mssr.c        |    6 +
  drivers/clk/renesas/renesas-cpg-mssr.h        |    1 +
@@ -47,7 +47,7 @@ Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
  drivers/thermal/rcar_gen3_thermal.c           |   10 +
  include/dt-bindings/clock/r8a7798-cpg-mssr.h  |   56 +
  include/dt-bindings/power/r8a7798-sysc.h      |   46 +
- 39 files changed, 5493 insertions(+), 34 deletions(-)
+ 39 files changed, 5525 insertions(+), 34 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7798.dtsi
  create mode 100644 drivers/clk/renesas/r8a7798-cpg-mssr.c
  create mode 100644 drivers/pinctrl/sh-pfc/pfc-r8a7798.c
@@ -76,10 +76,10 @@ index 9cebaad..3646b6e 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
 new file mode 100644
-index 0000000..c0056b8
+index 0000000..e2b3404
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
-@@ -0,0 +1,1594 @@
+@@ -0,0 +1,1628 @@
 +/*
 + * Device Tree Source for the r8a7798 SoC
 + *
@@ -1482,7 +1482,7 @@ index 0000000..c0056b8
 +
 +		imp_distributer: impdes0 {
 +			compatible = "renesas,impx5+-distributer";
-+			reg = <0 0xffa00000 0 0x4000>;
++			reg = <0 0xffa00000 0 0x10000>;
 +			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
 +			clocks = <&cpg CPG_MOD 830>;
 +			power-domains = <&sysc R8A7798_PD_A3IR>;
@@ -1535,13 +1535,13 @@ index 0000000..c0056b8
 +			power-domains = <&sysc R8A7798_PD_A2IR4>;
 +		};
 +
-+		imp5 {
-+			compatible = "renesas,impslc0";
-+			reg = <0 0xff9c0000 0 0x20000>;
++		impslc0 {
++			compatible = "renesas,impx4-legacy";
++			reg = <0 0xff9c0000 0 0x10000>;
 +			interrupt-parent = <&imp_distributer>;
 +			interrupts = <5>;
 +			clocks = <&cpg CPG_MOD 500>;
-+			power-domains = <&sysc R8A7798_PD_A2IR4>;
++			power-domains = <&sysc R8A7798_PD_A2IR5>;
 +		};
 +
 +		impsc0 {
@@ -1600,9 +1600,27 @@ index 0000000..c0056b8
 +
 +		impdm1 {
 +			compatible = "renesas,impx5-dmac";
++			reg = <0 0xffa11000 0 0x1000>;
++			interrupt-parent = <&imp_distributer>;
++			interrupts = <12>;
++			clocks = <&cpg CPG_MOD 527>;
++			power-domains = <&sysc R8A7798_PD_A2PD0>;
++		};
++
++		impdm2 {
++			compatible = "renesas,impx5-dmac";
 +			reg = <0 0xffa14000 0 0x1000>;
 +			interrupt-parent = <&imp_distributer>;
 +			interrupts = <13>;
++			clocks = <&cpg CPG_MOD 526>;
++			power-domains = <&sysc R8A7798_PD_A2PD1>;
++		};
++
++		impdm3 {
++			compatible = "renesas,impx5-dmac";
++			reg = <0 0xffa15000 0 0x1000>;
++			interrupt-parent = <&imp_distributer>;
++			interrupts = <14>;
 +			clocks = <&cpg CPG_MOD 526>;
 +			power-domains = <&sysc R8A7798_PD_A2PD1>;
 +		};
@@ -1636,7 +1654,7 @@ index 0000000..c0056b8
 +
 +		impc0 {
 +			compatible = "renesas,impx4-memory";
-+			reg = <0 0xed000000 0 0x100000>;
++			reg = <0 0xed000000 0 0x200000>;
 +			clocks = <&cpg CPG_MOD 830>;
 +			power-domains = <&sysc R8A7798_PD_A3IR>;
 +		};
@@ -1672,6 +1690,22 @@ index 0000000..c0056b8
 +			clocks = <&cpg CPG_MOD 820>;
 +			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
 +		};
++
++		imrlx4_ch4: imr-lx4@fe8a0000 {
++			compatible = "renesas,imr-lx4";
++			reg = <0 0xfe8a0000 0 0x2000>;
++			interrupts = <GIC_SPI 254 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 707>;
++			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
++		};
++
++		imrlx4_ch5: imr-lx4@fe8b0000 {
++			compatible = "renesas,imr-lx4";
++			reg = <0 0xfe8b0000 0 0x2000>;
++			interrupts = <GIC_SPI 255 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 706>;
++			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
++		};
 +	};
 +};
 diff --git a/drivers/clk/renesas/Kconfig b/drivers/clk/renesas/Kconfig
@@ -1700,10 +1734,10 @@ index c2ef11e..9f659d5 100644
  obj-$(CONFIG_CLK_RENESAS_CPG_MSSR)	+= renesas-cpg-mssr.o clk-div6.o
 diff --git a/drivers/clk/renesas/r8a7798-cpg-mssr.c b/drivers/clk/renesas/r8a7798-cpg-mssr.c
 new file mode 100644
-index 0000000..3f82003
+index 0000000..e407916
 --- /dev/null
 +++ b/drivers/clk/renesas/r8a7798-cpg-mssr.c
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,282 @@
 +/*
 + * r8a7798 Clock Pulse Generator / Module Standby and Software Reset
 + *
@@ -1863,10 +1897,8 @@ index 0000000..3f82003
 +	DEF_MOD("vin10",		 625,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
 +	DEF_MOD("vin9",			 627,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
 +	DEF_MOD("vin8",			 628,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
-+#if 0 /* FIXME what is this? duplicated with 822,823 */
-+	DEF_MOD("imr1",			 706,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
-+	DEF_MOD("imr0",			 707,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
-+#endif
++	DEF_MOD("imr5",			 706,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
++	DEF_MOD("imr4",			 707,	R8A7798_CLK_S2D1), /* FIXME parent clk? */
 +	DEF_MOD("csi41",		 715,	R8A7798_CLK_CSI0),
 +	DEF_MOD("csi40",		 716,	R8A7798_CLK_CSI0),
 +	DEF_MOD("du0",			 724,	R8A7798_CLK_S2D1),
