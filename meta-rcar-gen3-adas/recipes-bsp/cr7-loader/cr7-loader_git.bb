@@ -15,7 +15,7 @@ SRCREV = "9570cd170e876801370560bb0c417816cbfe21d2"
 
 PV = "v1.0+renesas+git"
 
-COMPATIBLE_MACHINE = "condor"
+COMPATIBLE_MACHINE = "condor|v3hsk"
 PLATFORM = "rcar"
 
 do_compile() {

@@ -4,6 +4,7 @@ COMPATIBLE_MACHINE_eagle = "eagle"
 COMPATIBLE_MACHINE_v3msk = "v3msk"
 COMPATIBLE_MACHINE_v3mzf = "v3mzf"
 COMPATIBLE_MACHINE_condor = "condor"
+COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 ATFW_OPT_r8a7797 = "LSI=V3M RCAR_DRAM_SPLIT=0 RCAR_LOSSY_ENABLE=0 PMIC_ROHM_BD9571=0 RCAR_SYSTEM_SUSPEND=0 SPD=none"
 ATFW_OPT_r8a7798 = "LSI=V3H RCAR_DRAM_SPLIT=0 RCAR_LOSSY_ENABLE=0 PMIC_ROHM_BD9571=0 RCAR_SYSTEM_SUSPEND=0 SPD=none RCAR_SECURE_BOOT=0"
 
@@ -24,6 +25,11 @@ do_deploy_append() {
 }
 
 do_deploy_append_condor() {
+    rm ${DEPLOYDIR}/bootparam_sa0.bin
+    rm ${DEPLOYDIR}/bootparam_sa0.srec
+}
+
+do_deploy_append_v3hsk() {
     rm ${DEPLOYDIR}/bootparam_sa0.bin
     rm ${DEPLOYDIR}/bootparam_sa0.srec
 }
