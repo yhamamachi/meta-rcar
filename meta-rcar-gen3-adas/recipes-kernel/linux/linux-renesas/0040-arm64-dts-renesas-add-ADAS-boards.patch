@@ -10259,7 +10259,7 @@ new file mode 100644
 index 0000000..db17b03
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,588 @@
+@@ -0,0 +1,598 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
