@@ -10259,7 +10259,7 @@ new file mode 100644
 index 0000000..db17b03
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,605 @@
+@@ -0,0 +1,588 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -10406,8 +10406,6 @@ index 0000000..db17b03
 +};
 +
 +&du {
-+	pinctrl-0 = <&du_pins>;
-+	pinctrl-names = "default";
 +	status = "okay";
 +
 +	ports {
@@ -10459,11 +10457,6 @@ index 0000000..db17b03
 +	avb_pins: avb {
 +		groups = "avb0_mdc";
 +		function = "avb0";
-+	};
-+
-+	du_pins: du {
-+		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
-+		function = "du";
 +	};
 +};
 +
