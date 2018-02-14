@@ -100,7 +100,7 @@ new file mode 100644
 index 0000000..ffb0637
 --- /dev/null
 +++ b/board/renesas/v3msk/cpld.c
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,172 @@
 +/*
 + * V3MSK board CPLD access support
 + *
@@ -200,7 +200,9 @@ index 0000000..ffb0637
 +	 * we must shutdown this chip to use bb pins
 +	 */
 +	gpio_request(GPIO_GP_0_12, NULL);
++	gpio_request(GPIO_GP_0_14, NULL);
 +	gpio_direction_output(GPIO_GP_0_12, 1);
++	gpio_direction_output(GPIO_GP_0_14, 1);
 +}
 +
 +static int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -758,8 +760,8 @@ index 0000000..225d462
 +#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
 +#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 +
-+#define CONFIG_ENV_IS_IN_MMC
-+//#define CONFIG_ENV_IS_IN_SPI_FLASH
++//#define CONFIG_ENV_IS_IN_MMC
++#define CONFIG_ENV_IS_IN_SPI_FLASH
 +
 +#if defined(CONFIG_ENV_IS_IN_MMC)
 +/* Environment in eMMC, at the end of 2nd "boot sector" */
