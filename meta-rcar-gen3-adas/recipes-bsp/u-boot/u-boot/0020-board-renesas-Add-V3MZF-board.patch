@@ -96,7 +96,7 @@ new file mode 100644
 index 0000000..fa1e299
 --- /dev/null
 +++ b/board/renesas/v3mzf/v3mzf.c
-@@ -0,0 +1,214 @@
+@@ -0,0 +1,217 @@
 +/*
 + * board/renesas/v3mzf/v3mzf.c
 + *     This is V3MZF board support.
@@ -131,6 +131,7 @@ index 0000000..fa1e299
 +#define ETHERAVB_MSTP812	(1 << 12)
 +#define RPC_MSTP917	(1 << 17)
 +#define SD0_MSTP314	(1 << 14)
++#define GP1_MSTP911	(1 << 11)
 +
 +#define SD0CKCR		0xE6150074
 +
@@ -161,6 +162,8 @@ index 0000000..fa1e299
 +	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 +	/* QSPI/RPC */
 +	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, RPC_MSTP917);
++	/* GPIO1 */
++	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, GP1_MSTP911);
 +
 +	freq = rcar_get_sdhi_config_clk();
 +	writel(freq, SD0CKCR);
