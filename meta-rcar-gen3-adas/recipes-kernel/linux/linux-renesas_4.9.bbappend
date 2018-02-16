@@ -153,4 +153,6 @@ KERNEL_DEVICETREE_append_condor = " \
 
 KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
+    renesas/r8a7798-v3hsk-vbm.dtb \
+    renesas/r8a7798-v3hsk-vbm-v2.dtb \
 "
