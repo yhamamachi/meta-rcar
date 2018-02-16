@@ -30,10 +30,12 @@ Videobox2 board on R8A7795 ES1.x SoC
 Videobox2 board on R8A7795 SoC
 Condor board on R8A7798 SoC
 V3HSK board on R8A7798 SoC
+Videobox Mini board on R8A7798 SoC
+Videobox Mini V2 board on R8A7798 SoC
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   25 +
+ arch/arm64/boot/dts/renesas/Makefile               |   27 +
  arch/arm64/boot/dts/renesas/legacy/Makefile        |    8 +
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts    | 1624 +++++++++++++++++++
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 ++++++
@@ -80,8 +82,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  507 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  297 ++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  345 ++++
- arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts      |  444 ++++++
+ arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts      |  462 ++++++
  arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  963 ++++++++++++
+ .../boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts      |   73 +
+ arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts  |  505 ++++++
  arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts      |  358 +++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  462 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
@@ -91,7 +95,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1610 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1660 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  543 +++++++
- 58 files changed, 20519 insertions(+)
+ 60 files changed, 21117 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -140,6 +144,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7798-condor.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi
@@ -151,10 +157,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index f9c71df..b37dae1 100644
+index f9c71df..6219e6f 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -6,5 +6,30 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
+@@ -6,5 +6,32 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-xs.dtb
  
@@ -179,6 +185,8 @@ index f9c71df..b37dae1 100644
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3mzf.dtb
 +dtb-$(CONFIG_ARCH_R8A7798) += r8a7798-condor.dtb
 +dtb-$(CONFIG_ARCH_R8A7798) += r8a7798-v3hsk.dtb
++dtb-$(CONFIG_ARCH_R8A7798) += r8a7798-v3hsk-vbm.dtb
++dtb-$(CONFIG_ARCH_R8A7798) += r8a7798-v3hsk-vbm-v2.dtb
 +
 +# ADAS legacy boards
 +subdir-y	:= legacy
@@ -12924,7 +12932,7 @@ index 0000000..33c6c0d
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
 new file mode 100644
-index 0000000..48895dd
+index 0000000..246e71d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
 @@ -0,0 +1,462 @@
@@ -14356,6 +14364,596 @@ index 0000000..4dd7a28
 +			clock-lanes = <0>;
 +			data-lanes = <1 2 3 4>;
 +			csi-rate = <300>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
+new file mode 100644
+index 0000000..56d4253
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
+@@ -0,0 +1,73 @@
++/*
++ * Device Tree Source for the V3HSK Videobox Mini board V2 on r8a7798
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7798-v3hsk-vbm.dts"
++
++/ {
++	model = "Renesas V3HSK Videobox Mini board V2 based on r8a7798";
++
++	leds {
++		compatible = "gpio-leds";
++
++		led5 {
++			label = "board:status";
++			gpios = <&gpio2 26 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++		};
++	};
++};
++
++&gpio0 {
++	can1_stby {
++		gpio-hog;
++		gpios = <21 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "CAN1STBY";
++	};
++};
++
++&pfc {
++	msiof1_pins: msiof1 {
++		groups = "msiof1_clk", "msiof1_txd", "msiof1_rxd";
++		function = "msiof1";
++	};
++
++	msiof2_pins: msiof2 {
++		groups = "msiof2_clk", "msiof2_sync", "msiof2_txd", "msiof2_rxd";
++		function = "msiof2";
++	};
++};
++
++&scif3 {
++	/* pin conflict with msiof2 */
++	/* set R240 and remove R241 before enabling */
++	status = "disabled";
++};
++
++&msiof1 {
++	pinctrl-0 = <&msiof1_pins>;
++	pinctrl-names = "default";
++	cs-gpios = <&gpio3 3 0>;
++
++	status = "okay";
++	spidev@0 {
++		compatible = "renesas,sh-msiof";
++		reg = <0>;
++		spi-max-frequency = <66666666>;
++	};
++};
++
++&msiof2 {
++	pinctrl-0 = <&msiof2_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++	slave;
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
+new file mode 100644
+index 0000000..16b2616
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
+@@ -0,0 +1,505 @@
++/*
++ * Device Tree Source for the V3HSK Videobox Mini board on r8a7798
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7798-v3hsk.dts"
++
++/ {
++	model = "Renesas V3HSK Videobox Mini board based on r8a7798";
++
++	aliases {
++		serial1 = &scif3;
++	};
++};
++
++&canfd {
++	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	channel0 {
++		status = "okay";
++	};
++
++	channel1 {
++		status = "okay";
++	};
++};
++
++&csi2_41 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "ycbcr422";
++			receive,vc = <0>;
++		};
++		csi2_vc1 {
++			data,type = "ycbcr422";
++			receive,vc = <1>;
++		};
++		csi2_vc2 {
++			data,type = "ycbcr422";
++			receive,vc = <2>;
++		};
++		csi2_vc3 {
++			data,type = "ycbcr422";
++			receive,vc = <3>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_41_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2 3 4>;
++			csi-rate = <300>;
++		};
++	};
++};
++
++&i2c1 {
++	pinctrl-0 = <&i2c1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	clock-frequency = <400000>;
++
++	i2cswitch1: i2c-switch@74 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x74>;
++		reset-gpios = <&gpio2 28 GPIO_ACTIVE_LOW>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++
++			ov106xx@0 {
++				compatible = "ovti,ov106xx";
++				reg = <0x60>;
++
++				port@0 {
++					ov106xx_in0: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin4ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep0: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep0>;
++					};
++					ov106xx_ti9x4_des0ep0: endpoint@1 {
++						remote-endpoint = <&ti9x4_des0ep0>;
++					};
++				};
++			};
++
++			ov106xx@1 {
++				compatible = "ovti,ov106xx";
++				reg = <0x61>;
++
++				port@0 {
++					ov106xx_in1: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin5ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep1: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep1>;
++					};
++					ov106xx_ti9x4_des0ep1: endpoint@1 {
++						remote-endpoint = <&ti9x4_des0ep1>;
++					};
++				};
++			};
++
++			ov106xx@2 {
++				compatible = "ovti,ov106xx";
++				reg = <0x62>;
++
++				port@0 {
++					ov106xx_in2: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin6ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep2: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep2>;
++					};
++					ov106xx_ti9x4_des0ep2: endpoint@1 {
++						remote-endpoint = <&ti9x4_des0ep2>;
++					};
++				};
++			};
++
++			ov106xx@3 {
++				compatible = "ovti,ov106xx";
++				reg = <0x63>;
++
++				port@0 {
++					ov106xx_in3: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin7ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep3: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep3>;
++					};
++					ov106xx_ti9x4_des0ep3: endpoint@1 {
++						remote-endpoint = <&ti9x4_des0ep3>;
++					};
++				};
++			};
++
++			max9286@0 {
++				compatible = "maxim,max9286";
++				reg = <0x2c>;
++				maxim,links = <4>;
++				maxim,lanes = <4>;
++				maxim,resetb-gpio = <1>;
++				maxim,fsync-mode = "automatic";
++				maxim,timeout = <100>;
++
++				POC0-gpios = <&gpio_exp_6c 8 GPIO_ACTIVE_HIGH>;
++				POC1-gpios = <&gpio_exp_6c 9 GPIO_ACTIVE_HIGH>;
++				POC2-gpios = <&gpio_exp_6c 10 GPIO_ACTIVE_HIGH>;
++				POC3-gpios = <&gpio_exp_6c 11 GPIO_ACTIVE_HIGH>;
++
++				port@0 {
++					max9286_des0ep0: endpoint@0 {
++						max9271-addr = <0x50>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					max9286_des0ep1: endpoint@1 {
++						max9271-addr = <0x51>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++					max9286_des0ep2: endpoint@2 {
++						max9271-addr = <0x52>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in2>;
++					};
++					max9286_des0ep3: endpoint@3 {
++						max9271-addr = <0x53>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in3>;
++					};
++				};
++				port@1 {
++					max9286_csi0ep0: endpoint {
++						csi-rate = <700>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++
++			ti9x4@0 {
++				compatible = "ti,ti9x4";
++				reg = <0x3a>;
++				ti,links = <4>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++				ti,cable-mode = "coax";
++				POC0-gpios = <&gpio_exp_6c 8 GPIO_ACTIVE_HIGH>;
++				POC1-gpios = <&gpio_exp_6c 9 GPIO_ACTIVE_HIGH>;
++				POC2-gpios = <&gpio_exp_6c 10 GPIO_ACTIVE_HIGH>;
++				POC3-gpios = <&gpio_exp_6c 11 GPIO_ACTIVE_HIGH>;
++
++				port@0 {
++					ti9x4_des0ep0: endpoint@0 {
++						ti9x3-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					ti9x4_des0ep1: endpoint@1 {
++						ti9x3-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++					ti9x4_des0ep2: endpoint@2 {
++						ti9x3-addr = <0x0e>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in2>;
++					};
++					ti9x4_des0ep3: endpoint@3 {
++						ti9x3-addr = <0x0f>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in3>;
++					};
++				};
++				port@1 {
++					ti9x4_csi0ep0: endpoint {
++						csi-rate = <700>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++		};
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			gpio_exp_6c: gpio@6c {
++				compatible = "maxim,max7325";
++				reg = <0x6c>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				virq {
++					gpio-hog;
++					gpios = <5 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "VIRQ";
++				};
++				des_cfg {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "CNFG0";
++				};
++				pwr_shdn {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "PWR_SHDN";
++				};
++				des_shdn {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Des_SHDN";
++				};
++				fpdl_shdn {
++					gpio-hog;
++					gpios = <15 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "FPDL_SHDN";
++				};
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++
++			/* fan node - lm96063 */
++			fan_ctrl: lm96063@4c {
++				compatible = "lm96163";
++				reg = <0x4c>;
++			};
++		};
++	};
++};
++
++&gpio2 {
++	can0_load {
++		gpio-hog;
++		gpios = <16 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "can0_120R_load";
++	};
++
++	can0stby {
++		gpio-hog;
++		gpios = <27 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "CAN0STBY";
++	};
++
++	can1_load {
++		gpio-hog;
++		gpios = <29 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "can1_120R_load";
++	};
++
++	wake_pin_7 {
++		gpio-hog;
++		gpios = <8 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "WAKE INPUT PIN 7";
++	};
++
++	wake_pin_8 {
++		gpio-hog;
++		gpios = <9 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "WAKE INPUT PIN 8";
++	};
++};
++
++&pfc {
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
++
++	canfd1_pins: canfd1 {
++		groups = "canfd1_data";
++		function = "canfd1";
++	};
++
++	i2c1_pins: i2c1 {
++		groups = "i2c1";
++		function = "i2c1";
++	};
++
++	scif3_pins: scif3 {
++		groups = "scif3_data";
++		function = "scif3";
++	};
++};
++
++&scif3 {
++	pinctrl-0 = <&scif3_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
++&vin4 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin4ep0: endpoint {
++				csi,select = "csi41";
++				virtual,channel = <0>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in0>;
++			};
++		};
++		port@1 {
++			csi0ep0: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin4_max9286_des0ep0: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep0>;
++			};
++			vin4_ti9x4_des0ep0: endpoint@1 {
++				remote-endpoint = <&ti9x4_des0ep0>;
++			};
++		};
++	};
++};
++
++&vin5 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin5ep0: endpoint {
++				csi,select = "csi41";
++				virtual,channel = <1>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in1>;
++			};
++		};
++		port@1 {
++			csi0ep1: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin5_max9286_des0ep1: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep1>;
++			};
++			vin5_ti9x4_des0ep1: endpoint@1 {
++				remote-endpoint = <&ti9x4_des0ep1>;
++			};
++		};
++	};
++};
++
++&vin6 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin6ep0: endpoint {
++				csi,select = "csi41";
++				virtual,channel = <2>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in2>;
++			};
++		};
++		port@1 {
++			csi0ep2: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin6_max9286_des0ep2: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep2>;
++			};
++			vin6_ti9x4_des0ep2: endpoint@1 {
++				remote-endpoint = <&ti9x4_des0ep2>;
++			};
++		};
++	};
++};
++
++&vin7 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin7ep0: endpoint {
++				csi,select = "csi41";
++				virtual,channel = <3>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in3>;
++			};
++		};
++		port@1 {
++			csi0ep3: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin7_max9286_des0ep3: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep3>;
++			};
++			vin7_ti9x4_des0ep3: endpoint@1 {
++				remote-endpoint = <&ti9x4_des0ep3>;
++			};
 +		};
 +	};
 +};
