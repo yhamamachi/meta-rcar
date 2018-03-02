@@ -25,8 +25,8 @@ index 6ba8afd..d81f34b 100644
 +#define CONFIG_SYS_RCAR_I2C3_BASE	0xE66D0000
 +
  /* PFC */
- #define PFC_PUEN6       0xE6060418
- #define PUEN_USB1_OVC   (1 << 2)
+ #define PFC_PUEN0       0xE6060400
+ #define PFC_PUEN1       0xE6060404
 -- 
 1.9.1
 

@@ -67,8 +67,8 @@ index 6abc088..60f41ae 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
 @@ -223,6 +223,12 @@ RCAR_GEN3_ULCB := 0
- endif
- $(eval $(call add_define,RCAR_GEN3_ULCB))
+ ERRATA_A53_843419  := 1
+ ERRATA_A53_855873  := 1
  
 +# Process RCAR_DISABLE_NONSECURE_RPC_ACCESS flag
 +ifndef RCAR_DISABLE_NONSECURE_RPC_ACCESS

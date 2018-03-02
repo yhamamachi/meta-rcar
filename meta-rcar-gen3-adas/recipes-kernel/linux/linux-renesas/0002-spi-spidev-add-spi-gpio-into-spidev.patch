@@ -15,9 +15,9 @@ index b016a5a..bcee148 100644
 --- a/drivers/spi/spidev.c
 +++ b/drivers/spi/spidev.c
 @@ -697,6 +697,7 @@ static const struct of_device_id spidev_dt_ids[] = {
- 	{ .compatible = "rohm,dh2228fv" },
  	{ .compatible = "lineartechnology,ltc2488" },
- 	{ .compatible = "renesas,sh-msiof" },
+ 	{ .compatible = "ge,achc" },
+ 	{ .compatible = "semtech,sx1301" },
 +	{ .compatible = "spi-gpio" },
  	{},
  };

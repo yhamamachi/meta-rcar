@@ -15,9 +15,9 @@ index 63b80a4..50cfa8a 100644
 --- a/include/configs/rcar-gen3-common.h
 +++ b/include/configs/rcar-gen3-common.h
 @@ -31,6 +31,7 @@
- #define CONFIG_CMD_EXT2
  #define CONFIG_CMD_EXT4
  #define CONFIG_CMD_EXT4_WRITE
+ #define CONFIG_CMD_CACHE
 +#define CONFIG_CMD_GPIO
  
  #define CONFIG_SYS_THUMB_BUILD

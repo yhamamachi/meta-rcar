@@ -7,11 +7,11 @@ Add PCIE regulators
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/pci/host/pcie-rcar.c | 54 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/pci/host/pcie-rcar.c | 53 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
 
 diff --git a/drivers/pci/host/pcie-rcar.c b/drivers/pci/host/pcie-rcar.c
-index 8e24d5f88415..6994ea2ac936 100644
+index 907899d..de8b8ea 100644
 --- a/drivers/pci/host/pcie-rcar.c
 +++ b/drivers/pci/host/pcie-rcar.c
 @@ -16,6 +16,7 @@
@@ -31,7 +31,7 @@ index 8e24d5f88415..6994ea2ac936 100644
  	struct			rcar_msi msi;
  };
  
-@@ -1193,6 +1196,36 @@ static int rcar_pcie_parse_request_of_pci_ranges(struct rcar_pcie *pci)
+@@ -1195,6 +1198,36 @@ static int rcar_pcie_parse_request_of_pci_ranges(struct rcar_pcie *pci)
  	return err;
  }
  
@@ -68,7 +68,7 @@ index 8e24d5f88415..6994ea2ac936 100644
  static int rcar_pcie_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
-@@ -1209,6 +1242,26 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+@@ -1213,6 +1246,26 @@ static int rcar_pcie_probe(struct platform_device *pdev)
  	pcie->dev = dev;
  	platform_set_drvdata(pdev, pcie);
  
@@ -89,19 +89,12 @@ index 8e24d5f88415..6994ea2ac936 100644
 +	err = rcar_pcie_set_vpcie(pcie);
 +	if (err) {
 +		dev_err(dev, "failed to set pcie regulators\n");
-+		goto err_set_pcie;
++		return err;
 +	}
 +
  	INIT_LIST_HEAD(&pcie->resources);
  
  	rcar_pcie_parse_request_of_pci_ranges(pcie);
-@@ -1267,6 +1320,7 @@ static int rcar_pcie_probe(struct platform_device *pdev)
- 
- err_pm_disable:
- 	pm_runtime_disable(dev);
-+err_set_pcie:
- 	return err;
- }
- 
 -- 
-2.13.0
+1.9.1
+

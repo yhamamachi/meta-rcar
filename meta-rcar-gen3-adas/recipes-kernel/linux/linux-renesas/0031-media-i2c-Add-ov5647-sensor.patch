@@ -16,10 +16,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/soc_camera/ov5647.h
 
 diff --git a/drivers/media/i2c/soc_camera/Kconfig b/drivers/media/i2c/soc_camera/Kconfig
-index e1c65ca..c272aeb 100644
+index d30a3f9..1db3c6b 100644
 --- a/drivers/media/i2c/soc_camera/Kconfig
 +++ b/drivers/media/i2c/soc_camera/Kconfig
-@@ -97,6 +97,12 @@ config SOC_CAMERA_OV5642
+@@ -47,6 +47,12 @@ config SOC_CAMERA_OV5642
  	help
  	  This is a V4L2 camera driver for the OmniVision OV5642 sensor
  
@@ -29,21 +29,21 @@ index e1c65ca..c272aeb 100644
 +	help
 +	  This is a V4L2 camera driver for the OmniVision OV5647 sensor
 +
- config SOC_CAMERA_OV6650
- 	tristate "ov6650 sensor support"
+ config SOC_CAMERA_OV772X
+ 	tristate "ov772x camera support"
  	depends on SOC_CAMERA && I2C
 diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camera/Makefile
-index 8e24d5d..a67fff8 100644
+index 1134c03..0d4242e 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_SOC_CAMERA_OV495_OV2775)	+= ov495_ov2775.o
- obj-$(CONFIG_SOC_CAMERA_OV106XX)	+= ov106xx.o
- obj-$(CONFIG_SOC_CAMERA_OV2640)		+= ov2640.o
+@@ -5,6 +5,7 @@ obj-$(CONFIG_SOC_CAMERA_MT9T031)	+= mt9t031.o
+ obj-$(CONFIG_SOC_CAMERA_MT9T112)	+= mt9t112.o
+ obj-$(CONFIG_SOC_CAMERA_MT9V022)	+= mt9v022.o
  obj-$(CONFIG_SOC_CAMERA_OV5642)		+= ov5642.o
 +obj-$(CONFIG_SOC_CAMERA_OV5647)		+= ov5647.o
- obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
  obj-$(CONFIG_SOC_CAMERA_OV772X)		+= ov772x.o
  obj-$(CONFIG_SOC_CAMERA_OV9640)		+= ov9640.o
+ obj-$(CONFIG_SOC_CAMERA_OV9740)		+= ov9740.o
 diff --git a/drivers/media/i2c/soc_camera/ov5647.c b/drivers/media/i2c/soc_camera/ov5647.c
 new file mode 100644
 index 0000000..caccf39

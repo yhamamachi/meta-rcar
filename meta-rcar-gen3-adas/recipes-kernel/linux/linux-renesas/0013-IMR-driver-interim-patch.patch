@@ -5,9 +5,6 @@ Subject: [PATCH] IMR driver - interim patch
 
 Signed-off-by: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi |   32 +
- arch/arm64/boot/dts/renesas/r8a7795.dtsi     |   32 +
- drivers/clk/renesas/r8a7795-cpg-mssr.c       |    4 +
  drivers/media/platform/Kconfig               |   11 +
  drivers/media/platform/Makefile              |    1 +
  drivers/media/platform/rcar_imr.c            | 1840 ++++++++++++++++++++++++++
@@ -16,105 +13,6 @@ Signed-off-by: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com
  create mode 100644 drivers/media/platform/rcar_imr.c
  create mode 100644 include/uapi/linux/rcar-imr.h
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-index 09e1284..d530100 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-@@ -2713,5 +2713,37 @@
- 				};
- 			};
- 		};
-+
-+		imrlx4_ch0: imr-lx4@fe860000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe860000 0 0x2000>;
-+			interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 823>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch1: imr-lx4@fe870000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe870000 0 0x2000>;
-+			interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 822>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch2: imr-lx4@fe880000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe880000 0 0x2000>;
-+			interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 821>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch3: imr-lx4@fe890000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe890000 0 0x2000>;
-+			interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 820>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
- 	};
- };
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 82ebfd4..9b4ee2f 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -2699,5 +2699,37 @@
- 				};
- 			};
- 		};
-+
-+		imrlx4_ch0: imr-lx4@fe860000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe860000 0 0x2000>;
-+			interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 823>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch1: imr-lx4@fe870000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe870000 0 0x2000>;
-+			interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 822>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch2: imr-lx4@fe880000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe880000 0 0x2000>;
-+			interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 821>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
-+
-+		imrlx4_ch3: imr-lx4@fe890000 {
-+			compatible = "renesas,imr-lx4";
-+			reg = <0 0xfe890000 0 0x2000>;
-+			interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 820>;
-+			power-domains = <&sysc R8A7795_PD_A3VC>;
-+		};
- 	};
- };
-diff --git a/drivers/clk/renesas/r8a7795-cpg-mssr.c b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-index 718afd6..f833031 100644
---- a/drivers/clk/renesas/r8a7795-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-@@ -229,6 +229,10 @@ enum clk_ids {
- 	DEF_MOD("vin0",			 811,	R8A7795_CLK_S0D2),
- 	DEF_MOD("etheravb",		 812,	R8A7795_CLK_S0D6),
- 	DEF_MOD("sata0",		 815,	R8A7795_CLK_S3D2),
-+	DEF_MOD("imr3",			 820,	R8A7795_CLK_S2D1),
-+	DEF_MOD("imr2",			 821,	R8A7795_CLK_S2D1),
-+	DEF_MOD("imr1",			 822,	R8A7795_CLK_S2D1),
-+	DEF_MOD("imr0",			 823,	R8A7795_CLK_S2D1),
- 	DEF_MOD("gpio7",		 905,	R8A7795_CLK_S3D4),
- 	DEF_MOD("gpio6",		 906,	R8A7795_CLK_S3D4),
- 	DEF_MOD("gpio5",		 907,	R8A7795_CLK_S3D4),
 diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
 index ba2b892..f4d12f5 100644
 --- a/drivers/media/platform/Kconfig
@@ -142,10 +40,10 @@ index 40b18d1..9e9464c 100644
 --- a/drivers/media/platform/Makefile
 +++ b/drivers/media/platform/Makefile
 @@ -49,6 +49,7 @@ obj-$(CONFIG_SOC_CAMERA)		+= soc_camera/
- 
  obj-$(CONFIG_VIDEO_RENESAS_FCP) 	+= rcar-fcp.o
+ obj-$(CONFIG_VIDEO_RENESAS_FDP1)	+= rcar_fdp1.o
  obj-$(CONFIG_VIDEO_RENESAS_JPU) 	+= rcar_jpu.o
-+obj-$(CONFIG_VIDEO_RENESAS_IMR) 	+= rcar_imr.o
++obj-$(CONFIG_VIDEO_RENESAS_IMR)	+= rcar_imr.o
  obj-$(CONFIG_VIDEO_RENESAS_VSP1)	+= vsp1/
  
  obj-y	+= omap/

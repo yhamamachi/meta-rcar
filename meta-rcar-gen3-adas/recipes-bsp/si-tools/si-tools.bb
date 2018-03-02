@@ -3,6 +3,9 @@ SECTION = "multimedia"
 
 LICENSE = "CLOSED"
 
+INSANE_SKIP_${PN} = "ldflags"
+INSANE_SKIP_${PN}-dev = "ldflags"
+
 PE = "1"
 PV = "0.2"
 

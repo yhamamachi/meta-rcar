@@ -45,7 +45,7 @@ index 0f548fd3..71a6c2f 100644
 +obj-$(CONFIG_SND_SOC_SI468X)	+= snd-soc-si468x.o
  obj-$(CONFIG_SND_SOC_SN95031)	+=snd-soc-sn95031.o
  obj-$(CONFIG_SND_SOC_SPDIF)	+= snd-soc-spdif-rx.o snd-soc-spdif-tx.o
- obj-$(CONFIG_SND_SOC_SSM2518)	+= snd-soc-ssm2518.o
+ obj-$(CONFIG_SND_SOC_SIRF_AUDIO_CODEC) += sirf-audio-codec.o
 diff --git a/sound/soc/codecs/si468x.c b/sound/soc/codecs/si468x.c
 new file mode 100644
 index 0000000..18b099f

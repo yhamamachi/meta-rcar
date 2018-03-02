@@ -135,9 +135,9 @@ index 788459f..887ca37 100644
 +			dev_info(&pdev->dev, "Failed to request standby pin\n");
 +	}
 +
- 	dev_info(&pdev->dev, "device registered (regs @ %p, IRQ%d)\n",
- 		 priv->regs, ndev->irq);
+ 	dev_info(&pdev->dev, "device registered (IRQ%d)\n", ndev->irq);
  
+ 	return 0;
 diff --git a/include/linux/can/platform/rcar_can.h b/include/linux/can/platform/rcar_can.h
 index 0f4a2f3..7ef810d 100644
 --- a/include/linux/can/platform/rcar_can.h

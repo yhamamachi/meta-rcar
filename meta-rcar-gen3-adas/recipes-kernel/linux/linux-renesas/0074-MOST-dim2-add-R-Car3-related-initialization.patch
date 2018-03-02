@@ -5,11 +5,11 @@ Subject: [PATCH 112/114] MOST: dim2: add R-Car3 related initialization
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/staging/most/hdm-dim2/dim2_hdm.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ drivers/staging/most/hdm-dim2/dim2_hdm.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
 diff --git a/drivers/staging/most/hdm-dim2/dim2_hdm.c b/drivers/staging/most/hdm-dim2/dim2_hdm.c
-index f28f169180fe..c1beabc28fa8 100644
+index e3ce23c..0e5855d 100644
 --- a/drivers/staging/most/hdm-dim2/dim2_hdm.c
 +++ b/drivers/staging/most/hdm-dim2/dim2_hdm.c
 @@ -26,6 +26,7 @@
@@ -19,8 +19,8 @@ index f28f169180fe..c1beabc28fa8 100644
 +#include <linux/delay.h>
  
  #include <mostcore.h>
- #include <networking.h>
-@@ -189,6 +191,26 @@ static int dim_parce_speed(const char *clock_speed)
+ #include "dim2_hal.h"
+@@ -184,6 +185,26 @@ static int dim_parce_speed(const char *clock_speed)
  	return -1;
  }
  
@@ -47,7 +47,7 @@ index f28f169180fe..c1beabc28fa8 100644
  /**
   * startup_dim - initialize the dim2 interface
   * @pdev: platform device
-@@ -216,6 +238,10 @@ static int startup_dim(struct platform_device *pdev)
+@@ -211,6 +232,10 @@ static int startup_dim(struct platform_device *pdev)
  			return ret;
  	}
  
@@ -59,5 +59,5 @@ index f28f169180fe..c1beabc28fa8 100644
  	hal_ret = dim_startup(dev->io_base, dev->clk_speed, fcnt);
  	if (hal_ret != DIM_NO_ERROR) {
 -- 
-2.13.0
+1.9.1
 

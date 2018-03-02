@@ -12,18 +12,18 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/staging/most/hdm-dim2/dim2_hal.c b/drivers/staging/most/hdm-dim2/dim2_hal.c
-index 231138c..ee0e307 100644
+index a685c5a..d0f78ac 100644
 --- a/drivers/staging/most/hdm-dim2/dim2_hal.c
 +++ b/drivers/staging/most/hdm-dim2/dim2_hal.c
-@@ -18,6 +18,7 @@
- #include "dim2_errors.h"
+@@ -19,6 +19,7 @@
  #include "dim2_reg.h"
  #include <linux/stddef.h>
+ #include <linux/kernel.h>
 +#include <linux/delay.h>
  
  /*
   * Size factor for isochronous DBR buffer.
-@@ -148,11 +149,16 @@ static void free_dbr(int offs, int size)
+@@ -149,11 +150,16 @@ static void free_dbr(int offs, int size)
  
  static void dim2_transfer_madr(u32 val)
  {

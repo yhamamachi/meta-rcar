@@ -13,10 +13,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  3 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/staging/most/hdm-dim2/dim2_hdm.c b/drivers/staging/most/hdm-dim2/dim2_hdm.c
-index c1beabc28fa8..81edf4f4beb3 100644
+index 0e5855d..349eb66 100644
 --- a/drivers/staging/most/hdm-dim2/dim2_hdm.c
 +++ b/drivers/staging/most/hdm-dim2/dim2_hdm.c
-@@ -852,6 +852,7 @@ static int dim2_probe(struct platform_device *pdev)
+@@ -870,6 +870,7 @@ static int dim2_probe(struct platform_device *pdev)
  	dev->most_iface.enqueue = enqueue;
  	dev->most_iface.poison_channel = poison_channel;
  	dev->most_iface.request_netinfo = request_netinfo;
@@ -25,10 +25,10 @@ index c1beabc28fa8..81edf4f4beb3 100644
  	if (np) {
  		const char *tmp;
 diff --git a/drivers/staging/most/mostcore/core.c b/drivers/staging/most/mostcore/core.c
-index 7c619feb12d3..ce56d5ca582c 100644
+index 069269d..6952ce6 100644
 --- a/drivers/staging/most/mostcore/core.c
 +++ b/drivers/staging/most/mostcore/core.c
-@@ -1265,7 +1265,7 @@ static int arm_mbo_chain(struct most_c_obj *c, int dir,
+@@ -1272,7 +1272,7 @@ static int arm_mbo_chain(struct most_c_obj *c, int dir,
  		mbo->context = c;
  		mbo->ifp = c->iface;
  		mbo->hdm_channel_id = c->channel_id;
@@ -38,17 +38,17 @@ index 7c619feb12d3..ce56d5ca582c 100644
  						       &mbo->bus_address,
  						       GFP_KERNEL);
 diff --git a/drivers/staging/most/mostcore/mostcore.h b/drivers/staging/most/mostcore/mostcore.h
-index 60e018e499ef..334908639067 100644
+index 915e515..19f5d2c 100644
 --- a/drivers/staging/most/mostcore/mostcore.h
 +++ b/drivers/staging/most/mostcore/mostcore.h
-@@ -247,6 +247,7 @@ struct most_interface {
- 		       struct mbo *mbo);
- 	int (*poison_channel)(struct most_interface *iface, int channel_idx);
- 	void (*request_netinfo)(struct most_interface *iface, int channel_idx);
+@@ -252,6 +252,7 @@ struct most_interface {
+ 				void (*on_netinfo)(struct most_interface *iface,
+ 						   unsigned char link_stat,
+ 						   unsigned char *mac_addr));
 +	struct device *dev;
  	void *priv;
  };
  
 -- 
-2.13.0
+1.9.1
 

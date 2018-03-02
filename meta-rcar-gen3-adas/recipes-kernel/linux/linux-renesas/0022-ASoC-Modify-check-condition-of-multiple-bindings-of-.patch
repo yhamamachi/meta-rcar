@@ -34,15 +34,15 @@ index 16369ca..899d013 100644
  			dev_err(component->dev,
  				"Trying to bind component to card \"%s\" but is already bound to card \"%s\"\n",
  				card->name, component->card->name);
-@@ -3049,7 +3050,8 @@ int snd_soc_register_component(struct device *dev,
+@@ -3049,7 +3050,8 @@ int snd_soc_add_component(struct device *dev,
  		goto err_free;
  
- 	cmpnt->ignore_pmdown_time = true;
--	cmpnt->registered_as_component = true;
+ 	component->ignore_pmdown_time = true;
+-	component->registered_as_component = true;
 +	if (num_dai == 1)
-+		cmpnt->registered_as_component = true;
++		component->registered_as_component = true;
  
- 	ret = snd_soc_register_dais(cmpnt, dai_drv, num_dai, true);
- 	if (ret < 0) {
+ 	if (component_driver->endianness) {
+ 		for (i = 0; i < num_dai; i++) {
 -- 
 1.7.10.4

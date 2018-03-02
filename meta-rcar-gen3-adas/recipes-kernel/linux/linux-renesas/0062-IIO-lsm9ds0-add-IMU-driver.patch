@@ -15,7 +15,7 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  create mode 100644 drivers/iio/imu/lsm9ds0.c
 
 diff --git a/drivers/iio/imu/Kconfig b/drivers/iio/imu/Kconfig
-index 1f1ad41ef881..063c09b8fc53 100644
+index 156630a..6fd8490 100644
 --- a/drivers/iio/imu/Kconfig
 +++ b/drivers/iio/imu/Kconfig
 @@ -38,6 +38,17 @@ config KMX61
@@ -34,24 +34,24 @@ index 1f1ad41ef881..063c09b8fc53 100644
 +	  sensor.
 +
  source "drivers/iio/imu/inv_mpu6050/Kconfig"
+ source "drivers/iio/imu/st_lsm6dsx/Kconfig"
  
- endmenu
 diff --git a/drivers/iio/imu/Makefile b/drivers/iio/imu/Makefile
-index c71bcd30dc38..4de076d0766e 100644
+index 68629c68..5ca2537 100644
 --- a/drivers/iio/imu/Makefile
 +++ b/drivers/iio/imu/Makefile
-@@ -13,6 +13,8 @@ adis_lib-$(CONFIG_IIO_ADIS_LIB_BUFFER) += adis_trigger.o
+@@ -14,6 +14,8 @@ adis_lib-$(CONFIG_IIO_ADIS_LIB_BUFFER) += adis_trigger.o
  adis_lib-$(CONFIG_IIO_ADIS_LIB_BUFFER) += adis_buffer.o
  obj-$(CONFIG_IIO_ADIS_LIB) += adis_lib.o
  
-+obj-$(CONFIG_LSM9DS0) += lsm9ds0.o
++#obj-$(CONFIG_LSM9DS0) += lsm9ds0.o
 +
  obj-y += bmi160/
  obj-y += inv_mpu6050/
  
 diff --git a/drivers/iio/imu/lsm9ds0.c b/drivers/iio/imu/lsm9ds0.c
 new file mode 100644
-index 000000000000..15e2671daef9
+index 0000000..202419d
 --- /dev/null
 +++ b/drivers/iio/imu/lsm9ds0.c
 @@ -0,0 +1,912 @@
@@ -968,5 +968,5 @@ index 000000000000..15e2671daef9
 +MODULE_DESCRIPTION("LSM9DS0 gyroscope, accelerometer, and magnetometer sensor");
 +MODULE_LICENSE("GPL");
 -- 
-2.13.0
+1.9.1
 

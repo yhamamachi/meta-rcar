@@ -40,7 +40,7 @@ index 24a652f..a369bf7 100644
 +
  static int bt_ti_probe(struct platform_device *pdev)
  {
- 	static struct ti_st *hst;
+ 	struct ti_st *hst;
 @@ -336,6 +345,7 @@ static struct platform_driver btwilink_driver = {
  	.remove = bt_ti_remove,
  	.driver = {

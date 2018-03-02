@@ -34,10 +34,10 @@ index 99bb9a1..3b81efb 100644
 --- a/drivers/mtd/Makefile
 +++ b/drivers/mtd/Makefile
 @@ -13,6 +13,7 @@ obj-$(CONFIG_MTD_AFS_PARTS)	+= afs.o
- obj-$(CONFIG_MTD_AR7_PARTS)	+= ar7part.o
  obj-$(CONFIG_MTD_BCM63XX_PARTS)	+= bcm63xxpart.o
  obj-$(CONFIG_MTD_BCM47XX_PARTS)	+= bcm47xxpart.o
-+obj-$(CONFIG_MTD_RPC_HYPERFLASH) += rpc_hyperflash.o
+ obj-y				+= parsers/
++obj-$(CONFIG_MTD_RPC_HYPERFLASH)	+= rpc_hyperflash.o
  
  # 'Users' - code which presents functionality to userspace.
  obj-$(CONFIG_MTD_BLKDEVS)	+= mtd_blkdevs.o
