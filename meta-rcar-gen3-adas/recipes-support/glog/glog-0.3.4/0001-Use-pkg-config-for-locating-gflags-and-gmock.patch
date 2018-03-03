@@ -10,26 +10,25 @@ cross-compilation of gflags and gmock so use pkg-config instead.
  1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 8b458fa..16a6c7e 100644
+index 7b4d21e..028cf85 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -138,17 +138,19 @@ LIBS="$SAVE_LIBS"
+@@ -152,18 +156,18 @@ LIBS="$SAVE_LIBS"
  # TODO(hamaji): Use official m4 macros provided by testing libraries
  #               once the m4 macro of Google Mocking becomes ready.
  # Check if there is Google Test library installed.
 -AC_CHECK_PROG(GTEST_CONFIG, gtest-config, "yes")
-+# Use pkg-config instead of gtest-config with Yocto
 +AC_CHECK_PROG(GTEST_CONFIG, pkg-config, "yes")
- if test x"$GTEST_CONFIG" = "xyes"; then
+ AC_CHECK_LIB(gtest, main, have_gtest_lib="yes")
+ if test x"$GTEST_CONFIG" = "xyes" -a x"$have_gtest_lib" = "xyes"; then
 -  GTEST_CFLAGS=`gtest-config --cppflags --cxxflags`
 -  GTEST_LIBS=`gtest-config --ldflags --libs`
 +  GTEST_CFLAGS=`pkg-config --cppflags --cxxflags gtest`
-+  GTEST_LIBS=`pkg-config --libs gtest`
++  GTEST_LIBS=`pkg-config ---libs gtest`
    AC_DEFINE(HAVE_LIB_GTEST, 1, [define if you have google gtest library])
  
    # Check if there is Google Mocking library installed.
 -  AC_CHECK_PROG(GMOCK_CONFIG, gmock-config, "yes")
-+  # Use pkg-config instead of gmock-config with Yocto
 +  AC_CHECK_PROG(GMOCK_CONFIG, pkg-config, "yes")
    if test x"$GMOCK_CONFIG" = "xyes"; then
 -    GMOCK_CFLAGS=`gmock-config --cppflags --cxxflags`
