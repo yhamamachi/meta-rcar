@@ -1,0 +1,116 @@
+From 8b1da49d596f6f9808faa5ab0a9bd30dd58cdc1a Mon Sep 17 00:00:00 2001
+From: Biju Das <biju.das@bp.renesas.com>
+Date: Fri, 16 Feb 2018 15:48:01 +0000
+Subject: [PATCH] arm64: dts: renesas: Fix 4K display blank issue
+
+During rcar_du_crtc_setup, du_dotclkin1 get modified from 33000000(33MHz)
+to 297000000 (297 Mhz), which is causing 4k display non-functional on
+R-Car Gen3 H3 Starter Kit premier and M3 Starter Kit Pro boards. This
+patch fixes this issue.
+
+Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts | 12 ++++++++++--
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi       | 13 +++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts |  6 +++++-
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi       |  7 +++++++
+ 4 files changed, 35 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
+index 288535d..cb3c0ab 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
+@@ -79,6 +79,14 @@
+ 	};
+ };
+ 
++&du_dotclkin1 {
++	clock-frequency = <33000000>;
++};
++
++&du_dotclkin2 {
++	clock-frequency = <33000000>;
++};
++
+ &du {
+ 	clocks = <&cpg CPG_MOD 724>,
+ 		 <&cpg CPG_MOD 723>,
+@@ -86,8 +94,8 @@
+ 		 <&cpg CPG_MOD 721>,
+ 		 <&cpg CPG_MOD 727>,
+ 		 <&versaclock5 1>,
+-		 <&versaclock5 3>,
+-		 <&versaclock5 4>,
++		 <&du_dotclkin1>,
++		 <&du_dotclkin2>,
+ 		 <&versaclock5 2>;
+ 	clock-names = "du.0", "du.1", "du.2", "du.3", "lvds.0",
+ 		      "dclkin.0", "dclkin.1", "dclkin.2", "dclkin.3";
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index f5fa746..c420cc8 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -617,6 +617,19 @@
+ 		clock-frequency = <0>;
+ 	};
+ 
++	/* DU input dot clock - to be overridden by boards that provide it */
++	du_dotclkin1: dclkin-1 {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <0>;
++	};
++
++	du_dotclkin2: dclkin-2 {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <0>;
++	};
++
+ 	firmware {
+ 		optee {
+ 			compatible = "linaro,optee-tz";
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
+index 0ac6a10..bf98bdd 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
+@@ -91,13 +91,17 @@
+ 	/delete-property/ cpu-idle-states;
+ };
+ 
++&du_dotclkin1 {
++	clock-frequency = <33000000>;
++};
++
+ &du {
+ 	clocks = <&cpg CPG_MOD 724>,
+ 		 <&cpg CPG_MOD 723>,
+ 		 <&cpg CPG_MOD 722>,
+ 		 <&cpg CPG_MOD 727>,
+ 		 <&versaclock5 1>,
+-		 <&versaclock5 3>,
++		 <&du_dotclkin1>,
+ 		 <&versaclock5 2>;
+ 	clock-names = "du.0", "du.1", "du.2", "lvds.0",
+ 		      "dclkin.0", "dclkin.1", "dclkin.2";
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+index 0139247..723f1f1 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+@@ -635,6 +635,13 @@
+ 		clock-frequency = <0>;
+ 	};
+ 
++	/* DU input dot clock - to be overridden by boards that provide it */
++	du_dotclkin1: dclkin-1 {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <0>;
++	};
++
+ 	firmware {
+ 		optee {
+ 			compatible = "linaro,optee-tz";
+-- 
+2.7.4
+

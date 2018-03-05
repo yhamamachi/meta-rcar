@@ -36,6 +36,7 @@ SRC_URI_append = " \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
+    file://0043-arm64-dts-renesas-Fix-4K-display-blank-issue.patch \
     file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
     file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
