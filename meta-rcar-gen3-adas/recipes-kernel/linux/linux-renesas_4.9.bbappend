@@ -84,6 +84,7 @@ SRC_URI_append = " \
     file://0104-media-vsp1-extend-DRM-VSP1-interface.patch \
     file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
     file://0106-media-rcar-imr-Add-RSE-support.patch \
+    file://0107-V3H-device-tree-Add-VIP-devices-IRQs.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -156,3 +157,8 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
 "
+
+# V3H VIP devices
+KERNEL_MODULE_AUTOLOAD_r8a7798 += "uio_pdrv_genirq"
+KERNEL_MODULE_PROBECONF_r8a7798 += "uio_pdrv_genirq"
+module_conf_uio_pdrv_genirq_r8a7798 = 'options uio_pdrv_genirq of_id="generic-uio"'
