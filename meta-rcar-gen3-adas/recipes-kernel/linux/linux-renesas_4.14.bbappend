@@ -102,3 +102,8 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vbm.dtb \
     renesas/r8a77980-v3hsk-vbm-v2.dtb \
 "
+
+# V3H VIP devices
+KERNEL_MODULE_AUTOLOAD_append_r8a77980 = " uio_pdrv_genirq"
+KERNEL_MODULE_PROBECONF_append_r8a77980 = " uio_pdrv_genirq"
+module_conf_uio_pdrv_genirq_r8a77980 = 'options uio_pdrv_genirq of_id="generic-uio"'
