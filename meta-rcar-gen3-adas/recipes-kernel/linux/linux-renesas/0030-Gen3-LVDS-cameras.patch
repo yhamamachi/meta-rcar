@@ -1463,7 +1463,7 @@ index 0000000..bafa193
 +{0x302E, AR0132_PLL_Pre_Clk_Div},
 +{0x3030, AR0132_PLL_Multiplier},
 +{0x3032, 0x0000},	// SCALING_MODE = 0
-+{0x3040, 0xC000},	// READ_MODE    = read_mode_vert_flip    | read_mode_horiz_mirror
++{0x3040, 0x0000},	// READ_MODE    = read_mode_vert_flip    | read_mode_horiz_mirror
 +{0x3044, 0x0404},	// Dark Control = 1028
 +{0x30A6, 0x0001},	// Y Odd Inc. (A) = 1
 +{0x30A8, 0x0001},	// Y Odd Inc. (B) = 1
