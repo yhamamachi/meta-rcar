@@ -11,19 +11,22 @@ S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
 SRC_URI = "git://github.com/CogentEmbedded/cr7-loader.git;branch=${BRANCH}"
-SRCREV = "9570cd170e876801370560bb0c417816cbfe21d2"
+SRCREV = "f06b622d9f91771076e755aea1aad5fddcb6f172"
 
 PV = "v1.0+renesas+git"
 
-COMPATIBLE_MACHINE = "condor|v3hsk"
+COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3mzf|v3hsk"
 PLATFORM = "rcar"
+
+CR7_OPT_r8a7797 = "LSI=V3M RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 RCAR_SECURE_BOOT=0"
+CR7_OPT_r8a7798 = "LSI=V3H RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 RCAR_SECURE_BOOT=0"
 
 do_compile() {
     wget https://releases.linaro.org/components/toolchain/binaries/5.1-2015.08/arm-eabi/gcc-linaro-5.1-2015.08-x86_64_arm-eabi.tar.xz
     tar xfJ gcc-linaro-5.1-2015.08-x86_64_arm-eabi.tar.xz
 
-    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 LSI=V3H RCAR_SECURE_BOOT=0 clean
-    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 LSI=V3H RCAR_SECURE_BOOT=0
+    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make ${CR7_OPT} clean
+    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make ${CR7_OPT}
 }
 
 do_deploy() {
