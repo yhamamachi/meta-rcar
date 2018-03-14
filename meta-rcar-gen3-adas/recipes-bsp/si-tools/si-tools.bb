@@ -15,33 +15,25 @@ SRC_URI = " \
 
 S = "${WORKDIR}/si-tools"
 
+SCRIPTS = "si_init si_firmware_update si_fm si_preset si_scan"
+FIRMWARE = "am.bif fm.bif dab.bif patch.bin"
+
 do_install() {
     install -d ${D}${bindir}
     install -d ${D}/lib/firmware/radio/
 
     install -m 755 si_ctl ${D}${bindir}
     install -m 755 si_flash ${D}${bindir}
-    install -m 755 ${S}/scripts/si_init ${D}${bindir}
-    install -m 755 ${S}/scripts/si_firmware_update ${D}${bindir}
-    install -m 755 ${S}/scripts/si_fm ${D}${bindir}
-    install -m 755 ${S}/scripts/si_preset ${D}${bindir}
-    install -m 755 ${S}/scripts/si_scan ${D}${bindir}
-    install -m 644 ${S}/firmware/am.bif ${D}/lib/firmware/radio/
-    install -m 644 ${S}/firmware/fm.bif ${D}/lib/firmware/radio/
-    install -m 644 ${S}/firmware/dab.bif ${D}/lib/firmware/radio/
-    install -m 644 ${S}/firmware/patch.bin ${D}/lib/firmware/radio/
+    for file in ${SCRIPTS}; do
+        install -m 755 ${S}/scripts/$file ${D}${bindir}
+    done
+
+    for file in ${FIRMWARE}; do
+        install -m 644 ${S}/firmware/$file ${D}/lib/firmware/radio/
+    done
 }
 
 FILES_${PN} = " \
-    ${bindir}/si_ctl \
-    ${bindir}/si_flash \
-    ${bindir}/si_init \
-    ${bindir}/si_firmware_update \
-    ${bindir}/si_fm \
-    ${bindir}/si_preset \
-    ${bindir}/si_scan \
-    /lib/firmware/radio/am.bif \
-    /lib/firmware/radio/fm.bif \
-    /lib/firmware/radio/dab.bif \
-    /lib/firmware/radio/patch.bin \
+    ${bindir} \
+    /lib/firmware/radio \
 "
