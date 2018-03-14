@@ -26,6 +26,7 @@ do_install() {
     install -m 755 si_flash ${D}${bindir}
     for file in ${SCRIPTS}; do
         install -m 755 ${S}/scripts/$file ${D}${bindir}
+        sed -e 's,^\(SI_ARGS\s*=\s*\).*,\1"/dev/i2c-12 0x65",' -i ${D}${bindir}/$file
     done
 
     for file in ${FIRMWARE}; do
