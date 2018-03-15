@@ -24,12 +24,12 @@ do_deploy_append() {
     install -m 0644 ${S}/tools/dummy_create/cert_header_sa6.bin ${DEPLOYDIR}/cert_header_sa6.bin
 }
 
-do_deploy_append_condor() {
+do_deploy_append_r8a7797() {
     rm ${DEPLOYDIR}/bootparam_sa0.bin
     rm ${DEPLOYDIR}/bootparam_sa0.srec
 }
 
-do_deploy_append_v3hsk() {
+do_deploy_append_r8a7798() {
     rm ${DEPLOYDIR}/bootparam_sa0.bin
     rm ${DEPLOYDIR}/bootparam_sa0.srec
 }
