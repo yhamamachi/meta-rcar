@@ -11706,7 +11706,7 @@ new file mode 100644
 index 0000000..dbbd3d2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,81 @@
 +/*
 + * Device Tree Source for the V3MSK Videobox Mini board V2 on r8a7797
 + *
@@ -12960,7 +12960,7 @@ new file mode 100644
 index 0000000..246e71d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
-@@ -0,0 +1,462 @@
+@@ -0,0 +1,461 @@
 +/*
 + * Device Tree Source for the V3MZF board
 + *
@@ -14396,7 +14396,7 @@ new file mode 100644
 index 0000000..56d4253
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,72 @@
 +/*
 + * Device Tree Source for the V3HSK Videobox Mini board V2 on r8a7798
 + *
