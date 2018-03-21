@@ -9984,7 +9984,7 @@ index 657ad10..97e3203 100644
  };
  
  &i2c2 {
-+	clock-frequency = <400000>;
++	clock-frequency = <100000>;
 +
  	gpio_exp_74: gpio@74 {
  		compatible = "ti,tca9539";
