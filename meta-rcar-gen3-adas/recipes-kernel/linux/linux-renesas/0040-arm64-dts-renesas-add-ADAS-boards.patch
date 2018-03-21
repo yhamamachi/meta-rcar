@@ -15906,7 +15906,7 @@ new file mode 100644
 index 0000000..447cfc3
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1458 @@
+@@ -0,0 +1,1456 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -16341,8 +16341,6 @@ index 0000000..447cfc3
 +};
 +
 +&i2c2 {
-+	clock-frequency = <400000>;
-+
 +	gpio_ext_74: pca9539@74 {
 +		compatible = "nxp,pca9539";
 +		reg = <0x74>;
