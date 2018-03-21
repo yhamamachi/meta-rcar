@@ -29,6 +29,7 @@ SRC_URI_append = " \
     file://0024-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch \
     file://0025-drm-adv7511-Enable-HPD-interrupts-to-support-hotplug.patch \
     file://0026-drm-adv7511-add-polling-mode-when-no-irq-available.patch \
+    file://0027-gpu-drm-bridge-adv7511-Add-interlaced-mode-support.patch \
     file://0030-Gen3-LVDS-cameras.patch \
     file://0031-media-i2c-Add-ov5647-sensor.patch \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
