@@ -1,4 +1,4 @@
-From 9872a94a414d6d94423f52d59cb09cdb64cf2930 Mon Sep 17 00:00:00 2001
+From f94a79d9f491b627138095b2eb18fa913c9810bb Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 15:05:42 +0300
 Subject: [PATCH] arm64: dts: renesas: add ADAS boards
@@ -80,12 +80,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  462 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1277 ++++++++++++++-
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1280 ++++++++++++++-
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  459 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1591 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1641 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  523 +++++++
- 50 files changed, 14623 insertions(+), 4 deletions(-)
+ 50 files changed, 14625 insertions(+), 5 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
@@ -9584,7 +9584,7 @@ index 0000000..b854216
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 657ad10..97e3203 100644
+index 657ad10..a9c50d7 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 @@ -13,6 +13,267 @@
@@ -10045,7 +10045,7 @@ index 657ad10..97e3203 100644
  	};
  
  	i2cswitch2: i2c-switch@71 {
-@@ -85,6 +482,132 @@
+@@ -85,6 +482,133 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
@@ -10090,6 +10090,7 @@ index 657ad10..97e3203 100644
 +//				interrupts = <0 IRQ_TYPE_EDGE_BOTH>;
 +				pd-gpios = <&gpio_exp_75 5 GPIO_ACTIVE_LOW>;
 +
++				interlace-allowed;
 +				adi,input-depth = <8>;
 +				adi,input-colorspace = "rgb";
 +				adi,input-clock = "1x";
@@ -10178,7 +10179,7 @@ index 657ad10..97e3203 100644
  	};
  };
  
-@@ -97,6 +620,76 @@
+@@ -97,6 +621,76 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio7>;
  		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
@@ -10255,7 +10256,7 @@ index 657ad10..97e3203 100644
  	};
  
  	gpio_exp_77: gpio@77 {
-@@ -107,6 +700,31 @@
+@@ -107,6 +701,31 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio5>;
  		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
@@ -10287,7 +10288,7 @@ index 657ad10..97e3203 100644
  	};
  
  	i2cswitch4: i2c-switch@71 {
-@@ -115,15 +733,366 @@
+@@ -115,15 +734,366 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios= <&gpio3 15 GPIO_ACTIVE_LOW>;
@@ -10654,7 +10655,7 @@ index 657ad10..97e3203 100644
  };
  
  &pciec0 {
-@@ -132,6 +1101,9 @@
+@@ -132,6 +1102,9 @@
  
  &pciec1 {
  	status = "okay";
@@ -10664,7 +10665,7 @@ index 657ad10..97e3203 100644
  };
  
  &pfc {
-@@ -145,25 +1117,324 @@
+@@ -145,25 +1118,324 @@
  		function = "can1";
  	};
  
@@ -15230,5 +15231,5 @@ index 0000000..067607a
 +};
 +
 -- 
-1.9.1
+2.7.4
 
