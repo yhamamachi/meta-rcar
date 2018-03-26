@@ -1,4 +1,4 @@
-From ed78d27af12a2637fe9ae17e96a9af35a046d486 Mon Sep 17 00:00:00 2001
+From fbc9403a97c602447751b49aa9d4d9cea56fef4c Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 15:05:42 +0300
 Subject: [PATCH] arm64: dts: renesas: add ADAS boards
@@ -78,24 +78,24 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7797-es1-v3msk.dts  |   17 +
  arch/arm64/boot/dts/renesas/r8a7797-es1.dtsi       |  116 ++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  520 ++++++
- .../boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts      |   82 +
+ .../boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts      |   81 +
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  507 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  297 ++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts      |  345 ++++
  arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts      |  462 ++++++
  arch/arm64/boot/dts/renesas/r8a7798-condor.dts     |  963 ++++++++++++
- .../boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts      |   73 +
+ .../boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts      |   72 +
  arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts  |  505 ++++++
  arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts      |  358 +++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  462 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1458 +++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1456 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  459 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1610 +++++++++++++++++++
- arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1660 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1650 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  543 +++++++
- 60 files changed, 21143 insertions(+)
+ 60 files changed, 21129 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -11703,7 +11703,7 @@ index 0000000..862236f
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts
 new file mode 100644
-index 0000000..dbbd3d2
+index 0000000..74a3df6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm-v2.dts
 @@ -0,0 +1,81 @@
@@ -12957,7 +12957,7 @@ index 0000000..33c6c0d
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
 new file mode 100644
-index 0000000..246e71d
+index 0000000..71d7bad
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
 @@ -0,0 +1,462 @@
@@ -14394,7 +14394,7 @@ index 0000000..4dd7a28
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
 new file mode 100644
-index 0000000..56d4253
+index 0000000..7bf1d6f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm-v2.dts
 @@ -0,0 +1,72 @@
@@ -15903,7 +15903,7 @@ index 0000000..b854216
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 new file mode 100644
-index 0000000..447cfc3
+index 0000000..0a927e2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 @@ -0,0 +1,1456 @@
@@ -19446,10 +19446,10 @@ index 0000000..0185e46
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
 new file mode 100644
-index 0000000..280c3b7
+index 0000000..509c7f3
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -0,0 +1,1660 @@
+@@ -0,0 +1,1650 @@
 +/*
 + * Device Tree Source for the ULCB Videobox V2 board
 + *
@@ -19654,6 +19654,7 @@ index 0000000..280c3b7
 +		spican0: spidev@0 {
 +			compatible = "microchip,mcp2515";
 +			reg = <0>;
++			reset-gpios = <&gpio_ext_pwr 8 GPIO_ACTIVE_HIGH>;
 +			clocks = <&excan_ref_clk>;
 +			interrupt-parent = <&gpio0>;
 +			interrupts = <15 GPIO_ACTIVE_LOW>;
@@ -19662,6 +19663,7 @@ index 0000000..280c3b7
 +		spican1: spidev@1 {
 +			compatible = "microchip,mcp2515";
 +			reg = <1>;
++			reset-gpios = <&gpio_ext_pwr 9 GPIO_ACTIVE_HIGH>;
 +			clocks = <&excan_ref_clk>;
 +			interrupt-parent = <&gpio1>;
 +			interrupts = <5 GPIO_ACTIVE_LOW>;
@@ -20618,12 +20620,6 @@ index 0000000..280c3b7
 +					output-high;
 +					line-name = "can2_120R_load";
 +				};
-+				can2_rst {
-+					gpio-hog;
-+					gpios = <8 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "can2_rst";
-+				};
 +				/* CAN3 */
 +				can3_stby {
 +					gpio-hog;
@@ -20636,12 +20632,6 @@ index 0000000..280c3b7
 +					gpios = <3 GPIO_ACTIVE_HIGH>;
 +					output-high;
 +					line-name = "can3_120R_load";
-+				};
-+				can3_rst {
-+					gpio-hog;
-+					gpios = <9 GPIO_ACTIVE_HIGH>;
-+					output-high;
-+					line-name = "can3_rst";
 +				};
 +			};
 +		};

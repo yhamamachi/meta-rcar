@@ -85,6 +85,7 @@ SRC_URI_append = " \
     file://0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch \
     file://0106-media-rcar-imr-Add-RSE-support.patch \
     file://0107-V3H-device-tree-Add-VIP-devices-IRQs.patch \
+    file://0108-can-mcp251x-add-reset-gpio-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
