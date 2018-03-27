@@ -63,7 +63,7 @@ SRC_URI_append = " \
     file://0068-drm-adv7511-use-smbus-to-retrieve-edid.patch \
     file://0070-clk-clk-5p49x-add-5P49V5925-chip.patch \
     file://0071-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch \
-    file://0072-usb-hub-disable-autosuspend-for-SMSC-hubs.patch \
+    file://0072-usb-hub-disable-autosuspend-for-SMSC-and-TI-hubs.patch \
     file://0073-MOST-dim2-add-device-tree-support.patch \
     file://0074-MOST-dim2-add-R-Car3-related-initialization.patch \
     file://0075-MOST-core-fix-memory-allocation-at-arm64.patch \
