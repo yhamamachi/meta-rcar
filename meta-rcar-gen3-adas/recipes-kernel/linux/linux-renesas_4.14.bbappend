@@ -9,6 +9,7 @@ COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
+    file://dmaengine-sh-Update-to-v4.9-rcar-3.5.9.patch \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
@@ -57,6 +58,7 @@ SRC_URI_append = " \
     file://0076-MOST-dim2-Renesas-R-Car3-variant.patch \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
+    file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
     file://0110-mmc-tmio-Add-SDHI-SEQUENCER-support.patch \
     file://0111-mmc-renesas_sdhi-Add-SDHI-SEQUENCER-support.patch \
 "
