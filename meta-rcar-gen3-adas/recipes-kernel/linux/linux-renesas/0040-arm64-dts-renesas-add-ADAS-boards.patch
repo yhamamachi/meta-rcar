@@ -9175,7 +9175,7 @@ index 0000000..a87c38b
 +			port@1 {
 +				ti9x4_csi2ep0: endpoint {
 +					csi-rate = <1450>;
-+					remote-endpoint = <&csi2_41_ep>;
++					remote-endpoint = <&csi41_ep>;
 +				};
 +			};
 +		};
@@ -9221,7 +9221,7 @@ index 0000000..a87c38b
 +			port@1 {
 +				max9286_csi2ep0: endpoint {
 +					csi-rate = <700>;
-+					remote-endpoint = <&csi2_41_ep>;
++					remote-endpoint = <&csi41_ep>;
 +				};
 +			};
 +		};
@@ -9357,7 +9357,7 @@ index 0000000..a87c38b
 +		};
 +		port@1 {
 +			csi2ep0: endpoint {
-+				remote-endpoint = <&csi2_41_ep>;
++				remote-endpoint = <&csi41_ep>;
 +			};
 +		};
 +		port@2 {
@@ -9386,7 +9386,7 @@ index 0000000..a87c38b
 +		};
 +		port@1 {
 +			csi2ep1: endpoint {
-+				remote-endpoint = <&csi2_41_ep>;
++				remote-endpoint = <&csi41_ep>;
 +			};
 +		};
 +		port@2 {
@@ -9417,7 +9417,7 @@ index 0000000..a87c38b
 +		};
 +		port@1 {
 +			csi2ep2: endpoint {
-+				remote-endpoint = <&csi2_41_ep>;
++				remote-endpoint = <&csi41_ep>;
 +			};
 +		};
 +		port@2 {
@@ -9448,7 +9448,7 @@ index 0000000..a87c38b
 +		};
 +		port@1 {
 +			csi2ep3: endpoint {
-+				remote-endpoint = <&csi2_41_ep>;
++				remote-endpoint = <&csi41_ep>;
 +			};
 +		};
 +		port@2 {
@@ -9462,7 +9462,7 @@ index 0000000..a87c38b
 +	};
 +};
 +
-+&csi2_41 {
++&csi41 {
 +	status = "okay";
 +
 +	virtual,channel {
@@ -9488,7 +9488,7 @@ index 0000000..a87c38b
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +
-+		csi2_41_ep: endpoint {
++		csi41_ep: endpoint {
 +			clock-lanes = <0>;
 +			data-lanes = <1 2 3 4>;
 +			csi-rate = <300>;
