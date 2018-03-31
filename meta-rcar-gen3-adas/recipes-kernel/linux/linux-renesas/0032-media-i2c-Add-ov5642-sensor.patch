@@ -835,24 +835,6 @@ index 39f420d..f50b9da 100644
  
  	return ret;
  }
-@@ -1071,8 +584,17 @@ static int ov5642_remove(struct i2c_client *client)
- MODULE_DEVICE_TABLE(of, ov5642_of_match);
- #endif
- 
-+#if IS_ENABLED(CONFIG_OF)
-+static const struct of_device_id ov5642_of_match[] = {
-+	{ .compatible = "ovti,ov5642" },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(of, ov5642_of_match);
-+#endif
-+
- static struct i2c_driver ov5642_i2c_driver = {
- 	.driver = {
-+		.of_match_table = of_match_ptr(ov5642_of_match),
- 		.name = "ov5642",
- 		.of_match_table = of_match_ptr(ov5642_of_match),
- 	},
 diff --git a/drivers/media/i2c/soc_camera/ov5642.h b/drivers/media/i2c/soc_camera/ov5642.h
 new file mode 100644
 index 0000000..ac47a16
