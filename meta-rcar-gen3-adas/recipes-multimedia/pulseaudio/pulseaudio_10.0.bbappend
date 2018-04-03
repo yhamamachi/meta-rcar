@@ -14,8 +14,9 @@ SRC_URI_append_rcar-gen3 = " \
 
 inherit update-rc.d
 
-INITSCRIPT_NAME = "pulseaudio"
-INITSCRIPT_PARAMS = "defaults 30"
+INITSCRIPT_PACKAGES = "${PN}-server"
+INITSCRIPT_NAME_${PN}-server = "pulseaudio"
+INITSCRIPT_PARAMS_${PN}-server = "defaults 30"
 
 do_install_append_rcar-gen3() {
     install -d ${D}/etc/init.d
