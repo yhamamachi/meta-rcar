@@ -87,6 +87,7 @@ SRC_URI_append = " \
     file://0107-V3H-device-tree-Add-VIP-devices-IRQs.patch \
     file://0108-can-mcp251x-add-reset-gpio-support.patch \
     file://0109-ASoC-R-Car-fix-incorrect-behavior-with-PulseAudio.patch \
+    file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
