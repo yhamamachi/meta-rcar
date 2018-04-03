@@ -1,0 +1,33 @@
+From 26e7cff6e7c75917b058faff2185d69376ef6b03 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 4 Apr 2018 01:37:09 +0300
+Subject: [PATCH] ARM64: dts: renesas: ulcb: Make AK4613 sound device name
+ consistent
+
+This makes AK4613 sound device name consistent throughout all
+ULCB boards. This helps to avoid naming issues when pulseaudio
+fails to start because the device has different names on
+infotainment and starter boards. For example, "ak4613"
+on Kingfisher vs "rsnd-dai.0-ak4613-hifi" on Starter Kit.
+Pulseaudio is expecting "ak4613" name.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb.dtsi b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+index 254a6d7..8fdd853 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb.dtsi
+@@ -100,6 +100,7 @@
+ 		compatible = "simple-audio-card";
+ 
+ 		simple-audio-card,format = "left_j";
++		simple-audio-card,name = "ak4613";
+ 		simple-audio-card,bitclock-master = <&sndcpu>;
+ 		simple-audio-card,frame-master = <&sndcpu>;
+ 
+-- 
+2.7.4
+

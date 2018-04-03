@@ -61,6 +61,7 @@ SRC_URI_append = " \
     file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
     file://0110-mmc-tmio-Add-SDHI-SEQUENCER-support.patch \
     file://0111-mmc-renesas_sdhi-Add-SDHI-SEQUENCER-support.patch \
+    file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
