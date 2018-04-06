@@ -51,7 +51,7 @@ index 7d3c35e..4ae36b3 100644
 +			   USE_SEQUENCER), },
  	{ .soc_id = "r8a7796", .revision = "ES1.1",
  	  .data = (void *)HS400_USE_4TAP, },
- 	{ .soc_id = "r8a77965", .revision = "ES1.0",
+ 	{/*sentinel*/},
 @@ -730,6 +732,9 @@ int renesas_sdhi_probe(struct platform_device *pdev,
  	host->hs400_use_4tap = (host->sdhi_quirks & HS400_USE_4TAP) ?
  				true : false;

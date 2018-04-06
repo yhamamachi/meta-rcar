@@ -37,9 +37,9 @@ index dfd9bab..c857214 100644
  
  config R8A7796X
 @@ -45,5 +48,6 @@ config SYS_SOC
- source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
  source "board/renesas/draak/Kconfig"
+ source "board/renesas/ebisu/Kconfig"
 +source "board/renesas/eagle/Kconfig"
  
  endif

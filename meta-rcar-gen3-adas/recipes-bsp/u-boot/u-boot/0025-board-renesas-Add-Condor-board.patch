@@ -37,7 +37,7 @@ index 58a9259..0edd5db 100644
  
  config R8A7796X
 @@ -56,5 +59,6 @@ source "board/renesas/salvator-x/Kconfig"
- source "board/renesas/draak/Kconfig"
+ source "board/renesas/ebisu/Kconfig"
  source "board/renesas/eagle/Kconfig"
  source "board/renesas/v3msk/Kconfig"
 +source "board/renesas/condor/Kconfig"

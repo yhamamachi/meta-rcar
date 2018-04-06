@@ -14,6 +14,7 @@ Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
  arch/arm/cpu/armv8/rcar_gen3/cpu_info.c            |    8 +
  arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7798.c         | 3074 ++++++++++++++++++++
  arch/arm/cpu/armv8/rcar_gen3/pfc.c                 |    2 +
+ arch/arm/cpu/armv8/rcar_gen3/board.c               |    1 +
  arch/arm/include/asm/arch-rcar_gen3/gpio.h         |    4 +
  arch/arm/include/asm/arch-rcar_gen3/r8a7798-gpio.h |  522 ++++
  arch/arm/include/asm/arch-rcar_gen3/r8a7798.h      |   34 +
@@ -3836,8 +3837,8 @@ index 1a26543..b19ece1 100644
  
  config RAVB_1000BASE
  	bool "Renesas Ethernet AVB support 1000Base"
--	default y if R8A7795 || R8A7796X || R8A77995 || R8A7797
-+	default y if R8A7795 || R8A7796X || R8A77995 ||R8A7797 || R8A7798
+-	default y if R8A7795 || R8A7796X || R8A77995 || R8A77990 || R8A7797
++	default y if R8A7795 || R8A7796X || R8A77995 || R8A77990 || R8A7797 || R8A7798
  	depends on RCAR_GEN3
  
  endmenu
@@ -3917,7 +3918,7 @@ index 478824e..ded0d3d 100644
 @@ -227,7 +227,7 @@ struct uart_port {
  	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
  	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
- 	defined(CONFIG_R8A77995) || \
+ 	defined(CONFIG_R8A77990) || defined(CONFIG_R8A77995) || \
 -	defined(CONFIG_R8A7797)
 +	defined(CONFIG_R8A7797) || defined(CONFIG_R8A7798)
  # define SCIF_ORER	0x0001
@@ -3940,6 +3941,19 @@ index dc5560d..a3721ad 100644
  #else
  #define CONFIG_NR_DRAM_BANKS		1
  #define CONFIG_SYS_SDRAM_BASE		0x40000000
+diff --git a/arch/arm/cpu/armv8/rcar_gen3/board.c b/arch/arm/cpu/armv8/rcar_gen3/board.c
+index 66a7856..77da99f 100644
+--- a/arch/arm/cpu/armv8/rcar_gen3/board.c
++++ b/arch/arm/cpu/armv8/rcar_gen3/board.c
+@@ -38,7 +38,7 @@ int rcar_get_serial_config_clk(void)
+ 		return CONFIG_SH_SCIF_CLEAN_CLK_FREQ;
+ #else
+ #if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
+-    defined(CONFIG_R8A7797)
++    defined(CONFIG_R8A7797) || defined(CONFIG_R8A7798)
+ 	return rcar_get_serial_config_clk_prr();
+ #else
+ #error "Not found serial clock configuration."
 -- 
 1.9.1
 

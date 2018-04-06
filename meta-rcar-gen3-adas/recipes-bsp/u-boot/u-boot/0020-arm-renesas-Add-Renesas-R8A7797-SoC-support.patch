@@ -14,6 +14,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm/cpu/armv8/rcar_gen3/pfc-r8a7797.c         | 2764 ++++++++++++++++++++
  arch/arm/cpu/armv8/rcar_gen3/pfc.c                 |    2 +
  arch/arm/cpu/armv8/rcar_gen3/prr_depend.c          |   27 +
+ arch/arm/cpu/armv8/rcar_gen3/board.c               |    3 +
  arch/arm/include/asm/arch-rcar_gen3/gpio.h         |    4 +
  arch/arm/include/asm/arch-rcar_gen3/r8a7797-gpio.h |  456 ++++
  arch/arm/include/asm/arch-rcar_gen3/r8a7797.h      |   33 +
@@ -2892,7 +2893,7 @@ index 0543f11..bd3aa0a 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/pfc.c
 +++ b/arch/arm/cpu/armv8/rcar_gen3/pfc.c
 @@ -20,5 +20,7 @@ void pinmux_init(void)
- 	r8a7796_pinmux_init();
+ 	r8a77990_pinmux_init();
  #elif defined(CONFIG_R8A77995)
  	r8a77995_pinmux_init();
 +#elif defined(CONFIG_R8A7797)
@@ -2903,15 +2904,6 @@ diff --git a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c b/arch/arm/cpu/armv8/rcar
 index 776c596..8de3a16 100644
 --- a/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
 +++ b/arch/arm/cpu/armv8/rcar_gen3/prr_depend.c
-@@ -86,6 +86,8 @@ int rcar_get_serial_config_clk(void)
- 		return CONFIG_SH_SCIF_SSCG_CLK_FREQ;
- 	else
- 		return CONFIG_SH_SCIF_CLEAN_CLK_FREQ;
-+#else
-+	return CONFIG_SH_SCIF_CLK_FREQ;
- #endif
- }
- 
 @@ -98,10 +98,37 @@ int rcar_need_reconfig_sdhi_drvctrl(void)
  #define SDH800_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV4)
  #define SDH400_SD200	(SD_SRCFC_DIV1 | SD_FC_DIV2)
@@ -2955,7 +2947,7 @@ index c58edf4..fb8b758 100644
 --- a/arch/arm/include/asm/arch-rcar_gen3/gpio.h
 +++ b/arch/arm/include/asm/arch-rcar_gen3/gpio.h
 @@ -16,6 +16,8 @@
- #include <asm/arch/r8a7796-gpio.h>
+ #include <asm/arch/r8a77990-gpio.h>
  #elif defined(CONFIG_R8A77995)
  #include <asm/arch/r8a77995-gpio.h>
 +#elif defined(CONFIG_R8A7797)
@@ -2964,7 +2956,7 @@ index c58edf4..fb8b758 100644
  
  #if defined(CONFIG_R8A7795)
 @@ -23,6 +25,8 @@ void r8a7795_pinmux_init(void);
- void r8a7796_pinmux_init(void);
+ void r8a77990_pinmux_init(void);
  #elif defined(CONFIG_R8A77995)
  void r8a77995_pinmux_init(void);
 +#elif defined(CONFIG_R8A7797)
@@ -3494,7 +3486,7 @@ index b412fad..c2ba0fb 100644
 --- a/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
 +++ b/arch/arm/include/asm/arch-rcar_gen3/rcar_gen3.h
 @@ -14,6 +14,8 @@
-  #include <asm/arch/r8a7796.h>
+  #include <asm/arch/r8a77990.h>
   #elif defined(CONFIG_R8A77995)
   #include <asm/arch/r8a77995.h>
 + #elif defined(CONFIG_R8A7797)
@@ -3510,8 +3502,8 @@ index b1b796d..1a26543 100644
  
  config RAVB_1000BASE
  	bool "Renesas Ethernet AVB support 1000Base"
--	default y if R8A7795 || R8A7796X || R8A77995
-+	default y if R8A7795 || R8A7796X || R8A77995 || R8A7797
+-	default y if R8A7795 || R8A7796X || R8A77995 || R8A77990
++	default y if R8A7795 || R8A7796X || R8A77995 || R8A77990 || R8A7797
  	depends on RCAR_GEN3
  
  endmenu
@@ -3523,8 +3515,8 @@ index fe71e9a..478824e 100644
  #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
  	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794) || \
  	defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
--	defined(CONFIG_R8A77995)
-+	defined(CONFIG_R8A77995) || \
+-	defined(CONFIG_R8A77990) || defined(CONFIG_R8A77995)
++	defined(CONFIG_R8A77990) || defined(CONFIG_R8A77995) || \
 +	defined(CONFIG_R8A7797)
  # define SCIF_ORER	0x0001
  # define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
@@ -3550,6 +3542,20 @@ index 0a959f7..dc5560d 100644
  #else
  #define CONFIG_NR_DRAM_BANKS		1
  #define CONFIG_SYS_SDRAM_BASE		0x40000000
+diff --git a/arch/arm/cpu/armv8/rcar_gen3/board.c b/arch/arm/cpu/armv8/rcar_gen3/board.c
+index 2820077..66a7856 100644
+--- a/arch/arm/cpu/armv8/rcar_gen3/board.c
++++ b/arch/arm/cpu/armv8/rcar_gen3/board.c
+@@ -37,7 +37,8 @@ int rcar_get_serial_config_clk(void)
+ 	else
+ 		return CONFIG_SH_SCIF_CLEAN_CLK_FREQ;
+ #else
+-#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X)
++#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796X) || \
++    defined(CONFIG_R8A7797)
+ 	return rcar_get_serial_config_clk_prr();
+ #else
+ #error "Not found serial clock configuration."
 -- 
 1.9.1
 

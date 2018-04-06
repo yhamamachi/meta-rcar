@@ -41,8 +41,8 @@ index c857214..343b121 100644
  
  config R8A7796X
 @@ -49,5 +52,6 @@ config SYS_SOC
- source "board/renesas/ulcb/Kconfig"
  source "board/renesas/draak/Kconfig"
+ source "board/renesas/ebisu/Kconfig"
  source "board/renesas/eagle/Kconfig"
 +source "board/renesas/v3msk/Kconfig"
  

@@ -190,7 +190,7 @@ index c0112d1..9120ff4 100644
 -	}
 +	rcar_dmac_chan_configure_desc(chan, desc);
  
- 	max_chunk_size = (RCAR_DMATCR_MASK + 1) << desc->xfer_shift;
+ 	max_chunk_size = RCAR_DMATCR_MASK << desc->xfer_shift;
  
 @@ -939,16 +884,6 @@ rcar_dmac_chan_prep_sg(struct rcar_dmac_chan *chan, struct scatterlist *sgl,
  
