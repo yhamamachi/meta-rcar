@@ -10,6 +10,7 @@ SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
     file://qspi.cfg \
+    file://imr.cfg \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
@@ -105,6 +106,8 @@ SRC_URI_append = " \
     file://0124-RPC-Hyperflash-Add-devicetree-support.patch \
     file://0125-r8a7797-pinctrl-Add-pin-function-for-hyperflash.patch \
     file://0126-r8a7798-pinctrl-Add-pin-function-for-hyperflash.patch \
+    file://0127-IMR-UIO-Driver-initial-version.patch \
+    file://0128-rcar_imr-v4l2-driver-Fix-module-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -177,6 +180,12 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
 "
+
+# Prefer V4L2 rcar_imr driver over UIO uio_imr
+KERNEL_MODULE_AUTOLOAD += "rcar_imr"
+KERNEL_MODULE_PROBECONF += "rcar_imr"
+KERNEL_MODULE_PROBECONF += "uio_imr"
+module_conf_uio_imr = 'blacklist uio_imr'
 
 # V3H VIP devices
 KERNEL_MODULE_AUTOLOAD_r8a7798 += "uio_pdrv_genirq"
