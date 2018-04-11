@@ -249,3 +249,7 @@ patch 0248-arm64-dts-renesas-Add-r8a77980-v3hsk-vbm-support.patch
 patch 0249-arm64-dts-renesas-r8a779-7-8-0-Add-IMP-devices.patch
 patch 0250-arm64-dts-renesas-r8a77980-Add-VIP-nodes.patch
 patch 0251-arm64-dts-renesas-r8a779-78-0-Add-linux-multimedia-r.patch
+patch 0252-IMR-UIO-Driver-initial-version.patch
+patch 0253-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch
+patch 0254-media-rcar-imr-Add-RSE-support.patch
+patch 0255-rcar_imr-v4l2-driver-Fix-module-support.patch

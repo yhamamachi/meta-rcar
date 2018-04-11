@@ -10,6 +10,7 @@ COMPATIBLE_MACHINE_m3nulcb = "m3nulcb"
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
+    file://imr.cfg \
     ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \
@@ -92,6 +93,12 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vbm.dtb \
     renesas/r8a77980-v3hsk-vbm-v2.dtb \
 "
+
+# Prefer V4L2 rcar_imr driver over UIO uio_imr
+KERNEL_MODULE_AUTOLOAD += "rcar_imr"
+KERNEL_MODULE_PROBECONF += "rcar_imr"
+KERNEL_MODULE_PROBECONF += "uio_imr"
+module_conf_uio_imr = 'blacklist uio_imr'
 
 # V3H VIP devices
 KERNEL_MODULE_AUTOLOAD_r8a77980 += "uio_pdrv_genirq"
