@@ -9,6 +9,7 @@ COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
+    file://qspi.cfg \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
@@ -87,6 +88,23 @@ SRC_URI_append = " \
     file://0107-V3H-device-tree-Add-VIP-devices-IRQs.patch \
     file://0108-can-mcp251x-add-reset-gpio-support.patch \
     file://0109-ASoC-R-Car-fix-incorrect-behavior-with-PulseAudio.patch \
+    file://0110-Renesas-clk-Add-RPC-clock-source.patch \
+    file://0111-Renesas-r8a7798-Add-RPC-clock.patch \
+    file://0112-Renesas-r8a7798-pinctrl-Add-RPC-pin-control.patch \
+    file://0113-Renesas-RPC-Add-RPC-driver.patch \
+    file://0114-R8A7798-dtsi-Add-RPC-node-to-dtsi.patch \
+    file://0115-R8A7798-condor-dts-Add-qspi-flash.patch \
+    file://0116-spi-nor-Add-s25fs512-flash-support.patch \
+    file://0117-spi-nor-Add-flash-array-support.patch \
+    file://0118-r8a7797-clk-Add-rpc-clock.patch \
+    file://0119-r8a7797-pinctrl-Add-qspi-pins.patch \
+    file://0120-r8a7797-dtsi-Add-rpc-node.patch \
+    file://0121-r8a7797-eagle-dts-Add-spi-flash-node.patch \
+    file://0122-r8a7797-v3msk-r8a7797-v3mzf-dts-Add-spi-flash-s25fs5.patch \
+    file://0123-V3HSK-dts-Add-qspi-node.patch \
+    file://0124-RPC-Hyperflash-Add-devicetree-support.patch \
+    file://0125-r8a7797-pinctrl-Add-pin-function-for-hyperflash.patch \
+    file://0126-r8a7798-pinctrl-Add-pin-function-for-hyperflash.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
