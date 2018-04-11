@@ -9,7 +9,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    8 +
- arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1700 +++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1724 ++++++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
  drivers/clk/renesas/r8a7798-cpg-mssr.c        |  292 +++
@@ -47,7 +47,7 @@ Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
  drivers/thermal/rcar_gen3_thermal.c           |   10 +
  include/dt-bindings/clock/r8a7798-cpg-mssr.h  |   56 +
  include/dt-bindings/power/r8a7798-sysc.h      |   46 +
- 39 files changed, 5618 insertions(+), 33 deletions(-)
+ 39 files changed, 5642 insertions(+), 33 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7798.dtsi
  create mode 100644 drivers/clk/renesas/r8a7798-cpg-mssr.c
  create mode 100644 drivers/pinctrl/sh-pfc/pfc-r8a7798.c
@@ -76,10 +76,10 @@ index 9cebaad..3646b6e 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
 new file mode 100644
-index 0000000..6412a24
+index 0000000..00bd4d6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
-@@ -0,0 +1,1700 @@
+@@ -0,0 +1,1724 @@
 +/*
 + * Device Tree Source for the r8a7798 SoC
 + *
@@ -131,6 +131,8 @@ index 0000000..6412a24
 +		vin15 = &vin15;
 +		tsc0 = &tsc1;
 +		tsc1 = &tsc2;
++		isp0 = &isp0;
++		isp1 = &isp1;
 +	};
 +
 +	psci {
@@ -1778,6 +1780,28 @@ index 0000000..6412a24
 +			clocks = <&cpg CPG_MOD 1000>;
 +			power-domains = <&sysc R8A7798_PD_A3VIP2>;
 +		};
++
++		isp0: isp@fec00000 {
++			compatible = "renesas,isp-r8a7798";
++			reg = <0 0xfec00000 0 0x20000>,
++			      <0 0xfed00000 0 0x4000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
++		isp1: isp@fee00000 {
++			compatible = "renesas,isp-r8a7798";
++			reg = <0 0xfee00000 0 0x20000>,
++			      <0 0xfed20000 0 0x4000>;
++			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 814>;
++			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
 +	};
 +};
 diff --git a/drivers/clk/renesas/Kconfig b/drivers/clk/renesas/Kconfig
@@ -2253,10 +2277,10 @@ index 3916b63..22c7713 100644
  				    rgrp->dptsr_planes);
  
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 149c107..0ad583a 100644
+index ea451cd..6528f72 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -808,6 +808,7 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
+@@ -837,6 +837,7 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
  	{ .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
  	{ .compatible = "renesas,i2c-r8a77965", .data = (void *)I2C_RCAR_GEN3 },
  	{ .compatible = "renesas,i2c-r8a7797", .data = (void *)I2C_RCAR_GEN3 },
@@ -2279,7 +2303,7 @@ index 1ae9174..41e14fa 100644
  	},
  };
 diff --git a/drivers/media/platform/soc_camera/Kconfig b/drivers/media/platform/soc_camera/Kconfig
-index 5539c5d..fc7d829 100644
+index d60909a..4ed8009 100644
 --- a/drivers/media/platform/soc_camera/Kconfig
 +++ b/drivers/media/platform/soc_camera/Kconfig
 @@ -39,7 +39,7 @@ config VIDEO_RCAR_VIN_LEGACY_DEBUG
@@ -2292,7 +2316,7 @@ index 5539c5d..fc7d829 100644
  	  This is a v4l2 driver for the R-Car CSI-2 Interface
  
 diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
-index 2ef27e8..98f271f 100644
+index 53fc644..20ffba1 100644
 --- a/drivers/media/platform/soc_camera/rcar_csi2.c
 +++ b/drivers/media/platform/soc_camera/rcar_csi2.c
 @@ -163,6 +163,11 @@
@@ -6317,7 +6341,7 @@ index 63f943d..b1fcae1 100644
  	{ .compatible = "renesas,sh73a0",	.data = &soc_shmobile_ag5 },
  #endif
 diff --git a/drivers/spi/spi-sh-msiof.c b/drivers/spi/spi-sh-msiof.c
-index a2606fe..13fd706 100644
+index 1488964..9ae47e5 100644
 --- a/drivers/spi/spi-sh-msiof.c
 +++ b/drivers/spi/spi-sh-msiof.c
 @@ -217,7 +217,8 @@ static int msiof_rcar_is_gen3(struct device *dev)
