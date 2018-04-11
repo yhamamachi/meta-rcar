@@ -144,6 +144,7 @@ KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a7797-v3msk-kf.dtb \
     renesas/r8a7797-v3msk-vbm.dtb \
     renesas/r8a7797-v3msk-vbm-v2.dtb \
+    renesas/r8a7797-v3msk-vbm-v2-isp.dtb \
     renesas/r8a7797-v3msk-view.dtb \
 "
 
@@ -159,6 +160,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
+    renesas/r8a7798-v3hsk-vbm-v2-isp.dtb \
 "
 
 # V3H VIP devices
