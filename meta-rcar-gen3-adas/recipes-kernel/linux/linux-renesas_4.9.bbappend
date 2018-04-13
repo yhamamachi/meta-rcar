@@ -109,6 +109,7 @@ SRC_URI_append = " \
     file://0127-IMR-UIO-Driver-initial-version.patch \
     file://0128-rcar_imr-v4l2-driver-Fix-module-support.patch \
     file://0129-Add-cropping-handling-to-VSP-alpha-planes.patch \
+    file://0130-Add-RAW-sensors-MBUS-formats.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
