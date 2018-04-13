@@ -1784,7 +1784,7 @@ index 0000000..00bd4d6
 +		isp0: isp@fec00000 {
 +			compatible = "renesas,isp-r8a7798";
 +			reg = <0 0xfec00000 0 0x20000>,
-+			      <0 0xfed00000 0 0x4000>;
++			      <0 0xfed00000 0 0x10000>;
 +			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
 +				     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
 +			clocks = <&cpg CPG_MOD 817>;
@@ -1794,7 +1794,7 @@ index 0000000..00bd4d6
 +		isp1: isp@fee00000 {
 +			compatible = "renesas,isp-r8a7798";
 +			reg = <0 0xfee00000 0 0x20000>,
-+			      <0 0xfed20000 0 0x4000>;
++			      <0 0xfed20000 0 0x10000>;
 +			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>,
 +				     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
 +			clocks = <&cpg CPG_MOD 814>;
