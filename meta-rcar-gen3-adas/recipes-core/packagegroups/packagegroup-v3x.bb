@@ -13,5 +13,6 @@ RDEPENDS_packagegroup-v3x = " \
     br-test \
     kernel-module-cmemdrv \
     kernel-module-uio-imp \
+    kernel-module-uio-isp \
     udev-rules-cvlib \
 "
