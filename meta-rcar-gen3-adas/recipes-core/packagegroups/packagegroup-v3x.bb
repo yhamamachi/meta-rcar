@@ -11,6 +11,7 @@ PACKAGES = " \
 # V3x common packages: IMP UIO, CMEM, CV lib
 RDEPENDS_packagegroup-v3x = " \
     kernel-module-uio-imp \
+    kernel-module-uio-isp \
     kernel-module-cmemdrv \
     udev-rules-cvlib \
     br-test \
