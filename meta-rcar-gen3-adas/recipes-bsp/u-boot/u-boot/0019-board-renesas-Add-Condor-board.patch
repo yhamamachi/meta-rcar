@@ -1,4 +1,4 @@
-From 8dba0b32243d57d48cc8b821b9252b0a7f40e5c4 Mon Sep 17 00:00:00 2001
+From 4b72eea699c087004b12f759da98e7c6a3d663fa Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 22 Jan 2018 13:21:35 +0300
 Subject: [PATCH] board: renesas: Add Condor board
@@ -6,15 +6,17 @@ Subject: [PATCH] board: renesas: Add Condor board
 Condor is a board based on R-Car V3H SoC (R8A7798)
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+
+%% original patch: 0019-board-renesas-Add-Condor-board.patch
 ---
  arch/arm/cpu/armv8/Kconfig       |   4 +
  board/renesas/condor/Kconfig     |  15 +++
  board/renesas/condor/MAINTAINERS |   6 +
  board/renesas/condor/Makefile    |  10 ++
- board/renesas/condor/condor.c    | 264 +++++++++++++++++++++++++++++++++++++++
+ board/renesas/condor/condor.c    | 272 +++++++++++++++++++++++++++++++++++++++
  configs/r8a7798_condor_defconfig |  10 ++
- include/configs/r8a7798_condor.h | 160 ++++++++++++++++++++++++
- 7 files changed, 469 insertions(+)
+ include/configs/r8a7798_condor.h | 161 +++++++++++++++++++++++
+ 7 files changed, 478 insertions(+)
  create mode 100644 board/renesas/condor/Kconfig
  create mode 100644 board/renesas/condor/MAINTAINERS
  create mode 100644 board/renesas/condor/Makefile
@@ -94,10 +96,10 @@ index 0000000..d11d859
 +obj-y	:= condor.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/condor/condor.c b/board/renesas/condor/condor.c
 new file mode 100644
-index 0000000..a46a1a7
+index 0000000..dfbfe87
 --- /dev/null
 +++ b/board/renesas/condor/condor.c
-@@ -0,0 +1,264 @@
+@@ -0,0 +1,272 @@
 +/*
 + * board/renesas/condor/condor.c
 + *     This is Condor board support.
@@ -134,6 +136,7 @@ index 0000000..a46a1a7
 +#define RAVB_MSTP812	(1 << 12)
 +#define RPC_MSTP917	(1 << 17)
 +#define SD0_MSTP314	(1 << 14)
++#define I2C0_MSTP931	(1 << 31)
 +
 +#define SD0CKCR		0xE6150074
 +
@@ -173,6 +176,8 @@ index 0000000..a46a1a7
 +#endif
 +	/* QSPI/RPC */
 +	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, RPC_MSTP917);
++	/* I2C0 */
++	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, I2C0_MSTP931);
 +
 +	freq = rcar_get_sdhi_config_clk();
 +	writel(freq, SD0CKCR);
@@ -353,6 +358,11 @@ index 0000000..a46a1a7
 +
 +void reset_cpu(ulong addr)
 +{
++#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_RCAR)
++	i2c_set_bus_num(0);
++	i2c_init(400000, 0);
++	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
++#endif
 +}
 +
 +#if defined(CONFIG_DISPLAY_BOARDINFO)
@@ -380,10 +390,10 @@ index 0000000..1cab2ae
 +CONFIG_SPI_FLASH_BAR=y
 diff --git a/include/configs/r8a7798_condor.h b/include/configs/r8a7798_condor.h
 new file mode 100644
-index 0000000..a7cc2a0
+index 0000000..6bcc79a
 --- /dev/null
 +++ b/include/configs/r8a7798_condor.h
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,161 @@
 +/*
 + * include/configs/r8a7798_condor.h
 + *     This file is Condor board configuration.
@@ -470,6 +480,8 @@ index 0000000..a7cc2a0
 +#define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 192 / 2)
 +#define CONFIG_S3D2_CLK_FREQ	(266666666u/2)
 +#define CONFIG_S3D4_CLK_FREQ	(266666666u/4)
++#define CONFIG_S3D2_CLK_FREQ	(133333333u)
++
 +
 +/* Generic Timer Definitions (use in assembler source) */
 +#define COUNTER_FREQUENCY	0xFE502A /* 16.66MHz from CPclk */
@@ -481,14 +493,13 @@ index 0000000..a7cc2a0
 +
 +/* i2c */
 +#define CONFIG_SYS_I2C
-+#define CONFIG_SYS_I2C_SH
-+#define CONFIG_SYS_I2C_SLAVE		0x60
-+#define CONFIG_SYS_I2C_SH_NUM_CONTROLLERS	1
-+#define CONFIG_SYS_I2C_SH_SPEED0	400000
-+#define CONFIG_SH_I2C_DATA_HIGH		4
-+#define CONFIG_SH_I2C_DATA_LOW		5
-+#define CONFIG_SH_I2C_CLOCK		10000000
-+
++#define CONFIG_SYS_I2C_RCAR
++#define CONFIG_SYS_RCAR_I2C0_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C1_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C2_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C3_SPEED	400000
++#define CONFIF_SYS_RCAR_I2C_NUM_CONTROLLERS	4
++#define CONFIG_HP_CLK_FREQ		CONFIG_S3D2_CLK_FREQ
 +#define CONFIG_SYS_I2C_POWERIC_ADDR	0x30
 +
 +/* USB */
@@ -545,5 +556,5 @@ index 0000000..a7cc2a0
 +
 +#endif /* __CONDOR_H */
 -- 
-1.9.1
+2.7.4
 
