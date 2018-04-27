@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://license.md;md5=9b6b96211116d6143a7f1d681d39b13d"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
+DEPENDS += "cr7-loader-tools"
+
 inherit deploy
 
 S = "${WORKDIR}/git"
@@ -21,12 +23,10 @@ PLATFORM = "rcar"
 CR7_OPT_r8a7797 = "LSI=V3M RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 RCAR_SECURE_BOOT=0"
 CR7_OPT_r8a7798 = "LSI=V3H RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 RCAR_SECURE_BOOT=0"
 
-do_compile() {
-    wget https://releases.linaro.org/components/toolchain/binaries/5.1-2015.08/arm-eabi/gcc-linaro-5.1-2015.08-x86_64_arm-eabi.tar.xz
-    tar xfJ gcc-linaro-5.1-2015.08-x86_64_arm-eabi.tar.xz
+CR7_OPT_prepend = "CROSS_COMPILE=${STAGING_LIBEXECDIR_NATIVE}/cr7-loader-tools/bin/arm-eabi- "
 
-    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make ${CR7_OPT} clean
-    CROSS_COMPILE=./gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin/arm-eabi- make ${CR7_OPT}
+do_compile() {
+    oe_runmake ${CR7_OPT}
 }
 
 do_deploy() {
