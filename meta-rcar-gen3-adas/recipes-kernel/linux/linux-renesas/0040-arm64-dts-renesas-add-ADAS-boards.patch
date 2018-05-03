@@ -19607,7 +19607,7 @@ new file mode 100644
 index 0000000..6746723
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -0,0 +1,1605 @@
+@@ -0,0 +1,1616 @@
 +/*
 + * Device Tree Source for the ULCB Videobox V2 board
 + *
@@ -19847,6 +19847,11 @@ index 0000000..6746723
 +		groups = "sdhi3_data4", "sdhi3_ctrl";
 +		function = "sdhi3";
 +		power-source = <1800>;
++	};
++
++	pwm1_pins: pwm1 {
++		groups = "pwm1_b";
++		function = "pwm1";
 +	};
 +};
 +
@@ -21209,6 +21214,12 @@ index 0000000..6746723
 +	channel1 {
 +		status = "okay";
 +	};
++};
++
++&pwm1 {
++	pinctrl-0 = <&pwm1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
 +};
 +
 +/* uncomment to enable CN12 on VIN4-7 */
