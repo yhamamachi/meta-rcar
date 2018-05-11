@@ -94,7 +94,7 @@ index 907899d..de8b8ea 100644
 +
  	INIT_LIST_HEAD(&pcie->resources);
  
- 	rcar_pcie_parse_request_of_pci_ranges(pcie);
+ 	err = rcar_pcie_parse_request_of_pci_ranges(pcie);
 -- 
 1.9.1
 
