@@ -1,0 +1,48 @@
+From 138da668b6f5f7e7faba1a858bc1b51ccdb299a4 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 24 Sep 2017 06:49:17 +0300
+Subject: [PATCH] r8a7797: vin: set memory coherent
+
+Set VIN CMA range coherent
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi     |  4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+index 4b118d6..ef15304 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+@@ -801,6 +801,7 @@
+ 			clocks = <&cpg CPG_MOD 811>;				/* RMSTPCR8/bit11:VIN0 */
+ 			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin1: video@e6ef1000 {
+@@ -810,6 +811,7 @@
+ 			clocks = <&cpg CPG_MOD 810>;				/* RMSTPCR8/bit10:VIN1 */
+ 			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin2: video@e6ef2000 {
+@@ -819,6 +821,7 @@
+ 			clocks = <&cpg CPG_MOD 809>;				/* RMSTPCR8/bit9:VIN2 */
+ 			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin3: video@e6ef3000 {
+@@ -828,6 +831,7 @@
+ 			clocks = <&cpg CPG_MOD 808>;				/* RMSTPCR8/bit8:VIN3 */
+ 			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 

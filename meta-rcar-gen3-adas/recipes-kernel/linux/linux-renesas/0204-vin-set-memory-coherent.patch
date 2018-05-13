@@ -1,0 +1,188 @@
+From 238da668b6f5f7e7faba1a858bc1b51ccdb299a4 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 24 Sep 2017 06:49:17 +0300
+Subject: [PATCH] vin: set memory coherent
+
+Set VIN CMA range coherent
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi     |  8 ++++
+ drivers/media/platform/soc_camera/rcar_vin.c | 59 +++++++++++++++++++---------
+ 2 files changed, 49 insertions(+), 18 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index 7621a34..730b925 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -1915,6 +1915,7 @@
+ 			clocks = <&cpg CPG_MOD 811>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin1: video@e6ef1000 {
+@@ -1924,6 +1925,7 @@
+ 			clocks = <&cpg CPG_MOD 810>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin2: video@e6ef2000 {
+@@ -1933,6 +1935,7 @@
+ 			clocks = <&cpg CPG_MOD 809>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin3: video@e6ef3000 {
+@@ -1942,6 +1945,7 @@
+ 			clocks = <&cpg CPG_MOD 808>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin4: video@e6ef4000 {
+@@ -1951,6 +1955,7 @@
+ 			clocks = <&cpg CPG_MOD 807>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin5: video@e6ef5000 {
+@@ -1960,6 +1965,7 @@
+ 			clocks = <&cpg CPG_MOD 806>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin6: video@e6ef6000 {
+@@ -1969,6 +1975,7 @@
+ 			clocks = <&cpg CPG_MOD 805>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		vin7: video@e6ef7000 {
+@@ -1978,6 +1985,7 @@
+ 			clocks = <&cpg CPG_MOD 804>;
+ 			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
+ 			status = "disabled";
++			dma-coherent;
+ 		};
+ 
+ 		csi2_20: csi2@fea80000 {
+diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
+index 70358e2..60db5de 100644
+--- a/drivers/media/platform/soc_camera/rcar_vin.c
++++ b/drivers/media/platform/soc_camera/rcar_vin.c
+@@ -43,6 +43,7 @@
+ #include <media/videobuf2-dma-contig.h>
+ 
+ #include <media/rcar_csi2.h>
++#include <asm/cacheflush.h>
+ 
+ #include "soc_scale_crop.h"
+ 
+@@ -1173,6 +1174,9 @@ static int rcar_vin_fill_hw_slot(struct rcar_vin_priv *priv)
+ 			struct rcar_vin_buffer, list)->vb;
+ 	list_del_init(to_buf_list(vbuf));
+ 	priv->queue_buf[slot] = vbuf;
++#if 1
++	__dma_flush_area(vb2_plane_vaddr(&priv->queue_buf[slot]->vb2_buf, 0), 2208*624);
++#endif
+ 	phys_addr_top = vb2_dma_contig_plane_dma_addr(&vbuf->vb2_buf, 0);
+ 	iowrite32(phys_addr_top, priv->base + VNMB_REG(slot));
+ 
+@@ -1303,37 +1307,52 @@ static irqreturn_t rcar_vin_threaded_irq(int irq, void *data)
+ 	return IRQ_HANDLED;
+ };
+ 
++//#define DEBUG_TIME
++#ifdef DEBUG_TIME
++static void print_time(u64 ts_start, u64 ts_end)
++{
++	unsigned long rem_nsec;
++	u64 ts = ts_end - ts_start;
++
++	rem_nsec = do_div(ts, 1000000000);
++	printk("[%5lu.%06lu] ", (unsigned long)ts, rem_nsec / 1000);
++}
++#endif
++
+ static void rcar_vin_reorder(void *buf_offset)
+ {
+ 	u32 *src = (u32 *)(buf_offset + 2208 * 624 - 552) - 1;
+ 	u32 *dst = (u32 *)(buf_offset + 2208 * 624 ) - 1;
+ 	u32 val, i, j;
+-
++#ifdef DEBUG_TIME
++	u64 ts_start, ts_end;
++	ts_start = local_clock();
++#endif
+ 	for (j = 0; j < 624; j++) {
+ 		for (i = 0; i < 138 /*=2208/16*/; i++) {
+-			val = (*src >> 8) & 0x00ffffff;
+-			*dst =  ((val << 12) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
+-				((val >>  4) & 0x000f0000) | // 3
+-				((val <<  4) & 0x00000ff0) | // 045
+-				((val >> 16) & 0x0000000f);  // 6
++			val = (*src >> 4) & 0x0ffffff0;
++			*dst =  ((val <<  8) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
++				((val >>  8) & 0x000f0000) | // 3
++				((val      ) & 0x00000ff0) | // 045
++				((val >> 20) & 0x0000000f);  // 6
+ 			dst--;
+ 
+-			val = (*src << 16) & 0x00ff0000;
++			val = (*src << 20) & 0x0ff00000;
+ 			src--;
+-			val |= (*src >> 16) & 0x0000ffff;
+-			*dst =  ((val << 12) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
+-				((val >>  4) & 0x000f0000) | // 3
+-				((val <<  4) & 0x00000ff0) | // 045
+-				((val >> 16) & 0x0000000f);  // 6
++			val |= (*src >> 12) & 0x000ffff0;
++			*dst =  ((val <<  8) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
++				((val >>  8) & 0x000f0000) | // 3
++				((val      ) & 0x00000ff0) | // 045
++				((val >> 20) & 0x0000000f);  // 6
+ 			dst--;
+ 
+-			val = (*src << 8) & 0x00ffff00;
++			val = (*src << 12) & 0x0ffff000;
+ 			src--;
+-			val |= (*src >> 24) & 0x000000ff;
+-			*dst =  ((val << 12) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
+-				((val >>  4) & 0x000f0000) | // 3
+-				((val <<  4) & 0x00000ff0) | // 045
+-				((val >> 16) & 0x0000000f);  // 6
++			val |= (*src >> 20) & 0x00000ff0;
++			*dst =  ((val <<  8) & 0x0ff00000) | // 012    0xXX361245 -> 0x01230456
++				((val >>  8) & 0x000f0000) | // 3
++				((val      ) & 0x00000ff0) | // 045
++				((val >> 20) & 0x0000000f);  // 6
+ 			dst--;
+ 
+ 			val = *src;
+@@ -1347,6 +1366,10 @@ static void rcar_vin_reorder(void *buf_offset)
+ 
+ 		src -= 138; /*552 bytes*/
+ 	}
++#ifdef DEBUG_TIME
++	ts_end = local_clock();
++	print_time(ts_start, ts_end);
++#endif
+ }
+ 
+ static irqreturn_t rcar_vin_irq(int irq, void *data)
+-- 
+1.9.1
+

@@ -196,3 +196,12 @@ module_conf_uio_imr = 'blacklist uio_imr'
 KERNEL_MODULE_AUTOLOAD_append_r8a7798 += " uio_pdrv_genirq"
 KERNEL_MODULE_PROBECONF_append_r8a7798 += " uio_pdrv_genirq"
 module_conf_uio_pdrv_genirq_r8a7798 = 'options uio_pdrv_genirq of_id="generic-uio"'
+
+SRC_URI_append += " \
+    file://0200-ar0220-raw16-wizard.patch \
+    file://0201-LVDS-ar0132-use-raw12.patch \
+    file://0202-LVDS-ar0132-use-context-swwitch.patch \
+    file://0203-AR0132-reoder-CSI2-MIPI-RAW12-into-2BPP-format.patch \
+    file://0204-vin-set-memory-coherent.patch \
+    file://0205-r8a7797-vin-set-memory-coherent.patch \
+"

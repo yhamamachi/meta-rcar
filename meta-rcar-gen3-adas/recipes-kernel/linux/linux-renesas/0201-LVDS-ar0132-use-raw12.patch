@@ -10,6 +10,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts | 8 ++++----
  arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts     | 8 ++++----
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts                | 8 ++++----
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts               | 8 ++++----
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi                        | 8 ++++----
  drivers/media/i2c/soc_camera/ti964_ti9x3.c                      | 5 +++--
  5 files changed, 19 insertions(+), 18 deletions(-)
@@ -98,6 +99,34 @@ index 9837e17..402e894 100644
  			receive,vc = <3>;
  		};
  	};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
+index 9837e17..402e894 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
+@@ -511,19 +511,19 @@
+ 
+ 	virtual,channel {
+ 		csi2_vc0 {
+-			data,type = "ycbcr422";
++			data,type = "raw8";
+ 			receive,vc = <0>;
+ 		};
+ 		csi2_vc1 {
+-			data,type = "ycbcr422";
++			data,type = "raw8";
+ 			receive,vc = <1>;
+ 		};
+ 		csi2_vc2 {
+-			data,type = "ycbcr422";
++			data,type = "raw8";
+ 			receive,vc = <2>;
+ 		};
+ 		csi2_vc3 {
+-			data,type = "ycbcr422";
++			data,type = "raw8";
+ 			receive,vc = <3>;
+ 		};
+ 	};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 index 4ead97a..6dbcf7f 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
@@ -126,27 +155,19 @@ index 4ead97a..6dbcf7f 100644
  			receive,vc = <3>;
  		};
  	};
-diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-index 8dd0f99..caa3f74 100644
---- a/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-+++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-@@ -122,12 +122,14 @@ static void ti964_ti9x3_fpdlink3_setup(struct i2c_client *client, int idx)
- //	reg8_write(client, 0x5d, SENSOR_ID << 1);		/* SENSOR I2C native - must be set by sensor driver */
- //	reg8_write(client, 0x65, (0x60 + idx) << 1);		/* SENSOR I2C translated - must be set by sensor driver */
- 	if (strcmp(priv->cable_mode, "coax") == 0) {
--		reg8_write(client, 0x6d, 0x7f);			/* Coax, RAW10 */
-+		reg8_write(client, 0x6d, 0x7e);			/* Coax, RAW12 */
- 	} else if (strcmp(priv->cable_mode, "stp") == 0) {
- 		reg8_write(client, 0x6d, 0x78);			/* STP, CSI */
- 	}
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index 222db9b..a4c7b3f 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -219,7 +219,7 @@ static void ti9x4_fpdlink3_setup(struct i2c_client *client, int idx)
+ 	reg8_write(client, 0x6d, port_config);
+ 	reg8_write(client, 0x7c, port_config2);
  	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
--	reg8_write(client, 0x7c, 0x81);				/* BIT(7) - magic to Use RAW10 as 8-bit mode */
-+	reg8_write(client, 0x71, (idx << 6) | 0x2a);		/* CSI data type: RAW8 (for RAW12 and bits reodering), assign VC */
-+	reg8_write(client, 0x7c, 0x00);				/* RAW12 mode */
-+	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
+-	reg8_write(client, 0x71, (idx << 6) | 0x2c);		/* CSI data type: RAW12, assign VC */
++	reg8_write(client, 0x71, (idx << 6) | 0x2a);		/* CSI data type: RAW8, assign VC */
+ 	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
  	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
  }
- 
 -- 
 1.9.1
 
