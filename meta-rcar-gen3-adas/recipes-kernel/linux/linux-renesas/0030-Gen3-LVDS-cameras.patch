@@ -13214,7 +13214,7 @@ new file mode 100644
 index 0000000..a371e22
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-@@ -0,0 +1,650 @@
+@@ -0,0 +1,652 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera driver
 + *
@@ -13634,6 +13634,7 @@ index 0000000..a371e22
 +		goto err;
 +	}
 +
++#if 0
 +	/* setup XCLK */
 +	tmp_addr = client->addr;
 +	if (priv->ti9x4_addr) {
@@ -13643,6 +13644,7 @@ index 0000000..a371e22
 +		reg8_write(client, 0x07, 0xfd);				/* Set N */
 +	}
 +	client->addr = tmp_addr;
++#endif
 +
 +	if (unlikely(force_conf_link))
 +		goto out;
