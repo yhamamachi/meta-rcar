@@ -20,7 +20,7 @@ do_install() {
     install -m755 ${WORKDIR}/init-eth-1000.sh ${D}/${sysconfdir}/init.d
 }
 
-inherit allarch update-rc.d
+inherit update-rc.d
 
 INITSCRIPT_NAME = "init-eth-1000.sh"
 INITSCRIPT_PARAMS = "start 20 2 3 4 5 . stop 20 0 1 6 ."
