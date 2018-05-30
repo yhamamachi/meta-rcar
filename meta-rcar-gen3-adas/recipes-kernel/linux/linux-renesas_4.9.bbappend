@@ -112,6 +112,7 @@ SRC_URI_append = " \
     file://0130-Add-RAW-sensors-MBUS-formats.patch \
     file://0131-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
     file://0132-Applied-ASoC-rcar-revert-IOMMU-support-so-far-to-the.patch \
+    file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
