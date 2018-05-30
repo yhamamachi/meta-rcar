@@ -11,3 +11,9 @@ SRC_URI_append = " \
 "
 
 FILES_${PN} += " ${libdir}/libweston-toytoolkit*"
+
+do_install_append() {
+    if [ "${MACHINE}" = "m3nulcb" ] ; then
+        sed -i 's|media1|media0|g' ${WORKDIR}/weston_v4l2.ini
+    fi
+}
