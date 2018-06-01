@@ -88,6 +88,8 @@ SRC_URI_append = " \
     file://0108-can-mcp251x-add-reset-gpio-support.patch \
     file://0109-ASoC-R-Car-fix-incorrect-behavior-with-PulseAudio.patch \
     file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
+    file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
+    file://0133-VB2-dtb-add-hub-node.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

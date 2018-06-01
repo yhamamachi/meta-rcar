@@ -1,0 +1,52 @@
+From 853b522c924b5f3df46dd253c3bc82a7a5588744 Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Fri, 1 Jun 2018 15:24:41 +0300
+Subject: [PATCH] VB2: dtb: add hub node
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+index 6746723..c932e9c 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+@@ -67,17 +67,7 @@
+ 		regulator-always-on;
+ 	};
+ 
+-	hub_reset: regulator@9 {
+-		compatible = "regulator-fixed";
+-		regulator-name = "hub_reset";
+-		regulator-min-microvolt = <3300000>;
+-		regulator-max-microvolt = <3300000>;
+-		gpio = <&gpio5 5 0>;
+-		enable-active-high;
+-		regulator-always-on;
+-	};
+-
+-	hub_power: regulator@10 {
++	hub_power: regulator@9 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "hub_power";
+ 		regulator-min-microvolt = <5000000>;
+@@ -411,8 +401,13 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+-			/* USB3.0 HUB node(s) */
+-			/* addr of TUSB8041 is 100.0100 = 0x44 */
++
++			tusb8041@44 {
++				compatible = "ti,tusb8041";
++				reg = <0x44>;
++				reset-gpios = <&gpio5 5 0>;
++				ti,registers = /bits/ 8 <0x0a 0x020>;
++			};
+ 		};
+ 
+ 		i2c@1 {
+-- 
+1.9.1
+
