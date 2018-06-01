@@ -32,7 +32,7 @@ index 284c522..2c21fa9 100644
 +	frame_count++;
 +#endif
 +	/* odd frame -> Mode A, even frame -> Mode B */
-+	reg16_write16(client, 0x30b0, frame_count & 1 ? 0x2002 : 0x2);
++	reg16_write16(client, 0x30b0, frame_count & 1 ? 0x2 : 0x2002);
 +
 +	return 0;
 +};
