@@ -1,14 +1,12 @@
 #!/bin/sh
 
 do_start() {
-    /usr/sbin/i2cset -y 12 0x44 0xf8 0x01
     echo 224 > /sys/class/hwmon/hwmon0/pwm1
     echo 224 > /sys/class/hwmon/hwmon1/pwm1
 }
 
 do_stop() {
 # todo: what should we do on shutdown?
-    /usr/sbin/i2cset -y 12 0x44 0xf8 0x00
     echo 0 > /sys/class/hwmon/hwmon0/pwm1
     echo 0 > /sys/class/hwmon/hwmon1/pwm1
 }
