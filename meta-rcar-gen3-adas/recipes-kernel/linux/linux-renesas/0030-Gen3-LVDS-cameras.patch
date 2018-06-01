@@ -6,7 +6,7 @@ Subject: [PATCH] Gen3: LVDS cameras
 This add Gen3 LVDS cameras support:
 - deserializers: MAX9286, DS90UB954/960/964
 - cameras: ov10635, ov490+ov10640, ov495+OV2775, ar0132, ar0220,
-           ap0101+ar014x, ov2775, imx390, ox03a
+           ap0101+ar014x, ov2775, imx390, ox03a, ar0143, ar0223
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
@@ -16,24 +16,28 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
+ drivers/media/i2c/soc_camera/ar0143.c            |  565 ++++
+ drivers/media/i2c/soc_camera/ar0143.h            |  504 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
+ drivers/media/i2c/soc_camera/ar0223.c            |  539 +++
+ drivers/media/i2c/soc_camera/ar0223.h            |  403 +++
  drivers/media/i2c/soc_camera/imx390.c            |  533 +++
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
- drivers/media/i2c/soc_camera/max9286.c           |  692 ++++
+ drivers/media/i2c/soc_camera/max9286.c           |  744 +++++
  drivers/media/i2c/soc_camera/max9286.h           |  244 ++
  drivers/media/i2c/soc_camera/ov10635.c           |  759 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
- drivers/media/i2c/soc_camera/ov106xx.c           |  161 +
+ drivers/media/i2c/soc_camera/ov106xx.c           |  183 ++
  drivers/media/i2c/soc_camera/ov2775.c            |  538 +++
  drivers/media/i2c/soc_camera/ov2775.h            | 1841 +++++++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1133 +++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |  102 +
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  650 ++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  652 ++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ox03a.c             |  526 +++
- drivers/media/i2c/soc_camera/ox03a.h             | 1724 ++++++++++
+ drivers/media/i2c/soc_camera/ox03a.h             | 1749 ++++++++++
  drivers/media/i2c/soc_camera/ti9x4.c             |  518 +++
  drivers/media/i2c/soc_camera/ti9x4.h             |  156 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  312 +-
@@ -42,13 +46,17 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 32 files changed, 17066 insertions(+), 127 deletions(-)
+ 36 files changed, 19178 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.h
+ create mode 100644 drivers/media/i2c/soc_camera/ar0143.c
+ create mode 100644 drivers/media/i2c/soc_camera/ar0143.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0220.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0220.h
+ create mode 100644 drivers/media/i2c/soc_camera/ar0223.c
+ create mode 100644 drivers/media/i2c/soc_camera/ar0223.h
  create mode 100644 drivers/media/i2c/soc_camera/imx390.c
  create mode 100644 drivers/media/i2c/soc_camera/imx390.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286.c
@@ -1531,6 +1539,1087 @@ index 0000000..7dfc4e3
 +{0x31D0, 0x0001},
 +{0x30B0, 0x2002},
 +};
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+new file mode 100644
+index 0000000..7cf2ddf
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -0,0 +1,565 @@
++/*
++ * ON Semiconductor AR0143 sensor camera driver
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/videodev2.h>
++
++#include <media/soc_camera.h>
++#include <media/v4l2-common.h>
++#include <media/v4l2-ctrls.h>
++#include <media/v4l2-of.h>
++
++#include "ar0143.h"
++
++#define AR0143_I2C_ADDR		0x10
++//#define AR0143_I2C_ADDR		0x54 // eeprom
++
++#define AR0143_PID		0x3000
++#define AR0143_VERSION_REG	0x0D54
++
++#define AR0143_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SGRBG12_1X12
++
++struct ar0143_priv {
++	struct v4l2_subdev		sd;
++	struct v4l2_ctrl_handler	hdl;
++	struct media_pad		pad;
++	struct v4l2_rect		rect;
++	int				init_complete;
++	u8				id[6];
++	int				exposure;
++	int				gain;
++	int				autogain;
++	int				dvp_order;
++	/* serializers */
++	int				max9286_addr;
++	int				max9271_addr;
++	int				ti9x4_addr;
++	int				ti9x3_addr;
++	int				port;
++	int				gpio_resetb;
++	int				gpio_fsin;
++
++};
++
++static inline struct ar0143_priv *to_ar0143(const struct i2c_client *client)
++{
++	return container_of(i2c_get_clientdata(client), struct ar0143_priv, sd);
++}
++
++static void ar0143_s_port(struct i2c_client *client, int fwd_en)
++{
++	struct ar0143_priv *priv = to_ar0143(client);
++	int tmp_addr;
++
++	if (priv->max9286_addr) {
++		tmp_addr = client->addr;
++		client->addr = priv->max9286_addr;				/* Deserializer I2C address */
++		reg8_write(client, 0x0a, fwd_en ? 0x11 << priv->port : 0);	/* Enable/disable reverse/forward control for this port */
++		usleep_range(5000, 5500);					/* wait 5ms */
++		client->addr = tmp_addr;
++	};
++}
++
++static int ar0143_set_regs(struct i2c_client *client,
++			  const struct ar0143_reg *regs, int nr_regs)
++{
++	int i;
++
++	for (i = 0; i < nr_regs; i++) {
++		if (regs[i].reg == AR0143_DELAY) {
++			mdelay(regs[i].val);
++			continue;
++		}
++
++		reg16_write16(client, regs[i].reg, regs[i].val);
++	}
++
++	return 0;
++}
++
++static int ar0143_s_stream(struct v4l2_subdev *sd, int enable)
++{
++	return 0;
++}
++
++static int ar0143_get_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	if (format->pad)
++		return -EINVAL;
++
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
++	mf->code = AR0143_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	return 0;
++}
++
++static int ar0143_set_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++
++	mf->code = AR0143_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
++		cfg->try_fmt = *mf;
++
++	return 0;
++}
++
++static int ar0143_enum_mbus_code(struct v4l2_subdev *sd,
++				struct v4l2_subdev_pad_config *cfg,
++				struct v4l2_subdev_mbus_code_enum *code)
++{
++	if (code->pad || code->index > 0)
++		return -EINVAL;
++
++	code->code = AR0143_MEDIA_BUS_FMT;
++
++	return 0;
++}
++
++static int ar0143_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = 0xff;
++	edid->edid[7] = client->addr;
++	edid->edid[8] = AR0143_VERSION_REG >> 8;
++	edid->edid[9] = AR0143_VERSION_REG & 0xff;
++
++	return 0;
++}
++
++static int ar0143_set_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct v4l2_rect *rect = &sel->r;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
++	    sel->target != V4L2_SEL_TGT_CROP)
++		return -EINVAL;
++
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > AR0143_MAX_WIDTH) ||
++	    (rect->top + rect->height > AR0143_MAX_HEIGHT))
++		*rect = priv->rect;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
++
++	return 0;
++}
++
++static int ar0143_get_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
++		return -EINVAL;
++
++	switch (sel->target) {
++	case V4L2_SEL_TGT_CROP_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AR0143_MAX_WIDTH;
++		sel->r.height = AR0143_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP_DEFAULT:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AR0143_MAX_WIDTH;
++		sel->r.height = AR0143_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP:
++		sel->r = priv->rect;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int ar0143_g_mbus_config(struct v4l2_subdev *sd,
++			       struct v4l2_mbus_config *cfg)
++{
++	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
++		     V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
++	cfg->type = V4L2_MBUS_CSI2;
++
++	return 0;
++}
++
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++static int ar0143_g_register(struct v4l2_subdev *sd,
++			    struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	int ret;
++	u16 val = 0;
++
++	ret = reg16_read16(client, (u16)reg->reg, &val);
++	if (ret < 0)
++		return ret;
++
++	reg->val = val;
++	reg->size = sizeof(u16);
++
++	return 0;
++}
++
++static int ar0143_s_register(struct v4l2_subdev *sd,
++			    const struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++
++	return reg16_write16(client, (u16)reg->reg, (u16)reg->val);
++}
++#endif
++
++static struct v4l2_subdev_core_ops ar0143_core_ops = {
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++	.g_register = ar0143_g_register,
++	.s_register = ar0143_s_register,
++#endif
++};
++
++static int ar0143_s_ctrl(struct v4l2_ctrl *ctrl)
++{
++	struct v4l2_subdev *sd = to_sd(ctrl);
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++	int ret = -EINVAL;
++
++	if (!priv->init_complete)
++		return 0;
++
++	switch (ctrl->id) {
++	case V4L2_CID_BRIGHTNESS:
++	case V4L2_CID_CONTRAST:
++	case V4L2_CID_SATURATION:
++	case V4L2_CID_HUE:
++	case V4L2_CID_GAMMA:
++	case V4L2_CID_SHARPNESS:
++	case V4L2_CID_AUTOGAIN:
++	case V4L2_CID_GAIN:
++	case V4L2_CID_EXPOSURE:
++	case V4L2_CID_HFLIP:
++	case V4L2_CID_VFLIP:
++		break;
++	}
++
++	return ret;
++}
++
++static const struct v4l2_ctrl_ops ar0143_ctrl_ops = {
++	.s_ctrl = ar0143_s_ctrl,
++};
++
++static struct v4l2_subdev_video_ops ar0143_video_ops = {
++	.s_stream	= ar0143_s_stream,
++	.g_mbus_config	= ar0143_g_mbus_config,
++};
++
++static const struct v4l2_subdev_pad_ops ar0143_subdev_pad_ops = {
++	.get_edid	= ar0143_get_edid,
++	.enum_mbus_code	= ar0143_enum_mbus_code,
++	.get_selection	= ar0143_get_selection,
++	.set_selection	= ar0143_set_selection,
++	.get_fmt	= ar0143_get_fmt,
++	.set_fmt	= ar0143_set_fmt,
++};
++
++static struct v4l2_subdev_ops ar0143_subdev_ops = {
++	.core	= &ar0143_core_ops,
++	.video	= &ar0143_video_ops,
++	.pad	= &ar0143_subdev_pad_ops,
++};
++
++static void ar0143_otp_id_read(struct i2c_client *client)
++{
++}
++
++static ssize_t ar0143_otp_id_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
++			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++}
++
++static DEVICE_ATTR(otp_id_ar0143, S_IRUGO, ar0143_otp_id_show, NULL);
++
++static int ar0143_initialize(struct i2c_client *client)
++{
++	struct ar0143_priv *priv = to_ar0143(client);
++	u16 val = 0;
++	u16 pid = 0;
++	int ret = 0;
++
++	ar0143_s_port(client, 1);
++
++	/* check and show model ID */
++	reg16_read16(client, AR0143_PID, &pid);
++
++	if (pid != AR0143_VERSION_REG) {
++		dev_dbg(&client->dev, "Product ID error %x\n", pid);
++		ret = -ENODEV;
++		goto err;
++	}
++
++	/* Program wizard registers */
++	ar0143_set_regs(client, ar0143_regs_wizard, ARRAY_SIZE(ar0143_regs_wizard));
++
++	/* Enable stream */
++	reg16_read16(client, 0x301a, &val);	// read inital reset_register value
++	val |= (1 << 2);			// Set streamOn bit
++	reg16_write16(client, 0x301a, val);	// Start Streaming
++
++	/* Read OTP IDs */
++	ar0143_otp_id_read(client);
++
++	dev_info(&client->dev, "ar0143 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, AR0143_MAX_WIDTH, AR0143_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++err:
++	ar0143_s_port(client, 0);
++
++	return ret;
++}
++
++static int ar0143_parse_dt(struct device_node *np, struct ar0143_priv *priv)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
++	int i;
++	struct device_node *endpoint = NULL, *rendpoint = NULL;
++	int tmp_addr = 0;
++
++	for (i = 0; ; i++) {
++		endpoint = of_graph_get_next_endpoint(np, endpoint);
++		if (!endpoint)
++			break;
++
++		of_node_put(endpoint);
++
++		of_property_read_u32(endpoint, "dvp-order", &priv->dvp_order);
++
++		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
++		if (!rendpoint)
++			continue;
++
++		if (!of_property_read_u32(rendpoint, "max9271-addr", &priv->max9271_addr) &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->max9286_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++			break;
++
++		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
++		    !of_property_match_string(rendpoint->parent->parent, "compatible", "ti,ti9x4") &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti9x4_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++			break;
++	}
++
++	if (!priv->max9286_addr && !priv->ti9x4_addr) {
++		dev_err(&client->dev, "deserializer does not present for AR0143\n");
++		return -EINVAL;
++	}
++
++	ar0143_s_port(client, 1);
++
++	/* setup I2C translator address */
++	tmp_addr = client->addr;
++	if (priv->max9286_addr) {
++		client->addr = priv->max9271_addr;			/* Serializer I2C address */
++
++		reg8_write(client, 0x09, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x0A, AR0143_I2C_ADDR << 1);		/* Sensor native I2C address */
++		usleep_range(2000, 2500);				/* wait 2ms */
++	};
++	if (priv->ti9x4_addr) {
++		client->addr = priv->ti9x4_addr;			/* Deserializer I2C address */
++
++		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
++		usleep_range(2000, 2500);				/* wait 2ms */
++		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x5d, AR0143_I2C_ADDR << 1);		/* Sensor native I2C address */
++
++		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
++	}
++	client->addr = tmp_addr;
++
++	mdelay(10);
++
++	return 0;
++}
++
++static int ar0143_probe(struct i2c_client *client,
++		       const struct i2c_device_id *did)
++{
++	struct ar0143_priv *priv;
++	int ret;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	v4l2_i2c_subdev_init(&priv->sd, client, &ar0143_subdev_ops);
++	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++
++	priv->exposure = 0x100;
++	priv->gain = 0x100;
++	priv->autogain = 1;
++	v4l2_ctrl_handler_init(&priv->hdl, 4);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_CONTRAST, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_SATURATION, 0, 7, 1, 2);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_HUE, 0, 23, 1, 12);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_GAMMA, -128, 128, 1, 0);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	priv->sd.ctrl_handler = &priv->hdl;
++
++	ret = priv->hdl.error;
++	if (ret)
++		goto cleanup;
++
++	v4l2_ctrl_handler_setup(&priv->hdl);
++
++	priv->pad.flags = MEDIA_PAD_FL_SOURCE;
++	priv->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
++	ret = media_entity_pads_init(&priv->sd.entity, 1, &priv->pad);
++	if (ret < 0)
++		goto cleanup;
++
++	ret = ar0143_parse_dt(client->dev.of_node, priv);
++	if (ret)
++		goto cleanup;
++
++	ret = ar0143_initialize(client);
++	if (ret < 0)
++		goto cleanup;
++
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = AR0143_MAX_WIDTH;
++	priv->rect.height = AR0143_MAX_HEIGHT;
++
++	ret = v4l2_async_register_subdev(&priv->sd);
++	if (ret)
++		goto cleanup;
++
++	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0143) != 0) {
++		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
++		goto cleanup;
++	}
++
++	priv->init_complete = 1;
++
++	return 0;
++
++cleanup:
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++#ifdef CONFIG_SOC_CAMERA_AR0143
++	v4l_err(client, "failed to probe @ 0x%02x (%s)\n",
++		client->addr, client->adapter->name);
++#endif
++	return ret;
++}
++
++static int ar0143_remove(struct i2c_client *client)
++{
++	struct ar0143_priv *priv = i2c_get_clientdata(client);
++
++	device_remove_file(&client->dev, &dev_attr_otp_id_ar0143);
++	v4l2_async_unregister_subdev(&priv->sd);
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++
++	return 0;
++}
++
++#ifdef CONFIG_SOC_CAMERA_AR0143
++static const struct i2c_device_id ar0143_id[] = {
++	{ "ar0143", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ar0143_id);
++
++static const struct of_device_id ar0143_of_ids[] = {
++	{ .compatible = "aptina,ar0143", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ar0143_of_ids);
++
++static struct i2c_driver ar0143_i2c_driver = {
++	.driver	= {
++		.name		= "ar0143",
++		.of_match_table	= ar0143_of_ids,
++	},
++	.probe		= ar0143_probe,
++	.remove		= ar0143_remove,
++	.id_table	= ar0143_id,
++};
++
++module_i2c_driver(ar0143_i2c_driver);
++
++MODULE_DESCRIPTION("SoC Camera driver for AR0143");
++MODULE_AUTHOR("Vladimir Barinov");
++MODULE_LICENSE("GPL");
++#endif
+diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
+new file mode 100644
+index 0000000..1d8383e
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ar0143.h
+@@ -0,0 +1,504 @@
++/*
++ * ON Semiconductor AR0143 sensor camera wizard 1344x968@30/BGGR/BT601/RAW12
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++//#define AR0143_DISPLAY_PATTERN_FIXED
++//#define AR0143_DISPLAY_PATTERN_COLOR_BAR
++
++//#define AR0143_EMBEDDED_LINE
++
++#define AR0143_MAX_WIDTH	1344 //1280
++#define AR0143_MAX_HEIGHT	968 //800
++
++#define AR0143_DELAY		0xffff
++
++#define AR0143_SENSOR_WIDTH	1344
++#define AR0143_SENSOR_HEIGHT	968
++
++#define AR0143_X_START		((AR0143_SENSOR_WIDTH - AR0143_MAX_WIDTH) / 2)
++#define AR0143_Y_START		((AR0143_SENSOR_HEIGHT - AR0143_MAX_HEIGHT) / 2)
++#define AR0143_X_END		(AR0143_X_START + AR0143_MAX_WIDTH - 1)
++#define AR0143_Y_END		(AR0143_Y_START + AR0143_MAX_HEIGHT - 1)
++
++struct ar0143_reg {
++	u16	reg;
++	u16	val;
++};
++
++static const struct ar0143_reg ar0143_regs_wizard[] = {
++{0x301A, 0x0001},	// reset
++{AR0143_DELAY, 100},
++{0x301A, 0x10D8},	// Stream off and setup parallel
++{0x3070, 0x0001},
++{0x3070, 0x0000},	//  1: Solid color test pattern,
++			//  2: Full color bar test pattern,
++			//  3: Fade to grey color bar test pattern,
++			//256: Walking 1 test pattern (12 bit)
++#ifdef AR0143_DISPLAY_PATTERN_FIXED
++{0x3070, 0x0001},
++#endif
++{0x3072, 0x0fff},	// R
++{0x3074, 0x0fff},	// G(GR row)
++{0x3076, 0x0fff},	// B
++{0x3078, 0x0fff},	// G(GB row)
++#ifdef AR0143_DISPLAY_PATTERN_COLOR_BAR
++{0x3070, 0x0002},
++#endif
++{AR0143_DELAY, 250},
++// start demo init
++{0x3100, 0x4000}, // DLO_CONTROL0
++{0x3102, 0x6060}, // RESERVED_MFR_3102
++{0x3104, 0x6060}, // RESERVED_MFR_3104
++{0x3106, 0x6060}, // RESERVED_MFR_3106
++{0x3108, 0x0F9F}, // RESERVED_MFR_3108
++{0x3280, 0x0FA0}, // T1_BARRIER_C0
++{0x3282, 0x0FA0}, // T1_BARRIER_C1
++{0x3284, 0x0FA0}, // T1_BARRIER_C2
++{0x3286, 0x0FA0}, // T1_BARRIER_C3
++{0x3288, 0x0FA0}, // T2_BARRIER_C0
++{0x328A, 0x0FA0}, // T2_BARRIER_C1
++{0x328C, 0x0FA0}, // T2_BARRIER_C2
++{0x328E, 0x0FA0}, // T2_BARRIER_C3
++{0x3290, 0x0FA0}, // T3_BARRIER_C0
++{0x3292, 0x0FA0}, // T3_BARRIER_C1
++{0x3294, 0x0FA0}, // T3_BARRIER_C2
++{0x3296, 0x0FA0}, // T3_BARRIER_C3
++{0x3298, 0x0FA0}, // T4_BARRIER_C0
++{0x329A, 0x0FA0}, // T4_BARRIER_C1
++{0x329C, 0x0FA0}, // T4_BARRIER_C2
++{0x329E, 0x0FA0}, // T4_BARRIER_C3
++{0x3110, 0x0011}, // HDR_CONTROL0
++{0x3112, 0x7FE7}, // RESERVED_MFR_3112
++{0x3114, 0x0000}, // RESERVED_MFR_3114
++{0x3116, 0xC000}, // HDR_CONTROL3
++{0x3120, 0x0BA0}, // HDR_SC_CONTROL0
++{0x3122, 0x0FA0}, // HDR_SC_CONTROL1
++{0x3124, 0x00B4}, // HDR_MD_CONTROL0
++{0x3126, 0x0030}, // HDR_MD_CONTROL1
++{0x3128, 0x6100}, // RESERVED_MFR_3128
++{0x3506, 0x3333}, // RESERVED_MFR_3506
++{0x3508, 0x3333}, // RESERVED_MFR_3508
++{0x350A, 0x3333}, // RESERVED_MFR_350A
++{0x350C, 0x035F}, // RESERVED_MFR_350C
++{0x350E, 0xEF14}, // RESERVED_MFR_350E
++{0x3086, 0x0600}, // RESERVED_MFR_3086
++{0x3C00, 0xDD67}, // RESERVED_MFR_3C00
++{0x3092, 0x1C24}, // RESERVED_MFR_3092
++{0x3096, 0x147E}, // RESERVED_MFR_3096
++{0x3750, 0x147E}, // RESERVED_MFR_3750
++{0x30B0, 0x0800}, // DIGITAL_TEST
++{0x30FE, 0x0000}, // NOISE_PEDESTAL
++{0x32D0, 0x3A02}, // RESERVED_MFR_32D0
++{0x32D6, 0x3C04}, // RESERVED_MFR_32D6
++{0x3C0C, 0x0516}, // DELAY_BUFFER_LLPCK_RD_WR_OVERLAP
++{0x3F96, 0xFFFE}, // TEMPVSENS1_FLAG_CTRL
++{0x3088, 0x6680}, // LFM_CTRL
++{0x33E2, 0x0000}, // SAMPLE_CTRL
++{0x3366, 0x7777}, // ANALOG_GAIN
++{0x3056, 0x0080}, // GREEN1_GAIN
++{0x305C, 0x0080}, // GREEN2_GAIN
++{0x3058, 0x0080}, // BLUE_GAIN
++{0x305A, 0x0080}, // RED_GAIN
++{0x306E, 0x9010}, // DATAPATH_SELECT
++{0x3044, 0x0400}, // DARK_CONTROL
++{0x30BA, 0x01E2}, // DIGITAL_CTRL
++{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
++{0x3362, 0x0000}, // DC_GAIN
++{0x3364, 0x005B}, // RESERVED_MFR_3364
++{0x3370, 0x0131}, // DBLC_CONTROL
++{0x3372, 0x700F}, // DBLC_FS0_CONTROL
++{0x3386, 0x0000}, // DBLC_PEDESTAL
++{0x3C04, 0x0E80}, // RESERVED_MFR_3C04
++{0x30B4, 0x01C7}, // TEMPSENS0_CTRL_REG
++{0x30B8, 0x0007}, // TEMPSENS1_CTRL_REG
++{0x3F90, 0x8D03}, // TEMPVSENS0_TMG_CTRL
++{0x3F92, 0x0D03}, // TEMPVSENS1_TMG_CTRL
++{0x3502, 0x0808}, // RESERVED_MFR_3502
++{0x3566, 0x1D28}, // RESERVED_MFR_3566
++{0x3518, 0x1FFE}, // RESERVED_MFR_3518
++{0x3526, 0x0F00}, // RESERVED_MFR_3526
++{0x3528, 0xDDDD}, // RESERVED_MFR_3528
++{0x352A, 0x089F}, // RESERVED_MFR_352A
++{0x352E, 0x0011}, // RESERVED_MFR_352E
++{0x3530, 0x4400}, // RESERVED_MFR_3530
++{0x3536, 0xFF07}, // RESERVED_MFR_3536
++{0x3538, 0xFFFF}, // RESERVED_MFR_3538
++{0x353A, 0x9000}, // RESERVED_MFR_353A
++{0x353C, 0x3F00}, // RESERVED_MFR_353C
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x3540, 0xC637}, // RESERVED_MFR_3540
++{0x3542, 0x464B}, // RESERVED_MFR_3542
++{0x3544, 0x4B50}, // RESERVED_MFR_3544
++{0x3546, 0x545A}, // RESERVED_MFR_3546
++{0x3548, 0x5A00}, // RESERVED_MFR_3548
++{0x354A, 0x007F}, // RESERVED_MFR_354A
++{0x3556, 0x101F}, // RESERVED_MFR_3556
++{0x3566, 0x3328}, // RESERVED_MFR_3566
++{0x337A, 0x0CA3}, // DBLC_SCALE0
++{0x3372, 0x710F}, // DBLC_FS0_CONTROL
++{0x3520, 0x4688}, // RESERVED_MFR_3520
++{0x3522, 0x8840}, // RESERVED_MFR_3522
++{0x3524, 0x4046}, // RESERVED_MFR_3524
++{0x352C, 0x4646}, // RESERVED_MFR_352C
++{0x2512, 0x8000}, // SEQ_CTRL_PORT
++{0x2510, 0x0903}, // SEQ_DATA_PORT
++{0x2510, 0x3350}, // SEQ_DATA_PORT
++{0x2510, 0x2004}, // SEQ_DATA_PORT
++{0x2510, 0x1420}, // SEQ_DATA_PORT
++{0x2510, 0x1578}, // SEQ_DATA_PORT
++{0x2510, 0x087B}, // SEQ_DATA_PORT
++{0x2510, 0x24FF}, // SEQ_DATA_PORT
++{0x2510, 0x24FF}, // SEQ_DATA_PORT
++{0x2510, 0x24EA}, // SEQ_DATA_PORT
++{0x2510, 0x2410}, // SEQ_DATA_PORT
++{0x2510, 0x2224}, // SEQ_DATA_PORT
++{0x2510, 0x1015}, // SEQ_DATA_PORT
++{0x2510, 0x5813}, // SEQ_DATA_PORT
++{0x2510, 0x0214}, // SEQ_DATA_PORT
++{0x2510, 0x0024}, // SEQ_DATA_PORT
++{0x2510, 0xFF24}, // SEQ_DATA_PORT
++{0x2510, 0xFF24}, // SEQ_DATA_PORT
++{0x2510, 0xEA23}, // SEQ_DATA_PORT
++{0x2510, 0x2464}, // SEQ_DATA_PORT
++{0x2510, 0x7A24}, // SEQ_DATA_PORT
++{0x2510, 0x0405}, // SEQ_DATA_PORT
++{0x2510, 0x2C40}, // SEQ_DATA_PORT
++{0x2510, 0x0AFF}, // SEQ_DATA_PORT
++{0x2510, 0x0ACC}, // SEQ_DATA_PORT
++{0x2510, 0x0A07}, // SEQ_DATA_PORT
++{0x2510, 0x3851}, // SEQ_DATA_PORT
++{0x2510, 0x1440}, // SEQ_DATA_PORT
++{0x2510, 0x0004}, // SEQ_DATA_PORT
++{0x2510, 0x0801}, // SEQ_DATA_PORT
++{0x2510, 0x0408}, // SEQ_DATA_PORT
++{0x2510, 0x1180}, // SEQ_DATA_PORT
++{0x2510, 0x2652}, // SEQ_DATA_PORT
++{0x2510, 0x0815}, // SEQ_DATA_PORT
++{0x2510, 0x1813}, // SEQ_DATA_PORT
++{0x2510, 0xC810}, // SEQ_DATA_PORT
++{0x2510, 0x0210}, // SEQ_DATA_PORT
++{0x2510, 0x1611}, // SEQ_DATA_PORT
++{0x2510, 0x8111}, // SEQ_DATA_PORT
++{0x2510, 0x8910}, // SEQ_DATA_PORT
++{0x2510, 0x5612}, // SEQ_DATA_PORT
++{0x2510, 0x1009}, // SEQ_DATA_PORT
++{0x2510, 0x020D}, // SEQ_DATA_PORT
++{0x2510, 0x0905}, // SEQ_DATA_PORT
++{0x2510, 0x1588}, // SEQ_DATA_PORT
++{0x2510, 0x1388}, // SEQ_DATA_PORT
++{0x2510, 0x0938}, // SEQ_DATA_PORT
++{0x2510, 0x1199}, // SEQ_DATA_PORT
++{0x2510, 0x11D9}, // SEQ_DATA_PORT
++{0x2510, 0x091E}, // SEQ_DATA_PORT
++{0x2510, 0x1214}, // SEQ_DATA_PORT
++{0x2510, 0x10D6}, // SEQ_DATA_PORT
++{0x2510, 0x0901}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x1212}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x11DD}, // SEQ_DATA_PORT
++{0x2510, 0x11D9}, // SEQ_DATA_PORT
++{0x2510, 0x0901}, // SEQ_DATA_PORT
++{0x2510, 0x1441}, // SEQ_DATA_PORT
++{0x2510, 0x0904}, // SEQ_DATA_PORT
++{0x2510, 0x1056}, // SEQ_DATA_PORT
++{0x2510, 0x0811}, // SEQ_DATA_PORT
++{0x2510, 0xDB09}, // SEQ_DATA_PORT
++{0x2510, 0x0311}, // SEQ_DATA_PORT
++{0x2510, 0xFB11}, // SEQ_DATA_PORT
++{0x2510, 0xBB12}, // SEQ_DATA_PORT
++{0x2510, 0x1A12}, // SEQ_DATA_PORT
++{0x2510, 0x1008}, // SEQ_DATA_PORT
++{0x2510, 0x1250}, // SEQ_DATA_PORT
++{0x2510, 0x1076}, // SEQ_DATA_PORT
++{0x2510, 0x10E6}, // SEQ_DATA_PORT
++{0x2510, 0x1461}, // SEQ_DATA_PORT
++{0x2510, 0x0906}, // SEQ_DATA_PORT
++{0x2510, 0x1240}, // SEQ_DATA_PORT
++{0x2510, 0x1260}, // SEQ_DATA_PORT
++{0x2510, 0x091C}, // SEQ_DATA_PORT
++{0x2510, 0x1460}, // SEQ_DATA_PORT
++{0x2510, 0x090C}, // SEQ_DATA_PORT
++{0x2510, 0x0B09}, // SEQ_DATA_PORT
++{0x2510, 0x0515}, // SEQ_DATA_PORT
++{0x2510, 0xC813}, // SEQ_DATA_PORT
++{0x2510, 0xC808}, // SEQ_DATA_PORT
++{0x2510, 0x1066}, // SEQ_DATA_PORT
++{0x2510, 0x090B}, // SEQ_DATA_PORT
++{0x2510, 0x1588}, // SEQ_DATA_PORT
++{0x2510, 0x1388}, // SEQ_DATA_PORT
++{0x2510, 0x0913}, // SEQ_DATA_PORT
++{0x2510, 0x0C14}, // SEQ_DATA_PORT
++{0x2510, 0x4009}, // SEQ_DATA_PORT
++{0x2510, 0x0310}, // SEQ_DATA_PORT
++{0x2510, 0xE611}, // SEQ_DATA_PORT
++{0x2510, 0xFB12}, // SEQ_DATA_PORT
++{0x2510, 0x6212}, // SEQ_DATA_PORT
++{0x2510, 0x6011}, // SEQ_DATA_PORT
++{0x2510, 0xFF11}, // SEQ_DATA_PORT
++{0x2510, 0xFB14}, // SEQ_DATA_PORT
++{0x2510, 0x4109}, // SEQ_DATA_PORT
++{0x2510, 0x0210}, // SEQ_DATA_PORT
++{0x2510, 0x6609}, // SEQ_DATA_PORT
++{0x2510, 0x1211}, // SEQ_DATA_PORT
++{0x2510, 0xBB12}, // SEQ_DATA_PORT
++{0x2510, 0x6312}, // SEQ_DATA_PORT
++{0x2510, 0x6014}, // SEQ_DATA_PORT
++{0x2510, 0x0015}, // SEQ_DATA_PORT
++{0x2510, 0x1811}, // SEQ_DATA_PORT
++{0x2510, 0xB812}, // SEQ_DATA_PORT
++{0x2510, 0xA012}, // SEQ_DATA_PORT
++{0x2510, 0x0010}, // SEQ_DATA_PORT
++{0x2510, 0x2610}, // SEQ_DATA_PORT
++{0x2510, 0x0013}, // SEQ_DATA_PORT
++{0x2510, 0x0011}, // SEQ_DATA_PORT
++{0x2510, 0x8030}, // SEQ_DATA_PORT
++{0x2510, 0x5342}, // SEQ_DATA_PORT
++{0x2510, 0x1100}, // SEQ_DATA_PORT
++{0x2510, 0x1002}, // SEQ_DATA_PORT
++{0x2510, 0x1016}, // SEQ_DATA_PORT
++{0x2510, 0x1101}, // SEQ_DATA_PORT
++{0x2510, 0x1109}, // SEQ_DATA_PORT
++{0x2510, 0x1056}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x0D09}, // SEQ_DATA_PORT
++{0x2510, 0x0614}, // SEQ_DATA_PORT
++{0x2510, 0x4009}, // SEQ_DATA_PORT
++{0x2510, 0x0214}, // SEQ_DATA_PORT
++{0x2510, 0x6009}, // SEQ_DATA_PORT
++{0x2510, 0x0615}, // SEQ_DATA_PORT
++{0x2510, 0x4C13}, // SEQ_DATA_PORT
++{0x2510, 0x0C09}, // SEQ_DATA_PORT
++{0x2510, 0x0713}, // SEQ_DATA_PORT
++{0x2510, 0x4C09}, // SEQ_DATA_PORT
++{0x2510, 0x0715}, // SEQ_DATA_PORT
++{0x2510, 0xCC09}, // SEQ_DATA_PORT
++{0x2510, 0x0211}, // SEQ_DATA_PORT
++{0x2510, 0x4908}, // SEQ_DATA_PORT
++{0x2510, 0x1461}, // SEQ_DATA_PORT
++{0x2510, 0x1460}, // SEQ_DATA_PORT
++{0x2510, 0x0903}, // SEQ_DATA_PORT
++{0x2510, 0x1588}, // SEQ_DATA_PORT
++{0x2510, 0x1308}, // SEQ_DATA_PORT
++{0x2510, 0x0905}, // SEQ_DATA_PORT
++{0x2510, 0x1388}, // SEQ_DATA_PORT
++{0x2510, 0x0913}, // SEQ_DATA_PORT
++{0x2510, 0x1159}, // SEQ_DATA_PORT
++{0x2510, 0x090B}, // SEQ_DATA_PORT
++{0x2510, 0x1214}, // SEQ_DATA_PORT
++{0x2510, 0x0901}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x10D6}, // SEQ_DATA_PORT
++{0x2510, 0x1212}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x115D}, // SEQ_DATA_PORT
++{0x2510, 0x1159}, // SEQ_DATA_PORT
++{0x2510, 0x1056}, // SEQ_DATA_PORT
++{0x2510, 0x0903}, // SEQ_DATA_PORT
++{0x2510, 0x115B}, // SEQ_DATA_PORT
++{0x2510, 0x0913}, // SEQ_DATA_PORT
++{0x2510, 0x111B}, // SEQ_DATA_PORT
++{0x2510, 0x113B}, // SEQ_DATA_PORT
++{0x2510, 0x121A}, // SEQ_DATA_PORT
++{0x2510, 0x1210}, // SEQ_DATA_PORT
++{0x2510, 0x0901}, // SEQ_DATA_PORT
++{0x2510, 0x1250}, // SEQ_DATA_PORT
++{0x2510, 0x10F6}, // SEQ_DATA_PORT
++{0x2510, 0x10E6}, // SEQ_DATA_PORT
++{0x2510, 0x0903}, // SEQ_DATA_PORT
++{0x2510, 0x15AB}, // SEQ_DATA_PORT
++{0x2510, 0x13AB}, // SEQ_DATA_PORT
++{0x2510, 0x1240}, // SEQ_DATA_PORT
++{0x2510, 0x1260}, // SEQ_DATA_PORT
++{0x2510, 0x0964}, // SEQ_DATA_PORT
++{0x2510, 0x1588}, // SEQ_DATA_PORT
++{0x2510, 0x0903}, // SEQ_DATA_PORT
++{0x2510, 0x0B08}, // SEQ_DATA_PORT
++{0x2510, 0x0813}, // SEQ_DATA_PORT
++{0x2510, 0x8809}, // SEQ_DATA_PORT
++{0x2510, 0x0715}, // SEQ_DATA_PORT
++{0x2510, 0x8D13}, // SEQ_DATA_PORT
++{0x2510, 0x8D09}, // SEQ_DATA_PORT
++{0x2510, 0x0D15}, // SEQ_DATA_PORT
++{0x2510, 0x8813}, // SEQ_DATA_PORT
++{0x2510, 0x8809}, // SEQ_DATA_PORT
++{0x2510, 0x0310}, // SEQ_DATA_PORT
++{0x2510, 0x6609}, // SEQ_DATA_PORT
++{0x2510, 0x030C}, // SEQ_DATA_PORT
++{0x2510, 0x0914}, // SEQ_DATA_PORT
++{0x2510, 0x10E6}, // SEQ_DATA_PORT
++{0x2510, 0x1262}, // SEQ_DATA_PORT
++{0x2510, 0x1260}, // SEQ_DATA_PORT
++{0x2510, 0x113F}, // SEQ_DATA_PORT
++{0x2510, 0x113B}, // SEQ_DATA_PORT
++{0x2510, 0x1066}, // SEQ_DATA_PORT
++{0x2510, 0x117B}, // SEQ_DATA_PORT
++{0x2510, 0x0927}, // SEQ_DATA_PORT
++{0x2510, 0x113B}, // SEQ_DATA_PORT
++{0x2510, 0x1263}, // SEQ_DATA_PORT
++{0x2510, 0x1260}, // SEQ_DATA_PORT
++{0x2510, 0x1400}, // SEQ_DATA_PORT
++{0x2510, 0x155A}, // SEQ_DATA_PORT
++{0x2510, 0x1138}, // SEQ_DATA_PORT
++{0x2510, 0x12A0}, // SEQ_DATA_PORT
++{0x2510, 0x1200}, // SEQ_DATA_PORT
++{0x2510, 0x1026}, // SEQ_DATA_PORT
++{0x2510, 0x1000}, // SEQ_DATA_PORT
++{0x2510, 0x1342}, // SEQ_DATA_PORT
++{0x2510, 0x1100}, // SEQ_DATA_PORT
++{0x2510, 0x437A}, // SEQ_DATA_PORT
++{0x2510, 0x0605}, // SEQ_DATA_PORT
++{0x2510, 0x0807}, // SEQ_DATA_PORT
++{0x2510, 0x4137}, // SEQ_DATA_PORT
++{0x2510, 0x502C}, // SEQ_DATA_PORT
++{0x2510, 0x2CFE}, // SEQ_DATA_PORT
++{0x2510, 0x16FE}, // SEQ_DATA_PORT
++{0x2510, 0x0C2C}, // SEQ_DATA_PORT
++{0x1008, 0x0338}, // FINE_INTEGRATION_TIME_MIN
++{0x100C, 0x051B}, // FINE_INTEGRATION_TIME2_MIN
++{0x100E, 0x06FE}, // FINE_INTEGRATION_TIME3_MIN
++{0x1010, 0x0155}, // FINE_INTEGRATION_TIME4_MIN
++{0x3230, 0x02D6}, // FINE_CORRECTION
++{0x3232, 0x04B9}, // FINE_CORRECTION2
++{0x3234, 0x069C}, // FINE_CORRECTION3
++{0x3236, 0x00F3}, // FINE_CORRECTION4
++{0x32E6, 0x00DA}, // RESERVED_MFR_32E6
++{0x350C, 0x035F}, // RESERVED_MFR_350C
++{0x32D0, 0x3A02}, // RESERVED_MFR_32D0
++{0x32D2, 0x3508}, // RESERVED_MFR_32D2
++{0x32D4, 0x3702}, // RESERVED_MFR_32D4
++{0x32D6, 0x3C04}, // RESERVED_MFR_32D6
++{0x32DC, 0x370A}, // RESERVED_MFR_32DC
++{0x302A, 0x0008}, // VT_PIX_CLK_DIV
++{0x302C, 0x0001}, // VT_SYS_CLK_DIV
++{0x302E, 0x0002}, // PRE_PLL_CLK_DIV
++{0x3030, 0x0034}, // PLL_MULTIPLIER
++{0x3036, 0x0008}, // OP_WORD_CLK_DIV
++{0x3038, 0x0001}, // OP_SYS_CLK_DIV
++{0x30B0, 0x0800}, // DIGITAL_TEST
++{0x31DC, 0x0030}, // RESERVED_MFR_31DC
++{0x30A2, 0x0001}, // X_ODD_INC_
++{0x30A6, 0x0001}, // Y_ODD_INC_
++{0x3040, 0x0000}, // READ_MODE
++{0x3044, 0x0400}, // DARK_CONTROL
++{0x3180, 0x0080}, // RESERVED_MFR_3180
++{0x33E4, 0x0080}, // RESERVED_MFR_33E4
++{0x33E0, 0x0880}, // TEST_ASIL_ROWS
++#ifdef AR0143_EMBEDDED_LINE
++{0x3064, 0x1982}, // SMIA_TEST
++#else
++{0x3064, 0x1802}, // SMIA_TEST
++#endif
++{0x3004, 0x0000}, // X_ADDR_START_
++{0x3008, 0x053F}, // X_ADDR_END_
++{0x3002, 0x0000}, // Y_ADDR_START_
++{0x3006, 0x03C7}, // Y_ADDR_END_
++{0x3400, 0x0010}, // RESERVED_MFR_3400
++{0x3402, 0x0A80}, // X_OUTPUT_CONTROL
++{0x3404, 0x0790}, // Y_OUTPUT_CONTROL
++{0x3082, 0x0008}, // OPERATION_MODE_CTRL
++{0x30BA, 0x01E2}, // DIGITAL_CTRL
++{0x300C, 0x09A0}, // LINE_LENGTH_PCK_
++{0x300A, 0x041E}, // FRAME_LENGTH_LINES_
++{0x3042, 0x0000}, // EXTRA_DELAY
++{0x3238, 0x0333}, // EXPOSURE_RATIO
++{0x3012, 0x036E}, // COARSE_INTEGRATION_TIME_
++{0x3014, 0x0A7A}, // FINE_INTEGRATION_TIME_
++{0x321E, 0x0A7A}, // FINE_INTEGRATION_TIME2
++{0x3222, 0x0A7A}, // FINE_INTEGRATION_TIME3
++{0x30B0, 0x0800}, // DIGITAL_TEST
++{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
++{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
++{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x32EC, 0x72A1}, // RESERVED_MFR_32EC
++{0x3C06, 0x083C}, // RESERVED_MFR_3C06
++{0x3C08, 0x0100}, // RESERVED_MFR_3C08
++{0x31D0, 0x0001}, // COMPANDING
++{0x31AC, 0x1410}, // DATA_FORMAT_BITS: 2xRAW8
++{0x301A, 0x1098}, // RESET_REGISTER
++{0x301A, 0x1018}, // RESET_REGISTER
++{0x301A, 0x0018}, // RESET_REGISTER
++{0x31AE, 0x0204}, // SERIAL_FORMAT
++{0x3342, 0x122A}, // MIPI_F1_PDT_EDT
++{0x3346, 0x122A}, // MIPI_F2_PDT_EDT
++{0x334A, 0x122A}, // MIPI_F3_PDT_EDT
++{0x334E, 0x122A}, // MIPI_F4_PDT_EDT
++{0x3344, 0x0011}, // MIPI_F1_VDT_VC
++{0x3348, 0x0111}, // MIPI_F2_VDT_VC
++{0x334C, 0x0211}, // MIPI_F3_VDT_VC
++{0x3350, 0x0311}, // MIPI_F4_VDT_VC
++{0x31B0, 0x0061}, // FRAME_PREAMBLE
++{0x31B2, 0x004C}, // LINE_PREAMBLE
++{0x31B4, 0x51C8}, // RESERVED_MFR_31B4
++{0x31B6, 0x424B}, // RESERVED_MFR_31B6
++{0x31B8, 0x40CF}, // RESERVED_MFR_31B8
++{0x31BA, 0x028B}, // RESERVED_MFR_31BA
++{0x31BC, 0x0D09}, // RESERVED_MFR_31BC
++// end demo init
++// start reg wizard WIDTHxHEIGHT@30fps
++{0x302A, 0x0008}, // VT_PIX_CLK_DIV
++{0x302C, 0x0001}, // VT_SYS_CLK_DIV
++{0x302E, 0x0009}, // PRE_PLL_CLK_DIV
++{0x3030, 134}, // PLL_MULTIPLIER
++{0x3036, 0x0008}, // OP_WORD_CLK_DIV
++{0x3038, 0x0001}, // OP_SYS_CLK_DIV
++{0x30B0, 0x0800}, // DIGITAL_TEST
++{0x31B0, 0x0056}, // FRAME_PREAMBLE
++{0x31B2, 0x0045}, // LINE_PREAMBLE
++{0x31B4, 0x2207}, // RESERVED_MFR_31B4
++{0x31B6, 0x220B}, // RESERVED_MFR_31B6
++{0x31B8, 0x404B}, // RESERVED_MFR_31B8
++{0x31BA, 0x020A}, // RESERVED_MFR_31BA
++{0x31BC, 0x0C08}, // RESERVED_MFR_31BC
++{0x3004, AR0143_X_START}, // X_ADDR_START_
++{0x3008, AR0143_X_END}, // X_ADDR_END_
++{0x3002, AR0143_Y_START}, // Y_ADDR_START_
++{0x3006, AR0143_Y_END}, // Y_ADDR_END_
++{0x30A2, 0x0001}, // X_ODD_INC_
++{0x30A6, 0x0001}, // Y_ODD_INC_
++{0x3402, AR0143_MAX_WIDTH}, // X_OUTPUT_CONTROL
++{0x3404, AR0143_MAX_HEIGHT}, // Y_OUTPUT_CONTROL
++{0x3040, 0x0000}, // READ_MODE
++{0x30BA, 0x01E2}, // DIGITAL_CTRL
++{0x3082, 0x0008}, // OPERATION_MODE_CTRL
++{0x3044, 0x0400}, // DARK_CONTROL
++{0x33E0, 0x0880}, // TEST_ASIL_ROWS
++{0x3180, 0x0080}, // RESERVED_MFR_3180
++{0x33E4, 0x0080}, // RESERVED_MFR_33E4
++{0x3032, 0x0000}, // RESERVED_MFR_3032
++{0x3400, 0x0010}, // RESERVED_MFR_3400
++{0x31D0, 0x0001}, // COMPANDING
++{0x31AC, 0x1410}, // DATA_FORMAT_BITS: 2xRAW8
++//{0x31AC, 0x140C}, // DATA_FORMAT_BITS: RAW12
++{0x3C08, 0x0100}, // RESERVED_MFR_3C08
++{0x3C0C, 0x0518}, // DELAY_BUFFER_LLPCK_RD_WR_OVERLAP
++{0x300A, 0x048A}, // FRAME_LENGTH_LINES_
++{0x300C, 0x05BA}, // LINE_LENGTH_PCK_
++{0x3018, 0x0000}, // FINE_INTEGRATION_TIME_CB
++{0x1008, 0x0338}, // FINE_INTEGRATION_TIME_MIN
++{0x100C, 0x051B}, // FINE_INTEGRATION_TIME2_MIN
++{0x100E, 0x06FE}, // FINE_INTEGRATION_TIME3_MIN
++{0x1010, 0x0155}, // FINE_INTEGRATION_TIME4_MIN
++{0x3012, 0x0332}, // COARSE_INTEGRATION_TIME_
++{0x3014, 0x0694}, // FINE_INTEGRATION_TIME_
++{0x321E, 0x0694}, // FINE_INTEGRATION_TIME2
++{0x3222, 0x0694}, // FINE_INTEGRATION_TIME3
++{0x3226, 0x0694}, // FINE_INTEGRATION_TIME4
++{0x3238, 0x0333}, // EXPOSURE_RATIO
++{0x32EC, 0x72A0}, // RESERVED_MFR_32EC
++{0x31C6, 0x0000}, // HISPI_CONTROL
++{0x301A, 0x00d8}, // RESET_REGISTER
++// end reg wizard 44fps full res
++};
 diff --git a/drivers/media/i2c/soc_camera/ar0220.c b/drivers/media/i2c/soc_camera/ar0220.c
 new file mode 100644
 index 0000000..eb20187
@@ -2123,6 +3212,960 @@ index 0000000..205c351
 +{0x3070, 0x0002},
 +#endif
 +{AR0220_DELAY, 100}, // Wait 100ms
++};
+diff --git a/drivers/media/i2c/soc_camera/ar0223.c b/drivers/media/i2c/soc_camera/ar0223.c
+new file mode 100644
+index 0000000..fa1b953
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ar0223.c
+@@ -0,0 +1,539 @@
++/*
++ * ON Semiconductor AR0223 sensor camera driver
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/videodev2.h>
++
++#include <media/soc_camera.h>
++#include <media/v4l2-common.h>
++#include <media/v4l2-ctrls.h>
++#include <media/v4l2-of.h>
++
++#include "ar0223.h"
++
++#define AR0223_I2C_ADDR		0x10
++//#define AR0223_I2C_ADDR		0x54 // eeprom
++
++#define AR0223_PID		0x3000
++#define AR0223_VERSION_REG	0x0354
++
++//#define AR0223_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SGRBG12_1X12
++#define AR0223_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR12_1X12
++
++struct ar0223_priv {
++	struct v4l2_subdev		sd;
++	struct v4l2_ctrl_handler	hdl;
++	struct media_pad		pad;
++	struct v4l2_rect		rect;
++	int				init_complete;
++	u8				id[6];
++	int				exposure;
++	int				gain;
++	int				autogain;
++	/* serializers */
++	int				ti9x4_addr;
++	int				ti9x3_addr;
++	int				port;
++	int				gpio_resetb;
++	int				gpio_fsin;
++};
++
++static inline struct ar0223_priv *to_ar0223(const struct i2c_client *client)
++{
++	return container_of(i2c_get_clientdata(client), struct ar0223_priv, sd);
++}
++
++static int ar0223_set_regs(struct i2c_client *client,
++			  const struct ar0223_reg *regs, int nr_regs)
++{
++	int i;
++
++	for (i = 0; i < nr_regs; i++) {
++		if (regs[i].reg == AR0223_DELAY) {
++			mdelay(regs[i].val);
++			continue;
++		}
++
++		reg16_write16(client, regs[i].reg, regs[i].val);
++	}
++
++	return 0;
++}
++
++static int ar0223_s_stream(struct v4l2_subdev *sd, int enable)
++{
++	return 0;
++}
++
++static int ar0223_get_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++
++	if (format->pad)
++		return -EINVAL;
++
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
++	mf->code = AR0223_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	return 0;
++}
++
++static int ar0223_set_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++
++	mf->code = AR0223_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
++		cfg->try_fmt = *mf;
++
++	return 0;
++}
++
++static int ar0223_enum_mbus_code(struct v4l2_subdev *sd,
++				struct v4l2_subdev_pad_config *cfg,
++				struct v4l2_subdev_mbus_code_enum *code)
++{
++	if (code->pad || code->index > 0)
++		return -EINVAL;
++
++	code->code = AR0223_MEDIA_BUS_FMT;
++
++	return 0;
++}
++
++static int ar0223_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++
++	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = 0xff;
++	edid->edid[7] = client->addr;
++	edid->edid[8] = AR0223_VERSION_REG >> 8;
++	edid->edid[9] = AR0223_VERSION_REG & 0xff;
++
++	return 0;
++}
++
++static int ar0223_set_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct v4l2_rect *rect = &sel->r;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
++	    sel->target != V4L2_SEL_TGT_CROP)
++		return -EINVAL;
++
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > AR0223_MAX_WIDTH) ||
++	    (rect->top + rect->height > AR0223_MAX_HEIGHT))
++		*rect = priv->rect;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
++
++	return 0;
++}
++
++static int ar0223_get_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
++		return -EINVAL;
++
++	switch (sel->target) {
++	case V4L2_SEL_TGT_CROP_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AR0223_MAX_WIDTH;
++		sel->r.height = AR0223_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP_DEFAULT:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AR0223_MAX_WIDTH;
++		sel->r.height = AR0223_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP:
++		sel->r = priv->rect;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int ar0223_g_mbus_config(struct v4l2_subdev *sd,
++			       struct v4l2_mbus_config *cfg)
++{
++	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
++		     V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
++	cfg->type = V4L2_MBUS_CSI2;
++
++	return 0;
++}
++
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++static int ar0223_g_register(struct v4l2_subdev *sd,
++			    struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	int ret;
++	u16 val = 0;
++
++	ret = reg16_read16(client, (u16)reg->reg, &val);
++	if (ret < 0)
++		return ret;
++
++	reg->val = val;
++	reg->size = sizeof(u16);
++
++	return 0;
++}
++
++static int ar0223_s_register(struct v4l2_subdev *sd,
++			    const struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++
++	return reg16_write16(client, (u16)reg->reg, (u16)reg->val);
++}
++#endif
++
++static struct v4l2_subdev_core_ops ar0223_core_ops = {
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++	.g_register = ar0223_g_register,
++	.s_register = ar0223_s_register,
++#endif
++};
++
++static int ar0223_s_ctrl(struct v4l2_ctrl *ctrl)
++{
++	struct v4l2_subdev *sd = to_sd(ctrl);
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++	int ret = -EINVAL;
++
++	if (!priv->init_complete)
++		return 0;
++
++	switch (ctrl->id) {
++	case V4L2_CID_BRIGHTNESS:
++	case V4L2_CID_CONTRAST:
++	case V4L2_CID_SATURATION:
++	case V4L2_CID_HUE:
++	case V4L2_CID_GAMMA:
++	case V4L2_CID_SHARPNESS:
++	case V4L2_CID_AUTOGAIN:
++	case V4L2_CID_GAIN:
++	case V4L2_CID_EXPOSURE:
++	case V4L2_CID_HFLIP:
++	case V4L2_CID_VFLIP:
++		break;
++	}
++
++	return ret;
++}
++
++static const struct v4l2_ctrl_ops ar0223_ctrl_ops = {
++	.s_ctrl = ar0223_s_ctrl,
++};
++
++static struct v4l2_subdev_video_ops ar0223_video_ops = {
++	.s_stream	= ar0223_s_stream,
++	.g_mbus_config	= ar0223_g_mbus_config,
++};
++
++static const struct v4l2_subdev_pad_ops ar0223_subdev_pad_ops = {
++	.get_edid	= ar0223_get_edid,
++	.enum_mbus_code	= ar0223_enum_mbus_code,
++	.get_selection	= ar0223_get_selection,
++	.set_selection	= ar0223_set_selection,
++	.get_fmt	= ar0223_get_fmt,
++	.set_fmt	= ar0223_set_fmt,
++};
++
++static struct v4l2_subdev_ops ar0223_subdev_ops = {
++	.core	= &ar0223_core_ops,
++	.video	= &ar0223_video_ops,
++	.pad	= &ar0223_subdev_pad_ops,
++};
++
++static void ar0223_otp_id_read(struct i2c_client *client)
++{
++}
++
++static ssize_t ar0223_otp_id_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0223_priv *priv = to_ar0223(client);
++
++	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
++			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++}
++
++static DEVICE_ATTR(otp_id_ar0223, S_IRUGO, ar0223_otp_id_show, NULL);
++
++static int ar0223_initialize(struct i2c_client *client)
++{
++	struct ar0223_priv *priv = to_ar0223(client);
++	u16 val = 0;
++	u16 pid = 0;
++	int ret = 0;
++	int tmp_addr;
++
++	/* check and show model ID */
++	reg16_read16(client, AR0223_PID, &pid);
++
++	if (pid != AR0223_VERSION_REG) {
++		dev_dbg(&client->dev, "Product ID error %x\n", pid);
++		ret = -ENODEV;
++		goto err;
++	}
++
++	/* setup XCLK */
++	tmp_addr = client->addr;
++	if (priv->ti9x4_addr) {
++		/* CLK_OUT=22.5792*160*M/N/CLKDIV -> CLK_OUT=27MHz: CLKDIV=2, M=15, N=251: 22.5792*160/8*15/251=26.987MHz=CLK_OUT */
++		client->addr = priv->ti9x3_addr;			/* Serializer I2C address */
++		reg8_write(client, 0x06, 0x6f);				/* Set CLKDIV and M */
++		reg8_write(client, 0x07, 0xfb);				/* Set N */
++	}
++	client->addr = tmp_addr;
++
++	/* Program wizard registers */
++	ar0223_set_regs(client, ar0223_regs_wizard, ARRAY_SIZE(ar0223_regs_wizard));
++
++	/* Enable stream */
++	reg16_read16(client, 0x301a, &val);	// read inital reset_register value
++	val |= (1 << 2);			// Set streamOn bit
++	reg16_write16(client, 0x301a, val);	// Start Streaming
++
++	/* Read OTP IDs */
++	ar0223_otp_id_read(client);
++
++	dev_info(&client->dev, "ar0223 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, AR0223_MAX_WIDTH, AR0223_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++err:
++	return ret;
++}
++
++static int ar0223_parse_dt(struct device_node *np, struct ar0223_priv *priv)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
++	int i;
++	struct device_node *endpoint = NULL, *rendpoint = NULL;
++	int tmp_addr = 0;
++
++	for (i = 0; ; i++) {
++		endpoint = of_graph_get_next_endpoint(np, endpoint);
++		if (!endpoint)
++			break;
++
++		of_node_put(endpoint);
++
++		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
++		if (!rendpoint)
++			continue;
++
++		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
++		    !of_property_match_string(rendpoint->parent->parent, "compatible", "ti,ti9x4") &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti9x4_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++			break;
++	}
++
++	if (!priv->ti9x4_addr) {
++		dev_err(&client->dev, "deserializer does not present\n");
++		return -EINVAL;
++	}
++
++	/* setup I2C translator address */
++	tmp_addr = client->addr;
++	if (priv->ti9x4_addr) {
++		client->addr = priv->ti9x4_addr;			/* Deserializer I2C address */
++
++		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
++		usleep_range(2000, 2500);				/* wait 2ms */
++		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x5d, AR0223_I2C_ADDR << 1);		/* Sensor native I2C address */
++
++//		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
++	}
++	client->addr = tmp_addr;
++
++	mdelay(10);
++
++	return 0;
++}
++
++static int ar0223_probe(struct i2c_client *client,
++		       const struct i2c_device_id *did)
++{
++	struct ar0223_priv *priv;
++	int ret;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	v4l2_i2c_subdev_init(&priv->sd, client, &ar0223_subdev_ops);
++	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++
++	priv->exposure = 0x100;
++	priv->gain = 0x100;
++	priv->autogain = 1;
++	v4l2_ctrl_handler_init(&priv->hdl, 4);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_CONTRAST, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_SATURATION, 0, 7, 1, 2);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_HUE, 0, 23, 1, 12);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_GAMMA, -128, 128, 1, 0);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	priv->sd.ctrl_handler = &priv->hdl;
++
++	ret = priv->hdl.error;
++	if (ret)
++		goto cleanup;
++
++	v4l2_ctrl_handler_setup(&priv->hdl);
++
++	priv->pad.flags = MEDIA_PAD_FL_SOURCE;
++	priv->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
++	ret = media_entity_pads_init(&priv->sd.entity, 1, &priv->pad);
++	if (ret < 0)
++		goto cleanup;
++
++	ret = ar0223_parse_dt(client->dev.of_node, priv);
++	if (ret)
++		goto cleanup;
++
++	ret = ar0223_initialize(client);
++	if (ret < 0)
++		goto cleanup;
++
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = AR0223_MAX_WIDTH;
++	priv->rect.height = AR0223_MAX_HEIGHT;
++
++	ret = v4l2_async_register_subdev(&priv->sd);
++	if (ret)
++		goto cleanup;
++
++	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0223) != 0) {
++		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
++		goto cleanup;
++	}
++
++	priv->init_complete = 1;
++
++	return 0;
++
++cleanup:
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++#ifdef CONFIG_SOC_CAMERA_AR0223
++	v4l_err(client, "failed to probe @ 0x%02x (%s)\n",
++		client->addr, client->adapter->name);
++#endif
++	return ret;
++}
++
++static int ar0223_remove(struct i2c_client *client)
++{
++	struct ar0223_priv *priv = i2c_get_clientdata(client);
++
++	device_remove_file(&client->dev, &dev_attr_otp_id_ar0223);
++	v4l2_async_unregister_subdev(&priv->sd);
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++
++	return 0;
++}
++
++#ifdef CONFIG_SOC_CAMERA_AR0223
++static const struct i2c_device_id ar0223_id[] = {
++	{ "ar0223", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ar0223_id);
++
++static const struct of_device_id ar0223_of_ids[] = {
++	{ .compatible = "aptina,ar0223", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ar0223_of_ids);
++
++static struct i2c_driver ar0223_i2c_driver = {
++	.driver	= {
++		.name		= "ar0223",
++		.of_match_table	= ar0223_of_ids,
++	},
++	.probe		= ar0223_probe,
++	.remove		= ar0223_remove,
++	.id_table	= ar0223_id,
++};
++
++module_i2c_driver(ar0223_i2c_driver);
++
++MODULE_DESCRIPTION("SoC Camera driver for AR0223");
++MODULE_AUTHOR("Vladimir Barinov");
++MODULE_LICENSE("GPL");
++#endif
+diff --git a/drivers/media/i2c/soc_camera/ar0223.h b/drivers/media/i2c/soc_camera/ar0223.h
+new file mode 100644
+index 0000000..23aa828
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ar0223.h
+@@ -0,0 +1,403 @@
++/*
++ * ON Semiconductor AR0223 sensor camera wizard 1920x1080@44/RCCB/MIPI
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++//#define AR0223_DISPLAY_PATTERN_FIXED
++//#define AR0223_DISPLAY_PATTERN_COLOR_BAR
++
++#define AR0223_MAX_WIDTH	1808
++#define AR0223_MAX_HEIGHT	1150
++
++#define AR0223_DELAY		0xffff
++
++struct ar0223_reg {
++	u16	reg;
++	u16	val;
++};
++
++static const struct ar0223_reg ar0223_regs_wizard[] = {
++{0x301A, 0x0018}, // RESET_REGISTER
++{AR0223_DELAY, 500}, // Wait 500ms
++{0x3070, 0x0000},	//  1: Solid color test pattern,
++			//  2: Full color bar test pattern,
++			//  3: Fade to grey color bar test pattern,
++			//256: Walking 1 test pattern (12 bit)
++{0x3072, 0x0123},	// R
++{0x3074, 0x0456},	// G(GR row)
++{0x3076, 0x0abc},	// B
++{0x3078, 0x0def},	// G(GB row)
++#ifdef AR0223_DISPLAY_PATTERN_FIXED
++{0x3070, 0x0001},
++#endif
++#ifdef AR0223_DISPLAY_PATTERN_COLOR_BAR
++{0x3070, 0x0002},
++#endif
++{AR0223_DELAY, 100}, // Wait 100ms
++
++{0x3092, 0x0C24},
++{0x337A, 0x0C80},
++{0x3520, 0x1288},
++{0x3522, 0x880C},
++{0x3524, 0x0C12},
++{0x352C, 0x1212},
++{0x354A, 0x007F},
++{0x350C, 0x0568},
++{0x3506, 0x3333},
++{0x3508, 0x3333},
++{0x3100, 0x4000},
++{0x3280, 0x0FA0},
++{0x3282, 0x0FA0},
++{0x3284, 0x0FA0},
++{0x3286, 0x0FA0},
++{0x3288, 0x0FA0},
++{0x328A, 0x0FA0},
++{0x328C, 0x0FA0},
++{0x328E, 0x0FA0},
++{0x3290, 0x0FA0},
++{0x3292, 0x0FA0},
++{0x3294, 0x0FA0},
++{0x3296, 0x0FA0},
++{0x3298, 0x0FA0},
++{0x329A, 0x0FA0},
++{0x329C, 0x0FA0},
++{0x329E, 0x0FA0},
++
++{AR0223_DELAY, 200}, // Wait 200ms
++
++{0x2512, 0x8000},
++{0x2510, 0x0905},
++{0x2510, 0x3350},
++{0x2510, 0x2004},
++{0x2510, 0x1460},
++{0x2510, 0x1578},
++{0x2510, 0x0901},
++{0x2510, 0x7B24},
++{0x2510, 0xFF24},
++{0x2510, 0xFF24},
++{0x2510, 0xEA24},
++{0x2510, 0x1022},
++{0x2510, 0x2410},
++{0x2510, 0x155A},
++{0x2510, 0x0901},
++{0x2510, 0x1400},
++{0x2510, 0x24FF},
++{0x2510, 0x24FF},
++{0x2510, 0x24EA},
++{0x2510, 0x2324},
++{0x2510, 0x647A},
++{0x2510, 0x2404},
++{0x2510, 0x052C},
++{0x2510, 0x400A},
++{0x2510, 0xFF0A},
++{0x2510, 0xFF0A},
++{0x2510, 0x1008},
++{0x2510, 0x3851},
++{0x2510, 0x1440},
++{0x2510, 0x0004},
++{0x2510, 0x0801},
++{0x2510, 0x0408},
++{0x2510, 0x1180},
++{0x2510, 0x2652},
++{0x2510, 0x1518},
++{0x2510, 0x0906},
++{0x2510, 0x1348},
++{0x2510, 0x1002},
++{0x2510, 0x1016},
++{0x2510, 0x1181},
++{0x2510, 0x1189},
++{0x2510, 0x1056},
++{0x2510, 0x1210},
++{0x2510, 0x0901},
++{0x2510, 0x0D09},
++{0x2510, 0x1413},
++{0x2510, 0x8809},
++{0x2510, 0x2B15},
++{0x2510, 0x8809},
++{0x2510, 0x0311},
++{0x2510, 0xD909},
++{0x2510, 0x1214},
++{0x2510, 0x4109},
++{0x2510, 0x0312},
++{0x2510, 0x1409},
++{0x2510, 0x0110},
++{0x2510, 0xD612},
++{0x2510, 0x1012},
++{0x2510, 0x1212},
++{0x2510, 0x1011},
++{0x2510, 0xDD11},
++{0x2510, 0xD910},
++{0x2510, 0x5609},
++{0x2510, 0x1511},
++{0x2510, 0xDB09},
++{0x2510, 0x1511},
++{0x2510, 0x9B09},
++{0x2510, 0x0F11},
++{0x2510, 0xBB12},
++{0x2510, 0x1A12},
++{0x2510, 0x1014},
++{0x2510, 0x6012},
++{0x2510, 0x5010},
++{0x2510, 0x7610},
++{0x2510, 0xE609},
++{0x2510, 0x0812},
++{0x2510, 0x4012},
++{0x2510, 0x6009},
++{0x2510, 0x290B},
++{0x2510, 0x0904},
++{0x2510, 0x1440},
++{0x2510, 0x0923},
++{0x2510, 0x15C8},
++{0x2510, 0x13C8},
++{0x2510, 0x092C},
++{0x2510, 0x1588},
++{0x2510, 0x1388},
++{0x2510, 0x0C09},
++{0x2510, 0x0C14},
++{0x2510, 0x4109},
++{0x2510, 0x1112},
++{0x2510, 0x6212},
++{0x2510, 0x6011},
++{0x2510, 0xBF11},
++{0x2510, 0xBB10},
++{0x2510, 0x6611},
++{0x2510, 0xFB09},
++{0x2510, 0x3511},
++{0x2510, 0xBB12},
++{0x2510, 0x6312},
++{0x2510, 0x6014},
++{0x2510, 0x0015},
++{0x2510, 0x0011},
++{0x2510, 0xB812},
++{0x2510, 0xA012},
++{0x2510, 0x0010},
++{0x2510, 0x2610},
++{0x2510, 0x0013},
++{0x2510, 0x0011},
++{0x2510, 0x0008},
++{0x2510, 0x3053},
++{0x2510, 0x4215},
++{0x2510, 0x4013},
++{0x2510, 0x4010},
++{0x2510, 0x0210},
++{0x2510, 0x1611},
++{0x2510, 0x8111},
++{0x2510, 0x8910},
++{0x2510, 0x5612},
++{0x2510, 0x1009},
++{0x2510, 0x010D},
++{0x2510, 0x0815},
++{0x2510, 0xC015},
++{0x2510, 0xD013},
++{0x2510, 0x5009},
++{0x2510, 0x1313},
++{0x2510, 0xD009},
++{0x2510, 0x0215},
++{0x2510, 0xC015},
++{0x2510, 0xC813},
++{0x2510, 0xC009},
++{0x2510, 0x0515},
++{0x2510, 0x8813},
++{0x2510, 0x8009},
++{0x2510, 0x0213},
++{0x2510, 0x8809},
++{0x2510, 0x0411},
++{0x2510, 0xC909},
++{0x2510, 0x0814},
++{0x2510, 0x0109},
++{0x2510, 0x0B11},
++{0x2510, 0xD908},
++{0x2510, 0x1400},
++{0x2510, 0x091A},
++{0x2510, 0x1440},
++{0x2510, 0x0903},
++{0x2510, 0x1214},
++{0x2510, 0x0901},
++{0x2510, 0x10D6},
++{0x2510, 0x1210},
++{0x2510, 0x1212},
++{0x2510, 0x1210},
++{0x2510, 0x11DD},
++{0x2510, 0x11D9},
++{0x2510, 0x1056},
++{0x2510, 0x0917},
++{0x2510, 0x11DB},
++{0x2510, 0x0913},
++{0x2510, 0x11FB},
++{0x2510, 0x0905},
++{0x2510, 0x11BB},
++{0x2510, 0x121A},
++{0x2510, 0x1210},
++{0x2510, 0x1460},
++{0x2510, 0x1250},
++{0x2510, 0x1076},
++{0x2510, 0x10E6},
++{0x2510, 0x0901},
++{0x2510, 0x15A8},
++{0x2510, 0x0901},
++{0x2510, 0x13A8},
++{0x2510, 0x1240},
++{0x2510, 0x1260},
++{0x2510, 0x0925},
++{0x2510, 0x13AD},
++{0x2510, 0x0902},
++{0x2510, 0x0907},
++{0x2510, 0x1588},
++{0x2510, 0x0901},
++{0x2510, 0x138D},
++{0x2510, 0x0B09},
++{0x2510, 0x0914},
++{0x2510, 0x4009},
++{0x2510, 0x0B13},
++{0x2510, 0x8809},
++{0x2510, 0x1C0C},
++{0x2510, 0x0920},
++{0x2510, 0x1262},
++{0x2510, 0x1260},
++{0x2510, 0x11BF},
++{0x2510, 0x11BB},
++{0x2510, 0x1066},
++{0x2510, 0x090A},
++{0x2510, 0x11FB},
++{0x2510, 0x093B},
++{0x2510, 0x11BB},
++{0x2510, 0x1263},
++{0x2510, 0x1260},
++{0x2510, 0x1400},
++{0x2510, 0x1508},
++{0x2510, 0x11B8},
++{0x2510, 0x12A0},
++{0x2510, 0x1200},
++{0x2510, 0x1026},
++{0x2510, 0x1000},
++{0x2510, 0x1300},
++{0x2510, 0x1100},
++{0x2510, 0x437A},
++{0x2510, 0x0609},
++{0x2510, 0x0B05},
++{0x2510, 0x0708},
++{0x2510, 0x4137},
++{0x2510, 0x502C},
++{0x2510, 0x2CFE},
++{0x2510, 0x15FE},
++{0x2510, 0x0C2C},
++{0x32E6, 0x00E0},
++{0x1008, 0x036F},
++{0x100C, 0x058F},
++{0x100E, 0x07AF},
++{0x1010, 0x014F},
++{0x3230, 0x0312},
++{0x3232, 0x0532},
++{0x3234, 0x0752},
++{0x3236, 0x00F2},
++{0x3566, 0x3328},
++{0x32D0, 0x3A02},
++{0x32D2, 0x3508},
++{0x32D4, 0x3702},
++{0x32D6, 0x3C04},
++{0x32DC, 0x370A},
++{0x30B0, 0x0800},
++{0x302A, 0x0006},
++{0x302C, 0x0001},
++{0x302E, 0x0002},
++{0x3030, 0x002C},
++{0x3036, 0x000C},
++{0x3038, 0x0001},
++{0x30B0, 0x0A00},
++{0x30A2, 0x0001},
++{0x30A6, 0x0001},
++{0x3040, 0x0000},
++{0x3040, 0x0000},
++{0x3082, 0x0008},
++{0x3082, 0x0008},
++{0x3082, 0x0008},
++{0x3082, 0x0008},
++{0x30BA, 0x11F2},
++{0x30BA, 0x11F2},
++{0x30BA, 0x11F2},
++{0x3044, 0x0400},
++{0x3044, 0x0400},
++{0x3044, 0x0400},
++{0x3044, 0x0400},
++{0x3064, 0x1882},
++{0x3064, 0x1802},
++{0x3064, 0x1802},
++{0x3064, 0x1802},
++{0x33E0, 0x0C80},
++{0x33E0, 0x0C80},
++{0x3180, 0x0080},
++{0x33E4, 0x0080},
++{0x33E0, 0x0C80},
++{0x33E0, 0x0C80},
++{0x3004, 0x002E},
++{0x3008, 0x073D},
++{0x3002, 0x0019},
++{0x3006, 0x0496},
++{0x3032, 0x0000},
++{0x3400, 0x0010},
++{0x3402, 0x0780},
++{0x3404, 0x04B8},
++{0x3082, 0x0000},
++{0x30BA, 0x11F1},
++
++{AR0223_DELAY, 100}, // Wait 100ms
++
++{0x30BA, 0x11F0},
++{0x300C, 0x043E},
++{0x300A, 0x0A8C},
++{0x3042, 0x0000},
++{0x3238, 0x0222},
++{0x3238, 0x0222},
++{0x3238, 0x0222},
++{0x3012, 0x0144},
++{0x3014, 0x014F},
++{0x321E, 0x0752},
++{0x3222, 0x0752},
++{0x30B0, 0x0B00},
++{0x32EA, 0x3C0E},
++{0x32EA, 0x3C0E},
++{0x32EA, 0x3C0E},
++{0x32EC, 0x72A1},
++{0x32EC, 0x72A1},
++{0x32EC, 0x72A1},
++{0x32EC, 0x72A1},
++{0x32EC, 0x72A1},
++{0x32EC, 0x72A1},
++{0x31D0, 0x0000},
++{0x31AE, 0x0004},
++{0x31AE, 0x0304},
++{0x31AC, 0x0C0C},
++{0x31AC, 0x0C0C},
++{0x301A, 0x1098},
++{0x301A, 0x1018},
++{0x301A, 0x1018},
++{0x31AE, 0x0204},
++{0x3342, 0x122C},
++{0x3346, 0x122C},
++{0x334A, 0x122C},
++{0x334E, 0x122C},
++{0x3344, 0x0011},
++{0x3348, 0x0111},
++{0x334C, 0x0211},
++{0x3350, 0x0311},
++{0x31B0, 0x0049},
++{0x31B2, 0x0033},
++{0x31B4, 0x2185},
++{0x31B6, 0x1146},
++{0x31B8, 0x3047},
++{0x31BA, 0x0186},
++{0x31BC, 0x0805},
++#if 0
++/* Enable trigger input */
++{0x340A, 0x00E0},
++{0x340C, 0x0002},
++{0x30CE, 0x0120},
++#endif
++{0x301A, 0x011C},
 +};
 diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
 new file mode 100644
@@ -6488,10 +8531,10 @@ index 0000000..4217cd9
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..c850196
+index 0000000..76f8a48
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
-@@ -0,0 +1,692 @@
+@@ -0,0 +1,744 @@
 +/*
 + * MAXIM max9286 GMSL driver
 + *
@@ -6545,6 +8588,8 @@ index 0000000..c850196
 +	int			vsync;
 +	int			timeout;
 +	int			poc_delay;
++	int			dbl;
++	int			dt;
 +	atomic_t		use_count;
 +	u32			csi2_outord;
 +	struct i2c_client	*client;
@@ -6590,6 +8635,26 @@ index 0000000..c850196
 +static int poc_delay;
 +module_param(poc_delay, int, 0644);
 +MODULE_PARM_DESC(poc_delay, " Delay in ms after POC enable (default: 0 ms)");
++
++static int dbl = 1;
++module_param(dbl, int, 0644);
++MODULE_PARM_DESC(dbl, " DBL mode (default: 1 - DBL mode enabled)");
++
++static int dt = 3;
++module_param(dt, int, 0644);
++MODULE_PARM_DESC(dt, " DataType (default: 3 - YUV8), 0 - RGB888, 5 - RAW8, 6 - RAW10, 7 - RAW12, 8 - RAW14");
++
++static int dt2bpp [9] = {
++	24,	/* RGB888 */
++	16,	/* RGB565 */
++	18,	/* RGB666 */
++	8,	/* YUV8 - default */
++	10,	/* YUV10 */
++	8,	/* RAW8/RAW16 */
++	10,	/* RAW10 */
++	12,	/* RAW12 */
++	14,	/* RAW14 */
++};
 +
 +static char* ser_name(int id)
 +{
@@ -6750,22 +8815,9 @@ index 0000000..c850196
 +	client->addr = priv->des_addr;				/* MAX9286-CAMx I2C */
 +	reg8_write(client, 0x15, 0x13);				/* disable CSI output, VC is set accordingly to Link number */
 +	reg8_write(client, 0x69, 0x0f);				/* mask CSI forwarding from all links */
-+	switch (priv->lanes) {
-+	case 1:
-+		reg8_write(client, 0x12, 0x33);			/* enable CSI-2 Lane D0, DBL mode, YUV422 8-bit*/
-+		break;
-+	case 2:
-+		reg8_write(client, 0x12, 0x73);			/* enable CSI-2 Lanes D0,D1, DBL mode, YUV422 8-bit*/
-+		break;
-+	case 3:
-+		reg8_write(client, 0x12, 0xd3);			/* enable CSI-2 Lanes D0-D2, DBL mode, YUV422 8-bit*/
-+		break;
-+	case 4:
-+		reg8_write(client, 0x12, 0xf3);			/* enable CSI-2 Lanes D0-D3, DBL mode, YUV422 8-bit*/
-+		break;
-+	default:
-+		dev_err(&client->dev, "CSI2 lanes number is invalid (%d)\n", priv->lanes);
-+	}
++	reg8_write(client, 0x12, ((priv->lanes - 1) << 6) |
++				 (priv->dbl ? 0x30 : 0) |
++				 (priv->dt & 0xf));		/* setup lanes, DBL mode, DataType */
 +
 +	/* Start GMSL initialization with FSYNC disabled. This is required for some odd LVDS cameras */
 +	reg8_write(client, 0x01, 0xc0);				/* ECU (aka MCU) based FrameSync using GPI-to-GPO */
@@ -6786,30 +8838,65 @@ index 0000000..c850196
 +	/* GMSL setup */
 +	client->addr = 0x40;					/* MAX9271-CAMx I2C */
 +	reg8_write(client, 0x0d, 0x22 | MAXIM_I2C_I2C_SPEED);	/* disable artificial ACK, I2C speed set */
-+	reg8_write(client, 0x07, 0x84 | (priv->pclk_rising_edge ? 0 : 0x10)); /* RAW/YUV, PCLK edge, HS/VS encoding enabled */
++	reg8_write(client, 0x07, 0x04 | (priv->pclk_rising_edge ? 0 : 0x10) | (priv->dbl ? 0x80 : 0)); /* RAW/YUV, PCLK edge, HS/VS encoding enabled, DBL mode */
 +	usleep_range(2000, 2500);				/* wait 2ms */
 +	reg8_write(client, 0x02, 0xff);				/* spread spectrum +-4%, pclk range automatic, Gbps automatic  */
 +	usleep_range(2000, 2500);				/* wait 2ms */
 +
 +	if (priv->ser_id == MAX96705_ID) {
-+		/* setup crossbar in DBL mode: reverse DVP bus */
-+		reg8_write(client, 0x20, 0x07);
-+		reg8_write(client, 0x21, 0x06);
-+		reg8_write(client, 0x22, 0x05);
-+		reg8_write(client, 0x23, 0x04);
-+		reg8_write(client, 0x24, 0x03);
-+		reg8_write(client, 0x25, 0x02);
-+		reg8_write(client, 0x26, 0x01);
-+		reg8_write(client, 0x27, 0x00);
++		switch (priv->dt) {
++		case 3:
++			/* setup crossbar for YUV/RAW8: reverse DVP bus */
++			reg8_write(client, 0x20, 0x07);
++			reg8_write(client, 0x21, 0x06);
++			reg8_write(client, 0x22, 0x05);
++			reg8_write(client, 0x23, 0x04);
++			reg8_write(client, 0x24, 0x03);
++			reg8_write(client, 0x25, 0x02);
++			reg8_write(client, 0x26, 0x01);
++			reg8_write(client, 0x27, 0x00);
 +
-+		reg8_write(client, 0x30, 0x17);
-+		reg8_write(client, 0x31, 0x16);
-+		reg8_write(client, 0x32, 0x15);
-+		reg8_write(client, 0x33, 0x14);
-+		reg8_write(client, 0x34, 0x13);
-+		reg8_write(client, 0x35, 0x12);
-+		reg8_write(client, 0x36, 0x11);
-+		reg8_write(client, 0x37, 0x10);
++			/* this is second byte if DBL=1 */
++			reg8_write(client, 0x30, 0x17);
++			reg8_write(client, 0x31, 0x16);
++			reg8_write(client, 0x32, 0x15);
++			reg8_write(client, 0x33, 0x14);
++			reg8_write(client, 0x34, 0x13);
++			reg8_write(client, 0x35, 0x12);
++			reg8_write(client, 0x36, 0x11);
++			reg8_write(client, 0x37, 0x10);
++			break;
++		case 7:
++			/* setup crossbar for RAW12: reverse DVP bus */
++			reg8_write(client, 0x20, 11);
++			reg8_write(client, 0x21, 10);
++			reg8_write(client, 0x22, 9);
++			reg8_write(client, 0x23, 8);
++			reg8_write(client, 0x24, 7);
++			reg8_write(client, 0x25, 6);
++			reg8_write(client, 0x26, 5);
++			reg8_write(client, 0x27, 4);
++			reg8_write(client, 0x28, 3);
++			reg8_write(client, 0x29, 2);
++			reg8_write(client, 0x2a, 1);
++			reg8_write(client, 0x2b, 0);
++
++			/* this is second byte if DBL=1 */
++			/* BWS should be 27 or 32 bit for RAW12 */
++			reg8_write(client, 0x30, 27);
++			reg8_write(client, 0x31, 26);
++			reg8_write(client, 0x32, 25);
++			reg8_write(client, 0x33, 24);
++			reg8_write(client, 0x34, 23);
++			reg8_write(client, 0x35, 22);
++			reg8_write(client, 0x36, 21);
++			reg8_write(client, 0x37, 20);
++			reg8_write(client, 0x38, 19);
++			reg8_write(client, 0x39, 18);
++			reg8_write(client, 0x3a, 17);
++			reg8_write(client, 0x3b, 16);
++			break;
++		}
 +	}
 +
 +	client->addr = priv->des_addr;				/* MAX9286-CAMx I2C */
@@ -7028,6 +9115,10 @@ index 0000000..c850196
 +		priv->vsync = 1;
 +	if (of_property_read_u32(np, "maxim,poc-delay", &priv->poc_delay))
 +		priv->poc_delay = 50;
++	if (of_property_read_u32(np, "maxim,dbl", &priv->dbl))
++		priv->dbl = 1;
++	if (of_property_read_u32(np, "maxim,dt", &priv->dt))
++		priv->dbl = 3;
 +
 +	/* module params override dts */
 +	if (him)
@@ -7046,6 +9137,10 @@ index 0000000..c850196
 +		priv->active_low_resetb = active_low_resetb;
 +	if (poc_delay)
 +		priv->poc_delay = poc_delay;
++	if (!dbl)
++		priv->dbl = dbl;
++	if (dt != 3)
++		priv->dt = dt;
 +
 +	for (i = 0; i < priv->links; i++) {
 +		endpoint = of_graph_get_next_endpoint(np, endpoint);
@@ -7086,8 +9181,8 @@ index 0000000..c850196
 +
 +		csi_rate_prop = of_find_property(endpoint, "csi-rate", NULL);
 +		if (csi_rate_prop) {
-+			/* CSI2_RATE = PCLK*sizeof(YUV8)*links/lanes */
-+			priv->csi_rate = cpu_to_be32(100 * 8 * hweight8(priv->links_mask) / priv->lanes);
++			/* CSI2_RATE = PCLK*bpp*links/lanes */
++			priv->csi_rate = cpu_to_be32(100 * dt2bpp[priv->dt] * hweight8(priv->links_mask) / priv->lanes);
 +			csi_rate_prop->value = &priv->csi_rate;
 +			of_update_property(rendpoint, csi_rate_prop);
 +		}
@@ -9406,10 +11501,10 @@ index 0000000..4c3515a
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov106xx.c b/drivers/media/i2c/soc_camera/ov106xx.c
 new file mode 100644
-index 0000000..08786ab
+index 0000000..9a69622
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov106xx.c
-@@ -0,0 +1,161 @@
+@@ -0,0 +1,183 @@
 +/*
 + * OmniVision ov10635/ov490-ov10640/ov495-ov2775 sensor camera driver
 + *
@@ -9425,7 +11520,9 @@ index 0000000..08786ab
 +#include "ov490_ov10640.c"
 +#include "ov495_ov2775.c"
 +#include "ar0132.c"
++#include "ar0143.c"
 +#include "ar0220.c"
++#include "ar0223.c"
 +#include "ap0101_ar014x.c"
 +#include "ov2775.c"
 +#include "imx390.c"
@@ -9436,7 +11533,9 @@ index 0000000..08786ab
 +	ID_OV490_OV10640,
 +	ID_OV495_OV2775,
 +	ID_AR0132,
++	ID_AR0143,
 +	ID_AR0220,
++	ID_AR0223,
 +	ID_AP0101_AR014X,
 +	ID_OV2775,
 +	ID_IMX390,
@@ -9473,9 +11572,21 @@ index 0000000..08786ab
 +		goto out;
 +	}
 +
++	ret = ar0143_probe(client, did);
++	if (!ret) {
++		chip_id = ID_AR0143;
++		goto out;
++	}
++
 +	ret = ar0220_probe(client, did);
 +	if (!ret) {
 +		chip_id = ID_AR0220;
++		goto out;
++	}
++
++	ret = ar0223_probe(client, did);
++	if (!ret) {
++		chip_id = ID_AR0223;
 +		goto out;
 +	}
 +
@@ -9524,8 +11635,14 @@ index 0000000..08786ab
 +	case ID_AR0132:
 +		ar0132_remove(client);
 +		break;
++	case ID_AR0143:
++		ar0143_remove(client);
++		break;
 +	case ID_AR0220:
 +		ar0220_remove(client);
++		break;
++	case ID_AR0223:
++		ar0223_remove(client);
 +		break;
 +	case ID_AP0101_AR014X:
 +		ap0101_remove(client);
@@ -9568,7 +11685,7 @@ index 0000000..08786ab
 +
 +module_i2c_driver(ov106xx_i2c_driver);
 +
-+MODULE_DESCRIPTION("SoC Camera driver for OV10635, OV490/OV10640, OV495/OV2775, AR0132, AR0220, AP0101/AR014X");
++MODULE_DESCRIPTION("SoC Camera driver for OV10635, OV490+OV10640, OV495+OV2775, AR0132/143/220/223, AP0101+AR014X");
 +MODULE_AUTHOR("Vladimir Barinov");
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov2775.c b/drivers/media/i2c/soc_camera/ov2775.c
@@ -13211,7 +15328,7 @@ index 0000000..b22e93e
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..a371e22
+index 0000000..bad0840
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 @@ -0,0 +1,652 @@
@@ -13898,7 +16015,7 @@ index 0000000..17c94ae
 +};
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
-index 0000000..d51512b9
+index 0000000..5e9cb07
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.c
 @@ -0,0 +1,526 @@
@@ -13932,7 +16049,7 @@ index 0000000..d51512b9
 +#define OX03A_VER		0x300B
 +#define OX03A_VERSION_REG	0x5803
 +
-+#define OX03A_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR12_1X12
++#define OX03A_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR16_1X16
 +
 +struct ox03a_priv {
 +	struct v4l2_subdev		sd;
@@ -14430,10 +16547,10 @@ index 0000000..d51512b9
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
 new file mode 100644
-index 0000000..b69273a
+index 0000000..9e4e8b8
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.h
-@@ -0,0 +1,1724 @@
+@@ -0,0 +1,1749 @@
 +/*
 + * OmniVision OX03A sensor camera wizard 1920x1080@30/BGGR/MIPI
 + *
@@ -14445,9 +16562,9 @@ index 0000000..b69273a
 + * option) any later version.
 + */
 +
-+#define OX03A_DISPLAY_PATTERN_COLOR_BAR
++//#define OX03A_DISPLAY_PATTERN_COLOR_BAR
 +
-+#define OX03A_MAX_WIDTH		1920
++#define OX03A_MAX_WIDTH		1624
 +#define OX03A_MAX_HEIGHT	1080
 +
 +#define OX03A_DELAY		0xffff
@@ -14458,15 +16575,16 @@ index 0000000..b69273a
 +	u8	val;
 +};
 +
-+/* wizard: MIPI 1920x1280 3x12 30fps 750MBPS */
++/* wizard: MIPI 1624x1280 16DCG+12VS 30fps 650MBPS */
 +static const struct ox03a_reg ox03a_regs_wizard[] = {
 +{0x0103, 0x01}, // s/w reset
 +{OX03A_DELAY, 10}, // Wait 10ms
++{0x4d09, 0x5f},
 +{0x0100, 0x00},
 +{0x0102, 0x00},
 +{0x0103, 0x00},
 +{0x0104, 0x04},
-+{0x0105, 0x00},
++{0x0105, 0x02},
 +{0x0106, 0x00},
 +{0x0107, 0x00},
 +{0x0109, 0x00},
@@ -14475,7 +16593,7 @@ index 0000000..b69273a
 +{0x0302, 0x00},
 +{0x0303, 0x02},
 +{0x0304, 0x00},
-+{0x0305, 0x3c},
++{0x0305, 0x36},
 +{0x0306, 0x00},
 +{0x0307, 0x00},
 +{0x0308, 0x04},
@@ -14625,8 +16743,8 @@ index 0000000..b69273a
 +{0x373e, 0x00},
 +{0x373f, 0x4c},
 +{0x3740, 0x4c},
-+{0x3741, 0x4c},
-+{0x3742, 0x23},
++{0x3741, 0x44},
++{0x3742, 0x34},
 +{0x3743, 0x01},
 +{0x3744, 0x16},
 +{0x3745, 0x08},
@@ -14674,7 +16792,7 @@ index 0000000..b69273a
 +{0x3771, 0x00},
 +{0x3772, 0x00},
 +{0x3773, 0x00},
-+{0x3774, 0x02},
++{0x3774, 0x82},
 +{0x3775, 0x00},
 +{0x3776, 0x00},
 +{0x3777, 0x00},
@@ -14746,16 +16864,16 @@ index 0000000..b69273a
 +{0x37ba, 0x08},
 +{0x37bb, 0x08},
 +{0x37bd, 0x01},
-+{0x37be, 0x01},
-+{0x37bf, 0x01},
++{0x37be, 0xe0},
++{0x37bf, 0x00},
 +{0x37c0, 0x01},
 +{0x37c1, 0x11},
 +{0x37c2, 0x11},
 +{0x37c3, 0x00},
 +{0x37c4, 0x63},
 +{0x37c5, 0x63},
-+{0x37c6, 0x63},
-+{0x37c7, 0x34},
++{0x37c6, 0x48},
++{0x37c7, 0x38},
 +{0x37c8, 0x21},
 +{0x37c9, 0x00},
 +{0x37ca, 0x08},
@@ -14966,13 +17084,13 @@ index 0000000..b69273a
 +{0x3203, 0x18},
 +{0x3204, 0x20},
 +{0x3205, 0x30},
-+{0x3206, 0x00},
++{0x3206, 0xc0},
 +{0x3209, 0x00},
 +{0x320a, 0x00},
 +{0x320b, 0x00},
 +{0x320c, 0x00},
 +{0x320d, 0x01},
-+{0x3216, 0x01},
++{0x3216, 0x02},
 +{0x3217, 0x00},
 +{0x3218, 0xf7},
 +{0x3219, 0x55},
@@ -15072,7 +17190,7 @@ index 0000000..b69273a
 +{0x3602, 0x42},
 +{0x3603, 0xe3},
 +{0x3604, 0x93},
-+{0x3605, 0x40},
++{0x3605, 0xff},
 +{0x3606, 0x80},
 +{0x3607, 0x4a},
 +{0x3608, 0x98},
@@ -15084,7 +17202,7 @@ index 0000000..b69273a
 +{0x360e, 0x88},
 +{0x360f, 0x88},
 +{0x3610, 0x89},
-+{0x3611, 0x4f},
++{0x3611, 0x4d},
 +{0x3612, 0x4f},
 +{0x3613, 0xba},
 +{0x3614, 0x99},
@@ -15106,7 +17224,7 @@ index 0000000..b69273a
 +{0x362a, 0x0e},
 +{0x362b, 0x0e},
 +{0x362c, 0x0e},
-+{0x362d, 0x0e},
++{0x362d, 0x12},
 +{0x362e, 0x00},
 +{0x362f, 0x00},
 +{0x3630, 0x00},
@@ -15128,14 +17246,14 @@ index 0000000..b69273a
 +{0x3640, 0x0a},
 +{0x3641, 0x0a},
 +{0x3642, 0x0a},
-+{0x3643, 0x10},
++{0x3643, 0x0e},
 +{0x3644, 0x00},
 +{0x3645, 0x10},
 +{0x3646, 0x16},
-+{0x3647, 0x10},
++{0x3647, 0x0e},
 +{0x3648, 0x00},
 +{0x3649, 0x13},
-+{0x364a, 0x1d},
++{0x364a, 0x13},
 +{0x364b, 0x00},
 +{0x364c, 0x0e},
 +{0x364d, 0x0e},
@@ -15162,7 +17280,7 @@ index 0000000..b69273a
 +{0x3664, 0x00},
 +{0x3665, 0x12},
 +{0x3666, 0x13},
-+{0x3667, 0x14},
++{0x3667, 0x54},
 +{0x3668, 0x95},
 +{0x3669, 0x16},
 +{0x366a, 0x00},
@@ -15170,9 +17288,9 @@ index 0000000..b69273a
 +{0x366c, 0x00},
 +{0x366d, 0x00},
 +{0x366e, 0x00},
-+{0x366f, 0xc4},
++{0x366f, 0xf4},
 +{0x3670, 0x6f},
-+{0x3671, 0x0b},
++{0x3671, 0x0f},
 +{0x3672, 0x1d},
 +{0x3673, 0x6a},
 +{0x3674, 0x6f},
@@ -15195,17 +17313,17 @@ index 0000000..b69273a
 +{0x3804, 0x07},
 +{0x3805, 0x8f},
 +{0x3806, 0x05},
-+{0x3807, 0x0b},
-+{0x3808, 0x07},
-+{0x3809, 0x80},
++{0x3807, 0x0d},
++{0x3808, 0x06},
++{0x3809, 0x58},
 +{0x380a, 0x05},
 +{0x380b, 0x00},
 +{0x380c, 0x02},
 +{0x380d, 0x14},
-+{0x380e, 0x05},
-+{0x380f, 0x40},
++{0x380e, 0x04},
++{0x380f, 0x78},
 +{0x3810, 0x00},
-+{0x3811, 0x08},
++{0x3811, 0x9c},
 +{0x3812, 0x00},
 +{0x3813, 0x04},
 +{0x3814, 0x01},
@@ -15218,9 +17336,9 @@ index 0000000..b69273a
 +{0x381b, 0x01},
 +{0x381c, 0x08},
 +{0x381d, 0x00},
-+{0x3820, 0x00},
++{0x3820, 0x44},
 +{0x3821, 0x20},
-+{0x3822, 0x04},
++{0x3822, 0x14},
 +{0x3823, 0x08},
 +{0x3824, 0x00},
 +{0x3825, 0x20},
@@ -15248,19 +17366,19 @@ index 0000000..b69273a
 +{0x384d, 0x14},
 +{0x384e, 0x00},
 +{0x384f, 0x40},
-+{0x3850, 0x01},
-+{0x3851, 0x02},
-+{0x3852, 0x01},
-+{0x3853, 0x00},
++{0x3850, 0x00},
++{0x3851, 0x42},
++{0x3852, 0x00},
++{0x3853, 0x40},
 +{0x3854, 0x00},
 +{0x3855, 0x05},
-+{0x3856, 0x05},
-+{0x3857, 0x33},
-+{0x3858, 0x7c},
++{0x3856, 0x04},
++{0x3857, 0x6b},
++{0x3858, 0x3c},
 +{0x3859, 0x00},
 +{0x385a, 0x03},
-+{0x385b, 0x05},
-+{0x385c, 0x32},
++{0x385b, 0x04},
++{0x385c, 0x6a},
 +{0x385d, 0x00},
 +{0x385e, 0x12},
 +{0x385f, 0x00},
@@ -15301,15 +17419,15 @@ index 0000000..b69273a
 +{0x3d82, 0xbc},
 +{0x3d83, 0x08},
 +{0x3d84, 0x00},
-+{0x3d85, 0x1b},
++{0x3d85, 0x0b},
 +{0x3d86, 0x02},
 +{0x3d87, 0x0a},
 +{0x3d88, 0x00},
 +{0x3d89, 0x00},
 +{0x3d8a, 0x03},
 +{0x3d8b, 0xff},
-+{0x3d8c, 0x00},
-+{0x3d8d, 0x00},
++{0x3d8c, 0x70},
++{0x3d8d, 0x10},
 +{0x3d90, 0x00},
 +{0x3d91, 0x00},
 +{0x3d92, 0xe2},
@@ -15350,14 +17468,14 @@ index 0000000..b69273a
 +{0x3f02, 0x00},
 +{0x3f03, 0x01},
 +{0x4000, 0xf8},
-+{0x4001, 0xeb},
++{0x4001, 0x2b},
 +{0x4004, 0x00},
 +{0x4005, 0x40},
 +{0x4006, 0x00},
 +{0x4007, 0x10},
-+{0x4008, 0x00},
-+{0x4009, 0x05},
-+{0x400a, 0x02},
++{0x4008, 0x02},
++{0x4009, 0x0d},
++{0x400a, 0x08},
 +{0x400b, 0x00},
 +{0x400c, 0x00},
 +{0x400d, 0x10},
@@ -15370,7 +17488,7 @@ index 0000000..b69273a
 +{0x4014, 0x02},
 +{0x4015, 0x02},
 +{0x4016, 0x00},
-+{0x4017, 0x04},
++{0x4017, 0x10},
 +{0x4018, 0x18},
 +{0x4019, 0x04},
 +{0x401a, 0x58},
@@ -15392,8 +17510,8 @@ index 0000000..b69273a
 +{0x402f, 0x40},
 +{0x4030, 0x00},
 +{0x4031, 0x40},
-+{0x4032, 0x9e},
-+{0x4033, 0x80},
++{0x4032, 0x9f},
++{0x4033, 0x00},
 +{0x4034, 0x00},
 +{0x4035, 0x80},
 +{0x4036, 0x00},
@@ -15498,7 +17616,7 @@ index 0000000..b69273a
 +{0x4504, 0x01},
 +{0x4505, 0x00},
 +{0x4506, 0x32},
-+{0x4507, 0x07},
++{0x4507, 0x16},
 +{0x4508, 0x1a},
 +{0x4580, 0x68},
 +{0x4581, 0xc7},
@@ -15522,14 +17640,14 @@ index 0000000..b69273a
 +{0x45a6, 0x18},
 +{0x4600, 0x00},
 +{0x4601, 0x30},
-+{0x4602, 0x00},
++{0x4602, 0x02},
 +{0x4603, 0x01},
 +{0x4604, 0x00},
 +{0x4605, 0x03},
 +{0x4609, 0x00},
-+{0x460a, 0x30},
++{0x460a, 0x36},
 +{0x460b, 0x00},
-+{0x460c, 0x30},
++{0x460c, 0x60},
 +{0x460d, 0x01},
 +{0x460e, 0x00},
 +{0x4700, 0x2a},
@@ -15562,7 +17680,7 @@ index 0000000..b69273a
 +{0x480e, 0x04},
 +{0x4810, 0xff},
 +{0x4811, 0xff},
-+{0x4813, 0xe4}, // VC
++{0x4813, 0x12}, // 0xVC
 +{0x4814, 0x2a},
 +{0x4815, 0x2b},
 +{0x4816, 0x2b},
@@ -15594,13 +17712,13 @@ index 0000000..b69273a
 +{0x4831, 0x64},
 +{0x4832, 0x00},
 +{0x4833, 0x10},
-+{0x4837, 0x15},
++{0x4837, 0x18},
 +{0x4838, 0x00},
 +{0x4839, 0x00},
 +{0x483c, 0x10},
 +{0x483d, 0x00},
 +{0x484a, 0x3f},
-+{0x484b, 0x67},
++{0x484b, 0x27},
 +{0x484c, 0x00},
 +{0x484e, 0x10},
 +{0x4850, 0x40},
@@ -15789,7 +17907,7 @@ index 0000000..b69273a
 +{0x54af, 0x00},
 +{0x54b0, 0x04},
 +{0x54b1, 0x00},
-+{0x5800, 0x19},
++{0x5800, 0x39},
 +{0x5801, 0x03},
 +{0x5802, 0x60},
 +{0x5803, 0xf0},
@@ -15814,8 +17932,8 @@ index 0000000..b69273a
 +{0x5816, 0x00},
 +{0x5000, 0x81},
 +{0x5001, 0x42},
-+{0x5002, 0x19},
-+{0x5003, 0x16},
++{0x5002, 0x1b},
++{0x5003, 0xfe},
 +{0x5004, 0x02},
 +{0x5005, 0x00},
 +{0x5006, 0x01},
@@ -15967,7 +18085,7 @@ index 0000000..b69273a
 +{0x5706, 0x01},
 +{0x5707, 0xe0},
 +{0x5708, 0x00},
-+{0x5709, 0x0e},
++{0x5709, 0x0f},
 +{0x5740, 0x00},
 +{0x5741, 0x00},
 +{0x5742, 0x00},
@@ -15977,7 +18095,7 @@ index 0000000..b69273a
 +{0x5746, 0x01},
 +{0x5747, 0xe0},
 +{0x5748, 0x00},
-+{0x5749, 0x0e},
++{0x5749, 0x0f},
 +{0x5780, 0x00},
 +{0x5781, 0x00},
 +{0x5782, 0x00},
@@ -15987,9 +18105,9 @@ index 0000000..b69273a
 +{0x5786, 0x01},
 +{0x5787, 0xe0},
 +{0x5788, 0x00},
-+{0x5789, 0x0e},
++{0x5789, 0x0f},
 +{0x5200, 0x70},
-+{0x5201, 0x80},
++{0x5201, 0x70},
 +{0x5202, 0x73},
 +{0x5203, 0xff},
 +{0x5204, 0x02},
@@ -16064,7 +18182,7 @@ index 0000000..b69273a
 +{0x5318, 0x00},
 +{0x5319, 0x00},
 +#ifdef OX03A_DISPLAY_PATTERN_COLOR_BAR
-+{0x5080, 0x80}, /* Rolling test pattern for HCG */
++{0x5080, 0xc0}, /* Rolling test pattern for HCG */
 +#else
 +{0x5080, 0x00},
 +#endif
@@ -16092,7 +18210,7 @@ index 0000000..b69273a
 +{0x5096, 0x00},
 +{0x5097, 0x00},
 +#ifdef OX03A_DISPLAY_PATTERN_COLOR_BAR
-+{0x50c0, 0x80}, /* Rolling test pattern for LCG */
++{0x50c0, 0xc0}, /* Rolling test pattern for LCG */
 +#else
 +{0x50c0, 0x00},
 +#endif
@@ -16120,7 +18238,7 @@ index 0000000..b69273a
 +{0x50d6, 0x00},
 +{0x50d7, 0x00},
 +#ifdef OX03A_DISPLAY_PATTERN_COLOR_BAR
-+{0x5100, 0x80}, /* Rolling test pattern for VS */
++{0x5100, 0xc0}, /* Rolling test pattern for VS */
 +#else
 +{0x5100, 0x00},
 +#endif
@@ -16147,15 +18265,39 @@ index 0000000..b69273a
 +{0x5115, 0x00},
 +{0x5116, 0x00},
 +{0x5117, 0x00},
-+{0x380e, 0x05},
-+{0x380f, 0x34},
-+{0x380c, 0x06},
-+{0x380d, 0xcc},
-+{0x384c, 0x03},
-+{0x384d, 0xc0},
-+{0x4603, 0x01},
-+{0x4601, 0x00},
++{0x0305, 0x34},
++{0x0325, 0x68},
++{0x0400, 0xe8},
++{0x0401, 0x00},
++{0x0406, 0x35},
++{0x0407, 0x8a},
++{0x0410, 0xe8},
++{0x0411, 0x00},
++{0x0416, 0x35},
++{0x0417, 0x8a},
 +{0x3501, 0x01},
++{0x3502, 0x90},
++{0x3508, 0x04},
++{0x3549, 0x80},
++{0x3674, 0x7b},
++{0x3675, 0xb8},
++{0x3676, 0x3e},
++{0x3677, 0xa8},
++{0x380c, 0x06},
++{0x380d, 0xce},
++{0x380e, 0x05},
++{0x380f, 0x37},
++{0x384c, 0x03},
++{0x384d, 0xc2},
++{0x4d0e, 0x20},
++{0x3208, 0x04},
++{0x3501, 0x02},
++{0x3508, 0x04},
++{0x3208, 0x14},
++{0x3208, 0x05},
++{0x3501, 0x02},
++{0x3508, 0x04},
++{0x3208, 0x15},
 +{0x0100, 0x01},
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
