@@ -38,9 +38,10 @@ do_deploy() {
     install -m 0644 ${S}/cr7_loader.bin ${DEPLOYDIR}/cr7-${MACHINE}.bin
     install -m 0644 ${S}/cr7_loader.srec ${DEPLOYDIR}/cr7-${MACHINE}.srec
 
-    install -m 0644 ${S}/bootparam_sa0.srec ${DEPLOYDIR}/bootparam_sa0.bin
+    install -m 0644 ${S}/bootparam_sa0.bin ${DEPLOYDIR}/bootparam_sa0.bin
     install -m 0644 ${S}/bootparam_sa0.srec ${DEPLOYDIR}/bootparam_sa0.srec
 
+    install -m 0644 ${S}/cert_header_sa3.bin ${DEPLOYDIR}/cert_header_sa3.bin
     install -m 0644 ${S}/cert_header_sa3.srec ${DEPLOYDIR}/cert_header_sa3.srec
 }
 
