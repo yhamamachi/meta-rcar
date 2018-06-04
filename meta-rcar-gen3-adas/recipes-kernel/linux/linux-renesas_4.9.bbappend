@@ -113,6 +113,7 @@ SRC_URI_append = " \
     file://0131-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
     file://0132-Applied-ASoC-rcar-revert-IOMMU-support-so-far-to-the.patch \
     file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
+    file://0134-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
