@@ -9118,7 +9118,7 @@ index 0000000..76f8a48
 +	if (of_property_read_u32(np, "maxim,dbl", &priv->dbl))
 +		priv->dbl = 1;
 +	if (of_property_read_u32(np, "maxim,dt", &priv->dt))
-+		priv->dbl = 3;
++		priv->dt = 3;
 +
 +	/* module params override dts */
 +	if (him)
