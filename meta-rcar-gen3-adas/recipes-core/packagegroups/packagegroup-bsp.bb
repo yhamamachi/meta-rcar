@@ -85,4 +85,5 @@ RDEPENDS_packagegroup-bsp-utest = " \
     mmngr-user-module \
     libyaml \
     libinput \
+    linux-renesas-uapi \
 "
