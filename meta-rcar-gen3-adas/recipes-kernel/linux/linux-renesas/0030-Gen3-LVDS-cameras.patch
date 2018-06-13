@@ -16402,9 +16402,9 @@ index 0000000..5e9cb07
 +		reg8_write(client, 0x5d, OX03A_I2C_ADDR << 1);		/* Sensor native I2C address */
 +//		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
 +
-+//		client->addr = priv->ti9x3_addr;			/* Serializer I2C address */
-+//		reg8_write(client, 0x0d, 0x03);				/* unreset gpios */
-+//		reg8_write(client, 0x0e, 0xf0);				/* unreset gpios */
++		client->addr = priv->ti9x3_addr;			/* Serializer I2C address */
++		reg8_write(client, 0x0d, 0x03);				/* unreset gpios */
++		reg8_write(client, 0x0e, 0xf0);				/* unreset gpios */
 +	}
 +	client->addr = tmp_addr;
 +
