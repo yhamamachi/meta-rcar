@@ -18685,7 +18685,7 @@ index 0000000..222db9b
 +	if (of_property_read_u32(np, "ti,dvp_bus", &priv->dvp_bus))
 +		priv->dvp_bus = 8;
 +	if (of_property_read_u32(np, "ti,hsync", &priv->hsync))
-+		priv->vsync = 0;
++		priv->hsync = 0;
 +	if (of_property_read_u32(np, "ti,vsync", &priv->vsync))
 +		priv->vsync = 1;
 +	if (of_property_read_u32(np, "ti,ser_id", &priv->ser_id))
