@@ -12,7 +12,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   19 +
  drivers/media/i2c/soc_camera/Makefile            |    3 +
- drivers/media/i2c/soc_camera/ap0101_ar014x.c     |  588 ++++
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c     |  590 ++++
  drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
@@ -26,15 +26,15 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  744 +++++
  drivers/media/i2c/soc_camera/max9286.h           |  244 ++
- drivers/media/i2c/soc_camera/ov10635.c           |  759 +++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  761 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  183 ++
  drivers/media/i2c/soc_camera/ov2775.c            |  538 +++
  drivers/media/i2c/soc_camera/ov2775.h            | 1841 +++++++++++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1133 +++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1135 +++++++
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |  102 +
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  652 ++++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  654 ++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ox03a.c             |  526 +++
  drivers/media/i2c/soc_camera/ox03a.h             | 1749 ++++++++++
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19178 insertions(+), 127 deletions(-)
+ 36 files changed, 19186 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -124,10 +124,10 @@ index 6f994f9..2b2583a 100644
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
 diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
 new file mode 100644
-index 0000000..2c6b034
+index 0000000..a8459169
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
-@@ -0,0 +1,588 @@
+@@ -0,0 +1,590 @@
 +/*
 + * ON Semiconductor AP0101-AR014X sensor camera driver
 + *
@@ -490,6 +490,8 @@ index 0000000..2c6b034
 +		priv->id[i]     = ap0101_ar014x_read(client, 0x3800 + i + 4) >> 8;
 +		priv->id[i + 1] = ap0101_ar014x_read(client, 0x3800 + i + 4) & 0xff;
 +	}
++
++	priv->id[0] &= 0xfe; /* mask bit0 to avoid ethernet multicast */
 +}
 +
 +static ssize_t ap0101_otp_id_show(struct device *dev,
@@ -8531,7 +8533,7 @@ index 0000000..4217cd9
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..76f8a48
+index 0000000..171cacc
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
 @@ -0,0 +1,744 @@
@@ -9531,10 +9533,10 @@ index 0000000..6c2a9e0
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..8c06e59
+index 0000000..0744e76
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,759 @@
+@@ -0,0 +1,761 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -10028,6 +10030,8 @@ index 0000000..8c06e59
 +
 +	for (i = 0; i < 6; i++)
 +		reg16_read(client, 0x3d00 + i, &priv->id[i]);
++
++	priv->id[0] &= 0xfe; /* mask bit0 to avoid ethernet multicast */
 +}
 +
 +static ssize_t ov10635_otp_id_show(struct device *dev,
@@ -14081,10 +14085,10 @@ index 0000000..7e1ee31
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..812f367
+index 0000000..7adf661
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,1133 @@
+@@ -0,0 +1,1135 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -14853,6 +14857,8 @@ index 0000000..812f367
 +			priv->id[i] = ov490_ov10640_read(client, 0x34ae + i);
 +	}
 +#endif
++
++	priv->id[0] &= 0xfe; /* mask bit0 to avoid ethernet multicast */
 +}
 +
 +static ssize_t ov490_otp_id_show(struct device *dev,
@@ -15328,10 +15334,10 @@ index 0000000..b22e93e
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..bad0840
+index 0000000..2fe5322
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-@@ -0,0 +1,652 @@
+@@ -0,0 +1,654 @@
 +/*
 + * OmniVision ov495-ov2775 sensor camera driver
 + *
@@ -15716,6 +15722,8 @@ index 0000000..bad0840
 +		reg16_read(client, 0x0500, &priv->id[i]);
 +	}
 +#endif
++
++	priv->id[0] &= 0xfe; /* mask bit0 to avoid ethernet multicast */
 +}
 +
 +static ssize_t ov495_otp_id_show(struct device *dev,
@@ -16015,7 +16023,7 @@ index 0000000..17c94ae
 +};
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
-index 0000000..5e9cb07
+index 0000000..e4e426b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.c
 @@ -0,0 +1,526 @@
@@ -16547,7 +16555,7 @@ index 0000000..5e9cb07
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
 new file mode 100644
-index 0000000..9e4e8b8
+index 0000000..20f44cd
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.h
 @@ -0,0 +1,1749 @@
@@ -18302,7 +18310,7 @@ index 0000000..9e4e8b8
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
 new file mode 100644
-index 0000000..222db9b
+index 0000000..aa4cfa2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
 @@ -0,0 +1,518 @@
