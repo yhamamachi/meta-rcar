@@ -1,0 +1,74 @@
+From 2328b902d5fb074da56cc1b9ec9fe23a85fcd19e Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Wed, 13 Jun 2018 16:44:49 +0300
+Subject: [PATCH 115/115] i2c: rcar: add stuck bus recovery mechanism
+
+Only for single master bus
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 44 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 197bd1a..59429b2 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -188,15 +188,49 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_write(priv, ICFBSCR, TCYC17);
+ }
+ 
++static int rcar_i2c_bus_recover(struct rcar_i2c_priv *priv)
++{
++	int i;
++	u32 icmcr;
++
++	/* override pins */
++	icmcr = rcar_i2c_read(priv, ICMCR);
++	icmcr &= ~FSCL;
++	icmcr &= ~FSDA;
++	rcar_i2c_write(priv, ICMCR, icmcr | OBPC);
++	for (i = 0; i < 9; i++) {
++		/* toggle */
++		rcar_i2c_write(priv, ICMCR, icmcr | OBPC | FSCL);
++		udelay(1);
++		rcar_i2c_write(priv, ICMCR, icmcr | OBPC);
++		udelay(1);
++	}
++	/* restore value */
++	rcar_i2c_write(priv, ICMCR, icmcr);
++	udelay(1);
++
++	if (!(rcar_i2c_read(priv, ICMCR) & FSDA))
++		return 0;
++
++	return -EBUSY;
++}
++
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < LOOP_TIMEOUT; i++) {
+-		/* make sure that bus is not busy */
+-		if (!(rcar_i2c_read(priv, ICMCR) & FSDA))
+-			return 0;
+-		udelay(1);
++	/* make sure that bus is not busy */
++	if (!(rcar_i2c_read(priv, ICMCR) & FSDA))
++		return 0;
++
++	if (priv->flags & ID_P_PM_BLOCKED) {
++		for (i = 0; i < LOOP_TIMEOUT; i++) {
++			udelay(1);
++			if (!(rcar_i2c_read(priv, ICMCR) & FSDA))
++				return 0;
++		}
++	} else {
++		return rcar_i2c_bus_recover(priv);
+ 	}
+ 
+ 	return -EBUSY;
+-- 
+1.9.1
+
