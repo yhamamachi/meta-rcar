@@ -161,7 +161,7 @@ index 6412a24..b8b0665 100644
  		};
  
 -		cle4 {
-+		vip_cle3_erorr {
++		vip_cle3_error {
 +			compatible = "generic-uio";
 +			reg = <0 0xe7a80000 0 0x10000>;
 +			interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
