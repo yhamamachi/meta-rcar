@@ -261,3 +261,4 @@ patch 0260-drivers-remove-force-dma-flag-from-buses.patch
 patch 0261-clk-renesas-r8a77980-cpg-mssr-Add-IMP-clocks.patch
 patch 0262-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
 patch 0263-clk-renesas-r8a77970-cpg-mssr-Add-IMP-clocks.patch
+patch 0264-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch
