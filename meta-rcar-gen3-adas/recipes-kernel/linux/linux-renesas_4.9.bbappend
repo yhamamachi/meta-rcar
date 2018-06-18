@@ -114,6 +114,7 @@ SRC_URI_append = " \
     file://0132-Applied-ASoC-rcar-revert-IOMMU-support-so-far-to-the.patch \
     file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
     file://0134-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch \
+    file://0135-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -124,6 +125,8 @@ SRC_URI_append_v3msk = " file://v3msk.cfg"
 SRC_URI_append_condor = " file://condor.cfg"
 SRC_URI_append_v3mzf = " file://v3mzf.cfg"
 SRC_URI_append_v3hsk = " file://v3hsk.cfg"
+
+SRC_URI_append_rcar-gen3-adas = " file://cma.cfg"
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-view.dtb \
