@@ -115,6 +115,7 @@ SRC_URI_append = " \
     file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
     file://0134-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch \
     file://0135-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch \
+    file://0136-r8a779-78-dtsi-Add-iccom-nodes.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
