@@ -14,6 +14,8 @@ SRC_URI_append = " \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
     file://0006-spi-spi-gpio-fix-set-CPOL-default-inverted.patch \
+    file://0008-Revert-PCI-rcar-pcie-Add-bus-notifier-so-we-can-limi.patch \
+    file://0009-arm64-dma-check-parent-bus-restrictions-in-dma_capab.patch \
     file://0010-can-rcar_can-add-enable-and-standby-control-pins.patch \
     file://0011-can-rcar_canfd-add-enable-and-standby-control-pins.patch \
     file://0012-mtd-Add-RPC-HyperFlash-driver.patch \
