@@ -1,0 +1,8 @@
+ACTION!="add", GOTO="lbl_udev_end"
+
+SUBSYSTEM=="net", KERNELS=="e6c30000.can", NAME="can0"
+SUBSYSTEM=="net", KERNELS=="e6c38000.can", NAME="can1"
+SUBSYSTEM=="net", KERNELS=="spi32765.0",   NAME="can2"
+SUBSYSTEM=="net", KERNELS=="spi32765.1",   NAME="can3"
+
+LABEL="lbl_udev_end"
