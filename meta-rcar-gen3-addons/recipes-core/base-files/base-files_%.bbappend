@@ -2,6 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
     file://cameras \
+    file://mdadm.conf \
 "
 
 
@@ -10,6 +11,7 @@ do_install_append() {
         echo "/dev/md0 /mnt auto defaults,nofail,noatime,data=writeback,commit=20,discard 0 0" >> ${D}/${sysconfdir}/fstab
         echo "/dev/mmcblk1p2 /home/root           auto       defaults,nofail             0  0" >> ${D}/${sysconfdir}/fstab
         echo "videobox2" > ${D}${sysconfdir}/hostname
+        install -m 0644 ${WORKDIR}/mdadm.conf  ${D}/${sysconfdir}/mdadm.conf
     fi
     if ${@bb.utils.contains('MACHINE_FEATURES', 'videobox', 'true', 'false', d)}; then
         echo "/dev/nvme0n1p1 /mnt auto defaults,nofail,noatime,data=writeback,commit=20,discard 0 0" >> ${D}/${sysconfdir}/fstab
