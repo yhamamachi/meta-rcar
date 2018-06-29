@@ -3,6 +3,8 @@
 do_start() {
     echo 224 > /sys/class/hwmon/hwmon0/pwm1
     echo 224 > /sys/class/hwmon/hwmon1/pwm1
+    /etc/init.d/vb2-enable-fan.sh hwmon0
+    /etc/init.d/vb2-enable-fan.sh hwmon1
 }
 
 do_stop() {
