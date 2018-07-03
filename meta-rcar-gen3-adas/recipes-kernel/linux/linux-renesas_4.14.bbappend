@@ -9,7 +9,6 @@ COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
-    file://dmaengine-sh-Update-to-v4.9-rcar-3.5.9.patch \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
@@ -20,7 +19,6 @@ SRC_URI_append = " \
     file://0011-can-rcar_canfd-add-enable-and-standby-control-pins.patch \
     file://0012-mtd-Add-RPC-HyperFlash-driver.patch \
     file://0013-IMR-driver-interim-patch.patch \
-    file://0014-lib-swiotlb-reduce-verbosity.patch \
     file://0015-gpio-max732x-fix-gpio-set.patch \
     file://0016-gpio-gpiolib-suppress-gpiod-warning.patch \
     file://0017-media-soc_camera-add-legacy-VIN-CSI2.patch \
