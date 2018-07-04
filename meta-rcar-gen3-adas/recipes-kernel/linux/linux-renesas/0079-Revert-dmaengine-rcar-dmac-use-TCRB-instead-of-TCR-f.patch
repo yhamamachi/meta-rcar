@@ -1,23 +1,51 @@
-From b3026b3a8ddcd9801583aa5e653ef432fbe60bf0 Mon Sep 17 00:00:00 2001
-From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
-Date: Mon, 4 Dec 2017 17:49:47 +0300
+From ee80595c0d4ef2dcfcdb28b9515f4ec5ae5a092c Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 4 Jul 2018 02:15:24 +0300
 Subject: [PATCH] Revert "dmaengine: rcar-dmac: use TCRB instead of TCR for
  residue"
 
-The patch breaks SCIF DMA support
+The patch breaks SCIF DMA support.
 
-This reverts commit 936abcc1d0b13ff4a112b153e56c0e60bbdc0f5f.
+This reverts commit f5927ca87de38ab81a19cbb03e774b57c0e46fed.
 ---
- drivers/dma/sh/rcar-dmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/sh/rcar-dmac.c | 22 +---------------------
+ 1 file changed, 1 insertion(+), 21 deletions(-)
 
 diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
-index 9120ff4..0ae7131 100644
+index 8eaa9c8..ff659f1 100644
 --- a/drivers/dma/sh/rcar-dmac.c
 +++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1298,7 +1298,7 @@ static unsigned int rcar_dmac_chan_get_residue(struct rcar_dmac_chan *chan,
+@@ -761,23 +761,6 @@ static void rcar_dmac_chcr_de_barrier(struct rcar_dmac_chan *chan)
+ 	dev_err(chan->chan.device->dev, "CHCR DE check error\n");
+ }
+ 
+-static void rcar_dmac_sync_tcr(struct rcar_dmac_chan *chan)
+-{
+-	u32 chcr = rcar_dmac_chan_read(chan, RCAR_DMACHCR);
+-
+-	if (!(chcr & RCAR_DMACHCR_DE))
+-		return;
+-
+-	/* set DE=0 and flush remaining data */
+-	rcar_dmac_chan_write(chan, RCAR_DMACHCR, (chcr & ~RCAR_DMACHCR_DE));
+-
+-	/* make sure all remaining data was flushed */
+-	rcar_dmac_chcr_de_barrier(chan);
+-
+-	/* back DE */
+-	rcar_dmac_chan_write(chan, RCAR_DMACHCR, chcr);
+-}
+-
+ static void rcar_dmac_chan_halt(struct rcar_dmac_chan *chan)
+ {
+ 	u32 chcr = rcar_dmac_chan_read(chan, RCAR_DMACHCR);
+@@ -1365,11 +1348,8 @@ static unsigned int rcar_dmac_chan_get_residue(struct rcar_dmac_chan *chan,
+ 		residue += chunk->size;
  	}
  
+-	if (desc->direction == DMA_DEV_TO_MEM)
+-		rcar_dmac_sync_tcr(chan);
+-
  	/* Add the residue for the current chunk. */
 -	residue += rcar_dmac_chan_read(chan, RCAR_DMATCRB) << desc->xfer_shift;
 +	residue += rcar_dmac_chan_read(chan, RCAR_DMATCR) << desc->xfer_shift;
@@ -25,5 +53,5 @@ index 9120ff4..0ae7131 100644
  	return residue;
  }
 -- 
-1.9.1
+2.7.4
 
