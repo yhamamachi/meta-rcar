@@ -211,4 +211,3 @@ do_install_append_rcar-gen3() {
 
 PACKAGES += "${PN}-uapi"
 FILES_${PN}-uapi = "/usr/include"
-0035-media-soc_camera-Add-soc_camera-host-preregister.patch
