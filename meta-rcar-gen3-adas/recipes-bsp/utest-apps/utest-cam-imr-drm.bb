@@ -3,11 +3,13 @@ LICENSE = "CLOSED"
 
 inherit cmake
 
-S = "${WORKDIR}/utest-cam-imr-drm"
+S = "${WORKDIR}/git"
 
-SRC_URI = " \
-    file://utest-cam-imr-drm.tar.gz \
-"
+BRANCH = "rcar_gen3"
+SRC_URI = "git://github.com/CogentEmbedded/utest-cam-imr-drm.git;branch=${BRANCH}"
+SRCREV = "1370aaefd245a18f406f4911701abe5f2342c2b3"
+
+PV = "v1.0+renesas+git"
 
 DEPENDS = " \
     libspnav \
@@ -19,7 +21,7 @@ DEPENDS = " \
 
 do_install() {
     install -d ${D}${bindir}
-    install -m 755 ${S}/../build/utest/utest-cam-imr-drm ${D}${bindir}
+    install -m 755 ${B}/utest/utest-cam-imr-drm ${D}${bindir}
 }
 
-EXTRA_OECMAKE += " -DCMAKE_SYSROOT=${STAGING_DIR_TARGET} "
+EXTRA_OECMAKE += " -DCMAKE_SYSROOT=${STAGING_DIR_TARGET}"
