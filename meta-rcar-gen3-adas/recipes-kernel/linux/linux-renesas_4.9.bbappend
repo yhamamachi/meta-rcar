@@ -44,6 +44,7 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
+    file://0035-media-soc_camera-Add-soc_camera-host-preregister.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0041-arm64-dts-renesas-ulcb-enlarge-cma-region.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
@@ -174,7 +175,6 @@ KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a7797-v3msk-kf.dtb \
     renesas/r8a7797-v3msk-vbm.dtb \
     renesas/r8a7797-v3msk-vbm-v2.dtb \
-    renesas/r8a7797-v3msk-vbm-v2-isp.dtb \
     renesas/r8a7797-v3msk-view.dtb \
 "
 
@@ -190,7 +190,6 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
-    renesas/r8a7798-v3hsk-vbm-v2-isp.dtb \
 "
 
 # Prefer V4L2 rcar_imr driver over UIO uio_imr
@@ -212,3 +211,4 @@ do_install_append_rcar-gen3() {
 
 PACKAGES += "${PN}-uapi"
 FILES_${PN}-uapi = "/usr/include"
+0035-media-soc_camera-Add-soc_camera-host-preregister.patch

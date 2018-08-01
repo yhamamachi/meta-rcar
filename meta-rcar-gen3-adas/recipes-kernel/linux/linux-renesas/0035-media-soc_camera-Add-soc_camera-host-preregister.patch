@@ -1,0 +1,74 @@
+From fdc246c81f5ff2275d083f804299f8f63c189894 Mon Sep 17 00:00:00 2001
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Date: Wed, 1 Aug 2018 13:06:00 +0300
+Subject: [PATCH] media: soc_camera: Add soc_camera host preregister
+
+This adds soc_camera host preregister
+
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+---
+ drivers/media/platform/soc_camera/soc_camera.c | 20 +++++++++++++++++---
+ include/media/soc_camera.h                     |  2 ++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/media/platform/soc_camera/soc_camera.c b/drivers/media/platform/soc_camera/soc_camera.c
+index ae04c6e..1d0142e 100644
+--- a/drivers/media/platform/soc_camera/soc_camera.c
++++ b/drivers/media/platform/soc_camera/soc_camera.c
+@@ -1974,9 +1974,11 @@ int soc_camera_host_register(struct soc_camera_host *ici)
+ 		}
+ 	}
+ 
+-	ret = v4l2_device_register(ici->v4l2_dev.dev, &ici->v4l2_dev);
+-	if (ret < 0)
+-		goto edevreg;
++	if (!ici->v4l2dev_preregistered) {
++		ret = v4l2_device_register(ici->v4l2_dev.dev, &ici->v4l2_dev);
++		if (ret < 0)
++			goto edevreg;
++	}
+ 
+ 	list_add_tail(&ici->list, &hosts);
+ 	mutex_unlock(&list_lock);
+@@ -2005,6 +2007,18 @@ int soc_camera_host_register(struct soc_camera_host *ici)
+ }
+ EXPORT_SYMBOL(soc_camera_host_register);
+ 
++int soc_camera_host_preregister_v4l2_dev(struct soc_camera_host *ici)
++{
++	int ret;
++
++	ret = v4l2_device_register(ici->v4l2_dev.dev, &ici->v4l2_dev);
++	if (ret == 0)
++		ici->v4l2dev_preregistered = true;
++
++	return ret;
++}
++EXPORT_SYMBOL(soc_camera_host_preregister_v4l2_dev);
++
+ /* Unregister all clients! */
+ void soc_camera_host_unregister(struct soc_camera_host *ici)
+ {
+diff --git a/include/media/soc_camera.h b/include/media/soc_camera.h
+index 76e90be..de00751 100644
+--- a/include/media/soc_camera.h
++++ b/include/media/soc_camera.h
+@@ -88,6 +88,7 @@ struct soc_camera_host {
+ 	struct soc_camera_host_ops *ops;
+ 	struct v4l2_async_subdev **asd;	/* Flat array, arranged in groups */
+ 	unsigned int *asd_sizes;	/* 0-terminated array of asd group sizes */
++	bool v4l2dev_preregistered;
+ };
+ 
+ struct soc_camera_host_ops {
+@@ -282,6 +283,7 @@ static inline struct v4l2_subdev *soc_camera_to_subdev(
+ }
+ 
+ int soc_camera_host_register(struct soc_camera_host *ici);
++int soc_camera_host_preregister_v4l2_dev(struct soc_camera_host *ici);
+ void soc_camera_host_unregister(struct soc_camera_host *ici);
+ 
+ const struct soc_camera_format_xlate *soc_camera_xlate_by_fourcc(
+-- 
+1.9.1
+

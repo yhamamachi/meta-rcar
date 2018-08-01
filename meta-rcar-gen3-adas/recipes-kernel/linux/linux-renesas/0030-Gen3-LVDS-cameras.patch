@@ -6,7 +6,7 @@ Subject: [PATCH] Gen3: LVDS cameras
 This add Gen3 LVDS cameras support:
 - deserializers: MAX9286, DS90UB954/960/964
 - cameras: ov10635, ov490+ov10640, ov495+OV2775, ar0132, ar0220,
-           ap0101+ar014x, ov2775, imx390, ox03a, ar0143, ar0223
+           ap0101+ar014x, ov2775, imx390, ox03a, ar0143, ar0233
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
@@ -17,11 +17,11 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
  drivers/media/i2c/soc_camera/ar0143.c            |  565 ++++
- drivers/media/i2c/soc_camera/ar0143.h            |  504 +++
+ drivers/media/i2c/soc_camera/ar0143.h            |  522 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
- drivers/media/i2c/soc_camera/ar0223.c            |  539 +++
- drivers/media/i2c/soc_camera/ar0223.h            |  403 +++
+ drivers/media/i2c/soc_camera/ar0233.c            |  539 +++
+ drivers/media/i2c/soc_camera/ar0233.h            |  403 +++
  drivers/media/i2c/soc_camera/imx390.c            |  533 +++
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  744 +++++
@@ -37,8 +37,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  652 ++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ox03a.c             |  526 +++
- drivers/media/i2c/soc_camera/ox03a.h             | 1749 ++++++++++
- drivers/media/i2c/soc_camera/ti9x4.c             |  518 +++
+ drivers/media/i2c/soc_camera/ox03a.h             | 1752 ++++++++++
+ drivers/media/i2c/soc_camera/ti9x4.c             |  528 +++
  drivers/media/i2c/soc_camera/ti9x4.h             |  156 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  312 +-
  drivers/media/platform/soc_camera/rcar_vin.c     |  194 +-
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19178 insertions(+), 127 deletions(-)
+ 36 files changed, 19209 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -55,8 +55,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/soc_camera/ar0143.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0220.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0220.h
- create mode 100644 drivers/media/i2c/soc_camera/ar0223.c
- create mode 100644 drivers/media/i2c/soc_camera/ar0223.h
+ create mode 100644 drivers/media/i2c/soc_camera/ar0233.c
+ create mode 100644 drivers/media/i2c/soc_camera/ar0233.h
  create mode 100644 drivers/media/i2c/soc_camera/imx390.c
  create mode 100644 drivers/media/i2c/soc_camera/imx390.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286.c
@@ -2112,10 +2112,10 @@ index 0000000..7cf2ddf
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..1d8383e
+index 0000000..1344f68
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
-@@ -0,0 +1,504 @@
+@@ -0,0 +1,522 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera wizard 1344x968@30/BGGR/BT601/RAW12
 + *
@@ -2617,7 +2617,25 @@ index 0000000..1d8383e
 +{0x3238, 0x0333}, // EXPOSURE_RATIO
 +{0x32EC, 0x72A0}, // RESERVED_MFR_32EC
 +{0x31C6, 0x0000}, // HISPI_CONTROL
-+{0x301A, 0x00d8}, // RESET_REGISTER
++{0x301A, 0x01d8}, // RESET_REGISTER
++// enable trigger
++{0x340A, 0x0070}, // GPIO_CONTROL1: GPIO3 is  trigger
++{0x340C, 0x0080}, // GPIO_CONTROL2: GPIO3 is trigger
++{0x30CE, 0x0120}, // TRIGGER_MODE
++//{0x30DC, 0x0120}, // TRIGGER_DELAY
++// patch start
++{0x3082, 0x0000}, //
++{0x30fe, 0x0bff}, // NOISE PEDESTAL
++{0x3060, 0x7777}, // AGAIN
++{0x3056, 0x0080}, // DGAIN GB
++{0x3058, 0x0080}, // DGAIN B
++{0x305A, 0x0080}, // DGAIN R
++{0x305c, 0x0080}, // DGAIN GR
++{0x1008, 0x0299}, // Exposure
++{0x100C, 0x0433}, // Exposure
++{0x100E, 0x05cd}, // Exposure
++{0x1010, 0x00ff}, // Exposure
++// patch eof
 +// end reg wizard 44fps full res
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0220.c b/drivers/media/i2c/soc_camera/ar0220.c
@@ -3213,14 +3231,14 @@ index 0000000..205c351
 +#endif
 +{AR0220_DELAY, 100}, // Wait 100ms
 +};
-diff --git a/drivers/media/i2c/soc_camera/ar0223.c b/drivers/media/i2c/soc_camera/ar0223.c
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
 new file mode 100644
-index 0000000..fa1b953
+index 0000000..30d5bf5
 --- /dev/null
-+++ b/drivers/media/i2c/soc_camera/ar0223.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
 @@ -0,0 +1,539 @@
 +/*
-+ * ON Semiconductor AR0223 sensor camera driver
++ * ON Semiconductor AR0233 sensor camera driver
 + *
 + * Copyright (C) 2018 Cogent Embedded, Inc.
 + *
@@ -3241,18 +3259,18 @@ index 0000000..fa1b953
 +#include <media/v4l2-ctrls.h>
 +#include <media/v4l2-of.h>
 +
-+#include "ar0223.h"
++#include "ar0233.h"
 +
-+#define AR0223_I2C_ADDR		0x10
-+//#define AR0223_I2C_ADDR		0x54 // eeprom
++#define AR0233_I2C_ADDR		0x10
++//#define AR0233_I2C_ADDR		0x54 // eeprom
 +
-+#define AR0223_PID		0x3000
-+#define AR0223_VERSION_REG	0x0354
++#define AR0233_PID		0x3000
++#define AR0233_VERSION_REG	0x0354
 +
-+//#define AR0223_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SGRBG12_1X12
-+#define AR0223_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR12_1X12
++//#define AR0233_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SGRBG12_1X12
++#define AR0233_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR12_1X12
 +
-+struct ar0223_priv {
++struct ar0233_priv {
 +	struct v4l2_subdev		sd;
 +	struct v4l2_ctrl_handler	hdl;
 +	struct media_pad		pad;
@@ -3270,18 +3288,18 @@ index 0000000..fa1b953
 +	int				gpio_fsin;
 +};
 +
-+static inline struct ar0223_priv *to_ar0223(const struct i2c_client *client)
++static inline struct ar0233_priv *to_ar0233(const struct i2c_client *client)
 +{
-+	return container_of(i2c_get_clientdata(client), struct ar0223_priv, sd);
++	return container_of(i2c_get_clientdata(client), struct ar0233_priv, sd);
 +}
 +
-+static int ar0223_set_regs(struct i2c_client *client,
-+			  const struct ar0223_reg *regs, int nr_regs)
++static int ar0233_set_regs(struct i2c_client *client,
++			  const struct ar0233_reg *regs, int nr_regs)
 +{
 +	int i;
 +
 +	for (i = 0; i < nr_regs; i++) {
-+		if (regs[i].reg == AR0223_DELAY) {
++		if (regs[i].reg == AR0233_DELAY) {
 +			mdelay(regs[i].val);
 +			continue;
 +		}
@@ -3292,38 +3310,38 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+static int ar0223_s_stream(struct v4l2_subdev *sd, int enable)
++static int ar0233_s_stream(struct v4l2_subdev *sd, int enable)
 +{
 +	return 0;
 +}
 +
-+static int ar0223_get_fmt(struct v4l2_subdev *sd,
++static int ar0233_get_fmt(struct v4l2_subdev *sd,
 +			 struct v4l2_subdev_pad_config *cfg,
 +			 struct v4l2_subdev_format *format)
 +{
 +	struct v4l2_mbus_framefmt *mf = &format->format;
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +
 +	if (format->pad)
 +		return -EINVAL;
 +
 +	mf->width = priv->rect.width;
 +	mf->height = priv->rect.height;
-+	mf->code = AR0223_MEDIA_BUS_FMT;
++	mf->code = AR0233_MEDIA_BUS_FMT;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
 +	return 0;
 +}
 +
-+static int ar0223_set_fmt(struct v4l2_subdev *sd,
++static int ar0233_set_fmt(struct v4l2_subdev *sd,
 +			 struct v4l2_subdev_pad_config *cfg,
 +			 struct v4l2_subdev_format *format)
 +{
 +	struct v4l2_mbus_framefmt *mf = &format->format;
 +
-+	mf->code = AR0223_MEDIA_BUS_FMT;
++	mf->code = AR0233_MEDIA_BUS_FMT;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
 +	mf->field = V4L2_FIELD_NONE;
 +
@@ -3333,40 +3351,40 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+static int ar0223_enum_mbus_code(struct v4l2_subdev *sd,
++static int ar0233_enum_mbus_code(struct v4l2_subdev *sd,
 +				struct v4l2_subdev_pad_config *cfg,
 +				struct v4l2_subdev_mbus_code_enum *code)
 +{
 +	if (code->pad || code->index > 0)
 +		return -EINVAL;
 +
-+	code->code = AR0223_MEDIA_BUS_FMT;
++	code->code = AR0233_MEDIA_BUS_FMT;
 +
 +	return 0;
 +}
 +
-+static int ar0223_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++static int ar0233_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +
 +	memcpy(edid->edid, priv->id, 6);
 +
 +	edid->edid[6] = 0xff;
 +	edid->edid[7] = client->addr;
-+	edid->edid[8] = AR0223_VERSION_REG >> 8;
-+	edid->edid[9] = AR0223_VERSION_REG & 0xff;
++	edid->edid[8] = AR0233_VERSION_REG >> 8;
++	edid->edid[9] = AR0233_VERSION_REG & 0xff;
 +
 +	return 0;
 +}
 +
-+static int ar0223_set_selection(struct v4l2_subdev *sd,
++static int ar0233_set_selection(struct v4l2_subdev *sd,
 +			       struct v4l2_subdev_pad_config *cfg,
 +			       struct v4l2_subdev_selection *sel)
 +{
 +	struct v4l2_rect *rect = &sel->r;
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +
 +	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
 +	    sel->target != V4L2_SEL_TGT_CROP)
@@ -3377,8 +3395,8 @@ index 0000000..fa1b953
 +	rect->width = ALIGN(rect->width, 2);
 +	rect->height = ALIGN(rect->height, 2);
 +
-+	if ((rect->left + rect->width > AR0223_MAX_WIDTH) ||
-+	    (rect->top + rect->height > AR0223_MAX_HEIGHT))
++	if ((rect->left + rect->width > AR0233_MAX_WIDTH) ||
++	    (rect->top + rect->height > AR0233_MAX_HEIGHT))
 +		*rect = priv->rect;
 +
 +	priv->rect.left = rect->left;
@@ -3389,12 +3407,12 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+static int ar0223_get_selection(struct v4l2_subdev *sd,
++static int ar0233_get_selection(struct v4l2_subdev *sd,
 +			       struct v4l2_subdev_pad_config *cfg,
 +			       struct v4l2_subdev_selection *sel)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +
 +	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
 +		return -EINVAL;
@@ -3403,14 +3421,14 @@ index 0000000..fa1b953
 +	case V4L2_SEL_TGT_CROP_BOUNDS:
 +		sel->r.left = 0;
 +		sel->r.top = 0;
-+		sel->r.width = AR0223_MAX_WIDTH;
-+		sel->r.height = AR0223_MAX_HEIGHT;
++		sel->r.width = AR0233_MAX_WIDTH;
++		sel->r.height = AR0233_MAX_HEIGHT;
 +		return 0;
 +	case V4L2_SEL_TGT_CROP_DEFAULT:
 +		sel->r.left = 0;
 +		sel->r.top = 0;
-+		sel->r.width = AR0223_MAX_WIDTH;
-+		sel->r.height = AR0223_MAX_HEIGHT;
++		sel->r.width = AR0233_MAX_WIDTH;
++		sel->r.height = AR0233_MAX_HEIGHT;
 +		return 0;
 +	case V4L2_SEL_TGT_CROP:
 +		sel->r = priv->rect;
@@ -3420,7 +3438,7 @@ index 0000000..fa1b953
 +	}
 +}
 +
-+static int ar0223_g_mbus_config(struct v4l2_subdev *sd,
++static int ar0233_g_mbus_config(struct v4l2_subdev *sd,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -3431,7 +3449,7 @@ index 0000000..fa1b953
 +}
 +
 +#ifdef CONFIG_VIDEO_ADV_DEBUG
-+static int ar0223_g_register(struct v4l2_subdev *sd,
++static int ar0233_g_register(struct v4l2_subdev *sd,
 +			    struct v4l2_dbg_register *reg)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
@@ -3448,7 +3466,7 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+static int ar0223_s_register(struct v4l2_subdev *sd,
++static int ar0233_s_register(struct v4l2_subdev *sd,
 +			    const struct v4l2_dbg_register *reg)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
@@ -3457,18 +3475,18 @@ index 0000000..fa1b953
 +}
 +#endif
 +
-+static struct v4l2_subdev_core_ops ar0223_core_ops = {
++static struct v4l2_subdev_core_ops ar0233_core_ops = {
 +#ifdef CONFIG_VIDEO_ADV_DEBUG
-+	.g_register = ar0223_g_register,
-+	.s_register = ar0223_s_register,
++	.g_register = ar0233_g_register,
++	.s_register = ar0233_s_register,
 +#endif
 +};
 +
-+static int ar0223_s_ctrl(struct v4l2_ctrl *ctrl)
++static int ar0233_s_ctrl(struct v4l2_ctrl *ctrl)
 +{
 +	struct v4l2_subdev *sd = to_sd(ctrl);
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +	int ret = -EINVAL;
 +
 +	if (!priv->init_complete)
@@ -3492,59 +3510,59 @@ index 0000000..fa1b953
 +	return ret;
 +}
 +
-+static const struct v4l2_ctrl_ops ar0223_ctrl_ops = {
-+	.s_ctrl = ar0223_s_ctrl,
++static const struct v4l2_ctrl_ops ar0233_ctrl_ops = {
++	.s_ctrl = ar0233_s_ctrl,
 +};
 +
-+static struct v4l2_subdev_video_ops ar0223_video_ops = {
-+	.s_stream	= ar0223_s_stream,
-+	.g_mbus_config	= ar0223_g_mbus_config,
++static struct v4l2_subdev_video_ops ar0233_video_ops = {
++	.s_stream	= ar0233_s_stream,
++	.g_mbus_config	= ar0233_g_mbus_config,
 +};
 +
-+static const struct v4l2_subdev_pad_ops ar0223_subdev_pad_ops = {
-+	.get_edid	= ar0223_get_edid,
-+	.enum_mbus_code	= ar0223_enum_mbus_code,
-+	.get_selection	= ar0223_get_selection,
-+	.set_selection	= ar0223_set_selection,
-+	.get_fmt	= ar0223_get_fmt,
-+	.set_fmt	= ar0223_set_fmt,
++static const struct v4l2_subdev_pad_ops ar0233_subdev_pad_ops = {
++	.get_edid	= ar0233_get_edid,
++	.enum_mbus_code	= ar0233_enum_mbus_code,
++	.get_selection	= ar0233_get_selection,
++	.set_selection	= ar0233_set_selection,
++	.get_fmt	= ar0233_get_fmt,
++	.set_fmt	= ar0233_set_fmt,
 +};
 +
-+static struct v4l2_subdev_ops ar0223_subdev_ops = {
-+	.core	= &ar0223_core_ops,
-+	.video	= &ar0223_video_ops,
-+	.pad	= &ar0223_subdev_pad_ops,
++static struct v4l2_subdev_ops ar0233_subdev_ops = {
++	.core	= &ar0233_core_ops,
++	.video	= &ar0233_video_ops,
++	.pad	= &ar0233_subdev_pad_ops,
 +};
 +
-+static void ar0223_otp_id_read(struct i2c_client *client)
++static void ar0233_otp_id_read(struct i2c_client *client)
 +{
 +}
 +
-+static ssize_t ar0223_otp_id_show(struct device *dev,
++static ssize_t ar0233_otp_id_show(struct device *dev,
 +				 struct device_attribute *attr, char *buf)
 +{
 +	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +
 +	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
 +			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +}
 +
-+static DEVICE_ATTR(otp_id_ar0223, S_IRUGO, ar0223_otp_id_show, NULL);
++static DEVICE_ATTR(otp_id_ar0233, S_IRUGO, ar0233_otp_id_show, NULL);
 +
-+static int ar0223_initialize(struct i2c_client *client)
++static int ar0233_initialize(struct i2c_client *client)
 +{
-+	struct ar0223_priv *priv = to_ar0223(client);
++	struct ar0233_priv *priv = to_ar0233(client);
 +	u16 val = 0;
 +	u16 pid = 0;
 +	int ret = 0;
 +	int tmp_addr;
 +
 +	/* check and show model ID */
-+	reg16_read16(client, AR0223_PID, &pid);
++	reg16_read16(client, AR0233_PID, &pid);
 +
-+	if (pid != AR0223_VERSION_REG) {
++	if (pid != AR0233_VERSION_REG) {
 +		dev_dbg(&client->dev, "Product ID error %x\n", pid);
 +		ret = -ENODEV;
 +		goto err;
@@ -3561,7 +3579,7 @@ index 0000000..fa1b953
 +	client->addr = tmp_addr;
 +
 +	/* Program wizard registers */
-+	ar0223_set_regs(client, ar0223_regs_wizard, ARRAY_SIZE(ar0223_regs_wizard));
++	ar0233_set_regs(client, ar0233_regs_wizard, ARRAY_SIZE(ar0233_regs_wizard));
 +
 +	/* Enable stream */
 +	reg16_read16(client, 0x301a, &val);	// read inital reset_register value
@@ -3569,15 +3587,15 @@ index 0000000..fa1b953
 +	reg16_write16(client, 0x301a, val);	// Start Streaming
 +
 +	/* Read OTP IDs */
-+	ar0223_otp_id_read(client);
++	ar0233_otp_id_read(client);
 +
-+	dev_info(&client->dev, "ar0223 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 pid, AR0223_MAX_WIDTH, AR0223_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++	dev_info(&client->dev, "ar0233 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, AR0233_MAX_WIDTH, AR0233_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +err:
 +	return ret;
 +}
 +
-+static int ar0223_parse_dt(struct device_node *np, struct ar0223_priv *priv)
++static int ar0233_parse_dt(struct device_node *np, struct ar0233_priv *priv)
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
 +	int i;
@@ -3615,7 +3633,7 @@ index 0000000..fa1b953
 +		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
 +		usleep_range(2000, 2500);				/* wait 2ms */
 +		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
-+		reg8_write(client, 0x5d, AR0223_I2C_ADDR << 1);		/* Sensor native I2C address */
++		reg8_write(client, 0x5d, AR0233_I2C_ADDR << 1);		/* Sensor native I2C address */
 +
 +//		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
 +	}
@@ -3626,44 +3644,44 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+static int ar0223_probe(struct i2c_client *client,
++static int ar0233_probe(struct i2c_client *client,
 +		       const struct i2c_device_id *did)
 +{
-+	struct ar0223_priv *priv;
++	struct ar0233_priv *priv;
 +	int ret;
 +
 +	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
 +	if (!priv)
 +		return -ENOMEM;
 +
-+	v4l2_i2c_subdev_init(&priv->sd, client, &ar0223_subdev_ops);
++	v4l2_i2c_subdev_init(&priv->sd, client, &ar0233_subdev_ops);
 +	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
 +
 +	priv->exposure = 0x100;
 +	priv->gain = 0x100;
 +	priv->autogain = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_CONTRAST, 0, 16, 1, 7);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_SATURATION, 0, 7, 1, 2);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_HUE, 0, 23, 1, 12);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_GAMMA, -128, 128, 1, 0);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_HFLIP, 0, 1, 1, 1);
-+	v4l2_ctrl_new_std(&priv->hdl, &ar0223_ctrl_ops,
++	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
 +	priv->sd.ctrl_handler = &priv->hdl;
 +
@@ -3679,24 +3697,24 @@ index 0000000..fa1b953
 +	if (ret < 0)
 +		goto cleanup;
 +
-+	ret = ar0223_parse_dt(client->dev.of_node, priv);
++	ret = ar0233_parse_dt(client->dev.of_node, priv);
 +	if (ret)
 +		goto cleanup;
 +
-+	ret = ar0223_initialize(client);
++	ret = ar0233_initialize(client);
 +	if (ret < 0)
 +		goto cleanup;
 +
 +	priv->rect.left = 0;
 +	priv->rect.top = 0;
-+	priv->rect.width = AR0223_MAX_WIDTH;
-+	priv->rect.height = AR0223_MAX_HEIGHT;
++	priv->rect.width = AR0233_MAX_WIDTH;
++	priv->rect.height = AR0233_MAX_HEIGHT;
 +
 +	ret = v4l2_async_register_subdev(&priv->sd);
 +	if (ret)
 +		goto cleanup;
 +
-+	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0223) != 0) {
++	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0233) != 0) {
 +		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
 +		goto cleanup;
 +	}
@@ -3709,18 +3727,18 @@ index 0000000..fa1b953
 +	media_entity_cleanup(&priv->sd.entity);
 +	v4l2_ctrl_handler_free(&priv->hdl);
 +	v4l2_device_unregister_subdev(&priv->sd);
-+#ifdef CONFIG_SOC_CAMERA_AR0223
++#ifdef CONFIG_SOC_CAMERA_AR0233
 +	v4l_err(client, "failed to probe @ 0x%02x (%s)\n",
 +		client->addr, client->adapter->name);
 +#endif
 +	return ret;
 +}
 +
-+static int ar0223_remove(struct i2c_client *client)
++static int ar0233_remove(struct i2c_client *client)
 +{
-+	struct ar0223_priv *priv = i2c_get_clientdata(client);
++	struct ar0233_priv *priv = i2c_get_clientdata(client);
 +
-+	device_remove_file(&client->dev, &dev_attr_otp_id_ar0223);
++	device_remove_file(&client->dev, &dev_attr_otp_id_ar0233);
 +	v4l2_async_unregister_subdev(&priv->sd);
 +	media_entity_cleanup(&priv->sd.entity);
 +	v4l2_ctrl_handler_free(&priv->hdl);
@@ -3729,43 +3747,43 @@ index 0000000..fa1b953
 +	return 0;
 +}
 +
-+#ifdef CONFIG_SOC_CAMERA_AR0223
-+static const struct i2c_device_id ar0223_id[] = {
-+	{ "ar0223", 0 },
++#ifdef CONFIG_SOC_CAMERA_AR0233
++static const struct i2c_device_id ar0233_id[] = {
++	{ "ar0233", 0 },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(i2c, ar0223_id);
++MODULE_DEVICE_TABLE(i2c, ar0233_id);
 +
-+static const struct of_device_id ar0223_of_ids[] = {
-+	{ .compatible = "aptina,ar0223", },
++static const struct of_device_id ar0233_of_ids[] = {
++	{ .compatible = "aptina,ar0233", },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(of, ar0223_of_ids);
++MODULE_DEVICE_TABLE(of, ar0233_of_ids);
 +
-+static struct i2c_driver ar0223_i2c_driver = {
++static struct i2c_driver ar0233_i2c_driver = {
 +	.driver	= {
-+		.name		= "ar0223",
-+		.of_match_table	= ar0223_of_ids,
++		.name		= "ar0233",
++		.of_match_table	= ar0233_of_ids,
 +	},
-+	.probe		= ar0223_probe,
-+	.remove		= ar0223_remove,
-+	.id_table	= ar0223_id,
++	.probe		= ar0233_probe,
++	.remove		= ar0233_remove,
++	.id_table	= ar0233_id,
 +};
 +
-+module_i2c_driver(ar0223_i2c_driver);
++module_i2c_driver(ar0233_i2c_driver);
 +
-+MODULE_DESCRIPTION("SoC Camera driver for AR0223");
++MODULE_DESCRIPTION("SoC Camera driver for AR0233");
 +MODULE_AUTHOR("Vladimir Barinov");
 +MODULE_LICENSE("GPL");
 +#endif
-diff --git a/drivers/media/i2c/soc_camera/ar0223.h b/drivers/media/i2c/soc_camera/ar0223.h
+diff --git a/drivers/media/i2c/soc_camera/ar0233.h b/drivers/media/i2c/soc_camera/ar0233.h
 new file mode 100644
-index 0000000..23aa828
+index 0000000..bd67ece
 --- /dev/null
-+++ b/drivers/media/i2c/soc_camera/ar0223.h
++++ b/drivers/media/i2c/soc_camera/ar0233.h
 @@ -0,0 +1,403 @@
 +/*
-+ * ON Semiconductor AR0223 sensor camera wizard 1920x1080@44/RCCB/MIPI
++ * ON Semiconductor AR0233 sensor camera wizard 1920x1080@44/RCCB/MIPI
 + *
 + * Copyright (C) 2018 Cogent Embedded, Inc.
 + *
@@ -3775,22 +3793,22 @@ index 0000000..23aa828
 + * option) any later version.
 + */
 +
-+//#define AR0223_DISPLAY_PATTERN_FIXED
-+//#define AR0223_DISPLAY_PATTERN_COLOR_BAR
++//#define AR0233_DISPLAY_PATTERN_FIXED
++//#define AR0233_DISPLAY_PATTERN_COLOR_BAR
 +
-+#define AR0223_MAX_WIDTH	1808
-+#define AR0223_MAX_HEIGHT	1150
++#define AR0233_MAX_WIDTH	1808
++#define AR0233_MAX_HEIGHT	1150
 +
-+#define AR0223_DELAY		0xffff
++#define AR0233_DELAY		0xffff
 +
-+struct ar0223_reg {
++struct ar0233_reg {
 +	u16	reg;
 +	u16	val;
 +};
 +
-+static const struct ar0223_reg ar0223_regs_wizard[] = {
++static const struct ar0233_reg ar0233_regs_wizard[] = {
 +{0x301A, 0x0018}, // RESET_REGISTER
-+{AR0223_DELAY, 500}, // Wait 500ms
++{AR0233_DELAY, 500}, // Wait 500ms
 +{0x3070, 0x0000},	//  1: Solid color test pattern,
 +			//  2: Full color bar test pattern,
 +			//  3: Fade to grey color bar test pattern,
@@ -3799,13 +3817,13 @@ index 0000000..23aa828
 +{0x3074, 0x0456},	// G(GR row)
 +{0x3076, 0x0abc},	// B
 +{0x3078, 0x0def},	// G(GB row)
-+#ifdef AR0223_DISPLAY_PATTERN_FIXED
++#ifdef AR0233_DISPLAY_PATTERN_FIXED
 +{0x3070, 0x0001},
 +#endif
-+#ifdef AR0223_DISPLAY_PATTERN_COLOR_BAR
++#ifdef AR0233_DISPLAY_PATTERN_COLOR_BAR
 +{0x3070, 0x0002},
 +#endif
-+{AR0223_DELAY, 100}, // Wait 100ms
++{AR0233_DELAY, 100}, // Wait 100ms
 +
 +{0x3092, 0x0C24},
 +{0x337A, 0x0C80},
@@ -3835,7 +3853,7 @@ index 0000000..23aa828
 +{0x329C, 0x0FA0},
 +{0x329E, 0x0FA0},
 +
-+{AR0223_DELAY, 200}, // Wait 200ms
++{AR0233_DELAY, 200}, // Wait 200ms
 +
 +{0x2512, 0x8000},
 +{0x2510, 0x0905},
@@ -4112,7 +4130,7 @@ index 0000000..23aa828
 +{0x3082, 0x0000},
 +{0x30BA, 0x11F1},
 +
-+{AR0223_DELAY, 100}, // Wait 100ms
++{AR0233_DELAY, 100}, // Wait 100ms
 +
 +{0x30BA, 0x11F0},
 +{0x300C, 0x043E},
@@ -8531,7 +8549,7 @@ index 0000000..4217cd9
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..76f8a48
+index 0000000..171cacc
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
 @@ -0,0 +1,744 @@
@@ -11501,7 +11519,7 @@ index 0000000..4c3515a
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov106xx.c b/drivers/media/i2c/soc_camera/ov106xx.c
 new file mode 100644
-index 0000000..9a69622
+index 0000000..d571854
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov106xx.c
 @@ -0,0 +1,183 @@
@@ -11522,7 +11540,7 @@ index 0000000..9a69622
 +#include "ar0132.c"
 +#include "ar0143.c"
 +#include "ar0220.c"
-+#include "ar0223.c"
++#include "ar0233.c"
 +#include "ap0101_ar014x.c"
 +#include "ov2775.c"
 +#include "imx390.c"
@@ -11535,7 +11553,7 @@ index 0000000..9a69622
 +	ID_AR0132,
 +	ID_AR0143,
 +	ID_AR0220,
-+	ID_AR0223,
++	ID_AR0233,
 +	ID_AP0101_AR014X,
 +	ID_OV2775,
 +	ID_IMX390,
@@ -11584,9 +11602,9 @@ index 0000000..9a69622
 +		goto out;
 +	}
 +
-+	ret = ar0223_probe(client, did);
++	ret = ar0233_probe(client, did);
 +	if (!ret) {
-+		chip_id = ID_AR0223;
++		chip_id = ID_AR0233;
 +		goto out;
 +	}
 +
@@ -11641,8 +11659,8 @@ index 0000000..9a69622
 +	case ID_AR0220:
 +		ar0220_remove(client);
 +		break;
-+	case ID_AR0223:
-+		ar0223_remove(client);
++	case ID_AR0233:
++		ar0233_remove(client);
 +		break;
 +	case ID_AP0101_AR014X:
 +		ap0101_remove(client);
@@ -15328,7 +15346,7 @@ index 0000000..b22e93e
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
-index 0000000..bad0840
+index 0000000..18ad1c2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 @@ -0,0 +1,652 @@
@@ -15736,7 +15754,7 @@ index 0000000..bad0840
 +	struct ov495_priv *priv = to_ov495(client);
 +	u8 pid = 0, ver = 0;
 +	int ret = 0;
-+	int tmp_addr;
++//	int tmp_addr;
 +
 +	/* check and show product ID and manufacturer ID */
 +	reg16_write(client, 0xFFFD, 0x80);
@@ -15785,7 +15803,7 @@ index 0000000..bad0840
 +#endif
 +
 +	/* set virtual channel */
-+	ov495_regs_wizard[3].val = 0x1e | (priv->port << 6);
++//	ov495_regs_wizard[3].val = 0x1e | (priv->port << 6);
 +	/* Program wizard registers */
 +	ov495_set_regs(client, ov495_regs_wizard, ARRAY_SIZE(ov495_regs_wizard));
 +	/* Read OTP IDs */
@@ -16015,7 +16033,7 @@ index 0000000..17c94ae
 +};
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
-index 0000000..5e9cb07
+index 0000000..5a077d0
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.c
 @@ -0,0 +1,526 @@
@@ -16352,7 +16370,7 @@ index 0000000..5e9cb07
 +	}
 +
 +	/* Program wizard registers */
-+	ox03a_set_regs(client, ox03a_regs_wizard, ARRAY_SIZE(ox03a_regs_wizard));
++	ox03a_set_regs(client, ox03a_regs_wizard_r1a, ARRAY_SIZE(ox03a_regs_wizard_r1a));
 +	/* Read OTP IDs */
 +	ox03a_otp_id_read(client);
 +
@@ -16547,10 +16565,10 @@ index 0000000..5e9cb07
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
 new file mode 100644
-index 0000000..9e4e8b8
+index 0000000..e3af922
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.h
-@@ -0,0 +1,1749 @@
+@@ -0,0 +1,1752 @@
 +/*
 + * OmniVision OX03A sensor camera wizard 1920x1080@30/BGGR/MIPI
 + *
@@ -16562,21 +16580,22 @@ index 0000000..9e4e8b8
 + * option) any later version.
 + */
 +
-+//#define OX03A_DISPLAY_PATTERN_COLOR_BAR
++#define OX03A_DISPLAY_PATTERN_COLOR_BAR
 +
-+#define OX03A_MAX_WIDTH		1624
++#define OX03A_MAX_WIDTH		1632
 +#define OX03A_MAX_HEIGHT	1280
 +
 +#define OX03A_DELAY		0xffff
-+#define OX03A_DT		0x2c /* MIPI Data Type RAW12 */
++//#define OX03A_DT		0x2c /* MIPI Data Type RAW12 */
++//#define DCG16_ONLY
 +
 +struct ox03a_reg {
 +	u16	reg;
 +	u8	val;
 +};
 +
-+/* wizard: MIPI 1624x1280 16DCG+12VS 30fps 650MBPS */
-+static const struct ox03a_reg ox03a_regs_wizard[] = {
++/* wizard: MIPI 1632x1280 16DCG+12VS 30fps 575MBPS R1A */
++static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
 +{0x0103, 0x01}, // s/w reset
 +{OX03A_DELAY, 10}, // Wait 10ms
 +{0x4d09, 0x5f},
@@ -16593,7 +16612,7 @@ index 0000000..9e4e8b8
 +{0x0302, 0x00},
 +{0x0303, 0x02},
 +{0x0304, 0x00},
-+{0x0305, 0x36},
++{0x0305, 0x2e},
 +{0x0306, 0x00},
 +{0x0307, 0x00},
 +{0x0308, 0x04},
@@ -16823,7 +16842,11 @@ index 0000000..9e4e8b8
 +{0x3790, 0x10},
 +{0x3791, 0x05},
 +{0x3792, 0x31},
-+{0x3793, 0x00},
++#ifdef DCG16_ONLY
++{0x3793, 0x04}, /* DCG16 only */
++#else
++{0x3793, 0x00}, /* DCG16 + VS12*/
++#endif
 +{0x3795, 0x00},
 +{0x3796, 0x00},
 +{0x3797, 0x00},
@@ -17306,6 +17329,7 @@ index 0000000..9e4e8b8
 +{0x367e, 0x00},
 +{0x367f, 0x00},
 +{0x3680, 0x00},
++/* window start */
 +{0x3800, 0x00},
 +{0x3801, 0x00},
 +{0x3802, 0x00},
@@ -17314,18 +17338,19 @@ index 0000000..9e4e8b8
 +{0x3805, 0x8f},
 +{0x3806, 0x05},
 +{0x3807, 0x0d},
-+{0x3808, 0x06},
-+{0x3809, 0x58},
-+{0x380a, 0x05},
-+{0x380b, 0x00},
-+{0x380c, 0x02},
-+{0x380d, 0x14},
-+{0x380e, 0x04},
-+{0x380f, 0x78},
++{0x3808, OX03A_MAX_WIDTH >> 8},
++{0x3809, OX03A_MAX_WIDTH & 0xff},
++{0x380a, OX03A_MAX_HEIGHT >> 8},
++{0x380b, OX03A_MAX_HEIGHT & 0xff},
++{0x380c, 0x06},
++{0x380d, 0xce},
++{0x380e, 0x05},
++{0x380f, 0x37},
 +{0x3810, 0x00},
 +{0x3811, 0x9c},
 +{0x3812, 0x00},
 +{0x3813, 0x04},
++/* window end */
 +{0x3814, 0x01},
 +{0x3815, 0x01},
 +{0x3816, 0x01},
@@ -17362,8 +17387,8 @@ index 0000000..9e4e8b8
 +{0x3842, 0x00},
 +{0x3843, 0x00},
 +{0x3844, 0x00},
-+{0x384c, 0x02},
-+{0x384d, 0x14},
++{0x384c, 0x03},
++{0x384d, 0xc2},
 +{0x384e, 0x00},
 +{0x384f, 0x40},
 +{0x3850, 0x00},
@@ -18265,7 +18290,7 @@ index 0000000..9e4e8b8
 +{0x5115, 0x00},
 +{0x5116, 0x00},
 +{0x5117, 0x00},
-+{0x0305, 0x34},
++/* patch */
 +{0x0325, 0x68},
 +{0x0400, 0xe8},
 +{0x0401, 0x00},
@@ -18283,10 +18308,6 @@ index 0000000..9e4e8b8
 +{0x3675, 0xb8},
 +{0x3676, 0x3e},
 +{0x3677, 0xa8},
-+{0x380c, 0x06},
-+{0x380d, 0xce},
-+{0x380e, 0x05},
-+{0x380f, 0x37},
 +{0x384c, 0x03},
 +{0x384d, 0xc2},
 +{0x4d0e, 0x20},
@@ -18302,10 +18323,10 @@ index 0000000..9e4e8b8
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
 new file mode 100644
-index 0000000..222db9b
+index 0000000..caf37af
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
-@@ -0,0 +1,518 @@
+@@ -0,0 +1,528 @@
 + /*
 + * TI DS90UB954/960/964 FPDLinkIII driver
 + *
@@ -18349,6 +18370,7 @@ index 0000000..222db9b
 +	int			ti9x3_addr_map[4];
 +	char			chip_id[6];
 +	int			ser_id;
++	int			vc_map;
 +	struct gpio_desc	*poc_gpio[4]; /* PoC power supply */
 +};
 +
@@ -18375,6 +18397,10 @@ index 0000000..222db9b
 +static int poc_delay;
 +module_param(poc_delay, int, 0644);
 +MODULE_PARM_DESC(poc_delay, " Delay in ms after POC enable (default: 0 ms)");
++
++static int vc_map = 1;
++module_param(vc_map, int, 0644);
++MODULE_PARM_DESC(vc_map, " CSI VC MAP (default: 1 - corresponds to number of streams per link)");
 +
 +#ifdef TI954_SILICON_ERRATA
 +static int indirect_write(struct i2c_client *client, unsigned int page, u8 reg, u8 val)
@@ -18530,6 +18556,7 @@ index 0000000..222db9b
 +	reg8_write(client, 0x71, (idx << 6) | 0x2c);		/* CSI data type: RAW12, assign VC */
 +	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
 +	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
++	reg8_write(client, 0x72, 0xe4e4 >> (priv->vc_map * idx * 2)); /* CSI VC MAP */
 +}
 +
 +static int ti9x4_initialize(struct i2c_client *client)
@@ -18692,6 +18719,8 @@ index 0000000..222db9b
 +		priv->ser_id = TI913_ID;
 +	if (of_property_read_u32(np, "ti,poc-delay", &priv->poc_delay))
 +		priv->poc_delay = 50;
++	if (of_property_read_u32(np, "ti,vc-map", &priv->vc_map))
++		priv->vc_map = 1;
 +
 +	/* module params override dts */
 +	if (is_stp)
@@ -18706,6 +18735,8 @@ index 0000000..222db9b
 +		priv->ser_id = ser_id;
 +	if (poc_delay)
 +		priv->poc_delay = poc_delay;
++	if (vc_map != 1)
++		priv->vc_map = vc_map;
 +
 +	for (i = 0; ; i++) {
 +		endpoint = of_graph_get_next_endpoint(np, endpoint);
