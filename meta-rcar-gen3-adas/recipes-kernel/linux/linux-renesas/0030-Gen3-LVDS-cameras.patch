@@ -16580,7 +16580,7 @@ index 0000000..e3af922
 + * option) any later version.
 + */
 +
-+#define OX03A_DISPLAY_PATTERN_COLOR_BAR
++//#define OX03A_DISPLAY_PATTERN_COLOR_BAR
 +
 +#define OX03A_MAX_WIDTH		1632
 +#define OX03A_MAX_HEIGHT	1280
