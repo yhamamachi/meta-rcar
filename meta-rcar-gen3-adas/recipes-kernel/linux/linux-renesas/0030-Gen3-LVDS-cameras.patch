@@ -2132,8 +2132,8 @@ index 0000000..1344f68
 +
 +//#define AR0143_EMBEDDED_LINE
 +
-+#define AR0143_MAX_WIDTH	1344 //1280
-+#define AR0143_MAX_HEIGHT	968 //800
++#define AR0143_MAX_WIDTH	1280 //1344
++#define AR0143_MAX_HEIGHT	800 //968
 +
 +#define AR0143_DELAY		0xffff
 +
@@ -9200,7 +9200,7 @@ index 0000000..171cacc
 +		csi_rate_prop = of_find_property(endpoint, "csi-rate", NULL);
 +		if (csi_rate_prop) {
 +			/* CSI2_RATE = PCLK*bpp*links/lanes */
-+			priv->csi_rate = cpu_to_be32(100 * dt2bpp[priv->dt] * hweight8(priv->links_mask) / priv->lanes);
++			priv->csi_rate = cpu_to_be32((priv->dbl ? 100 : 50) * dt2bpp[priv->dt] * hweight8(priv->links_mask) / priv->lanes);
 +			csi_rate_prop->value = &priv->csi_rate;
 +			of_update_property(rendpoint, csi_rate_prop);
 +		}
