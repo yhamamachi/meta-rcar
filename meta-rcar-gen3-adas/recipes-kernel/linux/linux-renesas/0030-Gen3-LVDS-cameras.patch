@@ -20,7 +20,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ar0143.h            |  522 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
- drivers/media/i2c/soc_camera/ar0233.c            |  539 +++
+ drivers/media/i2c/soc_camera/ar0233.c            |  560 ++++
  drivers/media/i2c/soc_camera/ar0233.h            |  403 +++
  drivers/media/i2c/soc_camera/imx390.c            |  533 +++
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19209 insertions(+), 127 deletions(-)
+ 36 files changed, 19230 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -2112,7 +2112,7 @@ index 0000000..7cf2ddf
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..1344f68
+index 0000000..5ef48f3
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
 @@ -0,0 +1,522 @@
@@ -3233,10 +3233,10 @@ index 0000000..205c351
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
 new file mode 100644
-index 0000000..30d5bf5
+index 0000000..0ac8f3a
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0233.c
-@@ -0,0 +1,539 @@
+@@ -0,0 +1,560 @@
 +/*
 + * ON Semiconductor AR0233 sensor camera driver
 + *
@@ -3488,6 +3488,7 @@ index 0000000..30d5bf5
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ar0233_priv *priv = to_ar0233(client);
 +	int ret = -EINVAL;
++	u16 val = 0;
 +
 +	if (!priv->init_complete)
 +		return 0;
@@ -3502,11 +3503,31 @@ index 0000000..30d5bf5
 +	case V4L2_CID_AUTOGAIN:
 +	case V4L2_CID_GAIN:
 +	case V4L2_CID_EXPOSURE:
++		break;
 +	case V4L2_CID_HFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ret < 0)
++			goto out;
++		if (ctrl->val)
++			val |= (1 << 14);
++		else
++			val &= ~(1 << 14);
++		ret = reg16_write16(client, 0x3040, val);
++		break;
 +	case V4L2_CID_VFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ctrl->val)
++			val |= (1 << 15);
++		else
++			val &= ~(1 << 15);
++		ret = reg16_write16(client, 0x3040, val);
++		break;
++	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
++		ret = 0;
 +		break;
 +	}
 +
++out:
 +	return ret;
 +}
 +
@@ -3680,7 +3701,7 @@ index 0000000..30d5bf5
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
-+			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
 +	priv->sd.ctrl_handler = &priv->hdl;
@@ -8549,7 +8570,7 @@ index 0000000..4217cd9
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..171cacc
+index 0000000..b182376
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
 @@ -0,0 +1,744 @@
@@ -16565,7 +16586,7 @@ index 0000000..5a077d0
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
 new file mode 100644
-index 0000000..e3af922
+index 0000000..6889714
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.h
 @@ -0,0 +1,1752 @@
