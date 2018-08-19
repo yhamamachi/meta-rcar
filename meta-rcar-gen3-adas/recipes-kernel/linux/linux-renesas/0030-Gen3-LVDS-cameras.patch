@@ -16,8 +16,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
- drivers/media/i2c/soc_camera/ar0143.c            |  565 ++++
- drivers/media/i2c/soc_camera/ar0143.h            |  522 +++
+ drivers/media/i2c/soc_camera/ar0143.c            |  603 ++++
+ drivers/media/i2c/soc_camera/ar0143.h            |  523 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
  drivers/media/i2c/soc_camera/ar0233.c            |  560 ++++
@@ -26,7 +26,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  744 +++++
  drivers/media/i2c/soc_camera/max9286.h           |  244 ++
- drivers/media/i2c/soc_camera/ov10635.c           |  759 +++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  756 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  183 ++
@@ -36,8 +36,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov490_ov10640.h     |  102 +
  drivers/media/i2c/soc_camera/ov495_ov2775.c      |  652 ++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
- drivers/media/i2c/soc_camera/ox03a.c             |  526 +++
- drivers/media/i2c/soc_camera/ox03a.h             | 1752 ++++++++++
+ drivers/media/i2c/soc_camera/ox03a.c             |  589 ++++
+ drivers/media/i2c/soc_camera/ox03a.h             | 1766 ++++++++++
  drivers/media/i2c/soc_camera/ti9x4.c             |  528 +++
  drivers/media/i2c/soc_camera/ti9x4.h             |  156 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  312 +-
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19230 insertions(+), 127 deletions(-)
+ 36 files changed, 19343 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -1541,10 +1541,10 @@ index 0000000..7dfc4e3
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
 new file mode 100644
-index 0000000..7cf2ddf
+index 0000000..c0cb746
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.c
-@@ -0,0 +1,565 @@
+@@ -0,0 +1,603 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera driver
 + *
@@ -1813,6 +1813,7 @@ index 0000000..7cf2ddf
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ar0143_priv *priv = to_ar0143(client);
 +	int ret = -EINVAL;
++	u16 val = 0;
 +
 +	if (!priv->init_complete)
 +		return 0;
@@ -1825,10 +1826,30 @@ index 0000000..7cf2ddf
 +	case V4L2_CID_GAMMA:
 +	case V4L2_CID_SHARPNESS:
 +	case V4L2_CID_AUTOGAIN:
++		break;
 +	case V4L2_CID_GAIN:
++		/* Digital gain */
++		ret = reg16_write16(client, 0x3308, ctrl->val);
++		break;
 +	case V4L2_CID_EXPOSURE:
++		/* T1 exposure */
++		ret = reg16_write16(client, 0x3012, ctrl->val);
++		break;
 +	case V4L2_CID_HFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ctrl->val)
++			val |= 0x4000;
++		else
++			val &= ~0x4000;
++		ret |= reg16_write16(client, 0x3040, val);
++		break;
 +	case V4L2_CID_VFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ctrl->val)
++			val |= 0x8000;
++		else
++			val &= ~0x8000;
++		ret |= reg16_write16(client, 0x3040, val);
 +		break;
 +	}
 +
@@ -1861,6 +1882,21 @@ index 0000000..7cf2ddf
 +
 +static void ar0143_otp_id_read(struct i2c_client *client)
 +{
++	struct ar0143_priv *priv = to_ar0143(client);
++	int i;
++	u16 val = 0;
++
++	/* read camera id from ar014x OTP memory */
++	reg16_write16(client, 0x3054, 0x400);
++	reg16_write16(client, 0x304a, 0x110);
++	usleep_range(25000, 25500); /* wait 25 ms */
++
++	for (i = 0; i < 6; i += 2) {
++		/* first 4 bytes are equal on all ar014x */
++		reg16_read16(client, 0x3800 + i + 4, &val);
++		priv->id[i]     = val >> 8;
++		priv->id[i + 1] = val & 0xff;
++	}
 +}
 +
 +static ssize_t ar0143_otp_id_show(struct device *dev,
@@ -1869,6 +1905,8 @@ index 0000000..7cf2ddf
 +	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ar0143_priv *priv = to_ar0143(client);
++
++	ar0143_otp_id_read(client);
 +
 +	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
 +			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
@@ -1991,8 +2029,8 @@ index 0000000..7cf2ddf
 +	v4l2_i2c_subdev_init(&priv->sd, client, &ar0143_subdev_ops);
 +	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
 +
-+	priv->exposure = 0x100;
-+	priv->gain = 0x100;
++	priv->exposure = 0x300;
++	priv->gain = 0x200;
 +	priv->autogain = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
@@ -2010,11 +2048,11 @@ index 0000000..7cf2ddf
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
 +			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++			  V4L2_CID_GAIN, 1, 0x7ff, 1, priv->gain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++			  V4L2_CID_EXPOSURE, 1, 0x400, 1, priv->exposure);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
 +			  V4L2_CID_VFLIP, 0, 1, 1, 0);
 +	priv->sd.ctrl_handler = &priv->hdl;
@@ -2112,10 +2150,10 @@ index 0000000..7cf2ddf
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..5ef48f3
+index 0000000..f7b7106
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
-@@ -0,0 +1,522 @@
+@@ -0,0 +1,523 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera wizard 1344x968@30/BGGR/BT601/RAW12
 + *
@@ -2586,8 +2624,8 @@ index 0000000..5ef48f3
 +{0x3006, AR0143_Y_END}, // Y_ADDR_END_
 +{0x30A2, 0x0001}, // X_ODD_INC_
 +{0x30A6, 0x0001}, // Y_ODD_INC_
-+{0x3402, AR0143_MAX_WIDTH}, // X_OUTPUT_CONTROL
-+{0x3404, AR0143_MAX_HEIGHT}, // Y_OUTPUT_CONTROL
++{0x3402, 0x0000 | AR0143_MAX_WIDTH}, // X_OUTPUT_CONTROL
++{0x3404, 0x0000 | AR0143_MAX_HEIGHT}, // Y_OUTPUT_CONTROL
 +{0x3040, 0x0000}, // READ_MODE
 +{0x30BA, 0x01E2}, // DIGITAL_CTRL
 +{0x3082, 0x0008}, // OPERATION_MODE_CTRL
@@ -2598,8 +2636,8 @@ index 0000000..5ef48f3
 +{0x3032, 0x0000}, // RESERVED_MFR_3032
 +{0x3400, 0x0010}, // RESERVED_MFR_3400
 +{0x31D0, 0x0001}, // COMPANDING
-+{0x31AC, 0x1410}, // DATA_FORMAT_BITS: 2xRAW8
-+//{0x31AC, 0x140C}, // DATA_FORMAT_BITS: RAW12
++//{0x31AC, 0x1410}, // DATA_FORMAT_BITS: 2xRAW8
++{0x31AC, 0x140C}, // DATA_FORMAT_BITS: RAW12
 +{0x3C08, 0x0100}, // RESERVED_MFR_3C08
 +{0x3C0C, 0x0518}, // DELAY_BUFFER_LLPCK_RD_WR_OVERLAP
 +{0x300A, 0x048A}, // FRAME_LENGTH_LINES_
@@ -2619,24 +2657,25 @@ index 0000000..5ef48f3
 +{0x31C6, 0x0000}, // HISPI_CONTROL
 +{0x301A, 0x01d8}, // RESET_REGISTER
 +// enable trigger
-+{0x340A, 0x0070}, // GPIO_CONTROL1: GPIO3 is  trigger
++{0x340A, 0x0070}, // GPIO_CONTROL1: GPIO3 is trigger
 +{0x340C, 0x0080}, // GPIO_CONTROL2: GPIO3 is trigger
 +{0x30CE, 0x0120}, // TRIGGER_MODE
 +//{0x30DC, 0x0120}, // TRIGGER_DELAY
 +// patch start
-+{0x3082, 0x0000}, //
-+{0x30fe, 0x0bff}, // NOISE PEDESTAL
-+{0x3060, 0x7777}, // AGAIN
-+{0x3056, 0x0080}, // DGAIN GB
-+{0x3058, 0x0080}, // DGAIN B
-+{0x305A, 0x0080}, // DGAIN R
-+{0x305c, 0x0080}, // DGAIN GR
-+{0x1008, 0x0299}, // Exposure
-+{0x100C, 0x0433}, // Exposure
-+{0x100E, 0x05cd}, // Exposure
-+{0x1010, 0x00ff}, // Exposure
++//{0x30BA, 0x01E2}, // DIGITAL_CTRL: 3 exposures
++//{0x3082, 0x0008}, // OPERATION_MODE_CTRL: 3 exposures
++//{0x30fe, 0x07ff}, // NOISE PEDESTAL
++//{0x305e, 0x3333}, // DIGITAL COLOR GLOBAL GAIN
++{0x3308, 0x200}, // DIGITAL GLOBAL GAIN: max=0x7ff
++//{0x3060, 0x7777}, // ANALOG COLOR GAIN
++{0x3366, 0x0666}, // ANALOG_GAIN - Fixed!
++//{0x3238, 0x8000}, // manual exposure time
++{0x3238, 0x0222}, // auto exposure time ratio - Fixed!
++{0x3012, 0x0300}, // T1 exposure - max=0x400
++//{0x3212, 0x0004}, // T2 exposure - not used in auto
++//{0x3216, 0x0001}, // T3 exposure - not used in auto
 +// patch eof
-+// end reg wizard 44fps full res
++// end reg wizard WIDTHxHEIGHT@30fps
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0220.c b/drivers/media/i2c/soc_camera/ar0220.c
 new file mode 100644
@@ -9570,10 +9609,10 @@ index 0000000..6c2a9e0
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..8c06e59
+index 0000000..bfd27a2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,759 @@
+@@ -0,0 +1,756 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -10004,13 +10043,11 @@ index 0000000..8c06e59
 +		break;
 +	case V4L2_CID_HFLIP:
 +		ret = reg16_read(client, 0x381d, &val);
-+		if (ret < 0)
-+			goto out;
 +		if (ctrl->val)
 +			val |= 0x3;
 +		else
 +			val &= ~0x3;
-+		ret = reg16_write(client, 0x381d, val);
++		ret |= reg16_write(client, 0x381d, val);
 +		break;
 +	case V4L2_CID_VFLIP:
 +		ret = reg16_read(client, 0x381c, &val);
@@ -10018,14 +10055,13 @@ index 0000000..8c06e59
 +			val |= 0xc0;
 +		else
 +			val &= ~0xc0;
-+		ret = reg16_write(client, 0x381c, val);
++		ret |= reg16_write(client, 0x381c, val);
 +		break;
 +	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
 +		ret = 0;
 +		break;
 +	}
 +
-+out:
 +	return ret;
 +}
 +
@@ -16054,10 +16090,10 @@ index 0000000..17c94ae
 +};
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
-index 0000000..5a077d0
+index 0000000..28e964c
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.c
-@@ -0,0 +1,526 @@
+@@ -0,0 +1,589 @@
 +/*
 + * OmniVision OX03A sensor camera driver
 + *
@@ -16308,6 +16344,7 @@ index 0000000..5a077d0
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ox03a_priv *priv = to_ox03a(client);
 +	int ret = -EINVAL;
++	u8 val = 0;
 +
 +	if (!priv->init_complete)
 +		return 0;
@@ -16320,10 +16357,72 @@ index 0000000..5a077d0
 +	case V4L2_CID_GAMMA:
 +	case V4L2_CID_SHARPNESS:
 +	case V4L2_CID_AUTOGAIN:
++		break;
 +	case V4L2_CID_GAIN:
++		/* start recording group3 */
++		ret = reg16_write(client, 0x3208, 0x03);
++		/* HCG real gain */
++		ret |= reg16_write(client, 0x3508, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x3509, ctrl->val & 0xff);
++		/* HCG digital gain */
++		ret |= reg16_write(client, 0x350a, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x350b, ctrl->val & 0xff);
++		/* LCG real gain */
++		ret |= reg16_write(client, 0x3548, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x3549, ctrl->val & 0xff);
++		/* LCG digital gain */
++		ret |= reg16_write(client, 0x354a, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x354b, ctrl->val & 0xff);
++		/* VS real gain */
++		ret |= reg16_write(client, 0x3588, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x3589, ctrl->val & 0xff);
++		/* VS digital gain */
++		ret |= reg16_write(client, 0x358a, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x358b, ctrl->val & 0xff);
++		/* stop recording and launch group3 */
++		ret |= reg16_write(client, 0x3208, 0x13);
++		ret |= reg16_write(client, 0x3208, 0xe3);
++		break;
 +	case V4L2_CID_EXPOSURE:
++		/* start recording group3 */
++		ret = reg16_write(client, 0x3208, 0x03);
++		/* HCG (long) exposure time */
++		ret |= reg16_write(client, 0x3501, ctrl->val >> 8);
++		ret |= reg16_write(client, 0x3502, ctrl->val & 0xff);
++		/* VS exposure time */
++//		ret |= reg16_write(client, 0x3581, ctrl->val >> 8);
++//		ret |= reg16_write(client, 0x3582, ctrl->val & 0xff);
++		/* stop recording and launch group3 */
++		ret |= reg16_write(client, 0x3208, 0x13);
++		ret |= reg16_write(client, 0x3208, 0xe3);
++		break;
 +	case V4L2_CID_HFLIP:
++		/* start recording group3 */
++		ret = reg16_write(client, 0x3208, 0x03);
++		ret = reg16_read(client, 0x3821, &val);
++		if (ctrl->val)
++			val |= 0x04;
++		else
++			val &= ~0x04;
++		ret |= reg16_write(client, 0x3821, val);
++		/* hflip channges CFA, hence compensate it by moving crop window over bayer matrix */
++		ret |= reg16_read(client, 0x3811, &val);
++		if (ctrl->val)
++			val++;
++		else
++			val--;
++		ret |= reg16_write(client, 0x3811, val);
++		/* stop recording and launch group3 */
++		ret |= reg16_write(client, 0x3208, 0x13);
++		ret |= reg16_write(client, 0x3208, 0xe3);
++		break;
 +	case V4L2_CID_VFLIP:
++		ret = reg16_read(client, 0x3820, &val);
++		if (ctrl->val)
++			val |= 0x44;
++		else
++			val &= ~0x44;
++		ret |= reg16_write(client, 0x3820, val);
 +		break;
 +	}
 +
@@ -16465,8 +16564,8 @@ index 0000000..5a077d0
 +	v4l2_i2c_subdev_init(&priv->sd, client, &ox03a_subdev_ops);
 +	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
 +
-+	priv->exposure = 0x100;
-+	priv->gain = 0x100;
++	priv->exposure = 0x880;
++	priv->gain = 0x600;
 +	priv->autogain = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
@@ -16484,13 +16583,13 @@ index 0000000..5a077d0
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
 +			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
-+			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++			  V4L2_CID_GAIN, 1, 0xfff, 1, priv->gain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
-+			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++			  V4L2_CID_EXPOSURE, 1, 0xffff, 1, priv->exposure);
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
-+			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ox03a_ctrl_ops,
-+			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++			  V4L2_CID_VFLIP, 0, 1, 1, 1);
 +	priv->sd.ctrl_handler = &priv->hdl;
 +
 +	ret = priv->hdl.error;
@@ -16586,10 +16685,10 @@ index 0000000..5a077d0
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
 new file mode 100644
-index 0000000..6889714
+index 0000000..4c20374
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.h
-@@ -0,0 +1,1752 @@
+@@ -0,0 +1,1766 @@
 +/*
 + * OmniVision OX03A sensor camera wizard 1920x1080@30/BGGR/MIPI
 + *
@@ -17382,8 +17481,8 @@ index 0000000..6889714
 +{0x381b, 0x01},
 +{0x381c, 0x08},
 +{0x381d, 0x00},
-+{0x3820, 0x44},
-+{0x3821, 0x20},
++{0x3820, 0x44}, /* VPLIP on */
++{0x3821, 0x20}, /* HFLIP off */
 +{0x3822, 0x14},
 +{0x3823, 0x08},
 +{0x3824, 0x00},
@@ -18311,7 +18410,7 @@ index 0000000..6889714
 +{0x5115, 0x00},
 +{0x5116, 0x00},
 +{0x5117, 0x00},
-+/* patch */
++/* patch start */
 +{0x0325, 0x68},
 +{0x0400, 0xe8},
 +{0x0401, 0x00},
@@ -18340,6 +18439,20 @@ index 0000000..6889714
 +{0x3501, 0x02},
 +{0x3508, 0x04},
 +{0x3208, 0x15},
++/* patch end */
++/* patch2 start */
++//{0x3208, 0x03}, // start recording group3
++{0x3501, 0x08}, // HCG exposure integration time MSB
++{0x3502, 0x80}, // HCG exposure integration time LSB
++{0x3508, 0x06}, // HCG real gain
++{0x350a, 0x06}, // HCG digital gain
++{0x3548, 0x06}, // LCG real gain
++{0x354a, 0x06}, // LCG digital gain
++{0x3588, 0x06}, // VS real gain
++{0x358a, 0x06}, // VS digital gain
++//{0x3208, 0x13}, // stop recording group3
++//{0x3208, 0xe3}, // launch group3
++/* patch2 end */
 +{0x0100, 0x01},
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
