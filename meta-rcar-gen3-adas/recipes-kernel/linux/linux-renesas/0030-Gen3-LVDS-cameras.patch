@@ -17,7 +17,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
  drivers/media/i2c/soc_camera/ar0143.c            |  603 ++++
- drivers/media/i2c/soc_camera/ar0143.h            |  523 +++
+ drivers/media/i2c/soc_camera/ar0143.h            |  524 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
  drivers/media/i2c/soc_camera/ar0233.c            |  560 ++++
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19343 insertions(+), 127 deletions(-)
+ 36 files changed, 19344 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -1541,7 +1541,7 @@ index 0000000..7dfc4e3
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
 new file mode 100644
-index 0000000..c0cb746
+index 0000000..996f414
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.c
 @@ -0,0 +1,603 @@
@@ -1584,9 +1584,6 @@ index 0000000..c0cb746
 +	struct v4l2_rect		rect;
 +	int				init_complete;
 +	u8				id[6];
-+	int				exposure;
-+	int				gain;
-+	int				autogain;
 +	int				dvp_order;
 +	/* serializers */
 +	int				max9286_addr;
@@ -1831,6 +1828,10 @@ index 0000000..c0cb746
 +		/* Digital gain */
 +		ret = reg16_write16(client, 0x3308, ctrl->val);
 +		break;
++	case V4L2_CID_ANALOGUE_GAIN:
++		/* Analog gain */
++		ret = reg16_write16(client, 0x3366, ctrl->val);
++		break;
 +	case V4L2_CID_EXPOSURE:
 +		/* T1 exposure */
 +		ret = reg16_write16(client, 0x3012, ctrl->val);
@@ -2029,9 +2030,6 @@ index 0000000..c0cb746
 +	v4l2_i2c_subdev_init(&priv->sd, client, &ar0143_subdev_ops);
 +	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
 +
-+	priv->exposure = 0x300;
-+	priv->gain = 0x200;
-+	priv->autogain = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
 +			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
@@ -2046,11 +2044,13 @@ index 0000000..c0cb746
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
 +			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
++			  V4L2_CID_AUTOGAIN, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_GAIN, 1, 0x7ff, 1, priv->gain);
++			  V4L2_CID_GAIN, 1, 0x7ff, 1, 0x200);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
-+			  V4L2_CID_EXPOSURE, 1, 0x400, 1, priv->exposure);
++			  V4L2_CID_ANALOGUE_GAIN, 1, 0xe, 1, 0x7);
++	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 1, 0x400, 1, 0x300);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
 +			  V4L2_CID_HFLIP, 0, 1, 1, 0);
 +	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
@@ -2150,10 +2150,10 @@ index 0000000..c0cb746
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..f7b7106
+index 0000000..0b6f8a5
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
-@@ -0,0 +1,523 @@
+@@ -0,0 +1,524 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera wizard 1344x968@30/BGGR/BT601/RAW12
 + *
@@ -2664,6 +2664,7 @@ index 0000000..f7b7106
 +// patch start
 +//{0x30BA, 0x01E2}, // DIGITAL_CTRL: 3 exposures
 +//{0x3082, 0x0008}, // OPERATION_MODE_CTRL: 3 exposures
++{0x3082, 0x0000}, // OPERATION_MODE_CTRL: 1 exposure
 +//{0x30fe, 0x07ff}, // NOISE PEDESTAL
 +//{0x305e, 0x3333}, // DIGITAL COLOR GLOBAL GAIN
 +{0x3308, 0x200}, // DIGITAL GLOBAL GAIN: max=0x7ff
