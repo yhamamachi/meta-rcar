@@ -5,6 +5,7 @@ COMPATIBLE_MACHINE_v3msk = "v3msk"
 COMPATIBLE_MACHINE_condor = "condor"
 COMPATIBLE_MACHINE_v3mzf = "v3mzf"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
+COMPATIBLE_MACHINE_m3nulcb = "m3nulcb"
 
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
@@ -36,6 +37,7 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
+    file://0035-ARM64-renesas-dts-add-m3nulcb-board-support.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
@@ -66,6 +68,7 @@ SRC_URI_append = " \
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
 SRC_URI_append_m3ulcb = " file://ulcb.cfg"
+SRC_URI_append_m3nulcb = " file://ulcb.cfg"
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 SRC_URI_append_eagle = " file://eagle.cfg"
 SRC_URI_append_v3msk = " file://v3msk.cfg"
