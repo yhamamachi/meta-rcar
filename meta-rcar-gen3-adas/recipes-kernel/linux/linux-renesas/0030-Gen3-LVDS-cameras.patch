@@ -22,7 +22,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
  drivers/media/i2c/soc_camera/ar0233.c            |  560 ++++
  drivers/media/i2c/soc_camera/ar0233.h            |  403 +++
- drivers/media/i2c/soc_camera/imx390.c            |  533 +++
+ drivers/media/i2c/soc_camera/imx390.c            |  544 +++
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  744 +++++
  drivers/media/i2c/soc_camera/max9286.h           |  244 ++
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 36 files changed, 19344 insertions(+), 127 deletions(-)
+ 36 files changed, 19355 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -4248,10 +4248,10 @@ index 0000000..bd67ece
 +};
 diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
 new file mode 100644
-index 0000000..61f430d
+index 0000000..3553551
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/imx390.c
-@@ -0,0 +1,533 @@
+@@ -0,0 +1,544 @@
 +/*
 + * OmniVision IMX390 sensor camera driver
 + *
@@ -4276,7 +4276,7 @@ index 0000000..61f430d
 +
 +#include "imx390.h"
 +
-+#define IMX390_I2C_ADDR		0x21
++static const int imx390_i2c_addr[] = {0x21, 0x1a};
 +
 +#define IMX390_PID		0x0330
 +#define IMX390_VER		0x0330
@@ -4572,12 +4572,26 @@ index 0000000..61f430d
 +	u16 pid;
 +	int ret = 0;
 +	int tmp_addr;
++	int i;
 +
-+	/* check and show model ID */
-+	reg16_read(client, IMX390_PID, &val);
-+	pid = val;
-+	reg16_read(client, IMX390_VER, &val);
-+	pid = (pid << 8) | val;
++	for (i = 0; i < ARRAY_SIZE(imx390_i2c_addr); i++) {
++		tmp_addr = client->addr;
++		if (priv->ti9x4_addr) {
++			client->addr = priv->ti9x4_addr;		/* Deserializer I2C address */
++			reg8_write(client, 0x5d, imx390_i2c_addr[i] << 1); /* Sensor native I2C address */
++			usleep_range(2000, 2500);			/* wait 2ms */
++		}
++		client->addr = tmp_addr;
++
++		/* check model ID */
++		reg16_read(client, IMX390_PID, &val);
++		pid = val;
++		reg16_read(client, IMX390_VER, &val);
++		pid = (pid << 8) | val;
++
++		if (pid == IMX390_VERSION_REG)
++			break;
++	}
 +
 +	if (pid != IMX390_VERSION_REG) {
 +		dev_dbg(&client->dev, "Product ID error %x\n", pid);
@@ -4643,12 +4657,9 @@ index 0000000..61f430d
 +		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
 +		usleep_range(2000, 2500);				/* wait 2ms */
 +		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
-+		reg8_write(client, 0x5d, IMX390_I2C_ADDR << 1);		/* Sensor native I2C address */
 +//		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
 +	}
 +	client->addr = tmp_addr;
-+
-+	mdelay(10);
 +
 +	return 0;
 +}
