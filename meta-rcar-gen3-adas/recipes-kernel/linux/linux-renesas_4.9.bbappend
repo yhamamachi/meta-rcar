@@ -117,6 +117,7 @@ SRC_URI_append = " \
     file://0134-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch \
     file://0135-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch \
     file://0136-r8a779-78-dtsi-Add-iccom-nodes.patch \
+    file://0137-media-rcar_imr-Enable-LUCE-for-NV16-format.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
