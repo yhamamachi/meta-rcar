@@ -263,3 +263,5 @@ patch 0262-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
 patch 0263-clk-renesas-r8a77970-cpg-mssr-Add-IMP-clocks.patch
 patch 0264-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch
 patch 0265-media-rcar_imr-Enable-LUCE-for-NV16-format.patch
+patch 0266-clk-cs2000-add-support-for-cs2300.patch
+patch 0267-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch
