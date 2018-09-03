@@ -7,18 +7,18 @@ This supports QSPI flash
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm/include/asm/arch-rcar_gen3/rcar-base.h |    1 
- drivers/mtd/spi/sf.c                            |   15 
- drivers/mtd/spi/sf_internal.h                   |  195 ++++++---
- drivers/mtd/spi/sf_ops.c                        |   64 +++
- drivers/mtd/spi/sf_params.c                     |  249 +++++++-----
- drivers/mtd/spi/sf_probe.c                      |   72 +--
- drivers/spi/Makefile                            |    1 
- drivers/spi/rcar_gen3_qspi.c                    |  484 ++++++++++++++++++++++++
- drivers/spi/rcar_gen3_qspi.h                    |  301 ++++++++++++++
- include/linux/bitops.h                          |    1 
- include/spi.h                                   |   22 -
- 11 files changed, 1191 insertions(+), 214 deletions(-)
+ arch/arm/include/asm/arch-rcar_gen3/rcar-base.h |   1 +
+ drivers/mtd/spi/sf.c                            |  15 +-
+ drivers/mtd/spi/sf_internal.h                   | 195 +++++++---
+ drivers/mtd/spi/sf_ops.c                        |  64 +++-
+ drivers/mtd/spi/sf_params.c                     | 249 +++++++-----
+ drivers/mtd/spi/sf_probe.c                      |  72 ++--
+ drivers/spi/Makefile                            |   1 +
+ drivers/spi/rcar_gen3_qspi.c                    | 488 ++++++++++++++++++++++++
+ drivers/spi/rcar_gen3_qspi.h                    | 301 +++++++++++++++
+ include/linux/bitops.h                          |   1 +
+ include/spi.h                                   |  22 +-
+ 11 files changed, 1195 insertions(+), 214 deletions(-)
  create mode 100644 drivers/spi/rcar_gen3_qspi.c
  create mode 100644 drivers/spi/rcar_gen3_qspi.h
 
@@ -917,7 +917,7 @@ new file mode 100644
 index 0000000..5095b07
 --- /dev/null
 +++ b/drivers/spi/rcar_gen3_qspi.c
-@@ -0,0 +1,485 @@
+@@ -0,0 +1,488 @@
 +/*
 + * R-CarH3 QSPI (Quad SPI) driver
 + *
@@ -1338,6 +1338,9 @@ index 0000000..5095b07
 +		}
 +
 +		WaitRpcTxEnd();
++
++		if (cur_cmd_tbl->rw_type == SPI_CMD_ERASE)
++			WaitReadyDevice(slave);
 +
 +		if (cur_cmd_tbl->data_enable != SPI_DATA_ENABLE) {
 +			spi_cs_deactivate(slave);
