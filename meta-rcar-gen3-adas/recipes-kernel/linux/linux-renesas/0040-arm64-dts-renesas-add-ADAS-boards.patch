@@ -1,4 +1,4 @@
-From 4af3847b4c27758dec8141dde26a1a3d6732b7ae Mon Sep 17 00:00:00 2001
+From 6b5db8177980cbf142ff53e3f67a43b3294b77b6 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 15:05:42 +0300
 Subject: [PATCH] arm64: dts: renesas: add ADAS boards
@@ -35,7 +35,7 @@ Videobox Mini V2 board on R8A7798 SoC
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   30 +
+ arch/arm64/boot/dts/renesas/Makefile               |   27 +
  arch/arm64/boot/dts/renesas/legacy/Makefile        |    8 +
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts    | 1624 +++++++++++++++++++
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 ++++++
@@ -93,9 +93,9 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1456 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  459 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1610 +++++++++++++++++++
- arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1611 +++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1617 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  543 +++++++
- 62 files changed, 21232 insertions(+)
+ 60 files changed, 21096 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -157,7 +157,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index f9c71df..077666a 100644
+index f9c71df..6219e6f 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -6,5 +6,32 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
@@ -19446,10 +19446,10 @@ index 0000000..0185e46
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
 new file mode 100644
-index 0000000..335215d
+index 0000000..4939c40
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -0,0 +1,1611 @@
+@@ -0,0 +1,1617 @@
 +/*
 + * Device Tree Source for the ULCB Videobox V2 board
 + *
@@ -19859,9 +19859,15 @@ index 0000000..335215d
 +			#size-cells = <0>;
 +			reg = <4>;
 +
-+			tusb8041@44 {
++			tusb8041_44@44 {
 +				compatible = "ti,tusb8041";
 +				reg = <0x44>;
++				reset-gpios = <&gpio5 5 0>;
++				ti,registers = /bits/ 8 <0x0a 0x020>;
++			};
++			tusb8041_45@45 {
++				compatible = "ti,tusb8041";
++				reg = <0x45>;
 +				reset-gpios = <&gpio5 5 0>;
 +				ti,registers = /bits/ 8 <0x0a 0x020>;
 +			};
