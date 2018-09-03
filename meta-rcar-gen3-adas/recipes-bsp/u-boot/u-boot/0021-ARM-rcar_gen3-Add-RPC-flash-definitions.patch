@@ -161,9 +161,9 @@ index 0000000..403aaee
 +
 +#define RPC_PHYCNT		0x007C	/* R/W */
 +#define RPC_PHYCNT_CAL		(0x1 << 31)
-+#define PRC_PHYCNT_OCTA_AA	(0x1 << 22)
-+#define PRC_PHYCNT_OCTA_SA	(0x2 << 22)
-+#define PRC_PHYCNT_EXDS		(0x1 << 21)
++#define RPC_PHYCNT_OCTA_AA	(0x1 << 22)
++#define RPC_PHYCNT_OCTA_SA	(0x2 << 22)
++#define RPC_PHYCNT_EXDS		(0x1 << 21)
 +#define RPC_PHYCNT_OCT		(0x1 << 20)
 +#define RPC_PHYCNT_WBUF2	(0x1 << 4)
 +#define RPC_PHYCNT_WBUF		(0x1 << 2)
