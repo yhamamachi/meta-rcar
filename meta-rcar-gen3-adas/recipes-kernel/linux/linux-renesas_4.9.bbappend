@@ -118,6 +118,9 @@ SRC_URI_append = " \
     file://0135-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch \
     file://0136-r8a779-78-dtsi-Add-iccom-nodes.patch \
     file://0137-media-rcar_imr-Enable-LUCE-for-NV16-format.patch \
+    file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
+    file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
+    file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -191,6 +194,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
+    renesas/r8a7798-v3hsk-vb-8ch.dtb \
 "
 
 # Prefer V4L2 rcar_imr driver over UIO uio_imr
