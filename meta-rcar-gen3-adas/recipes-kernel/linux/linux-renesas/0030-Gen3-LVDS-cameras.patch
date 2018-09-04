@@ -1,4 +1,4 @@
-From a40c2ca3bced65157fb706fa03f1c2f57fb58498 Mon Sep 17 00:00:00 2001
+From 38a509ab863d9232aea38b23fa929ef753ba8c24 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 15:20:01 +0300
 Subject: [PATCH] Gen3: LVDS cameras
@@ -32,7 +32,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  962 ++++++
  drivers/media/i2c/soc_camera/max9286.h           |  245 ++
- drivers/media/i2c/soc_camera/ov10635.c           |  756 +++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  737 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  194 ++
@@ -52,7 +52,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 38 files changed, 20237 insertions(+), 127 deletions(-)
+ 38 files changed, 20218 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -10506,10 +10506,10 @@ index 0000000..2875b3c
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..bfd27a2
+index 0000000..2e39020
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,756 @@
+@@ -0,0 +1,737 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -10555,8 +10555,7 @@ index 0000000..bfd27a2
 +	/* serializers */
 +	int				max9286_addr;
 +	int				max9271_addr;
-+	int				ti964_addr;
-+	int				ti954_addr;
++	int				ti9x4_addr;
 +	int				ti9x3_addr;
 +	int				port;
 +	int				gpio_resetb;
@@ -11077,19 +11076,12 @@ index 0000000..bfd27a2
 +			break;
 +
 +		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
-+		    !of_property_match_string(rendpoint->parent->parent, "compatible", "ti,ti964-ti9x3") &&
-+		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti964_addr) &&
-+		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
-+			break;
-+
-+		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
-+		    !of_property_match_string(rendpoint->parent->parent, "compatible", "ti,ti954-ti9x3") &&
-+		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti954_addr) &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti9x4_addr) &&
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
 +
-+	if (!priv->max9286_addr && !priv->ti964_addr && !priv->ti954_addr) {
++	if (!priv->max9286_addr && !priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present for OV10635\n");
 +		return -EINVAL;
 +	}
@@ -11106,19 +11098,8 @@ index 0000000..bfd27a2
 +		usleep_range(2000, 2500);				/* wait 2ms */
 +	};
 +
-+	if (priv->ti964_addr) {
-+		client->addr = priv->ti964_addr;			/* Deserializer I2C address */
-+
-+		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
-+		usleep_range(2000, 2500);				/* wait 2ms */
-+		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
-+		reg8_write(client, 0x5d, OV10635_I2C_ADDR << 1);	/* Sensor native I2C address */
-+
-+		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - resetb, GPIO1 - fsin */
-+	}
-+
-+	if (priv->ti954_addr) {
-+		client->addr = priv->ti954_addr;			/* Deserializer I2C address */
++	if (priv->ti9x4_addr) {
++		client->addr = priv->ti9x4_addr;			/* Deserializer I2C address */
 +
 +		reg8_write(client, 0x4c, (priv->port << 4) | (1 << priv->port)); /* Select RX port number */
 +		usleep_range(2000, 2500);				/* wait 2ms */
