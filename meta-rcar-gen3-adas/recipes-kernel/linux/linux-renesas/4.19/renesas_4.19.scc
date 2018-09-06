@@ -265,3 +265,4 @@ patch 0264-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch
 patch 0265-media-rcar_imr-Enable-LUCE-for-NV16-format.patch
 patch 0266-clk-cs2000-add-support-for-cs2300.patch
 patch 0267-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch
+patch 0268-arm64-dts-r8a77970-Videobox-Mini-V3-board-support.patch
