@@ -20,8 +20,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  565 ++++
  drivers/media/i2c/soc_camera/ar0132.h            |  212 ++
- drivers/media/i2c/soc_camera/ar0143.c            |  629 ++++
- drivers/media/i2c/soc_camera/ar0143.h            |  524 +++
+ drivers/media/i2c/soc_camera/ar0143.c            |  653 ++++
+ drivers/media/i2c/soc_camera/ar0143.h            |  545 +++
  drivers/media/i2c/soc_camera/ar0220.c            |  538 +++
  drivers/media/i2c/soc_camera/ar0220.h            |   43 +
  drivers/media/i2c/soc_camera/ar0233.c            |  560 ++++
@@ -1549,10 +1549,10 @@ index 0000000..7dfc4e3
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
 new file mode 100644
-index 0000000..434641d
+index 0000000..1a6ec5b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.c
-@@ -0,0 +1,629 @@
+@@ -0,0 +1,653 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera driver
 + *
@@ -1603,7 +1603,7 @@ index 0000000..434641d
 +	int				gpio_fsin;
 +	int				hts;
 +	int				vts;
-+
++	int				frame_preamble;
 +};
 +
 +static inline struct ar0143_priv *to_ar0143(const struct i2c_client *client)
@@ -1641,6 +1641,8 @@ index 0000000..434641d
 +			priv->vts = regs[i].val;
 +		if (regs[i].reg == 0x300c)
 +			priv->hts = regs[i].val;
++		if (regs[i].reg == 0x31b0)
++			priv->frame_preamble = regs[i].val - 1;
 +
 +		reg16_write16(client, regs[i].reg, regs[i].val);
 +	}
@@ -1652,6 +1654,25 @@ index 0000000..434641d
 +{
 +	return 0;
 +}
++
++static int ar0143_set_window(struct v4l2_subdev *sd)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
++
++	dev_err(&client->dev, "L=%d T=%d %dx%d\n", priv->rect.left, priv->rect.top, priv->rect.width, priv->rect.height);
++
++	/* horiz crop start */
++	reg16_write16(client, 0x3004, priv->rect.left);
++	/* horiz crop end */
++	reg16_write16(client, 0x3008, priv->rect.left + priv->rect.width - 1);
++	/* vert crop start */
++	reg16_write16(client, 0x3002, priv->rect.top);
++	/* vert crop end */
++	reg16_write16(client, 0x3006, priv->rect.top + priv->rect.height + 1);
++
++	return 0;
++};
 +
 +static int ar0143_get_fmt(struct v4l2_subdev *sd,
 +			 struct v4l2_subdev_pad_config *cfg,
@@ -1678,6 +1699,8 @@ index 0000000..434641d
 +			 struct v4l2_subdev_format *format)
 +{
 +	struct v4l2_mbus_framefmt *mf = &format->format;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
 +
 +	mf->code = AR0143_MEDIA_BUS_FMT;
 +	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
@@ -1741,6 +1764,8 @@ index 0000000..434641d
 +	priv->rect.top = rect->top;
 +	priv->rect.width = rect->width;
 +	priv->rect.height = rect->height;
++
++	ar0143_set_window(sd);
 +
 +	return 0;
 +}
@@ -1957,10 +1982,9 @@ index 0000000..434641d
 +	if (priv->max9271_addr) {
 +		/* setup serializer HS generator */
 +		client->addr = priv->max9271_addr;			/* Serializer I2C address */
-+#define HTS_DELAY	0x55 /* how to calculate? */
-+		reg8_write(client, 0x4e, HTS_DELAY >> 16);		/* HS delay */
-+		reg8_write(client, 0x4f, (HTS_DELAY >> 8) & 0xff);
-+		reg8_write(client, 0x50, HTS_DELAY & 0xff);
++		reg8_write(client, 0x4e, priv->frame_preamble >> 16);	/* HS delay */
++		reg8_write(client, 0x4f, (priv->frame_preamble >> 8) & 0xff);
++		reg8_write(client, 0x50, priv->frame_preamble & 0xff);
 +		reg8_write(client, 0x54, AR0143_MAX_WIDTH >> 8);	/* HS high period */
 +		reg8_write(client, 0x55, AR0143_MAX_WIDTH & 0xff);
 +		reg8_write(client, 0x56, (priv->hts - AR0143_MAX_WIDTH) >> 8); /* HS low period */
@@ -2184,10 +2208,10 @@ index 0000000..434641d
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..2c9aa6c
+index 0000000..230ea40
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
-@@ -0,0 +1,524 @@
+@@ -0,0 +1,545 @@
 +/*
 + * ON Semiconductor AR0143 sensor camera wizard 1344x968@30/BGGR/BT601/RAW12
 + *
@@ -2204,8 +2228,8 @@ index 0000000..2c9aa6c
 +
 +//#define AR0143_EMBEDDED_LINE
 +
-+#define AR0143_MAX_WIDTH	1280 //1344
-+#define AR0143_MAX_HEIGHT	960 //968
++#define AR0143_MAX_WIDTH	1344
++#define AR0143_MAX_HEIGHT	968
 +
 +#define AR0143_DELAY		0xffff
 +
@@ -2215,7 +2239,7 @@ index 0000000..2c9aa6c
 +#define AR0143_X_START		((AR0143_SENSOR_WIDTH - AR0143_MAX_WIDTH) / 2)
 +#define AR0143_Y_START		((AR0143_SENSOR_HEIGHT - AR0143_MAX_HEIGHT) / 2)
 +#define AR0143_X_END		(AR0143_X_START + AR0143_MAX_WIDTH - 1)
-+#define AR0143_Y_END		(AR0143_Y_START + AR0143_MAX_HEIGHT + 1)
++#define AR0143_Y_END		(AR0143_Y_START + AR0143_MAX_HEIGHT + 1) /* must be +1 and not -1 or 2 lines missed - bug in imager? */
 +
 +struct ar0143_reg {
 +	u16	reg;
@@ -2288,6 +2312,7 @@ index 0000000..2c9aa6c
 +{0x32D0, 0x3A02}, // RESERVED_MFR_32D0
 +{0x32D6, 0x3C04}, // RESERVED_MFR_32D6
 +{0x3C0C, 0x0516}, // DELAY_BUFFER_LLPCK_RD_WR_OVERLAP
++{0x3F94, 0x483e}, // TEMPVSENS0_FLAG_CTRL
 +{0x3F96, 0xFFFE}, // TEMPVSENS1_FLAG_CTRL
 +{0x3088, 0x6680}, // LFM_CTRL
 +{0x33E2, 0x0000}, // SAMPLE_CTRL
@@ -2572,7 +2597,6 @@ index 0000000..2c9aa6c
 +{0x3030, 0x0034}, // PLL_MULTIPLIER
 +{0x3036, 0x0008}, // OP_WORD_CLK_DIV
 +{0x3038, 0x0001}, // OP_SYS_CLK_DIV
-+{0x30B0, 0x0800}, // DIGITAL_TEST
 +{0x31DC, 0x0030}, // RESERVED_MFR_31DC
 +{0x30A2, 0x0001}, // X_ODD_INC_
 +{0x30A6, 0x0001}, // Y_ODD_INC_
@@ -2603,7 +2627,6 @@ index 0000000..2c9aa6c
 +{0x3014, 0x0A7A}, // FINE_INTEGRATION_TIME_
 +{0x321E, 0x0A7A}, // FINE_INTEGRATION_TIME2
 +{0x3222, 0x0A7A}, // FINE_INTEGRATION_TIME3
-+{0x30B0, 0x0800}, // DIGITAL_TEST
 +{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
 +{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
 +{0x32EA, 0x3C0E}, // RESERVED_MFR_32EA
@@ -2638,28 +2661,35 @@ index 0000000..2c9aa6c
 +{0x31BC, 0x0D09}, // RESERVED_MFR_31BC
 +// end demo init
 +// start reg wizard WIDTHxHEIGHT@30fps
++#define NEW_TBL
++#ifdef NEW_TBL
++{0x302A, 0x000A}, // VT_PIX_CLK_DIV
++{0x302C, 0x0001}, // VT_SYS_CLK_DIV
++{0x302E, 0x0005}, // PRE_PLL_CLK_DIV
++{0x3030, 0x005d}, // PLL_MULTIPLIER
++{0x3036, 0x000A}, // OP_WORD_CLK_DIV
++{0x3038, 0x0001}, // OP_SYS_CLK_DIV
++#else
 +{0x302A, 0x0008}, // VT_PIX_CLK_DIV
 +{0x302C, 0x0001}, // VT_SYS_CLK_DIV
 +{0x302E, 0x0009}, // PRE_PLL_CLK_DIV
 +{0x3030, 134}, // PLL_MULTIPLIER
 +{0x3036, 0x0008}, // OP_WORD_CLK_DIV
 +{0x3038, 0x0001}, // OP_SYS_CLK_DIV
-+{0x30B0, 0x0800}, // DIGITAL_TEST
++#endif
 +{0x31B0, 0x0056}, // FRAME_PREAMBLE
 +{0x31B2, 0x0045}, // LINE_PREAMBLE
++{0x3004, AR0143_X_START}, // X_ADDR_START_
++{0x3008, AR0143_X_END}, // X_ADDR_END_
++{0x3002, AR0143_Y_START}, // Y_ADDR_START_
++{0x3006, AR0143_Y_END}, // Y_ADDR_END_
++{0x3402, 0x0000 | AR0143_MAX_WIDTH}, // X_OUTPUT_CONTROL
++{0x3404, 0x0000 | AR0143_MAX_HEIGHT}, // Y_OUTPUT_CONTROL
 +{0x31B4, 0x2207}, // RESERVED_MFR_31B4
 +{0x31B6, 0x220B}, // RESERVED_MFR_31B6
 +{0x31B8, 0x404B}, // RESERVED_MFR_31B8
 +{0x31BA, 0x020A}, // RESERVED_MFR_31BA
 +{0x31BC, 0x0C08}, // RESERVED_MFR_31BC
-+{0x3004, AR0143_X_START}, // X_ADDR_START_
-+{0x3008, AR0143_X_END}, // X_ADDR_END_
-+{0x3002, AR0143_Y_START}, // Y_ADDR_START_
-+{0x3006, AR0143_Y_END}, // Y_ADDR_END_
-+{0x30A2, 0x0001}, // X_ODD_INC_
-+{0x30A6, 0x0001}, // Y_ODD_INC_
-+{0x3402, 0x0000 | AR0143_MAX_WIDTH}, // X_OUTPUT_CONTROL
-+{0x3404, 0x0000 | AR0143_MAX_HEIGHT}, // Y_OUTPUT_CONTROL
 +{0x3040, 0x0000}, // READ_MODE
 +{0x30BA, 0x01E2}, // DIGITAL_CTRL
 +{0x3082, 0x0008}, // OPERATION_MODE_CTRL
@@ -2674,27 +2704,35 @@ index 0000000..2c9aa6c
 +{0x31AC, 0x140C}, // DATA_FORMAT_BITS: RAW12
 +{0x3C08, 0x0100}, // RESERVED_MFR_3C08
 +{0x3C0C, 0x0518}, // DELAY_BUFFER_LLPCK_RD_WR_OVERLAP
++#ifdef NEW_TBL
++{0x300A, 0x0438}, // FRAME_LENGTH_LINES_
++{0x300C, 0x060e}, // LINE_LENGTH_PCK_
++#else
 +{0x300A, 0x048A}, // FRAME_LENGTH_LINES_
 +{0x300C, 0x05BA}, // LINE_LENGTH_PCK_
++#endif
 +{0x3018, 0x0000}, // FINE_INTEGRATION_TIME_CB
 +{0x1008, 0x0338}, // FINE_INTEGRATION_TIME_MIN
 +{0x100C, 0x051B}, // FINE_INTEGRATION_TIME2_MIN
 +{0x100E, 0x06FE}, // FINE_INTEGRATION_TIME3_MIN
 +{0x1010, 0x0155}, // FINE_INTEGRATION_TIME4_MIN
++#ifdef NEW_TBL
++{0x3012, 0x0206}, // COARSE_INTEGRATION_TIME_
++{0x3014, 0x06e8}, // FINE_INTEGRATION_TIME_
++{0x321E, 0x06E8}, // FINE_INTEGRATION_TIME2
++{0x3222, 0x06E8}, // FINE_INTEGRATION_TIME3
++#else
 +{0x3012, 0x0332}, // COARSE_INTEGRATION_TIME_
 +{0x3014, 0x0694}, // FINE_INTEGRATION_TIME_
 +{0x321E, 0x0694}, // FINE_INTEGRATION_TIME2
 +{0x3222, 0x0694}, // FINE_INTEGRATION_TIME3
-+{0x3226, 0x0694}, // FINE_INTEGRATION_TIME4
-+{0x3238, 0x0333}, // EXPOSURE_RATIO
++#endif
 +{0x32EC, 0x72A0}, // RESERVED_MFR_32EC
 +{0x31C6, 0x0000}, // HISPI_CONTROL
-+{0x301A, 0x01d8}, // RESET_REGISTER
-+// enable trigger
-+{0x340A, 0x0070}, // GPIO_CONTROL1: GPIO3 is trigger
-+{0x340C, 0x0080}, // GPIO_CONTROL2: GPIO3 is trigger
-+{0x30CE, 0x0120}, // TRIGGER_MODE
-+//{0x30DC, 0x0120}, // TRIGGER_DELAY
++#ifdef NEW_TBL
++{0x3082, 0x0000}, // OPERATION_MODE_CTRL: 1 exposure
++{0x3238, 0x0222}, // auto exposure time ratio - Fixed!
++#else
 +// patch start
 +//{0x30BA, 0x01E2}, // DIGITAL_CTRL: 3 exposures
 +//{0x3082, 0x0008}, // OPERATION_MODE_CTRL: 3 exposures
@@ -2709,7 +2747,14 @@ index 0000000..2c9aa6c
 +{0x3012, 0x0300}, // T1 exposure - max=0x400
 +//{0x3212, 0x0004}, // T2 exposure - not used in auto
 +//{0x3216, 0x0001}, // T3 exposure - not used in auto
++#endif
 +// patch eof
++{0x301A, 0x01d8}, // RESET_REGISTER
++// enable trigger
++{0x340A, 0x0070}, // GPIO_CONTROL1: GPIO3 is trigger
++{0x340C, 0x0080}, // GPIO_CONTROL2: GPIO3 is trigger
++{0x30CE, 0x0120}, // TRIGGER_MODE
++//{0x30DC, 0x0120}, // TRIGGER_DELAY
 +// end reg wizard WIDTHxHEIGHT@30fps
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0220.c b/drivers/media/i2c/soc_camera/ar0220.c
