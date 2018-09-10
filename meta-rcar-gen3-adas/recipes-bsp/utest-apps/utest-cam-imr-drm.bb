@@ -7,13 +7,14 @@ S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
 SRC_URI = "git://github.com/CogentEmbedded/utest-cam-imr-drm.git;branch=${BRANCH}"
-SRCREV = "a674636f0ac65cd4371268d583adbb366c977b01"
+SRCREV = "ebbbc5dc0e6f7afb98d0f8d66256bc3074d6b5e0"
 
 PV = "v1.0+renesas+git"
 
 DEPENDS = " \
     libspnav \
     libdrm \
+    libinput \
     gstreamer1.0-plugins-base \
     mmngr-user-module \
     mmngrbuf-user-module \
