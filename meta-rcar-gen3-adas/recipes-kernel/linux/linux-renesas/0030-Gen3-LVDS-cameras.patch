@@ -32,7 +32,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c           |  962 ++++++
  drivers/media/i2c/soc_camera/max9286.h           |  245 ++
- drivers/media/i2c/soc_camera/ov10635.c           |  737 +++++
+ drivers/media/i2c/soc_camera/ov10635.c           |  738 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
  drivers/media/i2c/soc_camera/ov106xx.c           |  194 ++
@@ -44,7 +44,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ox03a.c             |  589 ++++
  drivers/media/i2c/soc_camera/ox03a.h             | 1766 ++++++++++
- drivers/media/i2c/soc_camera/ti9x4.c             |  534 +++
+ drivers/media/i2c/soc_camera/ti9x4.c             |  540 +++
  drivers/media/i2c/soc_camera/ti9x4.h             |  156 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  312 +-
  drivers/media/platform/soc_camera/rcar_vin.c     |  194 +-
@@ -52,7 +52,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 38 files changed, 20218 insertions(+), 127 deletions(-)
+ 38 files changed, 20270 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -2208,7 +2208,7 @@ index 0000000..1a6ec5b
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
 new file mode 100644
-index 0000000..230ea40
+index 0000000..cc5172a
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.h
 @@ -0,0 +1,545 @@
@@ -10551,10 +10551,10 @@ index 0000000..2875b3c
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..2e39020
+index 0000000..ed41f4c
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
-@@ -0,0 +1,737 @@
+@@ -0,0 +1,738 @@
 +/*
 + * OmniVision ov10635 sensor camera driver
 + *
@@ -11121,6 +11121,7 @@ index 0000000..2e39020
 +			break;
 +
 +		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
++		    !of_property_match_string(rendpoint->parent->parent, "compatible", "ti,ti9x4") &&
 +		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->ti9x4_addr) &&
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
@@ -11294,7 +11295,7 @@ index 0000000..2e39020
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov10635.h b/drivers/media/i2c/soc_camera/ov10635.h
 new file mode 100644
-index 0000000..a0e510d
+index 0000000..a74f360
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.h
 @@ -0,0 +1,1139 @@
@@ -11317,13 +11318,13 @@ index 0000000..a0e510d
 +#define OV10635_MAX_WIDTH		1280
 +#define OV10635_MAX_HEIGHT		800
 +
-+//#define OV10635_PCLK_96MHZ
-+#define OV10635_PCLK_88MHZ
++#define OV10635_PCLK_96MHZ
++//#define OV10635_PCLK_88MHZ
 +
 +#if defined(OV10635_PCLK_96MHZ)
-+/* VTS=PCLK/FPS/HTS/2 (=96MHz/30/1600/2) */
-+ #define OV10635_HTS			1600
-+ #define OV10635_VTS			1000 /* fps=30 */
++/* VTS=PCLK/FPS/HTS/2 (=96MHz/30/1750/2) */
++ #define OV10635_HTS			1750
++ #define OV10635_VTS			914 /* fps=30 */
 +#elif defined(OV10635_PCLK_88MHZ)
 +/* VTS=PCLK/FPS/HTS/2 (=88MHz/1572/30/2) */
 + #define OV10635_HTS			1572
@@ -19391,10 +19392,10 @@ index 0000000..4c20374
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
 new file mode 100644
-index 0000000..b117ff9
+index 0000000..2a17477
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
-@@ -0,0 +1,534 @@
+@@ -0,0 +1,540 @@
 + /*
 + * TI DS90UB954/960/964 FPDLinkIII driver
 + *
@@ -19526,12 +19527,17 @@ index 0000000..b117ff9
 +	case 1450: /* REFCLK = 22.5MHZ */
 +		reg8_write(client, 0x1f, 0x00);			/* CSI rate 1.5/1.6Gbps */
 +		break;
++	case 1200: /* REFCLK = 25MHZ */
++	case 1100: /* REFCLK = 22.5MHZ */
++		reg8_write(client, 0x1f, 0x01);			/* CSI rate 1.1/1.2Gbps */
++		break;
 +	case 800: /* REFCLK = 25MHZ */
 +	case 700: /* REFCLK = 22.5MHZ */
 +		reg8_write(client, 0x1f, 0x02);			/* CSI rate 700/800Mbps */
 +		break;
 +	case 400: /* REFCLK = 25MHZ */
-+		reg8_write(client, 0x1f, 0x03);			/* CSI rate 400Mbps */
++	case 350: /* REFCLK = 22.5MHZ */
++		reg8_write(client, 0x1f, 0x03);			/* CSI rate 350/400Mbps */
 +		break;
 +	default:
 +		dev_err(&client->dev, "unsupported CSI rate %d\n", priv->csi_rate);
@@ -19558,7 +19564,8 @@ index 0000000..b117ff9
 +#else
 +	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 */
 +	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS/13.333mks=1/30/13.333e-6=2500 -> HI=2, LO=2498 */
-+ #define FS_TIME (priv->csi_rate == 1450 ? (2498+15) : (2775+15))
++// #define FS_TIME (priv->csi_rate == 1450 ? (2498+15) : (2775+15))
++ #define FS_TIME (2498+15)
 +	reg8_write(client, 0x19, 2 >> 8);			/* FrameSync high time MSB */
 +	reg8_write(client, 0x1a, 2 & 0xff);			/* FrameSync high time LSB */
 +	reg8_write(client, 0x1b, FS_TIME >> 8);			/* FrameSync low time MSB */
