@@ -9335,7 +9335,7 @@ new file mode 100644
 index 0000000..9657d07
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
-@@ -0,0 +1,962 @@
+@@ -0,0 +1,961 @@
 +/*
 + * MAXIM max9286 GMSL driver
 + *
@@ -9635,8 +9635,7 @@ index 0000000..9657d07
 +			reg8_write(client, 0x04, 0x43);		/* wake-up, enable reverse_control/conf_link */
 +			usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
 +			reg8_write(client, 0x08, 0x01);		/* reverse channel receiver high threshold enable */
-+			if (val == MAX96705_ID || val == MAX96707_ID)
-+				reg8_write(client, 0x97, 0x5f);	/* enable reverse control channel programming (MAX96705-MAX96711 only) */
++			reg8_write(client, 0x97, 0x5f);		/* enable reverse control channel programming (MAX96705-MAX96711 only) */
 +			usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
 +
 +			client->addr = priv->des_addr;		/* MAX9286-CAMx I2C */
