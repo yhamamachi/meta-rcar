@@ -121,6 +121,7 @@ SRC_URI_append = " \
     file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
     file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
     file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
+    file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
