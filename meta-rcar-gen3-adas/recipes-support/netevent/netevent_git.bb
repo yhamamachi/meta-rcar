@@ -8,14 +8,9 @@ PE = "1"
 PV = "0.1"
 PR = "r1"
 
-SRC_URI = "git://github.com/Blub/netevent.git \
-    file://0001-fix-endian-for-cross-arch.patch \
-    file://0002-fix-cross-compile.patch \
-    file://0003-use-socket-instead-of-stdout.patch \
-    file://0004-Add-TCP-keep-alive-to-handle-peer-death-properly.patch \
-"
+SRC_URI = "git://github.com/CogentEmbedded/netevent.git"
 
-SRCREV = "06f1fe545f2063ae882fc8b66dc07f1ced85d1da"
+SRCREV = "295fe47e6b2587cc78aba3cb6277e49648c7e852"
 
 S = "${WORKDIR}/git"
 
