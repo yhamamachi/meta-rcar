@@ -13,8 +13,8 @@ index ce7a88e..c8150d9 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 @@ -203,6 +203,78 @@
- 		groups = "du_rgb666", "du_sync", "du_clk_out_0", "du_disp";
- 		function = "du";
+ 		groups = "avb0_mdc";
+ 		function = "avb0";
  	};
 +
 +	qspi0_pins: qspi0 {

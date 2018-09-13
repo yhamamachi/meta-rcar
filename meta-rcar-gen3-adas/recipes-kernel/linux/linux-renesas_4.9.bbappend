@@ -44,6 +44,7 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
+    file://0035-media-soc_camera-Add-soc_camera-host-preregister.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0041-arm64-dts-renesas-ulcb-enlarge-cma-region.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
@@ -113,6 +114,14 @@ SRC_URI_append = " \
     file://0131-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
     file://0132-Applied-ASoC-rcar-revert-IOMMU-support-so-far-to-the.patch \
     file://0133-USB-tusb8041-add-simple-driver-to-start-device-over-.patch \
+    file://0134-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch \
+    file://0135-V3Hsk-Condor-and-V3Msk-Eagle-Remove-cma-default-area.patch \
+    file://0136-r8a779-78-dtsi-Add-iccom-nodes.patch \
+    file://0137-media-rcar_imr-Enable-LUCE-for-NV16-format.patch \
+    file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
+    file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
+    file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
+    file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -123,6 +132,8 @@ SRC_URI_append_v3msk = " file://v3msk.cfg"
 SRC_URI_append_condor = " file://condor.cfg"
 SRC_URI_append_v3mzf = " file://v3mzf.cfg"
 SRC_URI_append_v3hsk = " file://v3hsk.cfg"
+
+SRC_URI_append_rcar-gen3-adas = " file://cma.cfg"
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-view.dtb \
@@ -164,12 +175,13 @@ KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a7797-es1-v3msk-kf.dtb \
     renesas/r8a7797-es1-v3msk-vbm.dtb \
     renesas/r8a7797-es1-v3msk-vbm-v2.dtb \
+    renesas/r8a7797-es1-v3msk-vbm-v3.dtb \
     renesas/r8a7797-es1-v3msk-view.dtb \
     renesas/r8a7797-v3msk.dtb \
     renesas/r8a7797-v3msk-kf.dtb \
     renesas/r8a7797-v3msk-vbm.dtb \
     renesas/r8a7797-v3msk-vbm-v2.dtb \
-    renesas/r8a7797-v3msk-vbm-v2-isp.dtb \
+    renesas/r8a7797-v3msk-vbm-v3.dtb \
     renesas/r8a7797-v3msk-view.dtb \
 "
 
@@ -185,7 +197,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
-    renesas/r8a7798-v3hsk-vbm-v2-isp.dtb \
+    renesas/r8a7798-v3hsk-vb-8ch.dtb \
 "
 
 # Prefer V4L2 rcar_imr driver over UIO uio_imr
@@ -198,3 +210,12 @@ module_conf_uio_imr = 'blacklist uio_imr'
 KERNEL_MODULE_AUTOLOAD_append_r8a7798 += " uio_pdrv_genirq"
 KERNEL_MODULE_PROBECONF_append_r8a7798 += " uio_pdrv_genirq"
 module_conf_uio_pdrv_genirq_r8a7798 = 'options uio_pdrv_genirq of_id="generic-uio"'
+
+# Install RCAR Gen3 specific UAPI headers
+do_install_append_rcar-gen3() {
+    install -d ${D}/usr/include/linux/
+    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-imr.h ${D}/usr/include/linux/
+}
+
+PACKAGES += "${PN}-uapi"
+FILES_${PN}-uapi = "/usr/include"

@@ -7,18 +7,18 @@ This supports QSPI flash
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm/include/asm/arch-rcar_gen3/rcar-base.h |    1 
- drivers/mtd/spi/sf.c                            |   15 
- drivers/mtd/spi/sf_internal.h                   |  195 ++++++---
- drivers/mtd/spi/sf_ops.c                        |   64 +++
- drivers/mtd/spi/sf_params.c                     |  249 +++++++-----
- drivers/mtd/spi/sf_probe.c                      |   72 +--
- drivers/spi/Makefile                            |    1 
- drivers/spi/rcar_gen3_qspi.c                    |  484 ++++++++++++++++++++++++
- drivers/spi/rcar_gen3_qspi.h                    |  301 ++++++++++++++
- include/linux/bitops.h                          |    1 
- include/spi.h                                   |   22 -
- 11 files changed, 1191 insertions(+), 214 deletions(-)
+ arch/arm/include/asm/arch-rcar_gen3/rcar-base.h |   1 +
+ drivers/mtd/spi/sf.c                            |  15 +-
+ drivers/mtd/spi/sf_internal.h                   | 195 +++++++---
+ drivers/mtd/spi/sf_ops.c                        |  74 +++-
+ drivers/mtd/spi/sf_params.c                     | 249 +++++++-----
+ drivers/mtd/spi/sf_probe.c                      |  72 ++--
+ drivers/spi/Makefile                            |   1 +
+ drivers/spi/rcar_gen3_qspi.c                    | 488 ++++++++++++++++++++++++
+ drivers/spi/rcar_gen3_qspi.h                    | 301 +++++++++++++++
+ include/linux/bitops.h                          |   1 +
+ include/spi.h                                   |  22 +-
+ 11 files changed, 1203 insertions(+), 216 deletions(-)
  create mode 100644 drivers/spi/rcar_gen3_qspi.c
  create mode 100644 drivers/spi/rcar_gen3_qspi.h
 
@@ -456,9 +456,34 @@ index 34bc54e..6af38c1 100644
  		spi_flash_addr(write_addr, cmd);
  
  		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
-@@ -409,6 +470,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
+@@ -364,8 +425,11 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
+ 		size_t len, void *data)
+ {
+ 	u8 *cmd, cmdsz;
+-	u32 remain_len, read_len, read_addr;
++	u32 read_len, read_addr;
++#ifdef CONFIG_SPI_FLASH_BAR
++	u32 remain_len;
+ 	int bank_sel = 0;
++#endif
+ 	int ret = -1;
+ 
+ 	/* Handle memory-mapped SPI */
+@@ -401,14 +465,18 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
+ 		bank_sel = spi_flash_bank(flash, read_addr);
+ 		if (bank_sel < 0)
+ 			return ret;
+-#endif
++
+ 		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
+ 				(bank_sel + 1)) - offset;
+ 		if (len < remain_len)
+ 			read_len = len;
  		else
  			read_len = remain_len;
++#else
++		read_len = len;
++#endif
  
 +		spi_set_addr(read_addr);
  		spi_flash_addr(read_addr, cmd);
@@ -917,7 +942,7 @@ new file mode 100644
 index 0000000..5095b07
 --- /dev/null
 +++ b/drivers/spi/rcar_gen3_qspi.c
-@@ -0,0 +1,485 @@
+@@ -0,0 +1,488 @@
 +/*
 + * R-CarH3 QSPI (Quad SPI) driver
 + *
@@ -1338,6 +1363,9 @@ index 0000000..5095b07
 +		}
 +
 +		WaitRpcTxEnd();
++
++		if (cur_cmd_tbl->rw_type == SPI_CMD_ERASE)
++			WaitReadyDevice(slave);
 +
 +		if (cur_cmd_tbl->data_enable != SPI_DATA_ENABLE) {
 +			spi_cs_deactivate(slave);

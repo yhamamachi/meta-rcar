@@ -1,4 +1,4 @@
-From e8fd03e53c50c67a2aebf19f39a9f14b583f0e2d Mon Sep 17 00:00:00 2001
+From cac2437dea63ff4d526e987e64ce1382e2cba6cd Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 14:48:08 +0300
 Subject: [PATCH] arm64: renesas: r8a7798: Add Renesas R8A7798 SoC support
@@ -9,7 +9,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    8 +
- arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1724 ++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi      | 1722 ++++++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
  drivers/clk/renesas/r8a7798-cpg-mssr.c        |  292 +++
@@ -21,7 +21,7 @@ Signed-off-by: Mikhail Ulyanov <mikhail.ulyanov@cogentembedded.com>
  drivers/gpu/drm/rcar-du/rcar_du_drv.c         |    1 +
  drivers/gpu/drm/rcar-du/rcar_du_group.c       |    5 +-
  drivers/i2c/busses/i2c-rcar.c                 |    1 +
- drivers/iommu/ipmmu-vmsa.c                    |    3 +
+ drivers/iommu/ipmmu-vmsa.c                    |    5 +
  drivers/media/platform/soc_camera/Kconfig     |    2 +-
  drivers/media/platform/soc_camera/rcar_csi2.c |   15 +-
  drivers/media/platform/soc_camera/rcar_vin.c  |   97 +-
@@ -76,7 +76,7 @@ index 9cebaad..3646b6e 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
 new file mode 100644
-index 0000000..00bd4d6
+index 0000000..0585091
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
 @@ -0,0 +1,1722 @@
@@ -331,7 +331,7 @@ index 0000000..00bd4d6
 +			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
 +			#gpio-cells = <2>;
 +			gpio-controller;
-+			gpio-ranges = <&pfc 0 64 29>;
++			gpio-ranges = <&pfc 0 64 30>;
 +			#interrupt-cells = <2>;
 +			interrupt-controller;
 +			clocks = <&cpg CPG_MOD 910>;
@@ -2287,7 +2287,7 @@ index ea451cd..6528f72 100644
  };
  MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
 diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 1ae9174..41e14fa 100644
+index 1ae9174..2118bec 100644
 --- a/drivers/iommu/ipmmu-vmsa.c
 +++ b/drivers/iommu/ipmmu-vmsa.c
 @@ -1280,6 +1280,9 @@ static void ipmmu_device_reset(struct ipmmu_vmsa_device *mmu)
@@ -2300,8 +2300,17 @@ index 1ae9174..41e14fa 100644
  		/* Terminator */
  	},
  };
+@@ -1653,6 +1656,8 @@ static int __init ipmmu_vmsa_iommu_of_setup(struct device_node *np)
+ 		 ipmmu_vmsa_iommu_of_setup);
+ IOMMU_OF_DECLARE(ipmmu_r8a7797_iommu_of, "renesas,ipmmu-r8a7797",
+ 		 ipmmu_vmsa_iommu_of_setup);
++IOMMU_OF_DECLARE(ipmmu_r8a7798_iommu_of, "renesas,ipmmu-r8a7798",
++		 ipmmu_vmsa_iommu_of_setup);
+ #endif
+ 
+ MODULE_DESCRIPTION("IOMMU API for Renesas VMSA-compatible IPMMU");
 diff --git a/drivers/media/platform/soc_camera/Kconfig b/drivers/media/platform/soc_camera/Kconfig
-index d60909a..4ed8009 100644
+index 5539c5d..fc7d829 100644
 --- a/drivers/media/platform/soc_camera/Kconfig
 +++ b/drivers/media/platform/soc_camera/Kconfig
 @@ -39,7 +39,7 @@ config VIDEO_RCAR_VIN_LEGACY_DEBUG

@@ -178,8 +178,8 @@ index c878467..16e73b4 100644
  			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
 +			alloc-dev = <&imr_v4l2_alloc>;
  		};
- 	};
- };
+ 
+ 		isp0: isp@fec00000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
 index 7bfd0483..0742ec0 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7798.dtsi
