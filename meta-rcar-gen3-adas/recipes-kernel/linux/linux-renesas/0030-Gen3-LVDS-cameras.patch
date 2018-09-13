@@ -1,4 +1,4 @@
-From 38a509ab863d9232aea38b23fa929ef753ba8c24 Mon Sep 17 00:00:00 2001
+From 7ea26d820a94fe606ee2c6a0ae9bbd28ab1bc56c Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 15:20:01 +0300
 Subject: [PATCH] Gen3: LVDS cameras
@@ -30,7 +30,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/gw4200_ar014x.h     |   30 +
  drivers/media/i2c/soc_camera/imx390.c            |  544 +++
  drivers/media/i2c/soc_camera/imx390.h            | 3817 ++++++++++++++++++++++
- drivers/media/i2c/soc_camera/max9286.c           |  962 ++++++
+ drivers/media/i2c/soc_camera/max9286.c           |  961 ++++++
  drivers/media/i2c/soc_camera/max9286.h           |  245 ++
  drivers/media/i2c/soc_camera/ov10635.c           |  738 +++++
  drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++
@@ -44,7 +44,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ox03a.c             |  589 ++++
  drivers/media/i2c/soc_camera/ox03a.h             | 1766 ++++++++++
- drivers/media/i2c/soc_camera/ti9x4.c             |  540 +++
+ drivers/media/i2c/soc_camera/ti9x4.c             |  542 +++
  drivers/media/i2c/soc_camera/ti9x4.h             |  156 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  312 +-
  drivers/media/platform/soc_camera/rcar_vin.c     |  194 +-
@@ -52,7 +52,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c |   26 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    5 +
- 38 files changed, 20270 insertions(+), 127 deletions(-)
+ 38 files changed, 20271 insertions(+), 127 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
  create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
@@ -9332,7 +9332,7 @@ index 0000000..4217cd9
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..9657d07
+index 0000000..e9d0934
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286.c
 @@ -0,0 +1,961 @@
@@ -19391,10 +19391,10 @@ index 0000000..4c20374
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
 new file mode 100644
-index 0000000..2a17477
+index 0000000..dfe5d1f
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
-@@ -0,0 +1,540 @@
+@@ -0,0 +1,542 @@
 + /*
 + * TI DS90UB954/960/964 FPDLinkIII driver
 + *
@@ -19747,8 +19747,10 @@ index 0000000..2a17477
 +		priv->lanes = 4;
 +
 +	priv->ref_clk = v4l2_clk_get(&client->dev, "ref_clk");
-+	if (!IS_ERR(priv->ref_clk))
++	if (!IS_ERR(priv->ref_clk)) {
 +		dev_info(&client->dev, "ref_clk = %luKHz", v4l2_clk_get_rate(priv->ref_clk) / 1000);
++		v4l2_clk_enable(priv->ref_clk);
++	}
 +
 +	pwen = of_get_gpio(np, 0);
 +	if (pwen > 0) {
