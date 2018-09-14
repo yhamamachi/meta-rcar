@@ -1,13 +1,13 @@
-From 08fff0fb23032d7ca06e6db215303c35146a557a Mon Sep 17 00:00:00 2001
+From 3d9fce831a6ef23e9adda162cad8a710c6d93975 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Wed, 8 Aug 2018 11:51:02 +0300
-Subject: [PATCH 1/3] clk: cs2000 add support for cs2300
+Subject: [PATCH 1/5] clk: cs2000 add support for cs2300
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/clk/Kconfig         |  5 +--
- drivers/clk/clk-cs2000-cp.c | 85 ++++++++++++++++++++++++++++++++-------------
- 2 files changed, 63 insertions(+), 27 deletions(-)
+ drivers/clk/Kconfig         |   5 ++-
+ drivers/clk/clk-cs2000-cp.c | 101 +++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 79 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
 index 866110d..5950e6d 100644
@@ -28,18 +28,30 @@ index 866110d..5950e6d 100644
  config COMMON_CLK_S2MPS11
  	tristate "Clock driver for S2MPS1X/S5M8767 MFD"
 diff --git a/drivers/clk/clk-cs2000-cp.c b/drivers/clk/clk-cs2000-cp.c
-index f9a345f..12af0f1 100644
+index f9a345f..de22076 100644
 --- a/drivers/clk/clk-cs2000-cp.c
 +++ b/drivers/clk/clk-cs2000-cp.c
-@@ -57,6 +57,7 @@
+@@ -28,6 +28,7 @@
+ #define Val_Ratio(x, nth)	((x & 0xFF) << (24 - (8 * nth)))
+ #define FUNC_CFG1	0x16
+ #define FUNC_CFG2	0x17
++#define FUNC_CFG3	0x1E
+ 
+ /* DEVICE_ID */
+ #define REVISION_MASK	(0x7)
+@@ -57,8 +58,11 @@
  
  /* FUNC_CFG1 */
  #define CLKSKIPEN	(1 << 7)
-+#define ENDEV3		(0x10)
++#define ENDEV3		(1 << 4)
  #define REFCLKDIV(x)	(((x) & 0x3) << 3)
  #define REFCLKDIV_MASK	REFCLKDIV(0x3)
++#define RMODSEL(x)	(((x) & 0x7) << 5)
++#define RMODSEL_MASK	RMODSEL(0x7)
  
-@@ -74,6 +75,11 @@
+ /* FUNC_CFG2 */
+ #define LFRATIO_MASK	(1 << 3)
+@@ -74,6 +78,11 @@
  #define REF_CLK	1
  #define CLK_MAX 2
  
@@ -51,7 +63,7 @@ index f9a345f..12af0f1 100644
  struct cs2000_priv {
  	struct clk_hw hw;
  	struct i2c_client *client;
-@@ -83,16 +89,20 @@ struct cs2000_priv {
+@@ -83,16 +92,20 @@ struct cs2000_priv {
  	/* suspend/resume */
  	unsigned long saved_rate;
  	unsigned long saved_parent_rate;
@@ -74,7 +86,7 @@ index f9a345f..12af0f1 100644
  	{}
  };
  MODULE_DEVICE_TABLE(i2c, cs2000_id);
-@@ -130,8 +140,13 @@ static int cs2000_enable_dev_config(struct cs2000_priv *priv, bool enable)
+@@ -130,8 +143,13 @@ static int cs2000_enable_dev_config(struct cs2000_priv *priv, bool enable)
  	if (ret < 0)
  		return ret;
  
@@ -90,7 +102,23 @@ index f9a345f..12af0f1 100644
  	if (ret < 0)
  		return ret;
  
-@@ -316,17 +331,23 @@ static int __cs2000_set_rate(struct cs2000_priv *priv, int ch,
+@@ -163,6 +181,15 @@ static int cs2000_clk_in_bound_rate(struct cs2000_priv *priv,
+ 			   REFCLKDIV(val));
+ }
+ 
++
++static int cs2300_clk_rmod_set(struct cs2000_priv *priv,
++				    u32 rmod)
++{
++	return cs2000_bset(priv, FUNC_CFG1,
++			   RMODSEL_MASK,
++			   RMODSEL(rmod));
++}
++
+ static int cs2000_wait_pll_lock(struct cs2000_priv *priv)
+ {
+ 	struct device *dev = priv_to_dev(priv);
+@@ -316,17 +343,27 @@ static int __cs2000_set_rate(struct cs2000_priv *priv, int ch,
  {
  	int ret;
  
@@ -116,6 +144,10 @@ index f9a345f..12af0f1 100644
 +		if (ret < 0)
 +			return ret;
 +	} else {
++		ret = cs2300_clk_rmod_set(priv, 0);
++		if (ret < 0)
++			return ret;
++
 +		ret = cs2000_ratio_set(priv, 0, parent_rate, rate);
 +		if (ret < 0)
 +			return ret;
@@ -123,7 +155,7 @@ index f9a345f..12af0f1 100644
  
  	priv->saved_rate	= rate;
  	priv->saved_parent_rate	= parent_rate;
-@@ -387,8 +408,12 @@ static void cs2000_disable(struct clk_hw *hw)
+@@ -387,8 +424,12 @@ static void cs2000_disable(struct clk_hw *hw)
  
  static u8 cs2000_get_parent(struct clk_hw *hw)
  {
@@ -138,7 +170,7 @@ index f9a345f..12af0f1 100644
  }
  
  static const struct clk_ops cs2000_ops = {
-@@ -403,17 +428,19 @@ static u8 cs2000_get_parent(struct clk_hw *hw)
+@@ -403,17 +444,19 @@ static u8 cs2000_get_parent(struct clk_hw *hw)
  static int cs2000_clk_get(struct cs2000_priv *priv)
  {
  	struct device *dev = priv_to_dev(priv);
@@ -163,7 +195,7 @@ index f9a345f..12af0f1 100644
  
  	priv->clk_in	= clk_in;
  	priv->ref_clk	= ref_clk;
-@@ -439,19 +466,26 @@ static int cs2000_clk_register(struct cs2000_priv *priv)
+@@ -439,19 +482,26 @@ static int cs2000_clk_register(struct cs2000_priv *priv)
  	 * otherwise .set_rate which setup ratio
  	 * is never called if user requests 1/1 rate
  	 */
@@ -193,7 +225,7 @@ index f9a345f..12af0f1 100644
  
  	priv->hw.init = &init;
  
-@@ -478,7 +512,7 @@ static int cs2000_version_print(struct cs2000_priv *priv)
+@@ -478,7 +528,7 @@ static int cs2000_version_print(struct cs2000_priv *priv)
  	if (val < 0)
  		return val;
  
@@ -202,7 +234,7 @@ index f9a345f..12af0f1 100644
  	if (val >> 3)
  		return -EIO;
  
-@@ -524,6 +558,7 @@ static int cs2000_probe(struct i2c_client *client,
+@@ -524,6 +574,7 @@ static int cs2000_probe(struct i2c_client *client,
  
  	priv->client = client;
  	i2c_set_clientdata(client, priv);
@@ -210,7 +242,7 @@ index f9a345f..12af0f1 100644
  
  	ret = cs2000_clk_get(priv);
  	if (ret < 0)
-@@ -560,7 +595,7 @@ static int cs2000_resume(struct device *dev)
+@@ -560,7 +611,7 @@ static int cs2000_resume(struct device *dev)
  	.driver = {
  		.name = "cs2000-cp",
  		.pm	= &cs2000_pm_ops,

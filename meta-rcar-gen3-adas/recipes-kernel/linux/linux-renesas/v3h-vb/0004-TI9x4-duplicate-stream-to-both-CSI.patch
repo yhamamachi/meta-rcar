@@ -1,0 +1,29 @@
+From 68cc42cbb25d3fdf93f946d803797adee13f5344 Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Sat, 15 Sep 2018 19:14:02 +0300
+Subject: [PATCH 4/5] TI9x4: duplicate stream to both CSI
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ti9x4.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index fc6a15b..d00e744 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -141,9 +141,9 @@ static void ti9x4_initial_setup(struct i2c_client *client)
+ 	}
+ 
+ 	if (strcmp(priv->forwarding_mode, "round-robin") == 0) {
+-		reg8_write(client, 0x21, 0x01);			/* Round Robin forwarding enable */
++		reg8_write(client, 0x21, 0x80 | 0x01);			/* Round Robin forwarding enable */
+ 	} else if (strcmp(priv->forwarding_mode, "synchronized") == 0) {
+-		reg8_write(client, 0x21, 0x44);			/* Basic Syncronized forwarding enable (FrameSync must be enabled!!) */
++		reg8_write(client, 0x21, 0x80 | 0x44);			/* Basic Syncronized forwarding enable (FrameSync must be enabled!!) */
+ 	}
+ 
+ 	reg8_write(client, 0x32, 0x01);				/* Select TX (CSI) port 0 */
+-- 
+1.9.1
+

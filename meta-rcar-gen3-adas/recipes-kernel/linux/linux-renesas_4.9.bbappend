@@ -120,8 +120,9 @@ SRC_URI_append = " \
     file://0137-media-rcar_imr-Enable-LUCE-for-NV16-format.patch \
     file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
     file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
-    file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
-    file://v3h-vb/0004-v3hsk-vb-8ch-fix-fpdlink-out.patch \
+    file://v3h-vb/0003-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch \
+    file://v3h-vb/0004-TI9x4-duplicate-stream-to-both-CSI.patch \
+    file://v3h-vb/0005-TI9x4-toggle-PDB-on-probe.patch \
     file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
     file://lvds/0002-LVDS-update-AR0233-AR0143-GW4200.patch \
 "
@@ -199,6 +200,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
+    renesas/r8a7798-v3hsk-vb-4ch.dtb \
     renesas/r8a7798-v3hsk-vb-8ch.dtb \
 "
 
