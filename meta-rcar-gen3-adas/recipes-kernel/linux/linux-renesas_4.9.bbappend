@@ -121,6 +121,7 @@ SRC_URI_append = " \
     file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
     file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
     file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
+    file://v3h-vb/0004-v3hsk-vb-8ch-fix-fpdlink-out.patch \
     file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
     file://lvds/0002-LVDS-update-AR0233-AR0143-GW4200.patch \
 "
