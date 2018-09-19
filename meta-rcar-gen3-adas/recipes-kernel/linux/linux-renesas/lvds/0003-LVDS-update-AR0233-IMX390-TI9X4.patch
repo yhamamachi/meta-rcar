@@ -1,0 +1,208 @@
+From e88bb68abfde2f5f99442d5559f998ad1acbf17b Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 19 Sep 2018 07:20:28 +0300
+Subject: [PATCH] LVDS: update AR0233, IMX390, TI9X4
+
+1) AR0233 fix companding resolution, enable FSIN
+2) IMX390: add OTP ID, V4L2 controls
+3) IT9x4: do not suport 25 MHZ reflck anymore, Only 22.5 is supported
+---
+ drivers/media/i2c/soc_camera/ar0233.c |  3 ++-
+ drivers/media/i2c/soc_camera/ar0233.h | 22 +++++++---------------
+ drivers/media/i2c/soc_camera/imx390.c | 34 +++++++++++++++++++++++++++++++---
+ drivers/media/i2c/soc_camera/ti9x4.c  |  2 ++
+ 4 files changed, 42 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index b392ff9..9d45a5d 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -376,6 +376,7 @@ static int ar0233_initialize(struct i2c_client *client)
+ 		client->addr = priv->ti9x3_addr;			/* Serializer I2C address */
+ 		reg8_write(client, 0x06, 0x6f);				/* Set CLKDIV and M */
+ 		reg8_write(client, 0x07, 0xfb);				/* Set N */
++		reg8_write(client, 0x0e, 0x1f);				/* Set FSIN GPIO to output */
+ 	}
+ 	client->addr = tmp_addr;
+ 
+@@ -436,7 +437,7 @@ static int ar0233_parse_dt(struct device_node *np, struct ar0233_priv *priv)
+ 		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
+ 		reg8_write(client, 0x5d, AR0233_I2C_ADDR << 1);		/* Sensor native I2C address */
+ 
+-//		reg8_write(client, 0x6e, 0xa9);				/* GPIO0 - reset, GPIO1 - fsin */
++		reg8_write(client, 0x6e, 0x8a);				/* GPIO0 - fsin, GPIO1 - NC */
+ 	}
+ 	client->addr = tmp_addr;
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0233.h b/drivers/media/i2c/soc_camera/ar0233.h
+index 933d3d1..4269663 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.h
++++ b/drivers/media/i2c/soc_camera/ar0233.h
+@@ -322,13 +322,6 @@ struct ar0233_reg {
+ {0x30A6, 0x0001},
+ {0x3040, 0x0000},
+ {0x3040, 0x0000},
+-{0x3082, 0x0008},
+-{0x3082, 0x0008},
+-{0x3082, 0x0008},
+-{0x3082, 0x0008},
+-{0x30BA, 0x11F2},
+-{0x30BA, 0x11F2},
+-{0x30BA, 0x11F2},
+ {0x3044, 0x0400},
+ {0x3044, 0x0400},
+ {0x3044, 0x0400},
+@@ -354,7 +347,7 @@ struct ar0233_reg {
+ #if 1
+ /* disable HDR */
+ {0x3082, 0x0000},
+-{0x30BA, 0x11F0},
++{0x30BA, 0x11F2},
+ #endif
+ {AR0233_DELAY, 100}, // Wait 100ms
+ 
+@@ -363,9 +356,9 @@ struct ar0233_reg {
+ {0x3042, 0x0000},
+ {0x3238, 0x0222},
+ {0x3012, 0x0144},
+-{0x3014, 0x014F},
+-{0x321E, 0x0752},
+-{0x3222, 0x0752},
++{0x3014, AR0233_SENSOR_WIDTH + 100},
++{0x321E, AR0233_SENSOR_WIDTH + 100},
++{0x3222, AR0233_SENSOR_WIDTH + 100},
+ {0x30B0, 0x0B00},
+ {0x32EA, 0x3C0E},
+ {0x32EA, 0x3C0E},
+@@ -376,11 +369,10 @@ struct ar0233_reg {
+ {0x32EC, 0x72A1},
+ {0x32EC, 0x72A1},
+ {0x32EC, 0x72A1},
+-{0x31D0, 0x0000},
++{0x31D0, 0x0001}, // COMPANDING
+ {0x31AE, 0x0004},
+ {0x31AE, 0x0304},
+-{0x31AC, 0x0C0C},
+-{0x31AC, 0x0C0C},
++{0x31AC, 0x140C}, // DATA_FORMAT_BITS: RAW12
+ {0x301A, 0x1098},
+ {0x301A, 0x1018},
+ {0x301A, 0x1018},
+@@ -400,7 +392,7 @@ struct ar0233_reg {
+ {0x31B8, 0x3047},
+ {0x31BA, 0x0186},
+ {0x31BC, 0x0805},
+-#if 0
++#if 1
+ /* Enable trigger input */
+ {0x340A, 0x00E0}, // GPIO_CONTROL1: GPIO1 is trigger
+ {0x340C, 0x0002}, // GPIO_CONTROL2: GPIO1 is trigger
+diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
+index 3553551..bcfc374 100644
+--- a/drivers/media/i2c/soc_camera/imx390.c
++++ b/drivers/media/i2c/soc_camera/imx390.c
+@@ -248,6 +248,7 @@ static int imx390_s_ctrl(struct v4l2_ctrl *ctrl)
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct imx390_priv *priv = to_imx390(client);
+ 	int ret = -EINVAL;
++	int val;
+ 
+ 	if (!priv->init_complete)
+ 		return 0;
+@@ -260,8 +261,21 @@ static int imx390_s_ctrl(struct v4l2_ctrl *ctrl)
+ 	case V4L2_CID_GAMMA:
+ 	case V4L2_CID_SHARPNESS:
+ 	case V4L2_CID_AUTOGAIN:
++		break;
+ 	case V4L2_CID_GAIN:
++		/* Digital gain */
++		ret = 0;
++		break;
++	case V4L2_CID_ANALOGUE_GAIN:
++		/* Analog gain */
++		ret = 0;
++		break;
+ 	case V4L2_CID_EXPOSURE:
++		val = 0xfff - ctrl->val;
++		ret = reg16_write(client, 0x0c, val); /* LSB */
++		ret |= reg16_write(client, 0x0d, val >> 8);
++//		ret |= reg16_write(client, 0x0e, ctrl->val >> 16); /* MSB */
++		break;
+ 	case V4L2_CID_HFLIP:
+ 	case V4L2_CID_VFLIP:
+ 		break;
+@@ -296,6 +310,15 @@ static int imx390_s_ctrl(struct v4l2_ctrl *ctrl)
+ 
+ static void imx390_otp_id_read(struct i2c_client *client)
+ {
++	struct imx390_priv *priv = to_imx390(client);
++	int i;
++	u8 val = 0;
++
++	/* read camera id from imx390 OTP memory */
++	for (i = 0; i < 6; i++) {
++		reg16_read(client, 0x3050 + i, &val);
++		priv->id[i] = val;
++	}
+ }
+ 
+ static ssize_t imx390_otp_id_show(struct device *dev,
+@@ -305,6 +328,8 @@ static ssize_t imx390_otp_id_show(struct device *dev,
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct imx390_priv *priv = to_imx390(client);
+ 
++	imx390_otp_id_read(client);
++
+ 	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
+ 			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
+ }
+@@ -355,13 +380,14 @@ static int imx390_initialize(struct i2c_client *client)
+ 	}
+ 	client->addr = tmp_addr;
+ 
+-	/* Program wizard registers */
+-	imx390_set_regs(client, imx390_regs_wizard, ARRAY_SIZE(imx390_regs_wizard));
+ 	/* Read OTP IDs */
+ 	imx390_otp_id_read(client);
++	/* Program wizard registers */
++	imx390_set_regs(client, imx390_regs_wizard, ARRAY_SIZE(imx390_regs_wizard));
+ 
+ 	dev_info(&client->dev, "imx390 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
+ 		 pid, IMX390_MAX_WIDTH, IMX390_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++
+ err:
+ 	return ret;
+ }
+@@ -444,7 +470,9 @@ static int imx390_probe(struct i2c_client *client,
+ 	v4l2_ctrl_new_std(&priv->hdl, &imx390_ctrl_ops,
+ 			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
+ 	v4l2_ctrl_new_std(&priv->hdl, &imx390_ctrl_ops,
+-			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++			  V4L2_CID_ANALOGUE_GAIN, 1, 0xe, 1, 0x7);
++	v4l2_ctrl_new_std(&priv->hdl, &imx390_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 0, 0xff0, 1, 0xfff - 0x2f2);
+ 	v4l2_ctrl_new_std(&priv->hdl, &imx390_ctrl_ops,
+ 			  V4L2_CID_HFLIP, 0, 1, 1, 1);
+ 	v4l2_ctrl_new_std(&priv->hdl, &imx390_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index 7bb6cd9..f70aad0 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -168,12 +168,14 @@ static void ti9x4_initial_setup(struct i2c_client *client)
+ 	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 */
+ 	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS/13.333mks=1/30/13.333e-6=2500 -> HI=2, LO=2498 */
+ // #define FS_TIME (priv->csi_rate == 1450 ? (2498+15) : (2775+15))
++// #define FS_TIME (2498+15)
+  #define FS_TIME (2498+15)
+ 	reg8_write(client, 0x19, 2 >> 8);			/* FrameSync high time MSB */
+ 	reg8_write(client, 0x1a, 2 & 0xff);			/* FrameSync high time LSB */
+ 	reg8_write(client, 0x1b, FS_TIME >> 8);			/* FrameSync low time MSB */
+ 	reg8_write(client, 0x1c, FS_TIME & 0xff);		/* FrameSync low time LSB */
+ 	reg8_write(client, 0x18, 0x01);				/* Enable FrameSync, HI/LO mode, Frame clock from port0 */
++//	reg8_write(client, 0x18, 0x80);				/* Enable FrameSync, HI/LO mode, Frame clock from port0 */
+ #endif
+ }
+ 
+-- 
+1.9.1
+
