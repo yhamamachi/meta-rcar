@@ -1,0 +1,120 @@
+From 8408c8119cfd91510f2cd0b349b21a7e58427140 Mon Sep 17 00:00:00 2001
+From: Guillaume Desmottes <guillaume.desmottes@collabora.co.uk>
+Date: Mon, 17 Jul 2017 15:58:57 +0200
+Subject: [PATCH 48/80] kmsallocator: inline gst_kms_allocator_alloc_empty()
+
+No semantic change, just renamed the 'tmp' variable to a more meaningful
+name and to use the same structure as in gst_kms_allocator_bo_alloc().
+
+Needed as I'm going to move the gst_memory_init() call after the
+allocation of the DUMB buffer.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=785029
+---
+ sys/kms/gstkmsallocator.c | 46 ++++++++++++++++++----------------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 18a540d43..0afbd072f 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -413,36 +413,23 @@ gst_kms_allocator_add_fb (GstKMSAllocator * alloc, GstKMSMemory * kmsmem,
+   return TRUE;
+ }
+ 
+-static GstMemory *
+-gst_kms_allocator_alloc_empty (GstAllocator * allocator, GstVideoInfo * vinfo)
++GstMemory *
++gst_kms_allocator_bo_alloc (GstAllocator * allocator, GstVideoInfo * vinfo)
+ {
++  GstKMSAllocator *alloc;
+   GstKMSMemory *kmsmem;
+   GstMemory *mem;
+ 
+   kmsmem = g_slice_new0 (GstKMSMemory);
+   if (!kmsmem)
+     return NULL;
+-  mem = GST_MEMORY_CAST (kmsmem);
+ 
++  alloc = GST_KMS_ALLOCATOR (allocator);
++
++  mem = GST_MEMORY_CAST (kmsmem);
+   gst_memory_init (mem, GST_MEMORY_FLAG_NO_SHARE, allocator, NULL,
+       GST_VIDEO_INFO_SIZE (vinfo), 0, 0, GST_VIDEO_INFO_SIZE (vinfo));
+ 
+-  return mem;
+-}
+-
+-GstMemory *
+-gst_kms_allocator_bo_alloc (GstAllocator * allocator, GstVideoInfo * vinfo)
+-{
+-  GstKMSAllocator *alloc;
+-  GstKMSMemory *kmsmem;
+-  GstMemory *mem;
+-
+-  mem = gst_kms_allocator_alloc_empty (allocator, vinfo);
+-  if (!mem)
+-    return NULL;
+-
+-  alloc = GST_KMS_ALLOCATOR (allocator);
+-  kmsmem = (GstKMSMemory *) mem;
+   if (!gst_kms_allocator_memory_create (alloc, kmsmem, vinfo))
+     goto fail;
+   if (!gst_kms_allocator_add_fb (alloc, kmsmem, vinfo->offset, vinfo))
+@@ -461,30 +448,33 @@ gst_kms_allocator_dmabuf_import (GstAllocator * allocator, gint * prime_fds,
+     gint n_planes, gsize offsets[GST_VIDEO_MAX_PLANES], GstVideoInfo * vinfo)
+ {
+   GstKMSAllocator *alloc;
++  GstKMSMemory *kmsmem;
+   GstMemory *mem;
+-  GstKMSMemory *tmp;
+   gint i, ret;
+ 
+   g_return_val_if_fail (n_planes <= GST_VIDEO_MAX_PLANES, FALSE);
+ 
+-  mem = gst_kms_allocator_alloc_empty (allocator, vinfo);
+-  if (!mem)
++  kmsmem = g_slice_new0 (GstKMSMemory);
++  if (!kmsmem)
+     return FALSE;
+ 
+-  tmp = (GstKMSMemory *) mem;
++  mem = GST_MEMORY_CAST (kmsmem);
++  gst_memory_init (mem, GST_MEMORY_FLAG_NO_SHARE, allocator, NULL,
++      GST_VIDEO_INFO_SIZE (vinfo), 0, 0, GST_VIDEO_INFO_SIZE (vinfo));
++
+   alloc = GST_KMS_ALLOCATOR (allocator);
+   for (i = 0; i < n_planes; i++) {
+     ret = drmPrimeFDToHandle (alloc->priv->fd, prime_fds[i],
+-        &tmp->gem_handle[i]);
++        &kmsmem->gem_handle[i]);
+     if (ret)
+       goto import_fd_failed;
+   }
+ 
+-  if (!gst_kms_allocator_add_fb (alloc, tmp, offsets, vinfo))
++  if (!gst_kms_allocator_add_fb (alloc, kmsmem, offsets, vinfo))
+     goto failed;
+ 
+   for (i = 0; i < n_planes; i++) {
+-    struct drm_gem_close arg = { tmp->gem_handle[i], };
++    struct drm_gem_close arg = { kmsmem->gem_handle[i], };
+     gint err;
+ 
+     err = drmIoctl (alloc->priv->fd, DRM_IOCTL_GEM_CLOSE, &arg);
+@@ -492,10 +482,10 @@ gst_kms_allocator_dmabuf_import (GstAllocator * allocator, gint * prime_fds,
+       GST_WARNING_OBJECT (allocator,
+           "Failed to close GEM handle: %s %d", strerror (errno), errno);
+ 
+-    tmp->gem_handle[i] = 0;
++    kmsmem->gem_handle[i] = 0;
+   }
+ 
+-  return tmp;
++  return kmsmem;
+ 
+   /* ERRORS */
+ import_fd_failed:
+-- 
+2.11.0
+

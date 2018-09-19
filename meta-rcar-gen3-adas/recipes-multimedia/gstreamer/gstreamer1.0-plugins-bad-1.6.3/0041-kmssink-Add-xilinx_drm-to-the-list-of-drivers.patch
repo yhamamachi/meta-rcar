@@ -1,0 +1,30 @@
+From 6545e2ddd58198ae57e0bd68d3042c3c89fe478d Mon Sep 17 00:00:00 2001
+From: Guillaume Desmottes <guillaume.desmottes@collabora.co.uk>
+Date: Thu, 25 May 2017 15:10:32 +0200
+Subject: [PATCH 41/80] kmssink: Add xilinx_drm to the list of drivers
+
+This prevent having to set the driver-name explicitly when running on
+Zynq UltraScale+ boards.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=783188
+---
+ sys/kms/gstkmssink.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index d19e19eeb..995e92885 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -85,7 +85,8 @@ static int
+ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+-    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
++    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
++    "xilinx_drm",
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

@@ -1,0 +1,64 @@
+From 3bee6aa5d9601cb400c88832bcdba3643acf5f03 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Fri, 7 Jul 2017 12:12:38 -0400
+Subject: [PATCH 45/80] kmssink: Move kmsmem cache code higher
+
+This will be needed as this API will be used elsewhere to clear
+the cache.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=782774
+---
+ sys/kms/gstkmssink.c | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 253fb22f8..1b093614c 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -488,6 +488,21 @@ ensure_allowed_caps (GstKMSSink * self, drmModeConnector * conn,
+   return (self->allowed_caps && !gst_caps_is_empty (self->allowed_caps));
+ }
+ 
++static GstMemory *
++get_cached_kmsmem (GstMemory * mem)
++{
++  return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
++      g_quark_from_static_string ("kmsmem"));
++}
++
++static void
++set_cached_kmsmem (GstMemory * mem, GstMemory * kmsmem)
++{
++  return gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
++      g_quark_from_static_string ("kmsmem"), kmsmem,
++      (GDestroyNotify) gst_memory_unref);
++}
++
+ static gboolean
+ gst_kms_sink_start (GstBaseSink * bsink)
+ {
+@@ -1033,21 +1048,6 @@ event_failed:
+   }
+ }
+ 
+-static GstMemory *
+-get_cached_kmsmem (GstMemory * mem)
+-{
+-  return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
+-      g_quark_from_static_string ("kmsmem"));
+-}
+-
+-static void
+-set_cached_kmsmem (GstMemory * mem, GstMemory * kmsmem)
+-{
+-  return gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
+-      g_quark_from_static_string ("kmsmem"), kmsmem,
+-      (GDestroyNotify) gst_memory_unref);
+-}
+-
+ static gboolean
+ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
+     GstBuffer ** outbuf)
+-- 
+2.11.0
+

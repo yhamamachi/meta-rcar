@@ -1,0 +1,37 @@
+From cdff26d32aad603e3c1fea74f80817c0cf4d64b4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADctor=20Manuel=20J=C3=A1quez=20Leal?=
+ <vjaquez@igalia.com>
+Date: Wed, 23 Nov 2016 20:13:59 +0100
+Subject: [PATCH 27/80] kmssink: include drm.h after stdlib.h
+
+As drm.h is internal to libdrm, it expects to have already included
+stdlib.h.
+---
+ sys/kms/gstkmsallocator.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 2451e3059..687ebf992 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -27,7 +27,6 @@
+ #include "config.h"
+ #endif
+ 
+-#include <drm.h>
+ #include <xf86drm.h>
+ #include <xf86drmMode.h>
+ #include <stdlib.h>
+@@ -35,6 +34,9 @@
+ #include <sys/mman.h>
+ #include <unistd.h>
+ 
++/* it needs to be below because is internal to libdrm */
++#include <drm.h>
++
+ #include "gstkmsallocator.h"
+ #include "gstkmsutils.h"
+ 
+-- 
+2.11.0
+

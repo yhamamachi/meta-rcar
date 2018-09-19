@@ -1,0 +1,47 @@
+From a05f00248f6d28d352dd850cae95cf76348496d0 Mon Sep 17 00:00:00 2001
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Date: Tue, 18 Sep 2018 23:28:51 +0300
+Subject: [PATCH 80/80] kmssink: comment out setting/getting video overlay
+ properties
+
+... since API is unsupported in 1.6.3
+
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+---
+ sys/kms/gstkmssink.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 0294133c3..709150b18 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1596,7 +1596,7 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
+       sink->can_scale = g_value_get_boolean (value);
+       break;
+     default:
+-      if (!gst_video_overlay_set_property (object, PROP_N, prop_id, value))
++//      if (!gst_video_overlay_set_property (object, PROP_N, prop_id, value))
+         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+   }
+@@ -1640,7 +1640,7 @@ gst_kms_sink_get_property (GObject * object, guint prop_id,
+       GST_OBJECT_UNLOCK (sink);
+       break;
+     default:
+-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++//      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+   }
+ }
+@@ -1797,7 +1797,7 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
+ 
+   g_object_class_install_properties (gobject_class, PROP_N, g_properties);
+ 
+-  gst_video_overlay_install_properties (gobject_class, PROP_N);
++//  gst_video_overlay_install_properties (gobject_class, PROP_N);
+ }
+ 
+ static gboolean
+-- 
+2.11.0
+

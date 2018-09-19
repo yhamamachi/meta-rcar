@@ -1,0 +1,68 @@
+From 8b02af451a0d0a6704062520caa06576436d84b4 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Wed, 19 Oct 2016 14:56:06 +0200
+Subject: [PATCH 38/80] kmssink: if the plane can not scale, retry without
+ scaling and remember
+
+Retry the drmModeSetPlane call without scaling if the first try fails,
+and remember not to scale anymore.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=781188
+---
+ sys/kms/gstkmssink.c | 12 ++++++++++--
+ sys/kms/gstkmssink.h |  1 +
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 8a9ff365d..3c5571e80 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -517,6 +517,8 @@ gst_kms_sink_start (GstBaseSink * bsink)
+   if (!get_drm_caps (self))
+     goto bail;
+ 
++  self->can_scale = TRUE;
++
+   res = drmModeGetResources (self->fd);
+   if (!res)
+     goto resources_failed;
+@@ -1261,7 +1263,8 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+   dst.w = self->hdisplay;
+   dst.h = self->vdisplay;
+ 
+-  gst_video_sink_center_rect (src, dst, &result, TRUE);
++retry_set_plane:
++  gst_video_sink_center_rect (src, dst, &result, self->can_scale);
+ 
+   if (crop) {
+     src.w = crop->width;
+@@ -1279,8 +1282,13 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+       result.x, result.y, result.w, result.h,
+       /* source/cropping coordinates are given in Q16 */
+       src.x << 16, src.y << 16, src.w << 16, src.h << 16);
+-  if (ret)
++  if (ret) {
++    if (self->can_scale) {
++      self->can_scale = FALSE;
++      goto retry_set_plane;
++    }
+     goto set_plane_failed;
++  }
+ 
+ sync_frame:
+   /* Wait for the previous frame to complete redraw */
+diff --git a/sys/kms/gstkmssink.h b/sys/kms/gstkmssink.h
+index 19e695d4d..214f3ad80 100644
+--- a/sys/kms/gstkmssink.h
++++ b/sys/kms/gstkmssink.h
+@@ -61,6 +61,7 @@ struct _GstKMSSink {
+   /* capabilities */
+   gboolean has_prime_import;
+   gboolean has_async_page_flip;
++  gboolean can_scale;
+ 
+   gboolean modesetting_enabled;
+ 
+-- 
+2.11.0
+

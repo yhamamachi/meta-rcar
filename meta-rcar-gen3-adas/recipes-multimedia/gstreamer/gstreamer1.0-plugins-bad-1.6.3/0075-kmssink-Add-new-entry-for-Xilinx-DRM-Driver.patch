@@ -1,0 +1,36 @@
+From a41c1af2a0d2fc8b9f4999dcd269343c750fcc40 Mon Sep 17 00:00:00 2001
+From: Devarsh Thakkar <devarsht@xilinx.com>
+Date: Wed, 18 Apr 2018 03:43:57 -0700
+Subject: [PATCH 75/80] kmssink: Add new entry for Xilinx DRM Driver
+
+This adds entry for new DRM driver from xilinx
+called "xlnx" which supports atomic modesetting.
+
+We have kept entry for older DRM driver "xilinx_drm"
+for backward compatility with a note describing
+deprecation.
+
+Signed-off-by: Devarsh Thakkar <devarsht@xilinx.com>
+
+https://bugzilla.gnome.org/show_bug.cgi?id=795228
+---
+ sys/kms/gstkmssink.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 4991ee302..88ef42ed4 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -168,7 +168,8 @@ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xilinx_drm", "vc4", "meson", "sun4i-drm",
++    "xlnx", "vc4", "meson", "sun4i-drm",
++    "xilinx_drm",               /* DEPRECATED. Replaced by xlnx */
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

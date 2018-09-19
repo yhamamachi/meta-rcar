@@ -1,0 +1,242 @@
+From 9a2e2b975df993260872e8ca138a61155d52ef2e Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Tue, 12 Sep 2017 10:36:51 -0400
+Subject: [PATCH 61/80] kmssink: Move the mem cache into the allocator
+
+No functional change, the cache will be later reused by the buffer
+pool to keep track of the kmssink memory when exporting dmabuf.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787593
+---
+ sys/kms/gstkmsallocator.c | 62 +++++++++++++++++++++++++++++++++++++++++++++
+ sys/kms/gstkmsallocator.h |  8 ++++++
+ sys/kms/gstkmssink.c      | 64 +++++------------------------------------------
+ sys/kms/gstkmssink.h      |  1 -
+ 4 files changed, 76 insertions(+), 59 deletions(-)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 31efce24f..4c6b0d9ae 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -56,6 +56,8 @@ struct kms_bo
+ struct _GstKMSAllocatorPrivate
+ {
+   int fd;
++  /* protected by GstKMSAllocator object lock */
++  GList *mem_cache;
+ };
+ 
+ #define parent_class gst_kms_allocator_parent_class
+@@ -293,6 +295,8 @@ gst_kms_allocator_finalize (GObject * obj)
+ 
+   alloc = GST_KMS_ALLOCATOR (obj);
+ 
++  gst_kms_allocator_clear_cache (GST_ALLOCATOR (alloc));
++
+   if (check_fd (alloc))
+     close (alloc->priv->fd);
+ 
+@@ -550,3 +554,61 @@ failed:
+     return NULL;
+   }
+ }
++
++/* FIXME, using gdata for caching on upstream memory is not tee safe */
++GstMemory *
++gst_kms_allocator_get_cached (GstMemory * mem)
++{
++  return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
++      g_quark_from_static_string ("kmsmem"));
++}
++
++static void
++cached_kmsmem_disposed_cb (GstKMSAllocator * alloc, GstMiniObject * obj)
++{
++  GST_OBJECT_LOCK (alloc);
++  alloc->priv->mem_cache = g_list_remove (alloc->priv->mem_cache, obj);
++  GST_OBJECT_UNLOCK (alloc);
++}
++
++void
++gst_kms_allocator_clear_cache (GstAllocator * allocator)
++{
++  GstKMSAllocator *alloc = GST_KMS_ALLOCATOR (allocator);
++  GList *iter;
++
++  GST_OBJECT_LOCK (alloc);
++
++  iter = alloc->priv->mem_cache;
++  while (iter) {
++    GstMiniObject *obj = iter->data;
++    gst_mini_object_weak_unref (obj,
++        (GstMiniObjectNotify) cached_kmsmem_disposed_cb, alloc);
++    gst_mini_object_set_qdata (obj,
++        g_quark_from_static_string ("kmsmem"), NULL, NULL);
++    iter = iter->next;
++  }
++
++  g_list_free (alloc->priv->mem_cache);
++  alloc->priv->mem_cache = NULL;
++
++  GST_OBJECT_UNLOCK (alloc);
++}
++
++/* @kmsmem is transfer-full */
++void
++gst_kms_allocator_cache (GstAllocator * allocator, GstMemory * mem,
++    GstMemory * kmsmem)
++{
++  GstKMSAllocator *alloc = GST_KMS_ALLOCATOR (allocator);
++
++  GST_OBJECT_LOCK (alloc);
++  gst_mini_object_weak_ref (GST_MINI_OBJECT (mem),
++      (GstMiniObjectNotify) cached_kmsmem_disposed_cb, alloc);
++  alloc->priv->mem_cache = g_list_prepend (alloc->priv->mem_cache, mem);
++  GST_OBJECT_UNLOCK (alloc);
++
++  gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
++      g_quark_from_static_string ("kmsmem"), kmsmem,
++      (GDestroyNotify) gst_memory_unref);
++}
+diff --git a/sys/kms/gstkmsallocator.h b/sys/kms/gstkmsallocator.h
+index 76d431200..d36e34951 100644
+--- a/sys/kms/gstkmsallocator.h
++++ b/sys/kms/gstkmsallocator.h
+@@ -86,6 +86,14 @@ GstKMSMemory* gst_kms_allocator_dmabuf_import (GstAllocator *allocator,
+ 					       gsize offsets[GST_VIDEO_MAX_PLANES],
+ 					       GstVideoInfo *vinfo);
+ 
++GstMemory *   gst_kms_allocator_get_cached  (GstMemory * mem);
++
++void          gst_kms_allocator_clear_cache (GstAllocator * allocator);
++
++void          gst_kms_allocator_cache       (GstAllocator * allocator,
++                                             GstMemory * mem,
++                                             GstMemory * kmsmem);
++
+ G_END_DECLS
+ 
+ 
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 0ece4f019..84e37c02d 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -493,58 +493,6 @@ ensure_allowed_caps (GstKMSSink * self, drmModeConnector * conn,
+   return (self->allowed_caps && !gst_caps_is_empty (self->allowed_caps));
+ }
+ 
+-static GstMemory *
+-get_cached_kmsmem (GstMemory * mem)
+-{
+-  return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
+-      g_quark_from_static_string ("kmsmem"));
+-}
+-
+-static void
+-cached_kmsmem_disposed_cb (GstKMSSink * self, GstMiniObject * obj)
+-{
+-  GST_OBJECT_LOCK (self);
+-  self->mem_cache = g_list_remove (self->mem_cache, obj);
+-  GST_OBJECT_UNLOCK (self);
+-}
+-
+-static void
+-clear_cached_kmsmem (GstKMSSink * self)
+-{
+-  GList *iter;
+-
+-  GST_OBJECT_LOCK (self);
+-
+-  iter = self->mem_cache;
+-  while (iter) {
+-    GstMiniObject *obj = iter->data;
+-    gst_mini_object_weak_unref (obj,
+-        (GstMiniObjectNotify) cached_kmsmem_disposed_cb, self);
+-    gst_mini_object_set_qdata (obj,
+-        g_quark_from_static_string ("kmsmem"), NULL, NULL);
+-    iter = iter->next;
+-  }
+-
+-  g_list_free (self->mem_cache);
+-  self->mem_cache = NULL;
+-
+-  GST_OBJECT_UNLOCK (self);
+-}
+-
+-static void
+-set_cached_kmsmem (GstKMSSink * self, GstMemory * mem, GstMemory * kmsmem)
+-{
+-  GST_OBJECT_LOCK (self);
+-  gst_mini_object_weak_ref (GST_MINI_OBJECT (mem),
+-      (GstMiniObjectNotify) cached_kmsmem_disposed_cb, self);
+-  self->mem_cache = g_list_prepend (self->mem_cache, mem);
+-  GST_OBJECT_UNLOCK (self);
+-
+-  return gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
+-      g_quark_from_static_string ("kmsmem"), kmsmem,
+-      (GDestroyNotify) gst_memory_unref);
+-}
+-
+ static gboolean
+ gst_kms_sink_start (GstBaseSink * bsink)
+ {
+@@ -735,7 +683,7 @@ gst_kms_sink_stop (GstBaseSink * bsink)
+ 
+   self = GST_KMS_SINK (bsink);
+ 
+-  clear_cached_kmsmem (self);
++  gst_kms_allocator_clear_cache (self->allocator);
+ 
+   gst_buffer_replace (&self->last_buffer, NULL);
+   gst_caps_replace (&self->allowed_caps, NULL);
+@@ -1153,7 +1101,7 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
+       return FALSE;
+   }
+ 
+-  kmsmem = (GstKMSMemory *) get_cached_kmsmem (mems[0]);
++  kmsmem = (GstKMSMemory *) gst_kms_allocator_get_cached (mems[0]);
+   if (kmsmem) {
+     GST_LOG_OBJECT (self, "found KMS mem %p in DMABuf mem %p with fb id = %d",
+         kmsmem, mems[0], kmsmem->fb_id);
+@@ -1166,14 +1114,14 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
+   GST_LOG_OBJECT (self, "found these prime ids: %d, %d, %d, %d", prime_fds[0],
+       prime_fds[1], prime_fds[2], prime_fds[3]);
+ 
+-  kmsmem = gst_kms_allocator_dmabuf_import (self->allocator, prime_fds,
+-      n_planes, mems_skip, &self->vinfo);
++  kmsmem = gst_kms_allocator_dmabuf_import (self->allocator,
++      prime_fds, n_planes, mems_skip, &self->vinfo);
+   if (!kmsmem)
+     return FALSE;
+ 
+   GST_LOG_OBJECT (self, "setting KMS mem %p to DMABuf mem %p with fb id = %d",
+       kmsmem, mems[0], kmsmem->fb_id);
+-  set_cached_kmsmem (self, mems[0], GST_MEMORY_CAST (kmsmem));
++  gst_kms_allocator_cache (self->allocator, mems[0], GST_MEMORY_CAST (kmsmem));
+ 
+ wrap_mem:
+   *outbuf = gst_buffer_new ();
+@@ -1402,7 +1350,7 @@ gst_kms_sink_drain (GstKMSSink * self)
+   if (parent_meta) {
+     GstBuffer *dumb_buf;
+     dumb_buf = gst_kms_sink_copy_to_dumb_buffer (self, parent_meta->buffer);
+-    clear_cached_kmsmem (self);
++    gst_kms_allocator_clear_cache (self->allocator);
+     gst_kms_sink_show_frame (GST_VIDEO_SINK (self), dumb_buf);
+     gst_buffer_unref (dumb_buf);
+   }
+diff --git a/sys/kms/gstkmssink.h b/sys/kms/gstkmssink.h
+index 7c7e32d62..68a017889 100644
+--- a/sys/kms/gstkmssink.h
++++ b/sys/kms/gstkmssink.h
+@@ -72,7 +72,6 @@ struct _GstKMSSink {
+   GstAllocator *allocator;
+   GstBuffer *last_buffer;
+   GstMemory *tmp_kmsmem;
+-  GList *mem_cache;
+ 
+   gchar *devname;
+   gchar *bus_id;
+-- 
+2.11.0
+

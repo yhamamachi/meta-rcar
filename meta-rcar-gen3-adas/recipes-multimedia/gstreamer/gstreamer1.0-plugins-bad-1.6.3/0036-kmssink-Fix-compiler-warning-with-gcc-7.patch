@@ -1,0 +1,32 @@
+From 70fceae654b140525767fd1100a7ecf50d6ee62f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Wed, 22 Mar 2017 17:38:20 +0200
+Subject: [PATCH 36/80] kmssink: Fix compiler warning with gcc 7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+gstkmssink.c: In function ‘gst_kms_sink_get_input_buffer’:
+gstkmssink.c:1102:29: error: ‘mems[0]’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+   kmsmem = (GstKMSMemory *) get_cached_kmsmem (mems[0]);
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+---
+ sys/kms/gstkmssink.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 8ddb6e104..82bb6391c 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1067,6 +1067,7 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
+   /* We cannot have multiple dmabuf per plane */
+   if (n_mem > n_planes)
+     return FALSE;
++  g_assert (n_planes != 0);
+ 
+   /* Update video info based on video meta */
+   if (meta) {
+-- 
+2.11.0
+

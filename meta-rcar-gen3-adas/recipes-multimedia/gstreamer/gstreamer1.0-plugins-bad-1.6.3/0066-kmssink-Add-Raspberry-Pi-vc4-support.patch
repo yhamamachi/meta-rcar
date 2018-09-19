@@ -1,0 +1,25 @@
+From 170fdbc73aafdc07cb94e67c0b0f27623807c92e Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Tue, 21 Nov 2017 12:03:38 -0500
+Subject: [PATCH 66/80] kmssink: Add Raspberry Pi (vc4) support
+
+---
+ sys/kms/gstkmssink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index e5b9398df..9415f53da 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -89,7 +89,7 @@ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xilinx_drm",
++    "xilinx_drm", "vc4",
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

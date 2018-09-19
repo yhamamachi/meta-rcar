@@ -1,0 +1,25 @@
+From 6fe2eb137904b3dd754c08cec3b82d12265c0294 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Wed, 9 Aug 2017 14:59:19 -0400
+Subject: [PATCH 52/80] kmssink: Free devname before setting it
+
+This avoids leaking the devname if the property is set twice.
+---
+ sys/kms/gstkmssink.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index bf92e6d9e..a7789e2e0 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1433,6 +1433,7 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
+ 
+   switch (prop_id) {
+     case PROP_DRIVER_NAME:
++      g_free (sink->devname);
+       sink->devname = g_value_dup_string (value);
+       break;
+     case PROP_CONNECTOR_ID:
+-- 
+2.11.0
+

@@ -1,0 +1,37 @@
+From 434c6db14481280c215ff6cb417fed858eba346c Mon Sep 17 00:00:00 2001
+From: Thibault Saunier <thibault.saunier@osg.samsung.com>
+Date: Wed, 8 Mar 2017 15:01:13 -0300
+Subject: [PATCH 37/80] docs: Port all docstring to gtk-doc markdown
+
+---
+ sys/kms/gstkmssink.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 82bb6391c..8a9ff365d 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -25,17 +25,17 @@
+ 
+ /**
+  * SECTION:element-kmssink
++ * @title: kmssink
+  * @short_description: A KMS/DRM based video sink
+  *
+  * kmssink is a simple video sink that renders video frames directly
+  * in a plane of a DRM device.
+  *
+- * <refsect2>
+- * <title>Example launch line</title>
++ * ## Example launch line
+  * |[
+  * gst-launch-1.0 videotestsrc ! kmssink
+  * ]|
+- * </refsect2>
++ *
+  */
+ 
+ #ifdef HAVE_CONFIG_H
+-- 
+2.11.0
+

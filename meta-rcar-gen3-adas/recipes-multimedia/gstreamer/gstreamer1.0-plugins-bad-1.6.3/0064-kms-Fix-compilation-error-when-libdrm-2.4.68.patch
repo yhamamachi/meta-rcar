@@ -1,0 +1,44 @@
+From 93b8997ca8809f7c2b697ad851d869ffbe97d329 Mon Sep 17 00:00:00 2001
+From: "U. Artie Eoff" <ullysses.a.eoff@intel.com>
+Date: Thu, 5 Oct 2017 17:28:30 -0700
+Subject: [PATCH 64/80] kms: Fix compilation error when libdrm < 2.4.68
+
+DRM_RDWR was not defined until libdrm 2.4.68.  However,
+in configure.ac we only require libdrm >= 2.4.55.
+
+Seems silly to to bump minimum libdrm version for a simple
+define.  Thus, define DRM_RDWR if it's not defined.
+
+This fixes compilation error introduced in:
+
+commit 922031b0f98bf5c7b01f4431d1c08617f65865f7
+Author: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date:   Tue Sep 12 12:07:13 2017 -0400
+
+    kms: Export DMABuf from Dumb buffer when possible
+
+    https://bugzilla.gnome.org/show_bug.cgi?id=787593
+
+Signed-off-by: U. Artie Eoff <ullysses.a.eoff@intel.com>
+---
+ sys/kms/gstkmsallocator.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 4118e17f1..17e851d32 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -43,6 +43,10 @@
+ #include "gstkmsallocator.h"
+ #include "gstkmsutils.h"
+ 
++#ifndef DRM_RDWR
++#define DRM_RDWR O_RDWR
++#endif
++
+ #define GST_CAT_DEFAULT kmsallocator_debug
+ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+ 
+-- 
+2.11.0
+

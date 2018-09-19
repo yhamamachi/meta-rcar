@@ -1,0 +1,31 @@
+From 6840491bb5b250f8d572e1664942d6b57e71e982 Mon Sep 17 00:00:00 2001
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Date: Fri, 30 Mar 2018 13:47:00 +0200
+Subject: [PATCH 74/80] kmssink: Add support for the Allwinner DRM driver
+ (sun4i-drm)
+
+This adds the sun4i DRM driver to the list of DRM drivers in kmssink.
+The driver allows displaying video in either the main plane or an
+overlay plane.
+
+https://bugzilla.gnome.org/attachment.cgi?bugid=794839
+---
+ sys/kms/gstkmssink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 1b5f18df2..4991ee302 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -168,7 +168,7 @@ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xilinx_drm", "vc4", "meson",
++    "xilinx_drm", "vc4", "meson", "sun4i-drm",
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

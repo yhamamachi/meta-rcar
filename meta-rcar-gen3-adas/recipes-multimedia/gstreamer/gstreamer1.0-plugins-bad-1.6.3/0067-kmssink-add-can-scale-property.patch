@@ -1,0 +1,79 @@
+From aae3df447e7da7895571a1b1ea2c930fc2e7de6e Mon Sep 17 00:00:00 2001
+From: Haihua Hu <jared.hu@nxp.com>
+Date: Tue, 12 Sep 2017 15:46:01 +0800
+Subject: [PATCH 67/80] kmssink: add can-scale property
+
+https://bugzilla.gnome.org/show_bug.cgi?id=784599
+---
+ sys/kms/gstkmssink.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 9415f53da..d3c1533c0 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -79,6 +79,7 @@ enum
+   PROP_CONNECTOR_ID,
+   PROP_PLANE_ID,
+   PROP_FORCE_MODESETTING,
++  PROP_CAN_SCALE,
+   PROP_N
+ };
+ 
+@@ -525,8 +526,6 @@ gst_kms_sink_start (GstBaseSink * bsink)
+   if (!get_drm_caps (self))
+     goto bail;
+ 
+-  self->can_scale = TRUE;
+-
+   res = drmModeGetResources (self->fd);
+   if (!res)
+     goto resources_failed;
+@@ -1410,6 +1409,9 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
+     case PROP_FORCE_MODESETTING:
+       sink->modesetting_enabled = g_value_get_boolean (value);
+       break;
++    case PROP_CAN_SCALE:
++      sink->can_scale = g_value_get_boolean (value);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -1440,6 +1442,9 @@ gst_kms_sink_get_property (GObject * object, guint prop_id,
+     case PROP_FORCE_MODESETTING:
+       g_value_set_boolean (value, sink->modesetting_enabled);
+       break;
++    case PROP_CAN_SCALE:
++      g_value_set_boolean (value, sink->can_scale);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -1465,6 +1470,7 @@ gst_kms_sink_init (GstKMSSink * sink)
+   sink->fd = -1;
+   sink->conn_id = -1;
+   sink->plane_id = -1;
++  sink->can_scale = TRUE;
+   gst_poll_fd_init (&sink->pollfd);
+   sink->poll = gst_poll_new (TRUE);
+   gst_video_info_init (&sink->vinfo);
+@@ -1561,6 +1567,16 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
+       "When enabled, the sink try to configure the display mode", FALSE,
+       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
+ 
++  /**
++   * kmssink:can-scale:
++   *
++   * User can tell kmssink if the driver can support scale.
++   */
++  g_properties[PROP_CAN_SCALE] =
++      g_param_spec_boolean ("can-scale", "can scale",
++      "User can tell kmssink if the driver can support scale", TRUE,
++      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
++
+   g_object_class_install_properties (gobject_class, PROP_N, g_properties);
+ }
+ 
+-- 
+2.11.0
+

@@ -1,0 +1,27 @@
+From 16f09483eac78ef92b87844b77a76b6a21cabb23 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Fri, 21 Apr 2017 21:29:05 -0400
+Subject: [PATCH 39/80] kmssink: Add msm to the list of drivers
+
+This prevent having to set the driver-name explicitly when running on
+Qualcomm/MSM boards.
+---
+ sys/kms/gstkmssink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 3c5571e80..d19e19eeb 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -85,7 +85,7 @@ static int
+ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+-    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc"
++    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

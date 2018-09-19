@@ -1,0 +1,31 @@
+From cf5ee6fbad26598e0187f250c4132692348b6cd5 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Fri, 6 Oct 2017 15:07:58 -0400
+Subject: [PATCH 65/80] kmssink: Fix crash on NULL dmabuf allocator pointer
+
+Now that we are doing lazy allocation, we may endup calling _stop()
+before the allocator was created. As a side effect, we need to nul-check
+the pointer before calling it's method (_clear_cache()).
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787593
+---
+ sys/kms/gstkmssink.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 8c19f796e..e5b9398df 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -683,7 +683,8 @@ gst_kms_sink_stop (GstBaseSink * bsink)
+ 
+   self = GST_KMS_SINK (bsink);
+ 
+-  gst_kms_allocator_clear_cache (self->allocator);
++  if (self->allocator)
++    gst_kms_allocator_clear_cache (self->allocator);
+ 
+   gst_buffer_replace (&self->last_buffer, NULL);
+   gst_caps_replace (&self->allowed_caps, NULL);
+-- 
+2.11.0
+

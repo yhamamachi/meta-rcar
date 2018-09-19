@@ -1,0 +1,33 @@
+From 2292ee1d253e9ab18a4e5507a88890c6fb8e7e49 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Mon, 11 Sep 2017 16:32:15 -0400
+Subject: [PATCH 59/80] kmsbufferpool: Removed unused member fd
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787593
+---
+ sys/kms/gstkmsbufferpool.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/sys/kms/gstkmsbufferpool.c b/sys/kms/gstkmsbufferpool.c
+index a9deb23e5..bb9bae3ef 100644
+--- a/sys/kms/gstkmsbufferpool.c
++++ b/sys/kms/gstkmsbufferpool.c
+@@ -37,7 +37,6 @@ GST_DEBUG_CATEGORY_STATIC (gst_kms_buffer_pool_debug);
+ 
+ struct _GstKMSBufferPoolPrivate
+ {
+-  gint fd;
+   GstVideoInfo vinfo;
+   GstAllocator *allocator;
+   gboolean add_videometa;
+@@ -184,7 +183,6 @@ static void
+ gst_kms_buffer_pool_init (GstKMSBufferPool * pool)
+ {
+   pool->priv = gst_kms_buffer_pool_get_instance_private (pool);
+-  pool->priv->fd = -1;
+ }
+ 
+ static void
+-- 
+2.11.0
+

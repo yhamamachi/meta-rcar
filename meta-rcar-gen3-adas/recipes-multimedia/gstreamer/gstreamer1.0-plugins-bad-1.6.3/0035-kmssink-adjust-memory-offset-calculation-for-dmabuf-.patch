@@ -1,0 +1,32 @@
+From 338f8cf833d9e46b6339f4d259f03e7ab44d15cb Mon Sep 17 00:00:00 2001
+From: George Kiagiadakis <george.kiagiadakis@collabora.com>
+Date: Mon, 13 Mar 2017 16:06:53 +0200
+Subject: [PATCH 35/80] kmssink: adjust memory offset calculation for dmabuf
+ buffers
+
+The data in the dmabuf fd may not start from byte 0, therefore
+we need to inform DRM about this additional offset.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=779790
+---
+ sys/kms/gstkmssink.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 2f05c633d..8ddb6e104 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1090,6 +1090,10 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
+ 
+     mems[i] = gst_buffer_peek_memory (inbuf, mems_idx[i]);
+ 
++    /* adjust for memory offset, in case data does not
++     * start from byte 0 in the dmabuf fd */
++    mems_skip[i] += mems[i]->offset;
++
+     /* And all memory found must be dmabuf */
+     if (!gst_is_dmabuf_memory (mems[i]))
+       return FALSE;
+-- 
+2.11.0
+

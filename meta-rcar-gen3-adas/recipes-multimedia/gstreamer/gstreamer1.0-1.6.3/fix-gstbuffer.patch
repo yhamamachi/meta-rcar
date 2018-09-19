@@ -1,0 +1,32 @@
+commit c1f2775dcbea37e26f541fbf99d39ab16e8da63b
+Author: Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+Date:   Fri Mar 4 18:23:18 2016 +0100
+
+    gstbuffer: fix GstParentBufferMeta GType name
+    
+    The alias define GST_TYPE_PARENT_BUFFER_META_API_TYPE is wrong and
+    breaks the usage of gst_buffer_get_parent_buffer_meta().
+    
+    This patch fixes the GType alias and make another alias to keep the API
+    compatibility guarded by GST_DISABLE_DEPRECATED.
+    
+    Also added a unit test.
+    
+    https://bugzilla.gnome.org/show_bug.cgi?id=763112
+
+diff --git a/gst/gstbuffer.h b/gst/gstbuffer.h
+index da9a033d9..4d724710f 100644
+--- a/gst/gstbuffer.h
++++ b/gst/gstbuffer.h
+@@ -597,7 +597,10 @@ struct _GstParentBufferMeta
+ };
+ 
+ GType gst_parent_buffer_meta_api_get_type (void);
+-#define GST_TYPE_PARENT_BUFFER_META_API_TYPE (gst_parent_buffer_meta_api_get_type())
++#ifndef GST_DISABLE_DEPRECATED
++#define GST_TYPE_PARENT_BUFFER_META_API_TYPE GST_PARENT_BUFFER_META_API_TYPE
++#endif
++#define GST_PARENT_BUFFER_META_API_TYPE (gst_parent_buffer_meta_api_get_type())
+ 
+ /**
+  * gst_buffer_get_parent_buffer_meta:

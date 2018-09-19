@@ -1,0 +1,32 @@
+From a5387d958fc25317eb04ff896548d48ca2b6150d Mon Sep 17 00:00:00 2001
+From: Gary Bisson <gary.bisson@boundarydevices.com>
+Date: Wed, 25 Jul 2018 13:44:48 +0200
+Subject: [PATCH 77/80] kmssink: Add support for mxsfb-drm driver
+
+The mxsfb-drm driver has been added to the kernel long ago and will now
+be the default display driver for NXP i.MX28, i.MX6SX and i.MX7D
+processors so now is a good time to add it to kmssink.
+
+Also, this is used in the upcoming i.MX8MQ and i.MX8MM processors.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=796873
+---
+ sys/kms/gstkmssink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 88ef42ed4..1331883ce 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -168,7 +168,7 @@ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xlnx", "vc4", "meson", "sun4i-drm",
++    "xlnx", "vc4", "meson", "sun4i-drm", "mxsfb-drm",
+     "xilinx_drm",               /* DEPRECATED. Replaced by xlnx */
+   };
+   int i, fd = -1;
+-- 
+2.11.0
+

@@ -1,0 +1,205 @@
+From 44c32ff28f0626a6b4f0fd32195ce4ddeed37c2e Mon Sep 17 00:00:00 2001
+From: Michael Tretter <m.tretter@pengutronix.de>
+Date: Fri, 14 Oct 2016 16:03:08 +0200
+Subject: [PATCH 28/80] kmssink: add mode setting and base plane rendering
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The kmssink assumed that the mode was already set by another application
+and used an overlay plane for displaying the frames.
+
+Use the preferred mode of the monitor and render to the base plane if
+the crtc does not have a valid mode.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=773473
+
+Signed-off-by: Víctor Manuel Jáquez Leal <vjaquez@igalia.com>
+---
+ sys/kms/gstkmssink.c | 93 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ sys/kms/gstkmssink.h |  2 ++
+ 2 files changed, 94 insertions(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 523de7e50..548a08893 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -137,6 +137,7 @@ find_crtc_for_connector (int fd, drmModeRes * res, drmModeConnector * conn,
+   int crtc_id;
+   drmModeEncoder *enc;
+   drmModeCrtc *crtc;
++  guint32 crtcs_for_connector = 0;
+ 
+   crtc_id = -1;
+   for (i = 0; i < res->count_encoders; i++) {
+@@ -151,6 +152,18 @@ find_crtc_for_connector (int fd, drmModeRes * res, drmModeConnector * conn,
+     }
+   }
+ 
++  /* If no active crtc was found, pick the first possible crtc */
++  if (crtc_id == -1) {
++    for (i = 0; i < conn->count_encoders; i++) {
++      enc = drmModeGetEncoder (fd, conn->encoders[i]);
++      crtcs_for_connector |= enc->possible_crtcs;
++      drmModeFreeEncoder (enc);
++    }
++
++    if (crtcs_for_connector != 0)
++      crtc_id = res->crtcs[ffs (crtcs_for_connector) - 1];
++  }
++
+   if (crtc_id == -1)
+     return NULL;
+ 
+@@ -241,6 +254,10 @@ find_main_monitor (int fd, drmModeRes * res)
+   if (!conn)
+     conn = find_first_used_connector (fd, res);
+ 
++  /* if no connector is used, grab the first one */
++  if (!conn)
++    conn = drmModeGetConnector (fd, res->connectors[0]);
++
+   return conn;
+ }
+ 
+@@ -303,6 +320,51 @@ get_drm_caps (GstKMSSink * self)
+ }
+ 
+ static gboolean
++configure_mode_setting (GstKMSSink * self, guint32 fb_id)
++{
++  gboolean ret;
++  drmModeConnector *conn;
++  int err;
++
++  ret = FALSE;
++  conn = NULL;
++
++  if (self->conn_id < 0)
++    goto bail;
++
++  GST_INFO_OBJECT (self, "configuring mode setting");
++
++  conn = drmModeGetConnector (self->fd, self->conn_id);
++  if (!conn)
++    goto connector_failed;
++
++  err = drmModeSetCrtc (self->fd, self->crtc_id, fb_id, 0, 0,
++      (uint32_t *) & self->conn_id, 1, &conn->modes[0]);
++  if (err)
++    goto modesetting_failed;
++
++  ret = TRUE;
++
++bail:
++  if (conn)
++    drmModeFreeConnector (conn);
++
++  return ret;
++
++  /* ERRORS */
++connector_failed:
++  {
++    GST_ERROR_OBJECT (self, "Could not find a valid monitor connector");
++    goto bail;
++  }
++modesetting_failed:
++  {
++    GST_ERROR_OBJECT (self, "Failed to set mode: %s", strerror (errno));
++    goto bail;
++  }
++}
++
++static gboolean
+ ensure_allowed_caps (GstKMSSink * self, drmModePlane * plane, drmModeRes * res)
+ {
+   GstCaps *out_caps, *caps;
+@@ -391,6 +453,12 @@ gst_kms_sink_start (GstBaseSink * bsink)
+   if (!crtc)
+     goto crtc_failed;
+ 
++  if (!crtc->mode_valid) {
++    GST_DEBUG_OBJECT (self, "crtc has no valid mode: enabling modesetting");
++    self->modesetting_enabled = TRUE;
++    universal_planes = TRUE;
++  }
++
+ retry_find_plane:
+   if (universal_planes &&
+       drmSetClientCap (self->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1))
+@@ -807,7 +875,7 @@ gst_kms_sink_sync (GstKMSSink * self)
+     vbl.request.type |= self->pipe << DRM_VBLANK_HIGH_CRTC_SHIFT;
+ 
+   waiting = TRUE;
+-  if (!self->has_async_page_flip) {
++  if (!self->has_async_page_flip && !self->modesetting_enabled) {
+     ret = drmWaitVBlank (self->fd, &vbl);
+     if (ret)
+       goto vblank_failed;
+@@ -1038,6 +1106,7 @@ error_map_src_buffer:
+ static GstFlowReturn
+ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+ {
++  static gboolean setup = FALSE;
+   gint ret;
+   GstBuffer *buffer;
+   guint32 fb_id;
+@@ -1061,6 +1130,22 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+ 
+   GST_TRACE_OBJECT (self, "displaying fb %d", fb_id);
+ 
++  if (self->modesetting_enabled) {
++    /* Use the current buffer object for configuring the mode, if the mode is
++     * not configured. Preferably the display mode should be set when
++     * configuring the pipeline (during set_caps), but we do not have a buffer
++     * object at that time. */
++    if (!setup) {
++      ret = configure_mode_setting (self, fb_id);
++      if (!ret)
++        goto modesetting_failed;
++      setup = TRUE;
++    }
++
++    self->buffer_id = fb_id;
++    goto sync_frame;
++  }
++
+   if ((crop = gst_buffer_get_video_crop_meta (buffer))) {
+     GstVideoInfo vinfo = self->vinfo;
+     vinfo.width = crop->width;
+@@ -1100,6 +1185,7 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+   if (ret)
+     goto set_plane_failed;
+ 
++sync_frame:
+   /* Wait for the previous frame to complete redraw */
+   if (!gst_kms_sink_sync (self))
+     goto bail;
+@@ -1118,6 +1204,11 @@ buffer_invalid:
+     GST_ERROR_OBJECT (self, "invalid buffer: it doesn't have a fb id");
+     goto bail;
+   }
++modesetting_failed:
++  {
++    GST_ERROR_OBJECT (self, "failed to configure display mode");
++    goto bail;
++  }
+ set_plane_failed:
+   {
+     GST_DEBUG_OBJECT (self, "result = { %d, %d, %d, %d} / "
+diff --git a/sys/kms/gstkmssink.h b/sys/kms/gstkmssink.h
+index 494f4409c..2d6855076 100644
+--- a/sys/kms/gstkmssink.h
++++ b/sys/kms/gstkmssink.h
+@@ -62,6 +62,8 @@ struct _GstKMSSink {
+   gboolean has_prime_import;
+   gboolean has_async_page_flip;
+ 
++  gboolean modesetting_enabled;
++
+   GstVideoInfo vinfo;
+   GstCaps *allowed_caps;
+   GstBufferPool *pool;
+-- 
+2.11.0
+
