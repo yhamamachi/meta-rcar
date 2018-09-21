@@ -122,11 +122,13 @@ SRC_URI_append = " \
     file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
     file://v3h-vb/0003-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch \
     file://v3h-vb/0004-arm64-renesas-r8a7798-use-CSI-4-lanes.patch \
+    file://v3h-vb/0005-arm64-renesas-r8a7798-use-CSI-separation-from-deseri.patch \
     file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
     file://lvds/0002-LVDS-update-AR0233-AR0143-GW4200.patch \
     file://lvds/0003-LVDS-update-AR0233-IMX390-TI9X4.patch \
     file://lvds/0004-TI9x4-duplicate-stream-to-both-CSI.patch \
     file://lvds/0005-TI9x4-toggle-PDB-on-probe.patch \
+    file://lvds/0006-LVDS-TI9x4-double-CSI-AR0233-new-blanking.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

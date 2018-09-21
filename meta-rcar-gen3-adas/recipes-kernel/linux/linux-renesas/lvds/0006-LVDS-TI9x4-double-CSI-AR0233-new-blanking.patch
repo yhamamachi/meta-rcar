@@ -1,0 +1,247 @@
+From 647dcf28f9bf319fa50c801bad4baca066c5dc8d Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 21 Sep 2018 11:05:20 +0300
+Subject: [PATCH] LVDS: TI9x4 double CSI, AR0233 new blanking
+
+1) TI9X4: Add double CSI
+2) AR0233: change timings
+3) RCAR_CSI2: add dump module param
+---
+ drivers/media/i2c/soc_camera/ar0143.c         |  1 -
+ drivers/media/i2c/soc_camera/ar0233.h         |  7 +++-
+ drivers/media/i2c/soc_camera/imx390.h         |  3 +-
+ drivers/media/i2c/soc_camera/ti9x4.c          | 52 ++++++++++++++++++++-------
+ drivers/media/platform/soc_camera/rcar_csi2.c | 16 ++++-----
+ 5 files changed, 55 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+index 5da1271..5af6764 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.c
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -142,7 +142,6 @@ static int ar0143_set_fmt(struct v4l2_subdev *sd,
+ 			 struct v4l2_subdev_format *format)
+ {
+ 	struct v4l2_mbus_framefmt *mf = &format->format;
+-	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 
+ 	mf->code = AR0143_MEDIA_BUS_FMT;
+ 	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
+diff --git a/drivers/media/i2c/soc_camera/ar0233.h b/drivers/media/i2c/soc_camera/ar0233.h
+index 4269663..f88e5a3 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.h
++++ b/drivers/media/i2c/soc_camera/ar0233.h
+@@ -23,7 +23,7 @@
+ #define AR0233_X_START		((AR0233_SENSOR_WIDTH - AR0233_MAX_WIDTH) / 2)
+ #define AR0233_Y_START		((AR0233_SENSOR_HEIGHT - AR0233_MAX_HEIGHT) / 2)
+ #define AR0233_X_END		(AR0233_X_START + AR0233_MAX_WIDTH - 1)
+-#define AR0233_Y_END		(AR0233_Y_START + AR0233_MAX_HEIGHT + 1) /* must be +1 and not -1 or 2 lines missed - bug in imager? */
++#define AR0233_Y_END		(AR0233_Y_START + AR0233_MAX_HEIGHT - 1)
+ 
+ struct ar0233_reg {
+ 	u16	reg;
+@@ -351,8 +351,13 @@ struct ar0233_reg {
+ #endif
+ {AR0233_DELAY, 100}, // Wait 100ms
+ 
++#if 0
+ {0x300A, AR0233_SENSOR_HEIGHT + 356}, // FRAME_LENGTH_LINES_
+ {0x300C, AR0233_SENSOR_WIDTH + 100}, // LINE_LENGTH_PCK_
++#else
++{0x300A, AR0233_SENSOR_HEIGHT + 208}, // FRAME_LENGTH_LINES_
++{0x300C, AR0233_SENSOR_WIDTH + 300}, // LINE_LENGTH_PCK_
++#endif
+ {0x3042, 0x0000},
+ {0x3238, 0x0222},
+ {0x3012, 0x0144},
+diff --git a/drivers/media/i2c/soc_camera/imx390.h b/drivers/media/i2c/soc_camera/imx390.h
+index 4217cd9..a7189e8 100644
+--- a/drivers/media/i2c/soc_camera/imx390.h
++++ b/drivers/media/i2c/soc_camera/imx390.h
+@@ -80,7 +80,8 @@ struct imx390_reg {
+ {0x00F5, 0xF8},
+ {0x00F6, 0x01},
+ {0x00F8, 0x03},
+-{0x00F9, 0x00},
++{0x00F9, 0x00}, // non-HDR
++//{0x00F9, 0x01}, // HDR
+ {0x00FA, 0x00},
+ {0x00FB, 0x00},
+ {0x0114, 0x00},
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index f70aad0..410d69e 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -43,6 +43,7 @@ struct ti9x4_priv {
+ 	char			chip_id[6];
+ 	int			ser_id;
+ 	int			vc_map;
++	int			csi_map;
+ 	struct gpio_desc	*pwen; /* chip power en */
+ 	struct gpio_desc	*poc_gpio[4]; /* PoC power supply */
+ 	struct v4l2_clk		*ref_clk; /* ref clock */
+@@ -72,9 +73,13 @@ struct ti9x4_priv {
+ module_param(poc_delay, int, 0644);
+ MODULE_PARM_DESC(poc_delay, " Delay in ms after POC enable (default: 0 ms)");
+ 
+-static int vc_map = 1;
++static int vc_map = 0x3210;
+ module_param(vc_map, int, 0644);
+-MODULE_PARM_DESC(vc_map, " CSI VC MAP (default: 1 - corresponds to number of streams per link)");
++MODULE_PARM_DESC(vc_map, " CSI VC MAP (default: 0xe4 - linear map VCx=LINKx)");
++
++static int csi_map = 0;
++module_param(csi_map, int, 0644);
++MODULE_PARM_DESC(csi_map, " CSI TX MAP (default: 0 - forwarding of all links to CSI0)");
+ 
+ #ifdef TI954_SILICON_ERRATA
+ static int indirect_write(struct i2c_client *client, unsigned int page, u8 reg, u8 val)
+@@ -147,14 +152,14 @@ static void ti9x4_initial_setup(struct i2c_client *client)
+ 	}
+ 
+ 	if (strcmp(priv->forwarding_mode, "round-robin") == 0) {
+-		reg8_write(client, 0x21, 0x80 | 0x01);			/* Round Robin forwarding enable */
++		reg8_write(client, 0x21, 0x03);			/* Round Robin forwarding enable for CSI0/CSI1 */
+ 	} else if (strcmp(priv->forwarding_mode, "synchronized") == 0) {
+-		reg8_write(client, 0x21, 0x80 | 0x44);			/* Basic Syncronized forwarding enable (FrameSync must be enabled!!) */
++		reg8_write(client, 0x21, 0x54);			/* Basic Syncronized forwarding enable (FrameSync must be enabled!!) for CSI0/CSI1 */
+ 	}
+ 
+-	reg8_write(client, 0x32, 0x01);				/* Select TX (CSI) port 0 */
++	reg8_write(client, 0x32, 0x03);				/* Select TX for CSI0/CSI1, RX for CSI0 */
+ 	reg8_write(client, 0x33, ((priv->lanes - 1) ^ 0x3) << 4); /* disable CSI output, set CSI lane count, non-continuous CSI mode */
+-	reg8_write(client, 0x20, 0xf0);				/* disable port forwarding */
++	reg8_write(client, 0x20, 0xf0 | priv->csi_map);		/* disable port forwarding */
+ #if 0
+ 	/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/2/FPS*25MHz  =1/2/30*25Mhz  =416666 -> FS_TIME=416666 */
+ 	/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/2/FPS*22.5Mhz=1/2/30*22.5Mhz=375000 -> FS_TIME=375000 */
+@@ -234,11 +239,11 @@ static void ti9x4_fpdlink3_setup(struct i2c_client *client, int idx)
+ 
+ 	reg8_write(client, 0x6d, port_config);
+ 	reg8_write(client, 0x7c, port_config2);
+-	reg8_write(client, 0x70, (idx << 6) | 0x1e);		/* CSI data type: yuv422 8-bit, assign VC */
+-	reg8_write(client, 0x71, (idx << 6) | 0x2c);		/* CSI data type: RAW12, assign VC */
++	reg8_write(client, 0x70, ((priv->vc_map >> (idx * 4)) << 6) | 0x1e); /* CSI data type: yuv422 8-bit, assign VC */
++	reg8_write(client, 0x71, ((priv->vc_map >> (idx * 4)) << 6) | 0x2c); /* CSI data type: RAW12, assign VC */
+ 	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
+ 	reg8_write(client, 0x6e, 0x88);				/* Sensor reset: backchannel GPIO0/GPIO1 set low */
+-	reg8_write(client, 0x72, 0xe4e4 >> (priv->vc_map * idx * 2)); /* CSI VC MAP */
++	reg8_write(client, 0x72, priv->vc_map >> (idx * 4));	/* CSI VC MAP */
+ }
+ 
+ static int ti9x4_initialize(struct i2c_client *client)
+@@ -301,10 +306,10 @@ static int ti9x4_s_power(struct v4l2_subdev *sd, int on)
+ 
+ 	if (on) {
+ 		if (atomic_inc_return(&priv->use_count) == 1)
+-			reg8_write(client, 0x20, 0x00);		/* enable port forwarding to CSI */
++			reg8_write(client, 0x20, 0x00 | priv->csi_map); /* enable port forwarding to CSI */
+ 	} else {
+ 		if (atomic_dec_return(&priv->use_count) == 0)
+-			reg8_write(client, 0x20, 0xf0);		/* disable port forwarding to CSI */
++			reg8_write(client, 0x20, 0xf0 | priv->csi_map); /* disable port forwarding to CSI */
+ 	}
+ 
+ 	return 0;
+@@ -406,7 +411,26 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 	if (of_property_read_u32(np, "ti,poc-delay", &priv->poc_delay))
+ 		priv->poc_delay = 50;
+ 	if (of_property_read_u32(np, "ti,vc-map", &priv->vc_map))
+-		priv->vc_map = 1;
++		priv->vc_map = 0x3210;
++
++	/*
++	 * CSI forwarding of all links is to CSI0 by default.
++	 * Decide if any link will be forwarded to CSI1 instead CSI0
++	 */
++	prop = of_find_property(np, "ti,csi1-links", NULL);
++	if (prop) {
++		const __be32 *link = NULL;
++		u32 v;
++
++		for (i = 0; i < 4; i++) {
++			link = of_prop_next_u32(prop, link, &v);
++			if (!link)
++				break;
++			priv->csi_map |= BIT(v);
++		}
++	} else {
++		priv->csi_map = 0;
++	}
+ 
+ 	/* module params override dts */
+ 	if (is_stp)
+@@ -421,8 +445,10 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		priv->ser_id = ser_id;
+ 	if (poc_delay)
+ 		priv->poc_delay = poc_delay;
+-	if (vc_map != 1)
++	if (vc_map != 0x3210)
+ 		priv->vc_map = vc_map;
++	if (csi_map)
++		priv->csi_map = csi_map;
+ 
+ 	for (i = 0; ; i++) {
+ 		endpoint = of_graph_get_next_endpoint(np, endpoint);
+diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
+index 20ffba1..2e58ac1 100644
+--- a/drivers/media/platform/soc_camera/rcar_csi2.c
++++ b/drivers/media/platform/soc_camera/rcar_csi2.c
+@@ -37,8 +37,6 @@
+ 
+ #include <media/v4l2-of.h>
+ 
+-//#define RCAR_CSI2_DUMP
+-
+ #define DRV_NAME "rcar_csi2"
+ #define VC_MAX_CHANNEL		4
+ 
+@@ -229,6 +227,10 @@ struct rcar_csi2 {
+ 	atomic_t			use_count;
+ };
+ 
++static int dump = 0;
++module_param(dump, int, 0644);
++MODULE_PARM_DESC(dump, " Dump CSI packets (default: disabled)");
++
+ #define RCAR_CSI_80MBPS		0
+ #define RCAR_CSI_90MBPS		1
+ #define RCAR_CSI_100MBPS	2
+@@ -292,13 +294,15 @@ struct rcar_csi2 {
+ 
+ #define RCAR_CSI2_INTSTATE_ALL		0x3FFFFCDD
+ 
+-#ifdef RCAR_CSI2_DUMP
+ static void rcar_sci2_debug_show(struct rcar_csi2 *priv)
+ {
+ 	int i;
+ 	u32 reg0, reg1;
+ 
+-	printk("Debug registers:\n");
++	if (!dump)
++		return;
++
++	dev_info(&priv->pdev->dev, "Debug registers:\n");
+ 	printk("FCNTM : 0x%08x\n", ioread32(priv->base + RCAR_CSI2_FCNTM));
+ 	printk("FCNTM2: 0x%08x\n", ioread32(priv->base + RCAR_CSI2_FCNTM2));
+ 
+@@ -352,9 +356,6 @@ static void rcar_sci2_debug_show(struct rcar_csi2 *priv)
+ 	for (i = 0; i < 2; i++)
+ 		printk("LCNTM%d: 0x%08x\n", i, ioread32(priv->base + RCAR_CSI2_LCNTM(i)));
+ }
+-#else
+-#define rcar_sci2_debug_show(args)
+-#endif /* RCAR_CSI2_DUMP */
+ 
+ static int rcar_csi2_set_phy_freq(struct rcar_csi2 *priv)
+ {
+@@ -638,7 +639,6 @@ static int rcar_csi2_parse_dt(struct device_node *np,
+ 	struct v4l2_of_endpoint bus_cfg;
+ 	struct device_node *endpoint;
+ 	struct device_node *vc_np, *vc_ch;
+-	const char *str;
+ 	char csi_name[9];
+ 	int ret;
+ 	int i, ch;
+-- 
+1.9.1
+
