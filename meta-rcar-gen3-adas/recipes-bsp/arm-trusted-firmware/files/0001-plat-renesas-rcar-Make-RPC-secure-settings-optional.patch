@@ -1,6 +1,6 @@
-From 88373fb822f737b60c8c71ca799ec50efaebf5bc Mon Sep 17 00:00:00 2001
+From f94af8b95bbb421b31498a0cb08fee74da956ccb Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
-Date: Tue, 4 Jul 2017 21:09:26 +0300
+Date: Wed, 8 Aug 2018 14:43:40 +0300
 Subject: [PATCH] plat: renesas: rcar: Make RPC secure settings optional
 
 This adds RCAR_DISABLE_NONSECURE_RPC_ACCESS make variable which
@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  3 files changed, 26 insertions(+)
 
 diff --git a/plat/renesas/rcar/bl2_secure_setting.c b/plat/renesas/rcar/bl2_secure_setting.c
-index 3ab651f..40e6a36 100644
+index 2469780..6f6c374 100644
 --- a/plat/renesas/rcar/bl2_secure_setting.c
 +++ b/plat/renesas/rcar/bl2_secure_setting.c
-@@ -108,7 +108,9 @@ static const struct {
+@@ -91,7 +91,9 @@ static const struct {
  	/** Security attribute setting for slave ports 13 */
  	/* Bit22: RPC slave ports. */
  	/*        0: registers can be accessed from secure resource only. */
@@ -27,7 +27,7 @@ index 3ab651f..40e6a36 100644
  
  	/** Security attribute setting for slave ports 14 */
  	/* Bit27: System Timer (SCMT) slave ports. */
-@@ -232,8 +234,10 @@ static const struct {
+@@ -222,8 +224,10 @@ static const struct {
  	/** Security group 1 attribute setting for slave ports 13 */
  	/* Bit22: RPC slave ports. */
  	/*        SecurityGroup3 */
@@ -39,10 +39,10 @@ index 3ab651f..40e6a36 100644
  	/** Security group 0 attribute setting for slave ports 14 */
  	/** Security group 1 attribute setting for slave ports 14 */
 diff --git a/plat/renesas/rcar/bl31_rcar_setup.c b/plat/renesas/rcar/bl31_rcar_setup.c
-index cc6ad2c..c91297d 100644
+index 50c22a5..a5e494e 100644
 --- a/plat/renesas/rcar/bl31_rcar_setup.c
 +++ b/plat/renesas/rcar/bl31_rcar_setup.c
-@@ -232,3 +232,19 @@ int32_t bl31_plat_denied_cpu_off_chk(void)
+@@ -231,3 +231,19 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
  	return rc;
  }
  
@@ -63,12 +63,12 @@ index cc6ad2c..c91297d 100644
 +	console_uninit();
 +}
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 6abc088..60f41ae 100644
+index 01e8564..41f11ee 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -223,6 +223,12 @@ RCAR_GEN3_ULCB := 0
- ERRATA_A53_843419  := 1
- ERRATA_A53_855873  := 1
+@@ -354,6 +354,12 @@ ERRATA_A53_855873  := 1
+ # Enable workarounds for selected Cortex-A57 erratas.
+ ERRATA_A57_859972  := 1
  
 +# Process RCAR_DISABLE_NONSECURE_RPC_ACCESS flag
 +ifndef RCAR_DISABLE_NONSECURE_RPC_ACCESS
@@ -80,5 +80,5 @@ index 6abc088..60f41ae 100644
  include plat/renesas/rcar/qos/qos.mk
  include plat/renesas/rcar/pfc/pfc.mk
 -- 
-2.7.5
+2.7.4
 
