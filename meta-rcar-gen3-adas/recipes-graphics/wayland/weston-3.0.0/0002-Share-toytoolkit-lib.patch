@@ -1,7 +1,7 @@
-From 32bb2f9f31945fda4d3a530c7e48632f3249d3a6 Mon Sep 17 00:00:00 2001
+From a9b9e4422f693b3658dbbd9a91d67f080ea1d125 Mon Sep 17 00:00:00 2001
 From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
 Date: Tue, 13 Jun 2017 23:51:22 +0300
-Subject: [PATCH 1/4] Share toytoolkit lib
+Subject: [PATCH 2/7] Share toytoolkit lib
 
 ---
  Makefile.am          |  35 +++
@@ -12,7 +12,7 @@ Subject: [PATCH 1/4] Share toytoolkit lib
  create mode 100644 clients/toytoolkit.h
 
 diff --git a/Makefile.am b/Makefile.am
-index 36cb859..229521e 100644
+index e9679e6..b2b101b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -8,6 +8,7 @@ module_LTLIBRARIES =
@@ -23,7 +23,7 @@ index 36cb859..229521e 100644
  BUILT_SOURCES =
  
  AM_DISTCHECK_CONFIGURE_FLAGS = --disable-setuid-install
-@@ -110,6 +111,7 @@ libweston_@LIBWESTON_MAJOR@_la_SOURCES =			\
+@@ -113,6 +114,7 @@ libweston_@LIBWESTON_MAJOR@_la_SOURCES =			\
  	shared/matrix.h					\
  	shared/timespec-util.h				\
  	shared/zalloc.h					\
@@ -31,7 +31,7 @@ index 36cb859..229521e 100644
  	shared/platform.h				\
  	shared/weston-egl-ext.h
  
-@@ -280,6 +282,7 @@ dist_wayland_session_DATA = compositor/weston.desktop
+@@ -291,6 +293,7 @@ dist_wayland_session_DATA = compositor/weston.desktop
  
  libwestonincludedir = $(includedir)/libweston-${LIBWESTON_MAJOR}
  libwestoninclude_HEADERS =			\
@@ -39,7 +39,7 @@ index 36cb859..229521e 100644
  	libweston/version.h			\
  	libweston/compositor.h			\
  	libweston/compositor-drm.h		\
-@@ -672,6 +675,7 @@ noinst_LTLIBRARIES += libtoytoolkit.la
+@@ -660,6 +663,7 @@ noinst_LTLIBRARIES += libtoytoolkit.la
  libtoytoolkit_la_SOURCES =				\
  	clients/window.c				\
  	clients/window.h				\
@@ -47,7 +47,7 @@ index 36cb859..229521e 100644
  	shared/helpers.h
  
  nodist_libtoytoolkit_la_SOURCES =			\
-@@ -697,6 +701,37 @@ libtoytoolkit_la_LIBADD =			\
+@@ -685,6 +689,37 @@ libtoytoolkit_la_LIBADD =			\
  	libshared-cairo.la $(CLOCK_GETTIME_LIBS) -lm
  libtoytoolkit_la_CFLAGS = $(AM_CFLAGS) $(CLIENT_CFLAGS) $(CAIRO_EGL_CFLAGS)
  
@@ -1516,7 +1516,7 @@ index 1ec9eac..fea173f 100644
 -
  #endif
 diff --git a/configure.ac b/configure.ac
-index 2d24fad..75f391e 100644
+index ac45a95..de6e089 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -77,7 +77,7 @@ AC_PROG_SED
@@ -1529,5 +1529,5 @@ index 2d24fad..75f391e 100644
  AC_ARG_VAR([WESTON_NATIVE_BACKEND],
             [Set the native backend to use, if Weston is not running under Wayland nor X11. @<:@default=drm-backend.so@:>@])
 -- 
-1.9.1
+2.7.4
 

@@ -1,0 +1,35 @@
+From e470b871daaa7ccf790297514f30f7f7083a5cf9 Mon Sep 17 00:00:00 2001
+From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
+Date: Tue, 13 Dec 2016 00:43:11 +0300
+Subject: [PATCH 6/7] Add widget_set_surface_allocation func
+
+---
+ clients/window.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/clients/window.c b/clients/window.c
+index 9be218b..757d56a 100644
+--- a/clients/window.c
++++ b/clients/window.c
+@@ -1746,6 +1746,18 @@ widget_set_allocation(struct widget *widget,
+ }
+ 
+ void
++widget_set_surface_allocation(struct widget *widget,
++		      int32_t x, int32_t y, int32_t width, int32_t height)
++{
++	if (widget->surface) {
++		widget->surface->allocation.x = x;
++		widget->surface->allocation.y = y;
++		widget->surface->allocation.width = width;
++		widget->surface->allocation.height = height;
++	}
++}
++
++void
+ widget_set_transparent(struct widget *widget, int transparent)
+ {
+ 	widget->opaque = !transparent;
+-- 
+2.7.4
+

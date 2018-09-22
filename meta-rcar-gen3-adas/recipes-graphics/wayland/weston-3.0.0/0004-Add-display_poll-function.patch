@@ -1,22 +1,17 @@
-diff --git a/clients/toytoolkit.h b/clients/toytoolkit.h
-index 402836d..767a84e 100644
---- a/clients/toytoolkit.h
-+++ b/clients/toytoolkit.h
-@@ -173,6 +173,9 @@ display_unwatch_fd(struct display *display, int fd);
- void
- display_run(struct display *d);
- 
-+int
-+display_poll(struct display *display, int timeout);
-+
- void
- display_exit(struct display *d);
- 
+From 5ba4a4a037090ba2c98187031d8290e03474c7a6 Mon Sep 17 00:00:00 2001
+From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
+Date: Fri, 17 Feb 2017 03:06:27 +0300
+Subject: [PATCH 4/7] Add display_poll function
+
+---
+ clients/window.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
+
 diff --git a/clients/window.c b/clients/window.c
-index 2d38796..8540553 100644
+index cc5bf66..9be218b 100644
 --- a/clients/window.c
 +++ b/clients/window.c
-@@ -6011,6 +6011,58 @@ display_run(struct display *display)
+@@ -6544,6 +6544,58 @@ display_run(struct display *display)
  	}
  }
  
@@ -75,3 +70,6 @@ index 2d38796..8540553 100644
  void
  display_exit(struct display *display)
  {
+-- 
+2.7.4
+
