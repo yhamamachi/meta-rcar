@@ -1,5 +1,8 @@
 DESCRIPTION = "Packages required for GPU Surroundview demo"
-LICENSE = "GPL"
+
+LICENSE = "GPLv3 & BSD & MIT & GPLv2+ & LGPLv2+ & LGPLv2.1+"
+
+LICENSE_FLAGS = "commercial"
 
 inherit packagegroup
 
