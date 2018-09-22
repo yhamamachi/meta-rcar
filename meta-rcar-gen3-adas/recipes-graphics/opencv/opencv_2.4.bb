@@ -25,8 +25,8 @@ EXTRA_OECMAKE = "-DPYTHON_NUMPY_INCLUDE_DIR:PATH=${STAGING_LIBDIR}/${PYTHON_DIR}
                  -DCMAKE_SKIP_RPATH=ON \
 		 -DBUILD_EXAMPLES=ON \
                  ${@bb.utils.contains("TARGET_CC_ARCH", "-msse3", "-DENABLE_SSE=1 -DENABLE_SSE2=1 -DENABLE_SSE3=1 -DENABLE_SSSE3=1", "", d)} \
-                 ${@base_conditional("libdir", "/usr/lib64", "-DLIB_SUFFIX=64 -DPYTHON_PACKAGES_PATH:PATH=lib64/python2.7/site-packages", "", d)} \
-                 ${@base_conditional("libdir", "/usr/lib32", "-DLIB_SUFFIX=32 -DPYTHON_PACKAGES_PATH:PATH=lib32/python2.7/site-packages", "", d)} \
+                 ${@oe.utils.conditional("libdir", "/usr/lib64", "-DLIB_SUFFIX=64 -DPYTHON_PACKAGES_PATH:PATH=lib64/python2.7/site-packages", "", d)} \
+                 ${@oe.utils.conditional("libdir", "/usr/lib32", "-DLIB_SUFFIX=32 -DPYTHON_PACKAGES_PATH:PATH=lib32/python2.7/site-packages", "", d)} \
 "
 
 PACKAGECONFIG ??= "eigen jpeg png tiff v4l libv4l gstreamer opengl neon ${@bb.utils.contains( 'DISTRO_FEATURES', 'qt5', 'qt5','', d)}"

@@ -8,7 +8,7 @@ COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
-    ${@base_conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
+    ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
@@ -41,8 +41,8 @@ SRC_URI_append = " \
     file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
     file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
-    ${@base_conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
-    ${@base_conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
+    ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
+    ${@oe.utils.conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     file://0049-clk-r8a779x-add-IMP-clock.patch \
     file://0050-arm64-dts-renesas-r8a779x-add-IMP-nodes.patch \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
