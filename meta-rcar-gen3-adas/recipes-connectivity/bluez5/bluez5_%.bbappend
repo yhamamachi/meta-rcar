@@ -5,6 +5,7 @@ SRC_URI_append_rcar-gen3 = " \
 "
 
 PACKAGECONFIG_append = " experimental"
+PACKAGECONFIG[experimental] = "--enable-experimental,--disable-experimental,"
 
 NOINST_TOOLS_EXPERIMENTAL_remove = " tools/bdaddr"
 
