@@ -1,5 +1,6 @@
 DESCRIPTION = "OpenCV SDK packages"
-LICENSE = "GPL"
+
+LICENSE = "BSD-3-Clause & GPLv2+ & LGPLv2+"
 
 inherit packagegroup
 
