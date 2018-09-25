@@ -54,7 +54,6 @@ RDEPENDS_packagegroup-qt5 =  '${@ " \
     qtbase-plugins \
     qtbase-examples \
     qtdeclarative \
-    qtdeclarative-plugins \
     qtdeclarative-tools \
     qtdeclarative-qmlplugins \
     qtxmlpatterns \
@@ -70,6 +69,7 @@ RDEPENDS_packagegroup-qt5 =  '${@ " \
     qtgraphicaleffects-qmlplugins \
     qtserialbus \
     qtsvg \
+    qtlocation \
     qtsvg-plugins \
     ${QT_WAYLAND_PKGS} \
     icu libicudata libicuuc libicui18n \
