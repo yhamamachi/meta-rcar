@@ -31,6 +31,7 @@ SRC_URI_append = " \
     file://0046-configs-r8a7796_salvator-x-Enable-RPC-HyperFlash-sup.patch \
     file://0047-configs-h3ulcb-Enable-RPC-HyperFlash-support.patch \
     file://0048-configs-m3ulcb-Enable-RPC-HyperFlash-support.patch \
+    file://0049-configs-m3nulcb-Enable-RPC-HyperFlash-support.patch \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0061-board-renesas-ulcb-console-on-scif1.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0062-board-renesas-ulcb-set-all-RAVB-pins-strengh-to-maximum.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0063-board-renesas-ulcb-support-fixed-PHY.patch', '', d)} \
