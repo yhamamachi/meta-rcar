@@ -98,6 +98,10 @@ KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-kf.dtb \
 "
 
+KERNEL_DEVICETREE_append_m3nulcb = " \
+    renesas/r8a77965-m3nulcb-kf.dtb \
+"
+
 KERNEL_DEVICETREE_append_salvator-x = " \
     renesas/r8a7795-es1-salvator-x-view.dtb \
     renesas/r8a7795-salvator-x-view.dtb \
