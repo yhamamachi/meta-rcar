@@ -1,0 +1,28 @@
+From 60d438e625b8446bb7c4bbea967c0987413268a7 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 28 Sep 2018 22:23:21 +0300
+Subject: [PATCH] pinctrl: sh-pfc: pfc-r8a77965: Add missing "avb_mii" pin
+ group name
+
+This adds "avb_mii" pin group to the list of avb group names.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/pinctrl/sh-pfc/pfc-r8a77965.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
+index 2b7514e..62f7468 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
+@@ -5232,6 +5232,7 @@ static const char * const avb_groups[] = {
+ 	"avb_magic",
+ 	"avb_phy_int",
+ 	"avb_mdc",
++	"avb_mii",
+ 	"avb_avtp_pps",
+ 	"avb_avtp_match_a",
+ 	"avb_avtp_capture_a",
+-- 
+2.7.4
+

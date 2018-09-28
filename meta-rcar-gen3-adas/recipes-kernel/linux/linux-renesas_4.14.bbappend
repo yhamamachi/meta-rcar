@@ -40,6 +40,7 @@ SRC_URI_append = " \
     file://0035-ARM64-renesas-dts-add-m3nulcb-board-support.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
+    file://0043-pinctrl-sh-pfc-pfc-r8a77965-Add-missing-avb_mii-pin-.patch \
     file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
     file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
