@@ -66,6 +66,8 @@ SRC_URI_append = " \
     file://0111-mmc-renesas_sdhi-Add-SDHI-SEQUENCER-support.patch \
     file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
     file://0113-arm64-dts-ulcb-kf-increase-SDIO-frequency-for-WLAN-c.patch \
+    file://0114-Sony-IMX219-driver.patch \
+    ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
