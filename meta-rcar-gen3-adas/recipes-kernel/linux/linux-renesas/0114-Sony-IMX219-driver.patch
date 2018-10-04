@@ -1,5 +1,5 @@
-From 957bf5a89d620eb6e10997d82da5ee177ec36b6a Mon Sep 17 00:00:00 2001
-From: Sergey Lapin <slapinid@gmail.com>
+From fdb06f18bcb35b448a108e297a585eafb15953a1 Mon Sep 17 00:00:00 2001
+From: Sergey Lapin <sergey.lapin@cogentembedded.com>
 Date: Wed, 26 Sep 2018 03:48:08 +0200
 Subject: [PATCH] Sony IMX219 driver
 
@@ -8,16 +8,14 @@ Signed-off-by: Sergey Lapin <sergey.lapin@cogentembedded.com>
  .../devicetree/bindings/media/i2c/imx219.txt       |   35 +
  drivers/media/i2c/soc_camera/Kconfig               |    6 +
  drivers/media/i2c/soc_camera/Makefile              |    1 +
- drivers/media/i2c/soc_camera/imx219.c              | 1031 ++++++++++++++++++++
- drivers/media/i2c/soc_camera/imx219.h              |   27 +
- 5 files changed, 1100 insertions(+)
+ drivers/media/i2c/soc_camera/imx219.c              | 1026 ++++++++++++++++++++
+ 4 files changed, 1068 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/media/i2c/imx219.txt
  create mode 100644 drivers/media/i2c/soc_camera/imx219.c
- create mode 100644 drivers/media/i2c/soc_camera/imx219.h
 
 diff --git a/Documentation/devicetree/bindings/media/i2c/imx219.txt b/Documentation/devicetree/bindings/media/i2c/imx219.txt
 new file mode 100644
-index 0000000..bc2ccf3
+index 000000000000..bc2ccf3cecfd
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/media/i2c/imx219.txt
 @@ -0,0 +1,35 @@
@@ -57,7 +55,7 @@ index 0000000..bc2ccf3
 +			};
 +	};
 diff --git a/drivers/media/i2c/soc_camera/Kconfig b/drivers/media/i2c/soc_camera/Kconfig
-index 1db3c6b..627d8d9 100644
+index 1db3c6b14456..627d8d92e1f9 100644
 --- a/drivers/media/i2c/soc_camera/Kconfig
 +++ b/drivers/media/i2c/soc_camera/Kconfig
 @@ -100,3 +100,9 @@ config SOC_CAMERA_OV106XX
@@ -71,7 +69,7 @@ index 1db3c6b..627d8d9 100644
 +	help
 +	  This is Sony IMX219 driver
 diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camera/Makefile
-index 0d4242e..eed6e24 100644
+index 0d4242ea9845..eed6e24a7920 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
 @@ -14,4 +14,5 @@ obj-$(CONFIG_SOC_CAMERA_TW9910)		+= tw9910.o
@@ -82,10 +80,10 @@ index 0d4242e..eed6e24 100644
  
 diff --git a/drivers/media/i2c/soc_camera/imx219.c b/drivers/media/i2c/soc_camera/imx219.c
 new file mode 100644
-index 0000000..00c2afa
+index 000000000000..f0ce3f7d9d11
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/imx219.c
-@@ -0,0 +1,1031 @@
+@@ -0,0 +1,1026 @@
 +/*
 + * V4L2 driver for Sony IMX219 cameras.
 + *
@@ -113,8 +111,6 @@ index 0000000..00c2afa
 +#include <media/v4l2-image-sizes.h>
 +#include <linux/io.h>
 +
-+#include "imx219.h"
-+
 +#define IMX219_REG_CHIPID_H	0x0
 +#define IMX219_REG_CHIPID_L	0x1
 +
@@ -122,6 +118,13 @@ index 0000000..00c2afa
 +
 +#define CSI_STBY_ON		1
 +#define CSI_STBY_OFF		0
++
++/* #define TEST_PATTERN */
++
++struct regval_list {
++	u16 addr;
++	u8 data;
++};
 +
 +enum power_seq_cmd {
 +	CSI_SUBDEV_PWR_OFF = 0x00,
@@ -189,7 +192,8 @@ index 0000000..00c2afa
 +Copyright (c) 2017, Dave Stevenson
 +https//github.com/6by9/raspiraw
 +
-+Register data was manually tuned and tweaked for use with Renesas RCar CSI driver.
++Register data was manually tuned and tweaked for use with Renesas
++RCar CSI driver.
 +*/
 +
 +/* unlock vendor registers */
@@ -229,11 +233,11 @@ index 0000000..00c2afa
 +	{0x012A, 0x18},
 +	{0x012B, 0x00},
 +	/* gain */
-+	{0x0157, 0x00},
++	{0x0157, 0xe8},
 +	{0x0158, 0x01},
 +	{0x0159, 0x00},
 +	/* integration time */
-+	{0x015a, 0x00},
++	{0x015a, 0x02},
 +	{0x015b, 0x31},
 +	/* frame length */
 +	{0x0160, 0x0f},
@@ -274,8 +278,8 @@ index 0000000..00c2afa
 +	{0x0305, 0x03},
 +	/* PLL1 */
 +	{0x0306, 0x00},
-+	{0x0307, 0x2b},
-+	{0x0309, 0x0A},
++	{0x0307, 0x39},
++	{0x0309, 0x08},
 +	{0x030B, 0x01},
 +	/* PLL2 */
 +	{0x030C, 0x00},
@@ -290,10 +294,17 @@ index 0000000..00c2afa
 +	/* EXCK_FREQ */
 +	{0x012A, 0x18},
 +	{0x012B, 0x00},
++	/* gain */
++	{0x0157, 0xe8},
++	{0x0158, 0x01},
++	{0x0159, 0x00},
++	/* coarse integration time */
++	{0x015a, 0x05},
++	{0x015b, 0x3f},
 +	{0x0160, 0x0A},
 +	{0x0161, 0x2F},
 +	{0x0162, 0x0D},
-+	{0x0163, 0xE8},
++	{0x0163, 0x78},
 +	{0x0164, 0x02},
 +	{0x0165, 0xA8},
 +	{0x0166, 0x0A},
@@ -314,14 +325,14 @@ index 0000000..00c2afa
 +	{0x018C, 0x08},
 +	{0x018D, 0x08},
 +	/* pix clk div, */
-+	{0x0301, 0x0a},
++	{0x0301, 0x05},
 +	{0x0303, 0x01},
 +	{0x0304, 0x03},
 +	{0x0305, 0x03},
 +	/* PLL1 */
 +	{0x0306, 0x00},
-+	{0x0307, 0x29},
-+	{0x0309, 0x0A},
++	{0x0307, 0x39},
++	{0x0309, 0x08},
 +	{0x030B, 0x01},
 +	/* PLL2 */
 +	{0x030C, 0x00},
@@ -336,45 +347,46 @@ index 0000000..00c2afa
 +	{0x012A, 0x18},
 +	{0x012B, 0x00},
 +	/* gain */
-+	{0x0157, 0xd0},
-+	{0x0158, 0x04},
++	{0x0157, 0xc8},
++	{0x0158, 0x01},
 +	{0x0159, 0x00},
 +	/* coarse integration time */
-+	{0x015a, 0x09},
-+	{0x015b, 0xBD},
-+	{0x0160, 0x01},
-+	{0x0161, 0x00},
++	{0x015a, 0x01},
++	{0x015b, 0x7f},
++	{0x0160, 0x02},
++	{0x0161, 0x39},
 +	{0x0162, 0x0d},
-+	{0x0163, 0x78},
-+	{0x0164, 0x00},
-+	{0x0165, 0x00},
-+	{0x0166, 0x04},
-+	{0x0167, 0xff},
-+	{0x0168, 0x00},
++	{0x0163, 0xe7},
++	{0x0164, 0x01},
++	{0x0165, 0x68},
++	{0x0166, 0x0b},
++	{0x0167, 0x67},
++	{0x0168, 0x02},
 +	{0x0169, 0x00},
-+	{0x016A, 0x02},
-+	{0x016B, 0xcf},
++	{0x016A, 0x07},
++	{0x016B, 0x9f},
 +	{0x016C, 0x05},
 +	{0x016D, 0x00},
 +	{0x016E, 0x02},
 +	{0x016F, 0xd0},
 +	{0x0170, 0x01},
 +	{0x0171, 0x01},
-+	{0x0174, 0x00},
-+	{0x0175, 0x00},
++	{0x0172, 0x03},
++	{0x0174, 0x03},
++	{0x0175, 0x03},
 +	/* pixell data format */
 +	{0x018C, 0x08},
 +	{0x018D, 0x08},
 +	/* pix clk div, */
-+	{0x0301, 0x0a},
++	{0x0301, 0x05},
 +	{0x0303, 0x01},
 +	{0x0304, 0x03},
 +	{0x0305, 0x03},
 +	/* PLL1 */
 +	{0x0306, 0x00},
-+	{0x0307, 0x40},
++	{0x0307, 0x39},
 +	/* div2 */
-+	{0x0309, 0x0a},
++	{0x0309, 0x08},
 +	{0x030B, 0x01},
 +	/* PLL2 */
 +	{0x030C, 0x00},
@@ -389,12 +401,12 @@ index 0000000..00c2afa
 +	{0x012A, 0x18},
 +	{0x012B, 0x00},
 +	/* gain */
-+	{0x0157, 0x00},
-+	{0x0158, 0x02},
++	{0x0157, 0xe8},
++	{0x0158, 0x01},
 +	{0x0159, 0x00},
 +	/* coarse integration time */
 +	{0x015a, 0x01},
-+	{0x015b, 0x85},
++	{0x015b, 0x2f},
 +	{0x0160, 0x02},
 +	{0x0161, 0x39},
 +	{0x0162, 0x0d},
@@ -432,7 +444,7 @@ index 0000000..00c2afa
 +	{0x0306, 0x00},
 +	{0x0307, 0x39},
 +	/* div2 */
-+	{0x0309, 0x0a},
++	{0x0309, 0x08},
 +	{0x030B, 0x01},
 +	/* PLL2 */
 +	{0x030C, 0x00},
@@ -447,28 +459,30 @@ index 0000000..00c2afa
 +	{0x012A, 0x18},
 +	{0x012B, 0x00},
 +	/* gain */
-+	{0x0157, 0xd0},
-+	{0x0158, 0x04},
++	{0x0157, 0xd4},
++	{0x0158, 0x01},
 +	{0x0159, 0x00},
 +	/* coarse integration time */
-+	{0x015a, 0x00},
-+	{0x015b, 0x2f},
++	{0x015a, 0x01},
++	{0x015b, 0x30},
++	/* frame time size */
 +	{0x0160, 0x02},
 +	{0x0161, 0x39},
++	/* line time size */
 +	{0x0162, 0x0d},
-+	{0x0163, 0x60},
++	{0x0163, 0xE7},
 +	/* x start */
-+	{0x0164, 0x00},
-+	{0x0165, 0x00},
++	{0x0164, 0x03},
++	{0x0165, 0xe8},
 +	/* x end */
-+	{0x0166, 0x02},
-+	{0x0167, 0x7f},
++	{0x0166, 0x06},
++	{0x0167, 0x67},
 +	/* y start */
-+	{0x0168, 0x00},
-+	{0x0169, 0x00},
++	{0x0168, 0x03},
++	{0x0169, 0xde},
 +	/* y end */
-+	{0x016A, 0x01},
-+	{0x016B, 0xdf},
++	{0x016A, 0x05},
++	{0x016B, 0xbe},
 +	/* x width */
 +	{0x016C, 0x01},
 +	{0x016D, 0x40},
@@ -478,8 +492,8 @@ index 0000000..00c2afa
 +	{0x0170, 0x01},
 +	{0x0171, 0x01},
 +	{0x0172, 0x03},
-+	{0x0174, 0x01},
-+	{0x0175, 0x01},
++	{0x0174, 0x03},
++	{0x0175, 0x03},
 +	/* pixell data format */
 +	{0x018C, 0x08},
 +	{0x018D, 0x08},
@@ -490,21 +504,22 @@ index 0000000..00c2afa
 +	{0x0305, 0x03},
 +	/* PLL1 */
 +	{0x0306, 0x00},
-+	{0x0307, 0x53},
++	{0x0307, 0x39},
 +	/* div2 */
-+	{0x0309, 0x0a},
++	{0x0309, 0x08},
 +	{0x030B, 0x01},
 +	/* PLL2 */
 +	{0x030C, 0x00},
 +	{0x030D, 0x72},
 +};
 +
-+#define IMX219_DEFAULT_WIDTH	3280
++#define IMX219_DEFAULT_WIDTH	3296
 +#define IMX219_DEFAULT_HEIGHT	2464
 +
 +static struct sensor_win_size sensor_win_sizes[] = {
 +	{
-+		.width		= 3280,
++	/* 3296x2464 */
++		.width		= 3296,
 +		.height		= 2464,
 +		.regs		= sensor_hxga_regs,
 +		.regs_size	= ARRAY_SIZE(sensor_hxga_regs),
@@ -607,17 +622,6 @@ index 0000000..00c2afa
 +		regs++;
 +	}
 +	return 0;
-+}
-+
-+void imx219_stream_on(struct v4l2_subdev *subdev)
-+{
-+	imx219_write(subdev, 0x100, 1);
-+	msleep(20);
-+}
-+
-+void imx219_stream_off(struct v4l2_subdev *subdev)
-+{
-+	imx219_write(subdev, 0x100, 0x0);
 +}
 +
 +static int sensor_s_sw_stby(struct v4l2_subdev *subdev, int on_off)
@@ -741,17 +745,6 @@ index 0000000..00c2afa
 +#else
 +#define sensor_dump_regs(x)
 +#endif
-+static int sensor_s_stream(struct v4l2_subdev *sd, int enable)
-+{
-+	sensor_dump_regs(sd);
-+	if (enable)
-+		imx219_stream_on(sd);
-+	else
-+		imx219_stream_off(sd);
-+
-+	return 0;
-+}
-+
 +static int sensor_enum_fmt(struct v4l2_subdev *sd,
 +			   struct v4l2_subdev_pad_config *cfg,
 +			   struct v4l2_subdev_mbus_code_enum *code)
@@ -855,6 +848,7 @@ index 0000000..00c2afa
 +		/* putting sensor out of sleep */
 +		imx219_write(subdev, 0x100, 1);
 +		msleep(30);
++		sensor_dump_regs(sd);
 +	}
 +
 +	return 0;
@@ -931,7 +925,6 @@ index 0000000..00c2afa
 +};
 +
 +static const struct v4l2_subdev_video_ops sensor_video_ops = {
-+	.s_stream	= sensor_s_stream,
 +	.s_parm		= sensor_s_parm,
 +	.g_parm		= sensor_g_parm,
 +	.g_mbus_config	= sensor_g_mbus_config,
@@ -1117,39 +1110,6 @@ index 0000000..00c2afa
 +MODULE_AUTHOR("Sergey Lapin <sergey.lapin@cogentembedded.com>");
 +MODULE_DESCRIPTION("A low-level driver for Sony imx219 sensors");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/media/i2c/soc_camera/imx219.h b/drivers/media/i2c/soc_camera/imx219.h
-new file mode 100644
-index 0000000..62aef3b
---- /dev/null
-+++ b/drivers/media/i2c/soc_camera/imx219.h
-@@ -0,0 +1,27 @@
-+/*
-+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
-+ * Copyright (C) 2017 Cogent Embedded, Inc
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+/* #define TEST_PATTERN */
-+
-+struct regval_list {
-+	u16 addr;
-+	u8 data;
-+};
-+
-+enum imx219_test_mode_t {
-+	TEST_OFF,
-+	TEST_1,
-+	TEST_2,
-+	TEST_3
-+};
 -- 
-1.9.1
+2.11.0
 
