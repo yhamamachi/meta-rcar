@@ -130,6 +130,7 @@ SRC_URI_append = " \
     file://lvds/0005-TI9x4-toggle-PDB-on-probe.patch \
     file://lvds/0006-LVDS-TI9x4-double-CSI-AR0233-new-blanking.patch \
     file://lvds/0007-LVDS-add-AR0231-sensor.patch \
+    ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
