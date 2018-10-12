@@ -131,6 +131,9 @@ SRC_URI_append = " \
     file://lvds/0006-LVDS-TI9x4-double-CSI-AR0233-new-blanking.patch \
     file://lvds/0007-LVDS-add-AR0231-sensor.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
+    file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
+    file://0139-Renesas-RPC-support-single-mode-write-command.patch \
+    file://0140-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
