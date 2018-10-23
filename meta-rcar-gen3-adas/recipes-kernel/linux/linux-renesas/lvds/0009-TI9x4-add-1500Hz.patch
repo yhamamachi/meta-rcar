@@ -1,0 +1,48 @@
+From 2261328a6fe748a7018e54389426000dbf0720e2 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 23 Oct 2018 23:15:28 +0300
+Subject: [PATCH] TI9x4:: add 1500Hz
+
+This fixes IMX390 cameras artifacts
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/imx390.c                | 2 ++
+ drivers/media/i2c/soc_camera/ti9x4.c                 | 1 +
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
+index bcfc374..5c11e1d 100644
+--- a/drivers/media/i2c/soc_camera/imx390.c
++++ b/drivers/media/i2c/soc_camera/imx390.c
+@@ -370,6 +370,7 @@ static int imx390_initialize(struct i2c_client *client)
+ 		goto err;
+ 	}
+ 
++#if 0
+ 	/* setup XCLK */
+ 	tmp_addr = client->addr;
+ 	if (priv->ti9x4_addr) {
+@@ -379,6 +380,7 @@ static int imx390_initialize(struct i2c_client *client)
+ 		reg8_write(client, 0x07, 0xfd);				/* Set N */
+ 	}
+ 	client->addr = tmp_addr;
++#endif
+ 
+ 	/* Read OTP IDs */
+ 	imx390_otp_id_read(client);
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index 410d69e..b9bd51d 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -132,6 +132,7 @@ static void ti9x4_initial_setup(struct i2c_client *client)
+ 	reg8_write(client, 0x0d, 0xb9);				/* VDDIO 3.3V */
+ 	switch (priv->csi_rate) {
+ 	case 1600: /* REFCLK = 25MHZ */
++	case 1500: /* REFCLK = 23MHZ */
+ 	case 1450: /* REFCLK = 22.5MHZ */
+ 		reg8_write(client, 0x1f, 0x00);			/* CSI rate 1.5/1.6Gbps */
+ 		break;
+-- 
+1.9.1
+

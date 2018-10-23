@@ -4926,7 +4926,7 @@ new file mode 100644
 index 0000000..1f21284
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/gw4200_ar014x.h
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,28 @@
 +/*
 + * ON Semiconductor gw4200-ar014x sensor camera wizard 1280x720@30/UYVY/BT601/8bit
 + *
@@ -4939,7 +4939,7 @@ index 0000000..1f21284
 + */
 +
 +#define GW4200_MAX_WIDTH	1280
-+#define GW4200_MAX_HEIGHT	720
++#define GW4200_MAX_HEIGHT	960
 +
 +#define GW4200_DELAY		0xffff
 +
@@ -4949,13 +4949,11 @@ index 0000000..1f21284
 +};
 +
 +static const struct gw4200_reg gw4200_regs_wizard[] = {
-+#if 0
 +/* enable FSIN */
 +{0xc88c, 0x0303},
 +{0xfc00, 0x2800},
 +{0x0040, 0x8100},
 +{GW4200_DELAY, 100},
-+#endif
 +};
 diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
 new file mode 100644
