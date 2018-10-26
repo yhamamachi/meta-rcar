@@ -1,4 +1,4 @@
-From 3e19cb7924d0e069c5142aa26e34e3181afd9c98 Mon Sep 17 00:00:00 2001
+From aca998b096ed45ae45f6ac84b07c7d7065b95f7e Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 15:05:42 +0300
 Subject: [PATCH] arm64: dts: renesas: add ADAS boards
@@ -14544,7 +14544,7 @@ index 0000000..7bf1d6f
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
 new file mode 100644
-index 0000000..16b2616
+index 0000000..5282184
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
 @@ -0,0 +1,505 @@
@@ -14799,7 +14799,7 @@ index 0000000..16b2616
 +				};
 +				port@1 {
 +					ti9x4_csi0ep0: endpoint {
-+						csi-rate = <700>;
++						csi-rate = <1450>;
 +						remote-endpoint = <&csi2_41_ep>;
 +					};
 +				};
@@ -21695,5 +21695,5 @@ index 0000000..ed04695
 +};
 +
 -- 
-1.9.1
+2.7.4
 
