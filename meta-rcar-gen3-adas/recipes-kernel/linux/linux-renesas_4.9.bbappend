@@ -135,6 +135,7 @@ SRC_URI_append = " \
     file://v3h-vb/0006-V3HSK-VideoBox-use-23.5Mhz.patch \
     file://lvds/0010-max9286-add-SWITHCIN.patch \
     file://lvds/0011-ar0143-update-for-TI-seralizers.patch \
+    file://lvds/0012-LVDS-add-AR0140-imager.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
     file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
