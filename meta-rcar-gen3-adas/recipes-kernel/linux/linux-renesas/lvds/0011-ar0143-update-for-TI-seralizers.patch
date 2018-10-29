@@ -1,0 +1,84 @@
+From 4389a029f82c9393bdb7cfe50b8044490ee5858b Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 29 Oct 2018 18:17:10 +0300
+Subject: [PATCH] ar0143: update for TI seralizers
+
+This makes AR0143 functional on TI913 serializer
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0143.c | 30 +++++++++++++++++++++++++++++-
+ drivers/media/i2c/soc_camera/ar0143.h |  2 ++
+ 2 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+index 5af6764..1db6da2 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.c
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -87,6 +87,34 @@ static int ar0143_set_regs(struct i2c_client *client,
+ 		if (regs[i].reg == 0x31b0)
+ 			priv->frame_preamble = regs[i].val - 1;
+ 
++		if (priv->ti9x4_addr) {
++			/* Override default (MAXIM serializer) table */
++			/* PCLK=16Mhz/2 *48/1/8= 48Mhz - TI serializers */
++			switch (regs[i].reg) {
++			case 0x302A:
++				reg16_write16(client, regs[i].reg, 8); // VT_PIX_CLK_DIV
++				continue;
++			case 0x302C:
++				reg16_write16(client, regs[i].reg, 1); // VT_SYS_CLK_DIV
++				continue;
++			case 0x302E:
++				reg16_write16(client, regs[i].reg, 2); // PRE_PLL_CLK_DIV
++				continue;
++			case 0x3030:
++				reg16_write16(client, regs[i].reg, 48); // PLL_MULTIPLIER
++				continue;
++			case 0x3036:
++				reg16_write16(client, regs[i].reg, 8); // OP_WORD_CLK_DIV
++				continue;
++			case 0x3038:
++				reg16_write16(client, regs[i].reg, 1); // OP_SYS_CLK_DIV
++				continue;
++			case 0x300A:
++				reg16_write16(client, regs[i].reg, AR0143_SENSOR_HEIGHT + 142); // FRAME_LENGTH_LINES_
++				continue;
++			}
++		}
++
+ 		reg16_write16(client, regs[i].reg, regs[i].val);
+ 	}
+ 
+@@ -103,7 +131,7 @@ static int ar0143_set_window(struct v4l2_subdev *sd)
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ar0143_priv *priv = to_ar0143(client);
+ 
+-	dev_err(&client->dev, "L=%d T=%d %dx%d\n", priv->rect.left, priv->rect.top, priv->rect.width, priv->rect.height);
++	dev_dbg(&client->dev, "L=%d T=%d %dx%d\n", priv->rect.left, priv->rect.top, priv->rect.width, priv->rect.height);
+ 
+ 	/* horiz crop start */
+ 	reg16_write16(client, 0x3004, priv->rect.left);
+diff --git a/drivers/media/i2c/soc_camera/ar0143.h b/drivers/media/i2c/soc_camera/ar0143.h
+index 4114912..774a438 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.h
++++ b/drivers/media/i2c/soc_camera/ar0143.h
+@@ -449,6 +449,7 @@ struct ar0143_reg {
+ // start reg wizard WIDTHxHEIGHT@30fps
+ #define NEW_TBL
+ #ifdef NEW_TBL
++/* PCLK=27Mhz/0x5 *0x5d /1/0xa - MAXIM serializers */
+ {0x302A, 0x000A}, // VT_PIX_CLK_DIV
+ {0x302C, 0x0001}, // VT_SYS_CLK_DIV
+ {0x302E, 0x0005}, // PRE_PLL_CLK_DIV
+@@ -456,6 +457,7 @@ struct ar0143_reg {
+ {0x3036, 0x000A}, // OP_WORD_CLK_DIV
+ {0x3038, 0x0001}, // OP_SYS_CLK_DIV
+ #else
++/* PCLK=27Mhz/0x9 *134 /1/8 - MAXIM serializers */
+ {0x302A, 0x0008}, // VT_PIX_CLK_DIV
+ {0x302C, 0x0001}, // VT_SYS_CLK_DIV
+ {0x302E, 0x0009}, // PRE_PLL_CLK_DIV
+-- 
+1.9.1
+
