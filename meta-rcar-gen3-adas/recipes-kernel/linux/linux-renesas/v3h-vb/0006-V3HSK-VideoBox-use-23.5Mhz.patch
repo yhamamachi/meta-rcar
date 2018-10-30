@@ -1,0 +1,55 @@
+From 2261328a6fe748a7018e54389426000dbf0720e2 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 23 Oct 2018 23:15:28 +0300
+Subject: [PATCH] V3HSK VideoBox: use 23.5Mhz
+
+This fixes IMX390 cameras artifacts
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vb-4ch.dts | 8 ++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vb-4ch.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vb-4ch.dts
+index f74f7ea..396a355 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vb-4ch.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vb-4ch.dts
+@@ -114,7 +114,7 @@
+ 		csi2_40_ep: endpoint {
+ 			clock-lanes = <0>;
+ 			data-lanes = <1 2 3 4>;
+-			csi-rate = <1450>;
++			csi-rate = <1500>;
+ 		};
+ 	};
+ };
+@@ -129,7 +129,7 @@
+ 		csi2_41_ep: endpoint {
+ 			clock-lanes = <0>;
+ 			data-lanes = <1 2 3 4>;
+-			csi-rate = <1450>;
++			csi-rate = <1500>;
+ 		};
+ 	};
+ };
+@@ -268,7 +268,7 @@
+ 				};
+ 				port@1 {
+ 					ti9x4_csi0ep0: endpoint {
+-						csi-rate = <1450>;
++						csi-rate = <1500>;
+ 						remote-endpoint = <&csi2_40_ep>;
+ 					};
+ 				};
+@@ -323,7 +323,7 @@
+ 				clock-names = "clk_in";
+ 
+ 				assigned-clocks = <&cs2300>;
+-				assigned-clock-rates = <22500000>;
++				assigned-clock-rates = <23500000>;
+ 			};
+ 		};
+ 
+-- 
+1.9.1
+

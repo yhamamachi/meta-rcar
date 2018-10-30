@@ -1,0 +1,27 @@
+From d0d6fc3a4ebb0200785e3fe9fbdd8262eb0a543c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADctor=20Manuel=20J=C3=A1quez=20Leal?=
+ <vjaquez@igalia.com>
+Date: Wed, 23 Nov 2016 19:41:43 +0100
+Subject: [PATCH 26/80] kms: include stdlib.h
+
+drm.h does not include all what it needs to compile, in particular
+stdlib.h which defines size_t
+---
+ sys/kms/gstkmsallocator.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 82af265cd..2451e3059 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -30,6 +30,7 @@
+ #include <drm.h>
+ #include <xf86drm.h>
+ #include <xf86drmMode.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <sys/mman.h>
+ #include <unistd.h>
+-- 
+2.11.0
+

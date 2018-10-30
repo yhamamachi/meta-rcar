@@ -1,0 +1,53 @@
+From a87f58e82b55784061ea473ade1462fcafe0869e Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Sat, 15 Sep 2018 19:20:03 +0300
+Subject: [PATCH 5/5] TI9x4: toggle PDB on probe
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ti9x4.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index d00e744..ecd6d3f 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -43,6 +43,7 @@ struct ti9x4_priv {
+ 	char			chip_id[6];
+ 	int			ser_id;
+ 	int			vc_map;
++	struct gpio_desc	*pwen; /* chip power en */
+ 	struct gpio_desc	*poc_gpio[4]; /* PoC power supply */
+ 	struct v4l2_clk		*ref_clk; /* ref clock */
+ };
+@@ -330,7 +331,7 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 	struct device_node *np = client->dev.of_node;
+ 	struct device_node *endpoint = NULL, *rendpoint = NULL;
+ 	struct property *prop;
+-	int err, pwen, i;
++	int i;
+ 	int sensor_delay;
+ 	char forwarding_mode_default[20] = "round-robin"; /* round-robin, synchronized */
+ 	struct property *csi_rate_prop, *dvp_order_prop;
+@@ -349,13 +350,11 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		v4l2_clk_enable(priv->ref_clk);
+ 	}
+ 
+-	pwen = of_get_gpio(np, 0);
+-	if (pwen > 0) {
+-		err = devm_gpio_request_one(&client->dev, pwen, GPIOF_OUT_INIT_LOW, dev_name(&client->dev));
+-		if (err)
+-			dev_err(&client->dev, "cannot request PWEN gpio %d: %d\n", pwen, err);
+-		else
+-			mdelay(250);
++	priv->pwen = devm_gpiod_get(&client->dev, NULL, GPIOF_OUT_INIT_HIGH);
++	if (!IS_ERR(priv->pwen)) {
++		mdelay(5);
++		gpiod_direction_output(priv->pwen, 0);
++		mdelay(5);
+ 	}
+ 
+ 	for (i = 0; i < 4; i++) {
+-- 
+1.9.1
+

@@ -1,7 +1,7 @@
-From 82465a5037d753a39099d5797ef01874e73547c7 Mon Sep 17 00:00:00 2001
+From 6e6fc02ab9b3184a0f68b573a6e05b6303e1df85 Mon Sep 17 00:00:00 2001
 From: Tomas Novotny <tomas@novotny.cz>
 Date: Tue, 11 Oct 2016 15:57:40 +0200
-Subject: [PATCH 2/3] iio: dac: mcp4725: update to mainline
+Subject: [PATCH 2/5] iio: dac: mcp4725: update to mainline
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---

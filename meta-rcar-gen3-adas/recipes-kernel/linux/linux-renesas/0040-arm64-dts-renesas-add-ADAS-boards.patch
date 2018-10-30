@@ -1,4 +1,4 @@
-From 4706b7b6f4b92b0791bd5a2437d400cf76463740 Mon Sep 17 00:00:00 2001
+From aca998b096ed45ae45f6ac84b07c7d7065b95f7e Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 15:05:42 +0300
 Subject: [PATCH] arm64: dts: renesas: add ADAS boards
@@ -96,9 +96,9 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1456 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  459 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1610 +++++++++++++++++++
- arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1617 +++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1623 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  543 +++++++
- 62 files changed, 21151 insertions(+)
+ 62 files changed, 21157 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -14544,7 +14544,7 @@ index 0000000..7bf1d6f
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
 new file mode 100644
-index 0000000..16b2616
+index 0000000..5282184
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk-vbm.dts
 @@ -0,0 +1,505 @@
@@ -14799,7 +14799,7 @@ index 0000000..16b2616
 +				};
 +				port@1 {
 +					ti9x4_csi0ep0: endpoint {
-+						csi-rate = <700>;
++						csi-rate = <1450>;
 +						remote-endpoint = <&csi2_41_ep>;
 +					};
 +				};
@@ -19518,10 +19518,10 @@ index 0000000..0185e46
 +//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
 new file mode 100644
-index 0000000..4939c40
+index 0000000..a5f767d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -0,0 +1,1617 @@
+@@ -0,0 +1,1623 @@
 +/*
 + * Device Tree Source for the ULCB Videobox V2 board
 + *
@@ -19935,13 +19935,19 @@ index 0000000..4939c40
 +				compatible = "ti,tusb8041";
 +				reg = <0x44>;
 +				reset-gpios = <&gpio5 5 0>;
-+				ti,registers = /bits/ 8 <0x0a 0x020>;
++				ti,registers = /bits/ 8 <
++					0x05 0x10
++					0x06 0x0f
++					0x0a 0x20>;
 +			};
 +			tusb8041_45@45 {
 +				compatible = "ti,tusb8041";
 +				reg = <0x45>;
 +				reset-gpios = <&gpio5 5 0>;
-+				ti,registers = /bits/ 8 <0x0a 0x020>;
++				ti,registers = /bits/ 8 <
++					0x05 0x10
++					0x06 0x0f
++					0x0a 0x20>;
 +			};
 +		};
 +
@@ -21689,5 +21695,5 @@ index 0000000..ed04695
 +};
 +
 -- 
-1.9.1
+2.7.4
 

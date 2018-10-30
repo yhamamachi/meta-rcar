@@ -1,0 +1,35 @@
+From 7f34db98effd0fcf3f64589e877118caa9c15a6f Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Tue, 5 Sep 2017 16:20:44 -0400
+Subject: [PATCH 54/80] Request minimum buffer even if need_pool is FALSE
+
+When tee is used, it will not request a pool, but still it wants to
+know how many buffers are required.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=730758
+---
+ sys/kms/gstkmssink.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index d37762a0d..2c6cc7f6a 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -982,11 +982,10 @@ gst_kms_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
+       goto no_pool;
+   }
+ 
+-  if (pool) {
+-    /* we need at least 2 buffer because we hold on to the last one */
+-    gst_query_add_allocation_pool (query, pool, size, 2, 0);
++  /* we need at least 2 buffer because we hold on to the last one */
++  gst_query_add_allocation_pool (query, pool, size, 2, 0);
++  if (pool)
+     gst_object_unref (pool);
+-  }
+ 
+   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
+   gst_query_add_allocation_meta (query, GST_VIDEO_CROP_META_API_TYPE, NULL);
+-- 
+2.11.0
+

@@ -1,0 +1,27 @@
+From 7a945cf5c6ea094d1d6c6f32a3e31328d1dc6510 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Sun, 18 Mar 2018 09:50:51 -0400
+Subject: [PATCH 73/80] kmssink: Add Amlogic upstreamer DRM driver support
+
+Amlogic Upstream driver is named meson, not to be confuse with the build
+system.
+---
+ sys/kms/gstkmssink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index a4129c718..1b5f18df2 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -168,7 +168,7 @@ kms_open (gchar ** driver)
+ {
+   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xilinx_drm", "vc4",
++    "xilinx_drm", "vc4", "meson",
+   };
+   int i, fd = -1;
+ 
+-- 
+2.11.0
+

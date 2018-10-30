@@ -1,0 +1,83 @@
+From 2a28735e00226e2a3b8b9c493dd25db4cf363673 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 24 Oct 2018 01:30:51 +0300
+Subject: [PATCH] max9286: add SWITHCIN
+
+This add coax siwtchin parameter
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/max9286.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
+index e9d0934..722eca5 100644
+--- a/drivers/media/i2c/soc_camera/max9286.c
++++ b/drivers/media/i2c/soc_camera/max9286.c
+@@ -62,6 +62,7 @@ struct max9286_priv {
+ 	int			imager_width;
+ 	atomic_t		use_count;
+ 	u32			csi2_outord;
++	u32			switchin;
+ 	struct i2c_client	*client;
+ 	int			max9271_addr_map[4];
+ 	int			ser_id;
+@@ -131,6 +132,10 @@ struct max9286_priv {
+ module_param(pclk, int, 0644);
+ MODULE_PARM_DESC(pclk, " PCLK rate (default: 100MHz)");
+ 
++static int switchin = 0;
++module_param(switchin, int, 0644);
++MODULE_PARM_DESC(switchin, " COAX SWITCH IN+ and IN- (default: 0 - not switched)");
++
+ enum {
+ 	RGB888_DT = 0,
+ 	RGB565_DT,
+@@ -206,6 +211,7 @@ static void max9286_preinit(struct i2c_client *client, int addr)
+ 	reg8_write(client, 0x0a, 0x00);		/* disable reverse control for all cams */
+ 	reg8_write(client, 0x00, 0x00);		/* disable all GMSL links [0:3] */
+ //	usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
++	reg8_write(client, 0x1b, priv->switchin); /* coax polarity (default - normal) */
+ 	reg8_write(client, 0x1c, priv->him ? 0xf4 : 0x04); /* high-immunity/legacy mode, BWS: 24-bit */
+ }
+ 
+@@ -246,7 +252,7 @@ static void max9286_postinit(struct i2c_client *client, int addr)
+ 	reg8_write(client, 0x00, 0xe0 | priv->links_mask);	/* enable GMSL link for CAMs */
+ 	reg8_write(client, 0x0b, priv->csi2_outord);		/* CSI2 output order */
+ 	reg8_write(client, 0x15, 0x9b);				/* enable CSI output, VC is set accordingly to Link number, BIT7 magic must be set */
+-	reg8_write(client, 0x1b, priv->links_mask);		/* enable equalizer for CAMs */
++	reg8_write(client, 0x1b, priv->switchin | priv->links_mask); /* coax polarity, enable equalizer for CAMs */
+ 	reg8_write(client, 0x1c, (priv->him ? 0xf0 : 0x00) |
+ 				 (priv->bws ? 0x05 : 0x04));	/* high-immunity/legacy mode, BWS 24/32-bit */
+ 	usleep_range(5000, 5500);				/* wait 2ms after any change of reverse channel settings */
+@@ -706,6 +712,9 @@ static int max9286_parse_dt(struct i2c_client *client)
+ 		priv->hsgen = 0;
+ 	if (of_property_read_u32(np, "maxim,pclk", &priv->pclk))
+ 		priv->pclk = pclk;
++	if (of_property_read_u32(np, "maxim,switchin", &priv->switchin))
++		priv->switchin = 0;
++
+ 
+ 	/* module params override dts */
+ 	if (him)
+@@ -734,6 +743,8 @@ static int max9286_parse_dt(struct i2c_client *client)
+ 		priv->hsgen = hsgen;
+ 	if (pclk != 100)
+ 		priv->pclk = pclk;
++	if (switchin)
++		priv->switchin = switchin;
+ 
+ 	for (i = 0; i < priv->links; i++) {
+ 		endpoint = of_graph_get_next_endpoint(np, endpoint);
+@@ -798,7 +809,7 @@ static ssize_t max9286_link_show(struct device *dev,
+ 				 struct device_attribute *attr, char *buf)
+ {
+ 	int i = -1;
+-	u8 val;
++	u8 val = 0;
+ 	bool lenghterr, linebuffof, hlocked, prbsok, vsyncdet, configdet, videodet;
+ 	int lf;
+ 	u8 prbserr = 0, deterr = 0, correrr = 0;
+-- 
+1.9.1
+

@@ -1,0 +1,24 @@
+From 31630b8ad511679de42c0c4e607fc9a1c6636dfc Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Fri, 8 Sep 2017 10:16:12 -0400
+Subject: [PATCH 57/80] kmssink: Don't leak the dumb buffer on drain
+
+---
+ sys/kms/gstkmssink.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index da0aee804..7a62e40f2 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1400,6 +1400,7 @@ gst_kms_sink_drain (GstKMSSink * self)
+     dumb_buf = gst_kms_sink_copy_to_dumb_buffer (self, parent_meta->buffer);
+     clear_cached_kmsmem (self);
+     gst_kms_sink_show_frame (GST_VIDEO_SINK (self), dumb_buf);
++    gst_buffer_unref (dumb_buf);
+   }
+ }
+ 
+-- 
+2.11.0
+

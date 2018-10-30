@@ -1,0 +1,33 @@
+From 7c94d641d99cf468fbe98f056c73d64789fbcc98 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Thu, 5 Oct 2017 15:46:20 -0400
+Subject: [PATCH 63/80] kmsallocator: Update GstVideoInfo.size when
+ extrapolating
+
+When we guess the strides, we need to also update the GstVideoInfo.size
+otherwise the memory size will be set to something smaller then needed.
+This was causing crash with the DMABuf exportation, since we would not
+mmap() a large enough buffer.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787593
+---
+ sys/kms/gstkmsallocator.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index dd5f230d1..4118e17f1 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -213,6 +213,9 @@ gst_kms_allocator_memory_create (GstKMSAllocator * allocator,
+         GST_VIDEO_INFO_PLANE_OFFSET (vinfo, i));
+   }
+ 
++  /* Update with the size use for display, excluding any padding at the end */
++  GST_VIDEO_INFO_SIZE (vinfo) = offs;
++
+ done:
+   kmsmem->bo->handle = arg.handle;
+   /* will be used a memory maxsize */
+-- 
+2.11.0
+

@@ -1,0 +1,25 @@
+From 567a0299dbf84de2ba96384b7205d01494e1e0b0 Mon Sep 17 00:00:00 2001
+From: Roman Meshkevich <roman.meshkevich@cogentembedded.com>
+Date: Tue, 18 Sep 2018 17:18:37 +0300
+Subject: [PATCH] ca-certificates: git repo moved to another location
+
+---
+ meta/recipes-support/ca-certificates/ca-certificates_20160104.bb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta/recipes-support/ca-certificates/ca-certificates_20160104.bb b/meta/recipes-support/ca-certificates/ca-certificates_20160104.bb
+index e0f1939..f9d8718 100644
+--- a/meta/recipes-support/ca-certificates/ca-certificates_20160104.bb
++++ b/meta/recipes-support/ca-certificates/ca-certificates_20160104.bb
+@@ -13,7 +13,7 @@ DEPENDS_class-native = ""
+ 
+ SRCREV = "f54715702c5c0581c9461f78fd84e2c8d2ec243c"
+ 
+-SRC_URI = "git://anonscm.debian.org/collab-maint/ca-certificates.git \
++SRC_URI = "git://salsa.debian.org/debian/ca-certificates.git;protocol=https \
+            file://0001-update-ca-certificates-remove-c-rehash.patch \
+            file://0002-update-ca-certificates-use-SYSROOT.patch \
+            file://0001-update-ca-certificates-don-t-use-Debianisms-in-run-p.patch \
+-- 
+2.7.4
+

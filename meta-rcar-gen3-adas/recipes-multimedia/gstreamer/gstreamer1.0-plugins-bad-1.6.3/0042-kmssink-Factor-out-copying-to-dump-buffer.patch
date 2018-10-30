@@ -1,0 +1,77 @@
+From fe3a63ccfed07e1eaeddd92d3980c23483f5e1c6 Mon Sep 17 00:00:00 2001
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Date: Wed, 5 Jul 2017 16:51:12 -0400
+Subject: [PATCH 42/80] kmssink: Factor out copying to dump buffer
+
+This will be used to copy any upstream memory in order to return it on
+resolution change, allocation query or drain query.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=782774
+---
+ sys/kms/gstkmssink.c | 39 +++++++++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 16 deletions(-)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index 995e92885..639d30d8f 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1136,26 +1136,12 @@ wrap_mem:
+ }
+ 
+ static GstBuffer *
+-gst_kms_sink_get_input_buffer (GstKMSSink * self, GstBuffer * inbuf)
++gst_kms_sink_copy_to_dumb_buffer (GstKMSSink * self, GstBuffer * inbuf)
+ {
+-  GstMemory *mem;
+-  GstBuffer *buf;
+   GstFlowReturn ret;
+   GstVideoFrame inframe, outframe;
+   gboolean success;
+-
+-  mem = gst_buffer_peek_memory (inbuf, 0);
+-  if (!mem)
+-    return NULL;
+-
+-  if (gst_is_kms_memory (mem))
+-    return gst_buffer_ref (inbuf);
+-
+-  buf = NULL;
+-  if (gst_kms_sink_import_dmabuf (self, inbuf, &buf))
+-    return buf;
+-
+-  GST_CAT_INFO_OBJECT (CAT_PERFORMANCE, self, "frame copy");
++  GstBuffer *buf;
+ 
+   if (!gst_buffer_pool_set_active (self->pool, TRUE))
+     goto activate_pool_failed;
+@@ -1215,6 +1201,27 @@ error_map_src_buffer:
+   }
+ }
+ 
++static GstBuffer *
++gst_kms_sink_get_input_buffer (GstKMSSink * self, GstBuffer * inbuf)
++{
++  GstMemory *mem;
++  GstBuffer *buf = NULL;
++
++  mem = gst_buffer_peek_memory (inbuf, 0);
++  if (!mem)
++    return NULL;
++
++  if (gst_is_kms_memory (mem))
++    return gst_buffer_ref (inbuf);
++
++  if (gst_kms_sink_import_dmabuf (self, inbuf, &buf))
++    return buf;
++
++  GST_CAT_INFO_OBJECT (CAT_PERFORMANCE, self, "frame copy");
++
++  return gst_kms_sink_copy_to_dumb_buffer (self, inbuf);
++}
++
+ static GstFlowReturn
+ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
+ {
+-- 
+2.11.0
+

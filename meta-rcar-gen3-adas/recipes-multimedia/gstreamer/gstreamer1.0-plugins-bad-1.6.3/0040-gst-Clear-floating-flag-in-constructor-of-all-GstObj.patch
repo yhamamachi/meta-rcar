@@ -1,0 +1,50 @@
+From 143d45163cdcb7a39feb710158e6dfbce70931d8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Mon, 15 May 2017 20:31:31 +0300
+Subject: [PATCH 40/80] gst: Clear floating flag in constructor of all
+ GstObject subclasses that are not owned by any parent
+
+https://bugzilla.gnome.org/show_bug.cgi?id=743062
+---
+ sys/kms/gstkmsallocator.c  | 7 ++++++-
+ sys/kms/gstkmsbufferpool.c | 7 ++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/sys/kms/gstkmsallocator.c b/sys/kms/gstkmsallocator.c
+index 687ebf992..a3c444396 100644
+--- a/sys/kms/gstkmsallocator.c
++++ b/sys/kms/gstkmsallocator.c
+@@ -346,8 +346,13 @@ gst_kms_allocator_init (GstKMSAllocator * allocator)
+ GstAllocator *
+ gst_kms_allocator_new (int fd)
+ {
+-  return g_object_new (GST_TYPE_KMS_ALLOCATOR, "name",
++  GstAllocator *alloc;
++
++  alloc = g_object_new (GST_TYPE_KMS_ALLOCATOR, "name",
+       "KMSMemory::allocator", "drm-fd", fd, NULL);
++  gst_object_ref_sink (alloc);
++
++  return alloc;
+ }
+ 
+ /* The mem_offsets are relative to the GstMemory start, unlike the vinfo->offset
+diff --git a/sys/kms/gstkmsbufferpool.c b/sys/kms/gstkmsbufferpool.c
+index 329135c10..5e12d3fbe 100644
+--- a/sys/kms/gstkmsbufferpool.c
++++ b/sys/kms/gstkmsbufferpool.c
+@@ -209,5 +209,10 @@ gst_kms_buffer_pool_class_init (GstKMSBufferPoolClass * klass)
+ GstBufferPool *
+ gst_kms_buffer_pool_new (void)
+ {
+-  return g_object_new (GST_TYPE_KMS_BUFFER_POOL, NULL);
++  GstBufferPool *pool;
++
++  pool = g_object_new (GST_TYPE_KMS_BUFFER_POOL, NULL);
++  gst_object_ref_sink (pool);
++
++  return pool;
+ }
+-- 
+2.11.0
+

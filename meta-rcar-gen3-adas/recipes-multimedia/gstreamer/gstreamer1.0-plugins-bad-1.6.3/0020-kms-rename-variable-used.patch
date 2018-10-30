@@ -1,0 +1,49 @@
+From 905dbe4432db2640f0fd158f10bd10f596430e1c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tim-Philipp=20M=C3=BCller?= <tim@centricular.com>
+Date: Fri, 4 Nov 2016 09:26:48 +0000
+Subject: [PATCH 20/80] kms: rename variable used
+
+Since this includes kms.
+---
+ configure.ac        | 2 +-
+ sys/kms/Makefile.am | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 3e334bf8c..1cf284b3c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2129,7 +2129,7 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
+ AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
+   AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
+   AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
+-  PKG_CHECK_MODULES([DRM], [libdrm libkms], HAVE_KMS=yes, HAVE_KMS=no)
++  PKG_CHECK_MODULES([KMS_DRM], [libdrm >= 2.4.55 libkms], HAVE_KMS=yes, HAVE_KMS=no)
+ ])
+ 
+ dnl *** ladspa ***
+diff --git a/sys/kms/Makefile.am b/sys/kms/Makefile.am
+index 9b12c7242..daf2ff710 100644
+--- a/sys/kms/Makefile.am
++++ b/sys/kms/Makefile.am
+@@ -13,7 +13,7 @@ libgstkmssink_la_CFLAGS = 			\
+ 	$(GST_VIDEO_CFLAGS)			\
+ 	$(GST_ALLOCATORS_CFLAGS)		\
+ 	$(GST_CFLAGS) 				\
+-	$(DRM_CFLAGS) 				\
++	$(KMS_DRM_CFLAGS) 			\
+ 	$(NULL)
+ 
+ libgstkmssink_la_LIBADD = 			\
+@@ -22,7 +22,7 @@ libgstkmssink_la_LIBADD = 			\
+ 	$(GST_VIDEO_LIBS)			\
+ 	$(GST_ALLOCATORS_LIBS)			\
+ 	$(GST_LIBS) 				\
+-	$(DRM_LIBS) 				\
++	$(KMS_DRM_LIBS) 			\
+ 	$(NULL)
+ 
+ libgstkmssink_la_LDFLAGS = 			\
+-- 
+2.11.0
+

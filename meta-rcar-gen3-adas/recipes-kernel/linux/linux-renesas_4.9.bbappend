@@ -120,8 +120,26 @@ SRC_URI_append = " \
     file://0137-media-rcar_imr-Enable-LUCE-for-NV16-format.patch \
     file://v3h-vb/0001-clk-cs2000-add-support-for-cs2300.patch \
     file://v3h-vb/0002-iio-dac-mcp4725-update-to-mainline.patch \
-    file://v3h-vb/0003-V3H-add-support-for-8-channel-VideoBox-board-from-Co.patch \
+    file://v3h-vb/0003-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch \
+    file://v3h-vb/0004-arm64-renesas-r8a7798-use-CSI-4-lanes.patch \
+    file://v3h-vb/0005-arm64-renesas-r8a7798-use-CSI-separation-from-deseri.patch \
     file://lvds/0001-rcar-vin-fix-get_selection-use.patch \
+    file://lvds/0002-LVDS-update-AR0233-AR0143-GW4200.patch \
+    file://lvds/0003-LVDS-update-AR0233-IMX390-TI9X4.patch \
+    file://lvds/0004-TI9x4-duplicate-stream-to-both-CSI.patch \
+    file://lvds/0005-TI9x4-toggle-PDB-on-probe.patch \
+    file://lvds/0006-LVDS-TI9x4-double-CSI-AR0233-new-blanking.patch \
+    file://lvds/0007-LVDS-add-AR0231-sensor.patch \
+    file://lvds/0008-v4l2-Add-V4L2_PIX_FMT_SGRBG16.patch \
+    file://lvds/0009-TI9x4-add-1500Hz.patch \
+    file://v3h-vb/0006-V3HSK-VideoBox-use-23.5Mhz.patch \
+    file://lvds/0010-max9286-add-SWITHCIN.patch \
+    file://lvds/0011-ar0143-update-for-TI-seralizers.patch \
+    file://lvds/0012-LVDS-add-AR0140-imager.patch \
+    ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
+    file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
+    file://0139-Renesas-RPC-support-single-mode-write-command.patch \
+    file://0140-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -197,6 +215,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a7798-v3hsk.dtb \
     renesas/r8a7798-v3hsk-vbm.dtb \
     renesas/r8a7798-v3hsk-vbm-v2.dtb \
+    renesas/r8a7798-v3hsk-vb-4ch.dtb \
     renesas/r8a7798-v3hsk-vb-8ch.dtb \
 "
 

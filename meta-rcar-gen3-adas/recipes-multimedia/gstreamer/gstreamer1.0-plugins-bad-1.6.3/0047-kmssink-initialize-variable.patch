@@ -1,0 +1,29 @@
+From 8f022c04ef273447adcceb46dcf2b0ffd1c0ed4b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADctor=20Manuel=20J=C3=A1quez=20Leal?=
+ <vjaquez@igalia.com>
+Date: Mon, 10 Jul 2017 13:27:40 +0200
+Subject: [PATCH 47/80] kmssink: initialize variable
+
+Otherwise clang complains:
+
+gstkmssink.c:1192:7: warning: variable 'buf' is used uninitialized
+whenever 'if' condition is true [-Wsometimes-uninitialized]
+---
+ sys/kms/gstkmssink.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
+index e990039d5..bf92e6d9e 100644
+--- a/sys/kms/gstkmssink.c
++++ b/sys/kms/gstkmssink.c
+@@ -1189,6 +1189,7 @@ gst_kms_sink_copy_to_dumb_buffer (GstKMSSink * self, GstBuffer * inbuf)
+   gboolean success;
+   GstBuffer *buf;
+ 
++  buf = NULL;
+   if (!gst_buffer_pool_set_active (self->pool, TRUE))
+     goto activate_pool_failed;
+ 
+-- 
+2.11.0
+

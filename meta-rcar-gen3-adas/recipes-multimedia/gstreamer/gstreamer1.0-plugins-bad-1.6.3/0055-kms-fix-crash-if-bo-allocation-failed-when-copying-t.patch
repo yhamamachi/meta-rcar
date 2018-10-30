@@ -1,0 +1,45 @@
+From 119cfda104a662861826f26421c9ee58991e1c2b Mon Sep 17 00:00:00 2001
+From: Guillaume Desmottes <guillaume.desmottes@collabora.co.uk>
+Date: Fri, 8 Sep 2017 14:57:06 +0200
+Subject: [PATCH 55/80] kms: fix crash if bo allocation failed when copying to
+ dumb buffer
+
+If bo allocation failed we destroy the buffer and return GST_FLOW_ERROR,
+but the @buffer pointer was still pointing to the address of the
+destroyed buffer. gst_kms_sink_copy_to_dumb_buffer() was then trying to
+unref it when bailing out causing a crash.
+
+Leave @buffer untouched if allocation failed to fix the crash.
+Also remove the check on *buffer being not NULL as gst_buffer_new()
+will abort if it failed.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787442
+---
+ sys/kms/gstkmsbufferpool.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/sys/kms/gstkmsbufferpool.c b/sys/kms/gstkmsbufferpool.c
+index 5e12d3fbe..a9deb23e5 100644
+--- a/sys/kms/gstkmsbufferpool.c
++++ b/sys/kms/gstkmsbufferpool.c
+@@ -139,14 +139,11 @@ gst_kms_buffer_pool_alloc_buffer (GstBufferPool * pool, GstBuffer ** buffer,
+   priv = vpool->priv;
+   info = &priv->vinfo;
+ 
+-  *buffer = gst_buffer_new ();
+-  if (*buffer == NULL)
+-    goto no_memory;
+   mem = gst_kms_allocator_bo_alloc (priv->allocator, info);
+-  if (!mem) {
+-    gst_buffer_unref (*buffer);
++  if (!mem)
+     goto no_memory;
+-  }
++
++  *buffer = gst_buffer_new ();
+   gst_buffer_append_memory (*buffer, mem);
+ 
+   if (priv->add_videometa) {
+-- 
+2.11.0
+

@@ -1,0 +1,40 @@
+From 4f70ffbd185a2d1c9c13e533dfc5b11cf07d8585 Mon Sep 17 00:00:00 2001
+From: Arun Raghavan <arun@osg.samsung.com>
+Date: Mon, 14 Nov 2016 21:03:20 +0530
+Subject: [PATCH 23/80] kmssink: Enable in meson build
+
+---
+ sys/kms/meson.build | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 sys/kms/meson.build
+
+diff --git a/sys/kms/meson.build b/sys/kms/meson.build
+new file mode 100644
+index 000000000..10f8fd92d
+--- /dev/null
++++ b/sys/kms/meson.build
+@@ -0,0 +1,21 @@
++kmssink_sources = [
++  'gstkmsallocator.c',
++  'gstkmsbufferpool.c',
++  'gstkmssink.c',
++  'gstkmsutils.c',
++]
++
++libdrm_dep = dependency('libdrm', version : '>= 2.4.55', required : false)
++libkms_dep = dependency('libkms', required : false)
++
++if libdrm_dep.found() and libkms_dep.found()
++  gstkmssink = library('gstkms',
++    kmssink_sources,
++    c_args : gst_plugins_bad_args,
++    include_directories : [configinc],
++    dependencies : [gstbase_dep, gstvideo_dep, gstallocators_dep, libdrm_dep,
++                    libkms_dep],
++    install : true,
++    install_dir : plugins_install_dir,
++  )
++endif
+-- 
+2.11.0
+
