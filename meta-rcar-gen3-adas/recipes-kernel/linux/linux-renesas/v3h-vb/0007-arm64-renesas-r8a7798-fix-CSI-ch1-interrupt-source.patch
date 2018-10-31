@@ -1,0 +1,28 @@
+From f4ac21885aecd686c26fdafee3921330a92c944a Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 31 Oct 2018 22:02:02 +0300
+Subject: [PATCH] arm64: renesas: r8a7798: fix CSI ch1 interrupt source
+
+This fixes interrupts number for CSI2 channel1
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+index b430d91..3224adf 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+@@ -351,7 +351,7 @@
+ 		csi2_41: csi2@feab0000 {
+ 			compatible = "renesas,r8a7798-csi2";
+ 			reg = <0 0xfeab0000 0 0x10000>;
+-			interrupts = <GIC_SPI 247 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <GIC_SPI 241 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 715>;
+ 			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
+ 			status = "disabled";
+-- 
+1.9.1
+

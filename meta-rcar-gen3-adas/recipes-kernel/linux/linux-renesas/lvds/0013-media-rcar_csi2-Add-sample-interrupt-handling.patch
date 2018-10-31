@@ -1,0 +1,93 @@
+From 7ec758e373323ebd192faebda977b5701837f837 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 31 Oct 2018 22:00:44 +0300
+Subject: [PATCH] media: rcar_csi2: Add sample interrupt handling
+
+This add SOF/EOF interrupt handling
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/platform/soc_camera/rcar_csi2.c | 39 ++++++++++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
+index 2e58ac1..1f306a5 100644
+--- a/drivers/media/platform/soc_camera/rcar_csi2.c
++++ b/drivers/media/platform/soc_camera/rcar_csi2.c
+@@ -37,6 +37,8 @@
+ 
+ #include <media/v4l2-of.h>
+ 
++//#define RCAR_CSI2_USE_INTERRUPTS
++
+ #define DRV_NAME "rcar_csi2"
+ #define VC_MAX_CHANNEL		4
+ 
+@@ -438,6 +440,24 @@ static irqreturn_t rcar_csi2_irq(int irq, void *data)
+ 	if (!int_status)
+ 		goto done;
+ 
++	/* report interrupt to customer (userspace?) */
++	if (int_status & RCAR_CSI2_INTSTATE_VD4_START)
++		printk("sof vc3\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD3_START)
++		printk("sof vc2\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD2_START)
++		printk("sof vc1\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD1_START)
++		printk("sof vc0\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD4_END)
++		printk("eof vc3\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD3_END)
++		printk("eof vc2\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD2_END)
++		printk("eof vc1\n");
++	if (int_status & RCAR_CSI2_INTSTATE_VD1_END)
++		printk("eof vc0\n");
++
+ 	/* ack interrupts */
+ 	iowrite32(int_status, priv->base + RCAR_CSI2_INTSTATE);
+ 	handled = 1;
+@@ -453,6 +473,10 @@ static void rcar_csi2_hwdeinit(struct rcar_csi2 *priv)
+ {
+ 	iowrite32(0, priv->base + RCAR_CSI2_PHYCNT);
+ 
++	/* mask interrupts */
++	iowrite32(~0U, priv->base + RCAR_CSI2_INTCLOSE);
++	/* ack interrupts */
++	iowrite32(~0U, priv->base + RCAR_CSI2_INTSTATE);
+ 	/* reset CSI2 hardware */
+ 	iowrite32(0x00000001, priv->base + RCAR_CSI2_SRST);
+ 	udelay(5);
+@@ -547,6 +571,20 @@ static int rcar_csi2_hwinit(struct rcar_csi2 *priv)
+ 	dev_dbg(&priv->pdev->dev, "CSI2 VCDT2: 0x%x\n",
+ 			 ioread32(priv->base + RCAR_CSI2_VCDT2));
+ 
++#ifdef RCAR_CSI2_USE_INTERRUPTS
++	/* SOF/EOF only interrupts */
++	tmp = RCAR_CSI2_INTSTATE_VD4_START | RCAR_CSI2_INTSTATE_VD4_END | \
++	      RCAR_CSI2_INTSTATE_VD3_START | RCAR_CSI2_INTSTATE_VD3_END | \
++	      RCAR_CSI2_INTSTATE_VD2_START | RCAR_CSI2_INTSTATE_VD2_END |
++	      RCAR_CSI2_INTSTATE_VD1_START | RCAR_CSI2_INTSTATE_VD1_END;
++	/* unmask interrupts */
++	iowrite32(~tmp, priv->base + RCAR_CSI2_INTCLOSE);
++	/* ack all interrupts */
++	iowrite32(~0U, priv->base + RCAR_CSI2_INTSTATE);
++	/* enable interrupts */
++	iowrite32(tmp, priv->base + RCAR_CSI2_INTEN);
++#endif
++
+ 	/* wait until video decoder power off */
+ 	msleep(10);
+ 	{
+@@ -721,7 +759,6 @@ static int rcar_csi2_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	/* Interrupt unused so far */
+ 	irq = platform_get_irq(pdev, 0);
+ 
+ 	if (!res || (int)irq <= 0) {
+-- 
+1.9.1
+
