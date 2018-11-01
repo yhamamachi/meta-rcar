@@ -10365,7 +10365,7 @@ index 05f623468..ad5dff3 100644
  static int rcar_csi2_set_phy_freq(struct rcar_csi2 *priv)
  {
 -	const uint32_t const hs_freq_range[43] = {
-+	const uint32_t const hs_freq_range_v3m[43] = {
++	const uint32_t hs_freq_range_v3m[43] = {
 +		0x00, 0x00, 0x20, 0x40, 0x02,	/* 80M, 90M, 100M, 110M, 120M */
 +		0x02, 0x22, 0x42, 0x04, 0x04,	/* 130M, 140M, 150M, 160M, 170M */
 +		0x24, 0x44, 0x44, 0x06, 0x26,	/* 180M, 190M, 205M, 220M, 235M */
@@ -10376,7 +10376,7 @@ index 05f623468..ad5dff3 100644
 +		0x16, 0x36, 0x56, 0x76, 0x18,	/* 1150M, 1200M, 1250M, 1300M, 1350M */
 +		0x38, 0x58, 0x78		/* 1400M, 1450M, 1500M */
 +	};
-+	const uint32_t const hs_freq_range_m3[43] = {
++	const uint32_t hs_freq_range_m3[43] = {
  		0x00, 0x10, 0x20, 0x30, 0x01,  /* 0-4   */
  		0x11, 0x21, 0x31, 0x02, 0x12,  /* 5-9   */
  		0x22, 0x32, 0x03, 0x13, 0x23,  /* 10-14 */
@@ -10384,7 +10384,7 @@ index 05f623468..ad5dff3 100644
  		0x0B, 0x1B, 0x2B, 0x3B, 0x0C,  /* 35-39 */
  		0x1C, 0x2C, 0x3C               /* 40-42 */
  	};
-+	const uint32_t const hs_freq_range_h3[43] = {
++	const uint32_t hs_freq_range_h3[43] = {
 +		0x00, 0x10, 0x20, 0x30, 0x01,  /* 0-4   */
 +		0x11, 0x21, 0x31, 0x02, 0x12,  /* 5-9   */
 +		0x22, 0x32, 0x03, 0x13, 0x23,  /* 10-14 */
@@ -10395,7 +10395,7 @@ index 05f623468..ad5dff3 100644
 +		0x3B, 0x0B, 0x1B, 0x2B, 0x3C,  /* 35-39 */
 +		0x0C, 0x1C, 0x2C               /* 40-42 */
 +	};
-+	const uint32_t const csi2_rate_range[43] = {
++	const uint32_t csi2_rate_range[43] = {
 +		80, 90, 100, 110, 120,		/* 0-4   */
 +		130, 140, 150, 160, 170,	/* 5-9   */
 +		180, 190, 205, 220, 235,	/* 10-14 */
