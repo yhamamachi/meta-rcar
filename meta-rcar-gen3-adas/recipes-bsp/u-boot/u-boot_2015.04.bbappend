@@ -15,6 +15,7 @@ SRC_URI_append = " \
     file://0012-ARM-rcar_gen3-Add-I2C-definitions.patch \
     file://0013-i2c-rcar_i2c-add-16bit-addressing.patch \
     file://0014-mtd-spi-QSPI-flash-support.patch \
+    file://0019-tools-env-Correct-include-kconfig.patch \
     file://0020-arm-renesas-Add-Renesas-R8A7797-SoC-support.patch \
     file://0021-board-renesas-Add-V3M-Eagle-board.patch \
     file://0023-board-renesas-Add-V3MSK-board.patch \
