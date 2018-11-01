@@ -1,0 +1,40 @@
+From cae101184add52713c7d232559dff8af32e5cc05 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 18 May 2018 21:30:18 +0300
+Subject: [PATCH 135/248] sh_eth: add RGMII support
+
+The R-Car V3H (AKA R8A77980) GEther controller  adds support for the RGMII
+PHY interface mode as a new  value  for the RMII_MII register.
+
+Based on the original (and large) patch by Vladimir Barinov.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 230c184679d5517e9770275853cd3456d00d6599
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 5970d9e..4961492 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -466,6 +466,9 @@ static void sh_eth_select_mii(struct net_device *ndev)
+ 	u32 value;
+ 
+ 	switch (mdp->phy_interface) {
++	case PHY_INTERFACE_MODE_RGMII ... PHY_INTERFACE_MODE_RGMII_TXID:
++		value = 0x3;
++		break;
+ 	case PHY_INTERFACE_MODE_GMII:
+ 		value = 0x2;
+ 		break;
+-- 
+2.7.4
+

@@ -1,0 +1,49 @@
+From 613c79b68ba6c504334f498896fa5025513b3c16 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 1 Nov 2018 17:34:32 +0300
+Subject: [PATCH 247/248] arm64: dts: renesas: Add r8a77970-v3mzf support
+
+This adds r8a77970-v3mzf device tree support.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/Makefile           | 1 +
+ arch/arm64/boot/dts/renesas/r8a77970-v3mzf.dts | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
+index d257cbc..6aa9274 100644
+--- a/arch/arm64/boot/dts/renesas/Makefile
++++ b/arch/arm64/boot/dts/renesas/Makefile
+@@ -36,6 +36,7 @@ dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-v3msk-view.dtb r8a77970-es1-v3msk-view.d
+ dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-v3msk-kf.dtb r8a77970-es1-v3msk-kf.dtb
+ dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-v3msk-vbm.dtb r8a77970-es1-v3msk-vbm.dtb
+ dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-v3msk-vbm-v2.dtb r8a77970-es1-v3msk-vbm-v2.dtb
++dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-v3mzf.dtb
+ 
+ always		:= $(dtb-y)
+ clean-files	:= *.dtb
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3mzf.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3mzf.dts
+index 2087364..f7ba831 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3mzf.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3mzf.dts
+@@ -395,7 +395,7 @@
+ 	status = "okay";
+ };
+ 
+-&sdhi2 {
++&mmc0 {
+ 	/* used for on-board eMMC */
+ 	pinctrl-0 = <&sdhi2_pins_3v3>;
+ 	pinctrl-names = "default";
+@@ -437,6 +437,6 @@
+ 	};
+ };
+ 
+-&wdt0 {
++&rwdt {
+ 	status = "okay";
+ };
+-- 
+2.7.4
+

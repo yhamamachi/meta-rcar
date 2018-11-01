@@ -1,0 +1,38 @@
+From 5f509e14322638138b7d2ce563dca2c991fe634f Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Tue, 6 Feb 2018 14:05:54 +0100
+Subject: [PATCH 044/248] arm64: dts: renesas: r8a77995: Remove non-existing
+ STBE region
+
+R-Car D3 does not have the Stream Buffer for EtherAVB-IF (STBE).
+
+Note that the RAVB driver does not use this region.
+
+Fixes: f9ba0c4cfe6169b7 ("arm64: dts: renesas: r8a77995: Add EthernetAVB device node")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit fa3d4c67dfe920515a3d840de983a2b3e77d3b94
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77995.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77995.dtsi b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+index dc9a988..6219103 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77995.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+@@ -431,7 +431,7 @@
+ 		avb: ethernet@e6800000 {
+ 			compatible = "renesas,etheravb-r8a77995",
+ 				     "renesas,etheravb-rcar-gen3";
+-			reg = <0 0xe6800000 0 0x800>, <0 0xe6a00000 0 0x10000>;
++			reg = <0 0xe6800000 0 0x800>;
+ 			interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+-- 
+2.7.4
+

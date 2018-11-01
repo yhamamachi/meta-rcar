@@ -1,0 +1,60 @@
+From 496e15d2a840b18fd6ac7cc04c98de5176553631 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 12 Apr 2018 10:14:00 +0200
+Subject: [PATCH 107/248] arm64: dts: renesas: r8a77970: add LVDS support
+
+Define the generic R8A77970 part of the LVDS device node.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 3cd0bd7d92bb54dc224e23dcb2cc319ff83b7b73
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 8efb5c3..a194cb8 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -660,6 +660,34 @@
+ 				port@1 {
+ 					reg = <1>;
+ 					du_out_lvds0: endpoint {
++						remote-endpoint = <&lvds0_in>;
++					};
++				};
++			};
++		};
++
++		lvds0: lvds-encoder@feb90000 {
++			compatible = "renesas,r8a77970-lvds";
++			reg = <0 0xfeb90000 0 0x14>;
++			clocks = <&cpg CPG_MOD 727>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			resets = <&cpg 727>;
++			status = "disabled";
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				port@0 {
++					reg = <0>;
++					lvds0_in: endpoint {
++						remote-endpoint =
++							<&du_out_lvds0>;
++					};
++				};
++				port@1 {
++					reg = <1>;
++					lvds0_out: endpoint {
+ 					};
+ 				};
+ 			};
+-- 
+2.7.4
+

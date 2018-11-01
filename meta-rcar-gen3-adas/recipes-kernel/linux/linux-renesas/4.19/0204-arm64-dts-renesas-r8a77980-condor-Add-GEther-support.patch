@@ -1,0 +1,78 @@
+From 1a52c42e159e8c5e6022ff9f57335dd9dab37402 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 17 Oct 2018 22:26:12 +0300
+Subject: [PATCH 204/248] arm64: dts: renesas: r8a77980: condor: Add GEther
+ support
+
+This is based on the original patch from Sergei Shtylyov
+which adds GEther support to the R8A77980 Condor board.
+The difference is that instead of removing AVB Ethernet
+it just disables it. Official Condor boards have GEther
+support by default.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts | 26 ++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index 13c3913..8651a63 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -16,6 +16,7 @@
+ 	aliases {
+ 		serial0 = &scif0;
+ 		ethernet0 = &avb;
++		ethernet1 = &gether;
+ 	};
+ 
+ 	chosen {
+@@ -104,7 +105,7 @@
+ 	phy-mode = "rgmii-id";
+ 	phy-handle = <&phy0>;
+ 	renesas,no-ether-link;
+-	status = "okay";
++	status = "disabled";
+ 
+ 	phy0: ethernet-phy@0 {
+ 		rxc-skew-ps = <1500>;
+@@ -148,6 +149,23 @@
+ 	clock-frequency = <32768>;
+ };
+ 
++&gether {
++	pinctrl-0 = <&gether_pins>;
++	pinctrl-names = "default";
++
++	phy-mode = "rgmii-id";
++	phy-handle = <&phy1>;
++	renesas,no-ether-link;
++	status = "okay";
++
++	phy1: ethernet-phy@1 {
++		rxc-skew-ps = <1500>;
++		reg = <0>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <23 IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
+ &i2c0 {
+ 	pinctrl-0 = <&i2c0_pins>;
+ 	pinctrl-names = "default";
+@@ -243,6 +261,12 @@
+ 		function = "canfd0";
+ 	};
+ 
++	gether_pins: gether {
++		groups = "gether_mdio_a", "gether_rgmii",
++			 "gether_txcrefclk", "gether_txcrefclk_mega";
++		function = "gether";
++	};
++
+ 	i2c0_pins: i2c0 {
+ 		groups = "i2c0";
+ 		function = "i2c0";
+-- 
+2.7.4
+

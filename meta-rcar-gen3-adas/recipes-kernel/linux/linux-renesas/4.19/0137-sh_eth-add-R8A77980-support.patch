@@ -1,0 +1,102 @@
+From 3fd58ff88293c0e1e512589d4af997d21d424a39 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 18 May 2018 21:32:46 +0300
+Subject: [PATCH 137/248] sh_eth: add R8A77980 support
+
+Finally, add support for the DT probing of the R-Car V3H (AKA R8A77980) --
+it's the only R-Car gen3 SoC having the GEther controller -- others have
+only EtherAVB...
+
+Based on the original (and large) patch by Vladimir Barinov.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 3eb9c2ad1db04913041b78e0b5e543527128b90b
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/net/sh_eth.txt |  1 +
+ drivers/net/ethernet/renesas/sh_eth.c            | 44 ++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/net/sh_eth.txt b/Documentation/devicetree/bindings/net/sh_eth.txt
+index 5172799..82a4cf2 100644
+--- a/Documentation/devicetree/bindings/net/sh_eth.txt
++++ b/Documentation/devicetree/bindings/net/sh_eth.txt
+@@ -14,6 +14,7 @@ Required properties:
+ 	      "renesas,ether-r8a7791"  if the device is a part of R8A7791 SoC.
+ 	      "renesas,ether-r8a7793"  if the device is a part of R8A7793 SoC.
+ 	      "renesas,ether-r8a7794"  if the device is a part of R8A7794 SoC.
++	      "renesas,gether-r8a77980" if the device is a part of R8A77980 SoC.
+ 	      "renesas,ether-r7s72100" if the device is a part of R7S72100 SoC.
+ 	      "renesas,rcar-gen1-ether" for a generic R-Car Gen1 device.
+ 	      "renesas,rcar-gen2-ether" for a generic R-Car Gen2 or RZ/G1
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 3cd1221..420a127 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -753,6 +753,49 @@ static struct sh_eth_cpu_data rcar_gen2_data = {
+ 	.rmiimode	= 1,
+ 	.magic		= 1,
+ };
++
++/* R8A77980 */
++static struct sh_eth_cpu_data r8a77980_data = {
++	.soft_reset	= sh_eth_soft_reset_gether,
++
++	.set_duplex	= sh_eth_set_duplex,
++	.set_rate	= sh_eth_set_rate_gether,
++
++	.register_type  = SH_ETH_REG_GIGABIT,
++
++	.edtrr_trns	= EDTRR_TRNS_GETHER,
++	.ecsr_value	= ECSR_PSRTO | ECSR_LCHNG | ECSR_ICD | ECSR_MPD,
++	.ecsipr_value	= ECSIPR_PSRTOIP | ECSIPR_LCHNGIP | ECSIPR_ICDIP |
++			  ECSIPR_MPDIP,
++	.eesipr_value	= EESIPR_RFCOFIP | EESIPR_ECIIP |
++			  EESIPR_FTCIP | EESIPR_TDEIP | EESIPR_TFUFIP |
++			  EESIPR_FRIP | EESIPR_RDEIP | EESIPR_RFOFIP |
++			  EESIPR_RMAFIP | EESIPR_RRFIP |
++			  EESIPR_RTLFIP | EESIPR_RTSFIP |
++			  EESIPR_PREIP | EESIPR_CERFIP,
++
++	.tx_check       = EESR_FTC | EESR_CD | EESR_RTO,
++	.eesr_err_check = EESR_TWB1 | EESR_TWB | EESR_TABT | EESR_RABT |
++			  EESR_RFE | EESR_RDE | EESR_RFRMER |
++			  EESR_TFE | EESR_TDE | EESR_ECI,
++	.fdr_value	= 0x0000070f,
++
++	.apr		= 1,
++	.mpr		= 1,
++	.tpauser	= 1,
++	.bculr		= 1,
++	.hw_swap	= 1,
++	.nbst		= 1,
++	.rpadir		= 1,
++	.rpadir_value   = 2 << 16,
++	.no_trimd	= 1,
++	.no_ade		= 1,
++	.xdfar_rw	= 1,
++	.hw_checksum	= 1,
++	.select_mii	= 1,
++	.magic		= 1,
++	.cexcr		= 1,
++};
+ #endif /* CONFIG_OF */
+ 
+ static void sh_eth_set_rate_sh7724(struct net_device *ndev)
+@@ -3139,6 +3182,7 @@ static const struct of_device_id sh_eth_match_table[] = {
+ 	{ .compatible = "renesas,ether-r8a7791", .data = &rcar_gen2_data },
+ 	{ .compatible = "renesas,ether-r8a7793", .data = &rcar_gen2_data },
+ 	{ .compatible = "renesas,ether-r8a7794", .data = &rcar_gen2_data },
++	{ .compatible = "renesas,gether-r8a77980", .data = &r8a77980_data },
+ 	{ .compatible = "renesas,ether-r7s72100", .data = &r7s72100_data },
+ 	{ .compatible = "renesas,rcar-gen1-ether", .data = &rcar_gen1_data },
+ 	{ .compatible = "renesas,rcar-gen2-ether", .data = &rcar_gen2_data },
+-- 
+2.7.4
+

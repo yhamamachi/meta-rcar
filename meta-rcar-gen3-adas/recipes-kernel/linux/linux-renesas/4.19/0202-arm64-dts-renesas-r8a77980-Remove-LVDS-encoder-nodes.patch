@@ -1,0 +1,162 @@
+From e5645ba9ae33629c099b17e2aaf3e8f83cf72971 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 26 Oct 2018 13:50:45 +0300
+Subject: [PATCH 202/248] arm64: dts: renesas: r8a77980: Remove LVDS encoder
+ nodes
+
+This removes LVDS encoder nodes since we don't support separate
+LVDS encoder driver which has been recently introduced in the
+Renesas Kernel Development Tree (kernel/git/horms/renesas.git).
+
+While at it drop the r8a77970 compatibility string since
+we don't need R8A77970 LVDS quirks for the R8A77980 SoC.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts | 23 ++++++-------
+ arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts  | 13 +++----
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi       | 45 ++++++-------------------
+ 3 files changed, 25 insertions(+), 56 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index fe2e2c0..13c3913 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -126,9 +126,18 @@
+ 
+ &du {
+ 	clocks = <&cpg CPG_MOD 724>,
++		 <&cpg CPG_MOD 727>,
+ 		 <&x1_clk>;
+-	clock-names = "du.0", "dclkin.0";
++	clock-names = "du.0", "lvds.0", "dclkin.0";
+ 	status = "okay";
++
++	ports {
++		port@1 {
++			lvds0_out: endpoint {
++				remote-endpoint = <&thc63lvd1024_in>;
++			};
++		};
++	};
+ };
+ 
+ &extal_clk {
+@@ -198,18 +207,6 @@
+ 	};
+ };
+ 
+-&lvds0 {
+-	status = "okay";
+-
+-	ports {
+-		port@1 {
+-			lvds0_out: endpoint {
+-				remote-endpoint = <&thc63lvd1024_in>;
+-			};
+-		};
+-	};
+-};
+-
+ &mmc0 {
+ 	pinctrl-0 = <&mmc_pins>;
+ 	pinctrl-1 = <&mmc_pins_uhs>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+index dd14a41..5df125a 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+@@ -88,13 +88,6 @@
+ 	};
+ };
+ 
+-&du {
+-	clocks = <&cpg CPG_MOD 724>,
+-		 <&osc1_clk>;
+-	clock-names = "du.0", "dclkin.0";
+-	status = "okay";
+-};
+-
+ &extal_clk {
+ 	clock-frequency = <16666666>;
+ };
+@@ -165,7 +158,11 @@
+ 	};
+ };
+ 
+-&lvds0 {
++&du {
++	clocks = <&cpg CPG_MOD 724>,
++		 <&cpg CPG_MOD 727>,
++		 <&osc1_clk>;
++	clock-names = "du.0", "lvds.0", "dclkin.0";
+ 	status = "okay";
+ 
+ 	ports {
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 4e019f7..6b5f7cc 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1471,14 +1471,18 @@
+ 		};
+ 
+ 		du: display@feb00000 {
+-			compatible = "renesas,du-r8a77980",
+-				     "renesas,du-r8a77970";
+-			reg = <0 0xfeb00000 0 0x80000>;
++			compatible = "renesas,du-r8a77980";
++			reg = <0 0xfeb00000 0 0x80000>,
++			      <0 0xfeb90000 0 0x14>;
++			reg-names = "du.0", "lvds.0";
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&cpg CPG_MOD 724>;
+-			clock-names = "du.0";
++			clocks = <&cpg CPG_MOD 724>,
++				 <&cpg CPG_MOD 727>;
++			clock-names = "du.0", "lvds.0";
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-			resets = <&cpg 724>;
++			resets = <&cpg 724>,
++				 <&cpg 727>;
++			reset-names = "du.0", "lvds.0";
+ 			vsps = <&vspd0>;
+ 			status = "disabled";
+ 
+@@ -1495,35 +1499,6 @@
+ 				port@1 {
+ 					reg = <1>;
+ 					du_out_lvds0: endpoint {
+-						remote-endpoint = <&lvds0_in>;
+-					};
+-				};
+-			};
+-		};
+-
+-		lvds0: lvds-encoder@feb90000 {
+-			compatible = "renesas,r8a77980-lvds";
+-			reg = <0 0xfeb90000 0 0x14>;
+-			clocks = <&cpg CPG_MOD 727>;
+-			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-			resets = <&cpg 727>;
+-			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@0 {
+-					reg = <0>;
+-					lvds0_in: endpoint {
+-						remote-endpoint =
+-							<&du_out_lvds0>;
+-					};
+-				};
+-
+-				port@1 {
+-					reg = <1>;
+-					lvds0_out: endpoint {
+ 					};
+ 				};
+ 			};
+-- 
+2.7.4
+

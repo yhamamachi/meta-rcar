@@ -1,0 +1,49 @@
+From 12797290a448ba46c7a92e27f0f56916ac85c063 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 10 Nov 2017 23:02:20 +0300
+Subject: [PATCH 046/248] arm64: dts: renesas: eagle: add SCIF0 pins
+
+Add the (previously omitted) SCIF0 pin data to the Eagle board's
+device tree.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 31bded67ad215be592deda0c9ee8acdfe2067243
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index 8fe5c19..f174103 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -52,11 +52,21 @@
+ 	clock-frequency = <32768>;
+ };
+ 
++&pfc {
++	scif0_pins: scif0 {
++		groups = "scif0_data";
++		function = "scif0";
++	};
++};
++
+ &rwdt {
+ 	timeout-sec = <60>;
+ 	status = "okay";
+ };
+ 
+ &scif0 {
++	pinctrl-0 = <&scif0_pins>;
++	pinctrl-names = "default";
++
+ 	status = "okay";
+ };
+-- 
+2.7.4
+

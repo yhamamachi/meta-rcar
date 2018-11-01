@@ -1,0 +1,36 @@
+From 2061677359b77908da000112047662e2584278a4 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Wed, 31 Jan 2018 22:56:47 +0300
+Subject: [PATCH 038/248] dt-bindings: arm: document R8A77980 SoC bindings
+
+Document the R-Car V3H (R8A77980) SoC device tree bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit f15092f8482b63b91d7ca7f4bd7090da7f9f2f24
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/arm/shmobile.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/shmobile.txt b/Documentation/devicetree/bindings/arm/shmobile.txt
+index 5caa633..b4e5679 100644
+--- a/Documentation/devicetree/bindings/arm/shmobile.txt
++++ b/Documentation/devicetree/bindings/arm/shmobile.txt
+@@ -43,6 +43,8 @@ SoCs:
+     compatible = "renesas,r8a77965"
+   - R-Car V3M (R8A77970)
+     compatible = "renesas,r8a77970"
++  - R-Car V3H (R8A77980)
++    compatible = "renesas,r8a77980"
+   - R-Car E3 (R8A77990)
+     compatible = "renesas,r8a77990"
+   - R-Car D3 (R8A77995)
+-- 
+2.7.4
+

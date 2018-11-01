@@ -1,0 +1,48 @@
+From 039226042a239c51fbd26d7f222ddf3e6ffb15c3 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Mon, 12 Mar 2018 14:42:09 +0100
+Subject: [PATCH 080/248] pinctrl: sh-pfc: Add SH_PFC_PIN_GROUP_ALIAS()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add a macro to refer to another pin group with a different name.
+
+This will be used to rename wrongly-named pin groups, while retaining
+backwards compatibility with old DTBs.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+
+(cherry picked from commit 43a51cd5d623c6142ca050dffc25d5e9972a7a12
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/pinctrl/sh-pfc/sh_pfc.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pinctrl/sh-pfc/sh_pfc.h b/drivers/pinctrl/sh-pfc/sh_pfc.h
+index ec84f5d..03a76b3 100644
+--- a/drivers/pinctrl/sh-pfc/sh_pfc.h
++++ b/drivers/pinctrl/sh-pfc/sh_pfc.h
+@@ -40,13 +40,14 @@ struct sh_pfc_pin {
+ 	unsigned int configs;
+ };
+ 
+-#define SH_PFC_PIN_GROUP(n)				\
++#define SH_PFC_PIN_GROUP_ALIAS(alias, n)		\
+ 	{						\
+-		.name = #n,				\
++		.name = #alias,				\
+ 		.pins = n##_pins,			\
+ 		.mux = n##_mux,				\
+ 		.nr_pins = ARRAY_SIZE(n##_pins),	\
+ 	}
++#define SH_PFC_PIN_GROUP(n)	SH_PFC_PIN_GROUP_ALIAS(n, n)
+ 
+ struct sh_pfc_pin_group {
+ 	const char *name;
+-- 
+2.7.4
+

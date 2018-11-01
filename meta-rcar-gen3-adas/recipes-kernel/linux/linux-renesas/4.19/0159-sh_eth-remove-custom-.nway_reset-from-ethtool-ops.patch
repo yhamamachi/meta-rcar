@@ -1,0 +1,51 @@
+From b0c9d81f4219c70ccef3fc164094c581045eb3a9 Mon Sep 17 00:00:00 2001
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Date: Wed, 4 Jul 2018 11:12:42 +0300
+Subject: [PATCH 159/248] sh_eth: remove custom .nway_reset from ethtool ops
+
+The generic phy_ethtool_nway_reset() function from phylib can be used
+instead of in-house sh_eth_nway_reset().
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 4c10628afda78dbf5dffc13360b576370ee98aab
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 851e12e..97f95fb 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2227,14 +2227,6 @@ static void sh_eth_get_regs(struct net_device *ndev, struct ethtool_regs *regs,
+ 	pm_runtime_put_sync(&mdp->pdev->dev);
+ }
+ 
+-static int sh_eth_nway_reset(struct net_device *ndev)
+-{
+-	if (!ndev->phydev)
+-		return -ENODEV;
+-
+-	return phy_restart_aneg(ndev->phydev);
+-}
+-
+ static u32 sh_eth_get_msglevel(struct net_device *ndev)
+ {
+ 	struct sh_eth_private *mdp = netdev_priv(ndev);
+@@ -2385,7 +2377,7 @@ static int sh_eth_set_wol(struct net_device *ndev, struct ethtool_wolinfo *wol)
+ static const struct ethtool_ops sh_eth_ethtool_ops = {
+ 	.get_regs_len	= sh_eth_get_regs_len,
+ 	.get_regs	= sh_eth_get_regs,
+-	.nway_reset	= sh_eth_nway_reset,
++	.nway_reset	= phy_ethtool_nway_reset,
+ 	.get_msglevel	= sh_eth_get_msglevel,
+ 	.set_msglevel	= sh_eth_set_msglevel,
+ 	.get_link	= ethtool_op_get_link,
+-- 
+2.7.4
+

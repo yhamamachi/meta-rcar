@@ -1,0 +1,53 @@
+From 60db831727ca13d06357b55160296bce2ac574ca Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Sat, 27 Oct 2018 00:00:15 +0300
+Subject: [PATCH 229/248] arm64: dts: renesas: v3msk: Add reserved memory nodes
+
+This adds reserved memory nodes.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts | 27 ++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+index 8ada07c..9e1ff72 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+@@ -30,6 +30,33 @@
+ 		reg = <0x0 0x48000000 0x0 0x38000000>;
+ 	};
+ 
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/* device specific region for Lossy Decompression */
++		lossy_decompress: linux,lossy_decompress {
++			no-map;
++			reg = <0x00000000 0x6c000000 0x0 0x03000000>;
++		};
++
++		/* global autoconfigured region for contiguous allocations */
++		linux,cma {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x6f000000 0x0 0x10000000>;
++			linux,cma-default;
++		};
++
++		/* device specific region for contiguous allocations */
++		linux,multimedia {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x7f000000 0x0 0x01000000>;
++		};
++	};
++
+ 	osc5_clk: osc5-clock {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+-- 
+2.7.4
+

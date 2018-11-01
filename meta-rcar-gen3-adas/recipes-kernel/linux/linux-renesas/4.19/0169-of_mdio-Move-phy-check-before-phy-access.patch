@@ -1,0 +1,38 @@
+From 43fdd095b63a61b3cde958897115e2e7132baa0d Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Tue, 9 Oct 2018 10:51:31 +0300
+Subject: [PATCH 169/248] of_mdio: Move phy check before phy access
+
+Check if phy is actually valid before attempting to access
+its status register and eventually cause a kernel crash.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/of/of_mdio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index 9f2fbb2..54ac2e4 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -70,14 +70,14 @@ static int of_mdiobus_register_phy(struct mii_bus *mdio,
+ 	else
+ 		phy = get_phy_device(mdio, addr, is_c45);
+ 
++	if (IS_ERR(phy))
++		return PTR_ERR(phy);
++
+ 	/* Assert the reset signal again */
+ 	status = phy_read(phy, MII_BMSR);
+ 	if (status == 0xffff || !(status & BMSR_LSTATUS))
+ 		gpiod_set_value(gpiod, 1);
+ 
+-	if (IS_ERR(phy))
+-		return PTR_ERR(phy);
+-
+ 	rc = of_irq_get(child, 0);
+ 	if (rc == -EPROBE_DEFER) {
+ 		phy_device_free(phy);
+-- 
+2.7.4
+

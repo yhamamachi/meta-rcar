@@ -1,0 +1,47 @@
+From 872069dc9b832cf04f268bfc3e4ee9817a65092a Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 19 Jan 2018 00:05:58 +0300
+Subject: [PATCH 067/248] dt-bindings: display: renesas: du: Document R8A77970
+ bindings
+
+Document the R-Car V3M (R8A77970) SoC in the R-Car DU bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+
+(cherry picked from commit 88fb4a0e07d1fd3e3198b892fd89292091f6bd35
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/display/renesas,du.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/display/renesas,du.txt b/Documentation/devicetree/bindings/display/renesas,du.txt
+index 164f0e8..2fbcbe3 100644
+--- a/Documentation/devicetree/bindings/display/renesas,du.txt
++++ b/Documentation/devicetree/bindings/display/renesas,du.txt
+@@ -12,8 +12,9 @@ Required Properties:
+     - "renesas,du-r8a7795" for R8A7795 (R-Car H3) compatible DU
+     - "renesas,du-r8a7796" for R8A7796 (R-Car M3-W) compatible DU
+     - "renesas,du-r8a77965" for R8A77965 (R-Car M3-N) compatible DU
+-    - "renesas,du-r8a77995" for R8A77995 (R-Car D3) compatible DU
++    - "renesas,du-r8a77970" for R8A77970 (R-Car V3M) compatible DU
+     - "renesas,du-r8a77990" for R8A77990 (R-Car E3) compatible DU
++    - "renesas,du-r8a77995" for R8A77995 (R-Car D3) compatible DU
+ 
+   - reg: A list of base address and length of each memory resource, one for
+     each entry in the reg-names property.
+@@ -62,6 +63,7 @@ corresponding to each DU output.
+  R8A7794 (E2)	DPAD 0		DPAD 1		-		-
+  R8A7795 (H3)	DPAD		HDMI 0		HDMI 1		LVDS
+  R8A7796 (M3-W)	DPAD		HDMI		LVDS		-
++ R8A77970 (V3M)	DPAD 0		LVDS 0		-		-
+ 
+ 
+ Example: R8A7795 (R-Car H3) ES2.0 DU
+-- 
+2.7.4
+

@@ -1,0 +1,40 @@
+From 4d0c1c007083543a7e661174619b1a1ef4263805 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 10 May 2018 21:09:40 +0300
+Subject: [PATCH 104/248] dt-bindings: arm: document Renesas V3HSK board
+ bindings
+
+Document the V3H Starter Kit device tree bindings, listing it as
+a supported board.
+
+This allows to use checkpatch.pl to validate .dts files referring to
+the V3HSK board.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit c92db4a4a4c6c176c34604e456d6d355803d9ada
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/arm/shmobile.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/shmobile.txt b/Documentation/devicetree/bindings/arm/shmobile.txt
+index 063eb1a..e8b153e 100644
+--- a/Documentation/devicetree/bindings/arm/shmobile.txt
++++ b/Documentation/devicetree/bindings/arm/shmobile.txt
+@@ -124,6 +124,8 @@ Boards:
+     compatible = "renesas,sk-rzg1e", "renesas,r8a7745"
+   - SK-RZG1M (YR8A77430S000BE)
+     compatible = "renesas,sk-rzg1m", "renesas,r8a7743"
++  - V3HSK (Y-ASK-RCAR-V3H-WS10)
++    compatible = "renesas,v3hsk", "renesas,r8a77980"
+   - V3MSK (Y-ASK-RCAR-V3M-WS10)
+     compatible = "renesas,v3msk", "renesas,r8a77970"
+   - Wheat (RTP0RC7792ASKB0000JE)
+-- 
+2.7.4
+

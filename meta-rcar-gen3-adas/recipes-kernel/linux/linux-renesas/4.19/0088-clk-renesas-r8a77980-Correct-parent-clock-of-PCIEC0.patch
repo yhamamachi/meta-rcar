@@ -1,0 +1,38 @@
+From a053a445603684327baf0da237dd8b01934e8c91 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Mon, 9 Apr 2018 13:50:41 +0200
+Subject: [PATCH 088/248] clk: renesas: r8a77980: Correct parent clock of
+ PCIEC0
+
+According to the R-Car Gen3 Hardware Manual Errata for Rev 0.80 of
+December 22, 2017, the parent clock of the PCIe module clock on R-Car
+V3H is S2D2.
+
+Fixes: ce15783c510a9905 ("clk: renesas: cpg-mssr: add R8A77980 support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 246e232437e5a045792aee95b2f9c7718516596c
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/clk/renesas/r8a77980-cpg-mssr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/clk/renesas/r8a77980-cpg-mssr.c b/drivers/clk/renesas/r8a77980-cpg-mssr.c
+index 7aaae73..d7ebd9e 100644
+--- a/drivers/clk/renesas/r8a77980-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77980-cpg-mssr.c
+@@ -116,7 +116,7 @@ static const struct mssr_mod_clk r8a77980_mod_clks[] __initconst = {
+ 	DEF_MOD("sys-dmac1",		 218,	R8A77980_CLK_S0D3),
+ 	DEF_MOD("tpu0",			 304,	R8A77980_CLK_S3D4),
+ 	DEF_MOD("sdif",			 314,	R8A77980_CLK_SD0),
+-	DEF_MOD("pciec0",		 319,	R8A77980_CLK_S3D1),
++	DEF_MOD("pciec0",		 319,	R8A77980_CLK_S2D2),
+ 	DEF_MOD("intc-ex",		 407,	R8A77980_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A77980_CLK_S0D3),
+ 	DEF_MOD("hscif3",		 517,	R8A77980_CLK_S3D1),
+-- 
+2.7.4
+

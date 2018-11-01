@@ -1,0 +1,80 @@
+From d5301215b8fa46cf3073135512899ed5e95e338c Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 14 Jan 2018 20:47:44 +0300
+Subject: [PATCH 034/248] sh_eth: get Ether port # only when needed
+
+The dual-port Ether configurations always have a shared TSU to e.g. pass
+the packets between those  ports.  With the  TSU init. code gathered under
+the single *if*, we now can only get the port # from 'platform_device::id'
+only when we actually  need it  (and not recalculate it each time)...
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 9662ec19229c89825acac1d62a9d78fb89f8dda5
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 7f45c6c..92dcf87 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -3124,7 +3124,7 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 	const struct platform_device_id *id = platform_get_device_id(pdev);
+ 	struct sh_eth_private *mdp;
+ 	struct net_device *ndev;
+-	int ret, devno;
++	int ret;
+ 
+ 	/* get base addr */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -3136,10 +3136,6 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
+-	devno = pdev->id;
+-	if (devno < 0)
+-		devno = 0;
+-
+ 	ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
+ 		goto out_release;
+@@ -3217,6 +3213,7 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (mdp->cd->tsu) {
++		int port = pdev->id < 0 ? 0 : pdev->id % 2;
+ 		struct resource *rtsu;
+ 
+ 		rtsu = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+@@ -3228,7 +3225,7 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 		/* We can only request the  TSU region  for the first port
+ 		 * of the two  sharing this TSU for the probe to succeed...
+ 		 */
+-		if (devno % 2 == 0 &&
++		if (port == 0 &&
+ 		    !devm_request_mem_region(&pdev->dev, rtsu->start,
+ 					     resource_size(rtsu),
+ 					     dev_name(&pdev->dev))) {
+@@ -3244,11 +3241,11 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 			ret = -ENOMEM;
+ 			goto out_release;
+ 		}
+-		mdp->port = devno % 2;
++		mdp->port = port;
+ 		ndev->features = NETIF_F_HW_VLAN_CTAG_FILTER;
+ 
+ 		/* Need to init only the first port of the two sharing a TSU */
+-		if (devno % 2 == 0) {
++		if (port == 0) {
+ 			if (mdp->cd->chip_reset)
+ 				mdp->cd->chip_reset(ndev);
+ 
+-- 
+2.7.4
+

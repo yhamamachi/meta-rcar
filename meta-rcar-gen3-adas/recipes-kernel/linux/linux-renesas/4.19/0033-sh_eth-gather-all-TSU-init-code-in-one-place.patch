@@ -1,0 +1,64 @@
+From 521fbcfec764a588b40c3437fdf00583590af2d2 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 14 Jan 2018 20:47:43 +0300
+Subject: [PATCH 033/248] sh_eth: gather all TSU init code in one place
+
+The  sh_eth_cpu_data::chip_reset() method  always resets using ARSTR and
+this register is always located at the start of the  TSU register region.
+Therefore, we can  only call  this method if we know TSU is there and thus
+simplify  the probing code a  bit...
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 3e14c969a4ecdb4b4a05fb5c806d4f525fe56cff
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 1cfbb88..7f45c6c 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -3216,7 +3216,6 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 		eth_hw_addr_random(ndev);
+ 	}
+ 
+-	/* ioremap the TSU registers */
+ 	if (mdp->cd->tsu) {
+ 		struct resource *rtsu;
+ 
+@@ -3237,6 +3236,7 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 			ret = -EBUSY;
+ 			goto out_release;
+ 		}
++		/* ioremap the TSU registers */
+ 		mdp->tsu_addr = devm_ioremap(&pdev->dev, rtsu->start,
+ 					     resource_size(rtsu));
+ 		if (!mdp->tsu_addr) {
+@@ -3246,14 +3246,12 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 		}
+ 		mdp->port = devno % 2;
+ 		ndev->features = NETIF_F_HW_VLAN_CTAG_FILTER;
+-	}
+ 
+-	/* Need to init only the first port of the two sharing a TSU */
+-	if (devno % 2 == 0) {
+-		if (mdp->cd->chip_reset)
+-			mdp->cd->chip_reset(ndev);
++		/* Need to init only the first port of the two sharing a TSU */
++		if (devno % 2 == 0) {
++			if (mdp->cd->chip_reset)
++				mdp->cd->chip_reset(ndev);
+ 
+-		if (mdp->cd->tsu) {
+ 			/* TSU init (Init only)*/
+ 			sh_eth_tsu_init(mdp);
+ 		}
+-- 
+2.7.4
+

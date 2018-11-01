@@ -1,0 +1,56 @@
+From 8ed900d7a992db153e8fa8521e9555d0b2396595 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Wed, 2 May 2018 22:55:52 +0300
+Subject: [PATCH 100/248] sh_eth: WARN_ON() access to unimplemented TSU
+ register
+
+Commit 3365711df024 ("sh_eth: WARN on access to a register not implemented
+in a particular chip") added  WARN_ON() to sh_eth_{read|write}() but not
+to sh_eth_tsu_{read|write}(). Now that we've routed almost all TSU register
+accesses  (except TSU_ADR{H|L}<n> -- which are special) thru the latter
+pair of accessors, it makes sense to check for the unimplemented TSU
+registers as well...
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 627a0d20fa7b9e05ea4f42f47ea84d450dbbc96f
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index e2e8838..5970d9e 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -442,12 +442,22 @@ static void sh_eth_modify(struct net_device *ndev, int enum_index, u32 clear,
+ static void sh_eth_tsu_write(struct sh_eth_private *mdp, u32 data,
+ 			     int enum_index)
+ {
+-	iowrite32(data, mdp->tsu_addr + mdp->reg_offset[enum_index]);
++	u16 offset = mdp->reg_offset[enum_index];
++
++	if (WARN_ON(offset == SH_ETH_OFFSET_INVALID))
++		return;
++
++	iowrite32(data, mdp->tsu_addr + offset);
+ }
+ 
+ static u32 sh_eth_tsu_read(struct sh_eth_private *mdp, int enum_index)
+ {
+-	return ioread32(mdp->tsu_addr + mdp->reg_offset[enum_index]);
++	u16 offset = mdp->reg_offset[enum_index];
++
++	if (WARN_ON(offset == SH_ETH_OFFSET_INVALID))
++		return ~0U;
++
++	return ioread32(mdp->tsu_addr + offset);
+ }
+ 
+ static void sh_eth_select_mii(struct net_device *ndev)
+-- 
+2.7.4
+

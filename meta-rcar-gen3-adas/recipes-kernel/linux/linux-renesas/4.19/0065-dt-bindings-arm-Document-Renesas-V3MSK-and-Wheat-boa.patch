@@ -1,0 +1,39 @@
+From d976fbba8ddeae61148e483baecb9b094d140557 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Mon, 26 Feb 2018 19:03:43 +0100
+Subject: [PATCH 065/248] dt-bindings: arm: Document Renesas V3MSK and Wheat
+ board part numbers
+
+The DT binding documentation for the Renesas V3MSK and Wheat boards
+lacked board part numbers.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+[simon: corrected Wheat part number]
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 04db44132bc544e12f8c7693db35a080edded6ee
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/arm/shmobile.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/arm/shmobile.txt b/Documentation/devicetree/bindings/arm/shmobile.txt
+index ca7c1c1..063eb1a 100644
+--- a/Documentation/devicetree/bindings/arm/shmobile.txt
++++ b/Documentation/devicetree/bindings/arm/shmobile.txt
+@@ -124,7 +124,9 @@ Boards:
+     compatible = "renesas,sk-rzg1e", "renesas,r8a7745"
+   - SK-RZG1M (YR8A77430S000BE)
+     compatible = "renesas,sk-rzg1m", "renesas,r8a7743"
+-  - Wheat
++  - V3MSK (Y-ASK-RCAR-V3M-WS10)
++    compatible = "renesas,v3msk", "renesas,r8a77970"
++  - Wheat (RTP0RC7792ASKB0000JE)
+     compatible = "renesas,wheat", "renesas,r8a7792"
+ 
+ 
+-- 
+2.7.4
+

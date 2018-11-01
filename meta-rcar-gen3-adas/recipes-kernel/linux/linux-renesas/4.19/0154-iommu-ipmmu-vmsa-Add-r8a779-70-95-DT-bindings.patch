@@ -1,0 +1,39 @@
+From d67e140bb8e20b6d93f11a57514d39fd01e67ebb Mon Sep 17 00:00:00 2001
+From: Simon Horman <horms+renesas@verge.net.au>
+Date: Wed, 20 Dec 2017 09:48:01 -0700
+Subject: [PATCH 154/248] iommu/ipmmu-vmsa: Add r8a779(70|95) DT bindings
+
+Update the IPMMU DT binding documentation to include the
+r8a77970 (R-Car V3M) and r8a77995 (R-Car D3) compat strings.
+
+Based on work for r8a7796 by Magnus Damm.
+
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+
+(cherry picked from commit 9327b810bb7e1f3322fe8ed862a62fe0f2c9f14b
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/iommu/renesas,ipmmu-vmsa.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/iommu/renesas,ipmmu-vmsa.txt b/Documentation/devicetree/bindings/iommu/renesas,ipmmu-vmsa.txt
+index 9b72a97..ebd3fbe 100644
+--- a/Documentation/devicetree/bindings/iommu/renesas,ipmmu-vmsa.txt
++++ b/Documentation/devicetree/bindings/iommu/renesas,ipmmu-vmsa.txt
+@@ -18,7 +18,9 @@ Required Properties:
+     - "renesas,ipmmu-r8a7795" for the R8A7795 (R-Car H3) IPMMU.
+     - "renesas,ipmmu-r8a7796" for the R8A7796 (R-Car M3-W) IPMMU.
+     - "renesas,ipmmu-r8a77965" for the R8A77965 (R-Car M3N) IPMMU.
++    - "renesas,ipmmu-r8a77970" for the R8A77970 (R-Car V3M) IPMMU.
+     - "renesas,ipmmu-r8a77990" for the R8A77990 (R-Car E3) IPMMU.
++    - "renesas,ipmmu-r8a77995" for the R8A77995 (R-Car D3) IPMMU.
+     - "renesas,ipmmu-vmsa" for generic R-Car Gen2 VMSA-compatible IPMMU.
+ 
+   - reg: Base address and size of the IPMMU registers.
+-- 
+2.7.4
+

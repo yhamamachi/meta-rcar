@@ -1,0 +1,38 @@
+From 7fb516cb7510a2455a30747e2181f6c0c4a2ccd1 Mon Sep 17 00:00:00 2001
+From: Simon Horman <horms+renesas@verge.net.au>
+Date: Fri, 10 Nov 2017 14:25:49 +0100
+Subject: [PATCH 012/248] arm64: dts: renesas: r8a77970: sort includes
+
+Sort includes used in r8a77970 DTS to improve maintainability
+and for consistency with other R-Car DTS files.
+
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+(cherry picked from commit 830241c1e8cea1557b1de099756775e9fa0ab561
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 75d09f1..8b97842 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -9,9 +9,9 @@
+  * kind, whether express or implied.
+  */
+ 
+-#include <dt-bindings/interrupt-controller/irq.h>
+-#include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/clock/renesas-cpg-mssr.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ 
+ / {
+ 	compatible = "renesas,r8a77970";
+-- 
+2.7.4
+

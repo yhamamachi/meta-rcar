@@ -1,0 +1,36 @@
+From 912e6402885d8e6875ffff5f65fe9650bde63111 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 13 Oct 2017 15:23:55 +0300
+Subject: [PATCH 006/248] i2c: rcar: document R8A77970 bindings
+
+R-Car V3M (R8A77970) SoC also has the R-Car gen3 compatible I2C controller,
+so document  the SoC specific bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+(cherry picked from commit db6b78073ac135bb68cae77bb873371d0fe0efa6
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 0880d8e..dd85347 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -14,6 +14,7 @@ Required properties:
+ 	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
+ 	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
+ 	"renesas,i2c-r8a77965" if the device is a part of a R8A77965 SoC.
++	"renesas,i2c-r8a77970" if the device is a part of a R8A77970 SoC.
+ 	"renesas,i2c-r8a77990" if the device is a part of a R8A77990 SoC.
+ 	"renesas,i2c-r8a77995" if the device is a part of a R8A77995 SoC.
+ 	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
+-- 
+2.7.4
+

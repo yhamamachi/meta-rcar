@@ -1,0 +1,42 @@
+From 2c83772c1d6b017e93e2600006a6388a962691f5 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Sat, 27 Oct 2018 00:11:40 +0300
+Subject: [PATCH 206/248] iommu: ipmmu-vmsa: Disable IPMMU on R-Car V3M.
+
+This disables IPMMU support on R8A77970 SoC because it doesn't seem to work
+properly. Sometimes the following messages appear in the kernel log:
+
+ipmmu-vmsa e7740000.mmu: Unhandled fault: status 0x00000101 iova 0x00000000
+
+Sometimes no error messages are shown, but the AVB Ethernet stops working.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/iommu/ipmmu-vmsa.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index 6c8f7c1..c60b391 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -893,8 +893,15 @@ static int ipmmu_init_platform_device(struct device *dev,
+ 
+ static bool ipmmu_slave_whitelist(struct device *dev)
+ {
+-	/* By default, allow R-Car Gen3 to use IPMMU */
+-	return true;
++	/* By default, allow R-Car Gen3 to use IPMMU
++	 * if it's not listed in the table below.
++	 */
++	const struct soc_device_attribute soc[] = {
++		{ .soc_id = "r8a77970", },
++		{ /* sentinel */ }
++	};
++
++	return !soc_device_match(soc);
+ }
+ 
+ static const struct soc_device_attribute soc_rcar_gen3[] = {
+-- 
+2.7.4
+

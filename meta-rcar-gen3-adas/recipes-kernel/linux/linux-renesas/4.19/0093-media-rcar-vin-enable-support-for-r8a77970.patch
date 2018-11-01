@@ -1,0 +1,68 @@
+From 2469234b6da03fc64517f744671725c03240d306 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Niklas=20S=C3=B6derlund?=
+ <niklas.soderlund+renesas@ragnatech.se>
+Date: Sat, 14 Apr 2018 07:57:26 -0400
+Subject: [PATCH 093/248] media: rcar-vin: enable support for r8a77970
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add the SoC specific information for Renesas r8a77970.
+
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+
+(cherry picked from commit 2e1cd38dc3ccd7b8721e1e03160012b56f1e6042
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/media/platform/rcar-vin/rcar-core.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index 5bac7f5d..7c3dddb 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -1277,6 +1277,25 @@ static const struct rvin_info rcar_info_r8a77990 = {
+ 	},
+ };
+ 
++static const struct rvin_group_route _rcar_info_r8a77970_routes[] = {
++	{ .csi = RVIN_CSI40, .channel = 0, .vin = 0, .mask = BIT(0) | BIT(3) },
++	{ .csi = RVIN_CSI40, .channel = 0, .vin = 1, .mask = BIT(2) },
++	{ .csi = RVIN_CSI40, .channel = 1, .vin = 1, .mask = BIT(3) },
++	{ .csi = RVIN_CSI40, .channel = 0, .vin = 2, .mask = BIT(1) },
++	{ .csi = RVIN_CSI40, .channel = 2, .vin = 2, .mask = BIT(3) },
++	{ .csi = RVIN_CSI40, .channel = 1, .vin = 3, .mask = BIT(0) },
++	{ .csi = RVIN_CSI40, .channel = 3, .vin = 3, .mask = BIT(3) },
++	{ /* Sentinel */ }
++};
++
++static const struct rvin_info rcar_info_r8a77970 = {
++	.model = RCAR_GEN3,
++	.use_mc = true,
++	.max_width = 4096,
++	.max_height = 4096,
++	.routes = _rcar_info_r8a77970_routes,
++};
++
+ static const struct of_device_id rvin_of_id_table[] = {
+ 	{
+ 		.compatible = "renesas,vin-r8a7778",
+@@ -1323,6 +1342,10 @@ static const struct of_device_id rvin_of_id_table[] = {
+ 		.data = &rcar_info_r8a77995,
+ 	},
+ 	{
++		.compatible = "renesas,vin-r8a77970",
++		.data = &rcar_info_r8a77970,
++	},
++	{
+ 		.compatible = "renesas,vin-r8a77990",
+ 		.data = &rcar_info_r8a77990,
+ 	},
+-- 
+2.7.4
+

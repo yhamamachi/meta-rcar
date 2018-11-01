@@ -1,0 +1,39 @@
+From 62bd3b5c2741e65139ae9120bb1310e064cf1862 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 20 May 2018 00:05:02 +0300
+Subject: [PATCH 140/248] sh_eth: fix typo in comment to BCULR write
+
+Simon has noticed a typo in the comment accompaining the BCULR write --
+fix it and move the comment before the write (following the style of
+the other comments), while at it...
+
+Reported-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 6b14787ab11d8fc2225132f0fe8275531fdefc72
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 118e94e..655af9e 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -1481,8 +1481,9 @@ static int sh_eth_dev_init(struct net_device *ndev)
+ 	if (mdp->cd->nbst)
+ 		sh_eth_modify(ndev, EDMR, EDMR_NBST, EDMR_NBST);
+ 
++	/* Burst cycle count upper-limit */
+ 	if (mdp->cd->bculr)
+-		sh_eth_write(ndev, 0x800, BCULR);	/* Burst sycle set */
++		sh_eth_write(ndev, 0x800, BCULR);
+ 
+ 	sh_eth_write(ndev, mdp->cd->fcftr_value, FCFTR);
+ 
+-- 
+2.7.4
+

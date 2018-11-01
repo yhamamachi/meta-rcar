@@ -1,0 +1,48 @@
+From 3ec41eca8d0bfb3bde4ef26797a5680075b4fda9 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 9 Mar 2018 15:09:38 +0300
+Subject: [PATCH 115/248] arm64: dts: renesas: condor: add EtherAVB pins
+
+Add the (previously omitted) EtherAVB pin data to the Condor board's
+device tree.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 55cda28160e1ea852955ee17464d0dccfa67fa72
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index 38f11ce..7af5afa 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -30,6 +30,9 @@
+ };
+ 
+ &avb {
++	pinctrl-0 = <&avb_pins>;
++	pinctrl-names = "default";
++
+ 	phy-mode = "rgmii-id";
+ 	phy-handle = <&phy0>;
+ 	renesas,no-ether-link;
+@@ -50,6 +53,11 @@
+ };
+ 
+ &pfc {
++	avb_pins: avb {
++		groups = "avb_mdio", "avb_rgmii";
++		function = "avb";
++	};
++
+ 	scif0_pins: scif0 {
+ 		groups = "scif0_data";
+ 		function = "scif0";
+-- 
+2.7.4
+

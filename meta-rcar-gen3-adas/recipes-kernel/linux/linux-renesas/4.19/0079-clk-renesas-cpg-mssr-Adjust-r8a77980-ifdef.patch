@@ -1,0 +1,36 @@
+From 5b88fdca301d7414580e7881d11e86ab47b09b60 Mon Sep 17 00:00:00 2001
+From: Magnus Damm <damm+renesas@opensource.se>
+Date: Tue, 20 Mar 2018 16:40:16 +0900
+Subject: [PATCH 079/248] clk: renesas: cpg-mssr: Adjust r8a77980 ifdef
+
+Adjust the R8A77980-specific #ifdefs to use CLK instead of ARCH
+to follow same style as other SoCs.
+
+Fixes: ce15783c510a9905 ("clk: renesas: cpg-mssr: add R8A77980 support")
+Signed-off-by: Magnus Damm <damm+renesas@opensource.se>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+(cherry picked from commit 472f5f391819b4b22ec040f227aea26f515b6ae2
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/clk/renesas/renesas-cpg-mssr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
+index d0ae673..6906ff1 100644
+--- a/drivers/clk/renesas/renesas-cpg-mssr.c
++++ b/drivers/clk/renesas/renesas-cpg-mssr.c
+@@ -706,7 +706,7 @@ static const struct of_device_id cpg_mssr_match[] = {
+ 		.data = &r8a77970_cpg_mssr_info,
+ 	},
+ #endif
+-#ifdef CONFIG_ARCH_R8A77980
++#ifdef CONFIG_CLK_R8A77980
+ 	{
+ 		.compatible = "renesas,r8a77980-cpg-mssr",
+ 		.data = &r8a77980_cpg_mssr_info,
+-- 
+2.7.4
+

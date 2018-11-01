@@ -1,0 +1,45 @@
+From e84f4dd7274448c3f34baf29b60e0014ba2e93f2 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Date: Fri, 18 May 2018 12:52:51 +0200
+Subject: [PATCH 134/248] sh_eth: Change platform check to CONFIG_ARCH_RENESAS
+
+Since commit 9b5ba0df4ea4f940 ("ARM: shmobile: Introduce ARCH_RENESAS")
+is CONFIG_ARCH_RENESAS a more appropriate platform check than the legacy
+CONFIG_ARCH_SHMOBILE, hence use the former.
+
+Renesas SuperH SH-Mobile SoCs are still covered by the CONFIG_CPU_SH4
+check.
+
+This will allow to drop ARCH_SHMOBILE on ARM and ARM64 in the near
+future.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit b16a960ddbf0d4fd6aaabee42d7ec4c4c3ec836d
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.h b/drivers/net/ethernet/renesas/sh_eth.h
+index a5b792c..1bf930d 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.h
++++ b/drivers/net/ethernet/renesas/sh_eth.h
+@@ -163,7 +163,7 @@ enum {
+ };
+ 
+ /* Driver's parameters */
+-#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_SHMOBILE)
++#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RENESAS)
+ #define SH_ETH_RX_ALIGN		32
+ #else
+ #define SH_ETH_RX_ALIGN		2
+-- 
+2.7.4
+

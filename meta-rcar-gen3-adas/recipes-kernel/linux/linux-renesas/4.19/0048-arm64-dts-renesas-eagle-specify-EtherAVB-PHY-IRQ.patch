@@ -1,0 +1,36 @@
+From d02ec0504fb91fb7dd03d07a08fdceed3ea86451 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Tue, 13 Feb 2018 14:24:14 +0300
+Subject: [PATCH 048/248] arm64: dts: renesas: eagle: specify EtherAVB PHY IRQ
+
+Specify  EtherAVB PHY IRQ  in the Eagle board's device tree, now that we
+have the GPIO support (previously phylib had to resort to polling).
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 51671b265b2915846826da407a4ab7d4ba52f404
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index f174103..cb4bd40 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -41,6 +41,8 @@
+ 	phy0: ethernet-phy@0 {
+ 		rxc-skew-ps = <1500>;
+ 		reg = <0>;
++		interrupt-parent = <&gpio1>;
++		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
+ 	};
+ };
+ 
+-- 
+2.7.4
+

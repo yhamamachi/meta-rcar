@@ -1,0 +1,39 @@
+From 0e5452e8d1266895bb4ae14bb74ebc97182815c3 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 1 Feb 2018 22:36:20 +0300
+Subject: [PATCH 066/248] DT: serial: renesas,sci-serial: document R8A77980
+ bindings
+
+R-Car V3H (R8A77980) SoC has the R-Car gen3 compatible SCIF and HSCIF ports,
+so document the SoC specific bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+(cherry picked from commit 890fb16b4cdbc625b9213487c547793a775ad991
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/serial/renesas,sci-serial.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/serial/renesas,sci-serial.txt b/Documentation/devicetree/bindings/serial/renesas,sci-serial.txt
+index 029e933a..fbbb52a 100644
+--- a/Documentation/devicetree/bindings/serial/renesas,sci-serial.txt
++++ b/Documentation/devicetree/bindings/serial/renesas,sci-serial.txt
+@@ -45,6 +45,8 @@ Required properties:
+     - "renesas,hscif-r8a77965" for R8A77965 (R-Car M3N) HSCIF compatible UART.
+     - "renesas,scif-r8a77970" for R8A77970 (R-Car V3M) SCIF compatible UART.
+     - "renesas,hscif-r8a77970" for R8A77970 (R-Car V3M) HSCIF compatible UART.
++    - "renesas,scif-r8a77980" for R8A77980 (R-Car V3H) SCIF compatible UART.
++    - "renesas,hscif-r8a77980" for R8A77980 (R-Car V3H) HSCIF compatible UART.
+     - "renesas,scif-r8a77990" for R8A77990 (R-Car E3) SCIF compatible UART.
+     - "renesas,hscif-r8a77990" for R8A77990 (R-Car E3) HSCIF compatible UART.
+     - "renesas,scif-r8a77995" for R8A77995 (R-Car D3) SCIF compatible UART.
+-- 
+2.7.4
+

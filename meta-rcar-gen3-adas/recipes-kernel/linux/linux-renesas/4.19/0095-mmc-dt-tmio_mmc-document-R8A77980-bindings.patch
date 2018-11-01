@@ -1,0 +1,36 @@
+From 3ba2055de4a6ab9a0379e8d8f5e309cdb23c5ea3 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Mon, 16 Apr 2018 21:30:02 +0300
+Subject: [PATCH 095/248] mmc: dt: tmio_mmc: document R8A77980 bindings
+
+Document the R-Car V3H (R8A77980) SoC in the Renesas SDHI bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit b638602eae7851918d2abed823ab3bed0c269e59
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/mmc/tmio_mmc.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/mmc/tmio_mmc.txt b/Documentation/devicetree/bindings/mmc/tmio_mmc.txt
+index 8d9b55d..68a2cb2 100644
+--- a/Documentation/devicetree/bindings/mmc/tmio_mmc.txt
++++ b/Documentation/devicetree/bindings/mmc/tmio_mmc.txt
+@@ -27,6 +27,7 @@ Required properties:
+ 		"renesas,sdhi-r8a7795" - SDHI IP on R8A7795 SoC
+ 		"renesas,sdhi-r8a7796" - SDHI IP on R8A7796 SoC
+ 		"renesas,sdhi-r8a77965" - SDHI IP on R8A77965 SoC
++		"renesas,sdhi-r8a77980" - SDHI IP on R8A77980 SoC
+ 		"renesas,sdhi-r8a77990" - SDHI IP on R8A77990 SoC
+ 		"renesas,sdhi-r8a77995" - SDHI IP on R8A77995 SoC
+ 
+-- 
+2.7.4
+

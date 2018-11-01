@@ -1,0 +1,46 @@
+From 7baaf3c95531f8a62a00251281d3c4f548060f68 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 29 Oct 2018 14:00:09 +0300
+Subject: [PATCH 226/248] arm64: dts: renesas: r8a77980: Add ISP nodes
+
+This adds ISP device nodes.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index b86d893..26642ac 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1084,6 +1084,26 @@
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
++		isp@fec00000 {
++			compatible = "renesas,isp-r8a77980";
++			reg = <0 0xfec00000 0 0x20000>,
++			      <0 0xfed00000 0 0x10000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		isp@fee00000 {
++			compatible = "renesas,isp-r8a77980";
++			reg = <0 0xfee00000 0 0x20000>,
++			      <0 0xfed20000 0 0x10000>;
++			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 814>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
+ 		dmac1: dma-controller@e7300000 {
+ 			compatible = "renesas,dmac-r8a77980",
+ 				     "renesas,rcar-dmac";
+-- 
+2.7.4
+

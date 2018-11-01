@@ -1,0 +1,39 @@
+From 229c5c15efab742e580cfb42be781ac13f0bbc7e Mon Sep 17 00:00:00 2001
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Date: Tue, 27 Feb 2018 11:22:48 +0100
+Subject: [PATCH 071/248] arm64: dts: renesas: eagle: Override EtherAVB
+ phy-mode
+
+As the PHY interface installed on the Eagle board provides TX and RX
+channels delays, make the "phy-mode" property a board-specific one,
+meant to override the one specified in the SoC DTSI.
+
+Follow up patches will reset the r8a77970 SoC DTSI to use "rgmii" mode
+and let the board file override that.
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit e5daa084cc9f6019a905785f0dfd1ffb146a519a
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index cb4bd40..fd3448d 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -36,6 +36,7 @@
+ &avb {
+ 	renesas,no-ether-link;
+ 	phy-handle = <&phy0>;
++	phy-mode = "rgmii-id";
+ 	status = "okay";
+ 
+ 	phy0: ethernet-phy@0 {
+-- 
+2.7.4
+

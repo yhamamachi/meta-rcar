@@ -1,0 +1,38 @@
+From 1a106420963e0f4d00bd557c05c6674badc4c911 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 1 Feb 2018 22:09:25 +0300
+Subject: [PATCH 036/248] DT: dmaengine: renesas,rcar-dmac: document R8A77980
+ support
+
+Renesas  R-Car V3H SoC has the R-Car gen3 compatible DMA controllers.
+Document R-Car V3H (also known as R8A77980) SoC bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Vinod Koul <vinod.koul@intel.com>
+
+(cherry picked from commit 9bfda6636edd5db9b3cdbb2df6483ceb7618ec6a
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/dma/renesas,rcar-dmac.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/dma/renesas,rcar-dmac.txt b/Documentation/devicetree/bindings/dma/renesas,rcar-dmac.txt
+index 6918f0e..e8e2a32 100644
+--- a/Documentation/devicetree/bindings/dma/renesas,rcar-dmac.txt
++++ b/Documentation/devicetree/bindings/dma/renesas,rcar-dmac.txt
+@@ -27,6 +27,7 @@ Required Properties:
+ 		- "renesas,dmac-r8a7796" (R-Car M3-W)
+ 		- "renesas,dmac-r8a77965" (R-Car M3N)
+ 		- "renesas,dmac-r8a77970" (R-Car V3M)
++		- "renesas,dmac-r8a77980" (R-Car V3H)
+ 		- "renesas,dmac-r8a77990" (R-Car E3)
+ 		- "renesas,dmac-r8a77995" (R-Car D3)
+ 
+-- 
+2.7.4
+

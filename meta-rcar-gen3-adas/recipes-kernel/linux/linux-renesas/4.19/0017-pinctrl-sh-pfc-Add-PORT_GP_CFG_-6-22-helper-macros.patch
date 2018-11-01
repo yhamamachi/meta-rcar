@@ -1,0 +1,64 @@
+From 1d7f2f5b7da8e5c60b457f5d095d3cd01eb198f3 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 10 Nov 2017 20:59:00 +0300
+Subject: [PATCH 017/248] pinctrl: sh-pfc: Add PORT_GP_CFG_{6|22}() helper
+ macros
+
+They follow the style of the existing PORT_GP_CFG_<n>() macros and
+will be used by a follow-up  patch for the R8A77970 SoC.
+
+Based on the original (and large) patch by Daisuke Matsushita
+<daisuke.matsushita.ns@hitachi.com>.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+(cherry picked from commit 5a0e698876479b71de885fdc181c00ecee5a61a9
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/pinctrl/sh-pfc/sh_pfc.h | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/pinctrl/sh-pfc/sh_pfc.h b/drivers/pinctrl/sh-pfc/sh_pfc.h
+index b71c184..a02ee8d 100644
+--- a/drivers/pinctrl/sh-pfc/sh_pfc.h
++++ b/drivers/pinctrl/sh-pfc/sh_pfc.h
+@@ -392,10 +392,14 @@ extern const struct sh_pfc_soc_info shx3_pinmux_info;
+ 	PORT_GP_CFG_1(bank, 3,  fn, sfx, cfg)
+ #define PORT_GP_4(bank, fn, sfx)	PORT_GP_CFG_4(bank, fn, sfx, 0)
+ 
+-#define PORT_GP_CFG_8(bank, fn, sfx, cfg)				\
++#define PORT_GP_CFG_6(bank, fn, sfx, cfg)				\
+ 	PORT_GP_CFG_4(bank, fn, sfx, cfg),				\
+ 	PORT_GP_CFG_1(bank, 4,  fn, sfx, cfg),				\
+-	PORT_GP_CFG_1(bank, 5,  fn, sfx, cfg),				\
++	PORT_GP_CFG_1(bank, 5,  fn, sfx, cfg)
++#define PORT_GP_6(bank, fn, sfx)	PORT_GP_CFG_6(bank, fn, sfx, 0)
++
++#define PORT_GP_CFG_8(bank, fn, sfx, cfg)				\
++	PORT_GP_CFG_6(bank, fn, sfx, cfg),				\
+ 	PORT_GP_CFG_1(bank, 6,  fn, sfx, cfg),				\
+ 	PORT_GP_CFG_1(bank, 7,  fn, sfx, cfg)
+ #define PORT_GP_8(bank, fn, sfx)	PORT_GP_CFG_8(bank, fn, sfx, 0)
+@@ -457,9 +461,13 @@ extern const struct sh_pfc_soc_info shx3_pinmux_info;
+ 	PORT_GP_CFG_1(bank, 20, fn, sfx, cfg)
+ #define PORT_GP_21(bank, fn, sfx)	PORT_GP_CFG_21(bank, fn, sfx, 0)
+ 
+-#define PORT_GP_CFG_23(bank, fn, sfx, cfg)				\
++#define PORT_GP_CFG_22(bank, fn, sfx, cfg)				\
+ 	PORT_GP_CFG_21(bank, fn, sfx, cfg),				\
+-	PORT_GP_CFG_1(bank, 21, fn, sfx, cfg),				\
++	PORT_GP_CFG_1(bank, 21, fn, sfx, cfg)
++#define PORT_GP_22(bank, fn, sfx)	PORT_GP_CFG_22(bank, fn, sfx, 0)
++
++#define PORT_GP_CFG_23(bank, fn, sfx, cfg)				\
++	PORT_GP_CFG_22(bank, fn, sfx, cfg),				\
+ 	PORT_GP_CFG_1(bank, 22, fn, sfx, cfg)
+ #define PORT_GP_23(bank, fn, sfx)	PORT_GP_CFG_23(bank, fn, sfx, 0)
+ 
+-- 
+2.7.4
+

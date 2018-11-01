@@ -1,0 +1,36 @@
+From 037a811eeb3c836153035218c0bd10c428dd541f Mon Sep 17 00:00:00 2001
+From: Simon Horman <horms+renesas@verge.net.au>
+Date: Wed, 9 May 2018 19:54:09 +0200
+Subject: [PATCH 127/248] arm64: dts: renesas: r8a77980: add resets property to
+ CAN-FD node
+
+Add resets property to CAN-FD node to describe it in the reset topology of
+on-SoC devices.  This allows to reset the CAN-FD device using the Reset
+Controller API.
+
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+(cherry picked from commit 22fb06cd54f92132bf7a8b7740abc7db79a5130b
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 3a12764..32db26f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -190,6 +190,7 @@
+ 			assigned-clocks = <&cpg CPG_CORE R8A77980_CLK_CANFD>;
+ 			assigned-clock-rates = <40000000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			resets = <&cpg 914>;
+ 			status = "disabled";
+ 
+ 			channel0 {
+-- 
+2.7.4
+

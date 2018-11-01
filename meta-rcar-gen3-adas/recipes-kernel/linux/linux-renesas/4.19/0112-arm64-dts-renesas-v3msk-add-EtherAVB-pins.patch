@@ -1,0 +1,48 @@
+From 050b54c0b01db5c0b415ab3a00a1212c2a29bc05 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Wed, 14 Mar 2018 23:30:34 +0300
+Subject: [PATCH 112/248] arm64: dts: renesas: v3msk: add EtherAVB pins
+
+Add the (previously omitted) EtherAVB pin data to the V3M Starter Kit
+board's device tree.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 68d3b03fcb5a2e7c71b1e72c6d856e6030c4f2fd
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+index a8ceeac..55aa01b 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+@@ -32,6 +32,9 @@
+ };
+ 
+ &avb {
++	pinctrl-0 = <&avb_pins>;
++	pinctrl-names = "default";
++
+ 	renesas,no-ether-link;
+ 	phy-handle = <&phy0>;
+ 	phy-mode = "rgmii-id";
+@@ -52,6 +55,11 @@
+ };
+ 
+ &pfc {
++	avb_pins: avb0 {
++		groups = "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
++		function = "avb0";
++	};
++
+ 	scif0_pins: scif0 {
+ 		groups = "scif0_data";
+ 		function = "scif0";
+-- 
+2.7.4
+

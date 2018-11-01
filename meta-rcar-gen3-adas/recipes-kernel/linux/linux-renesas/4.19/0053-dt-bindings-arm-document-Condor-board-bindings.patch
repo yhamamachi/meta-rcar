@@ -1,0 +1,39 @@
+From 9feb97a0bcd56b580e76f7f6f56d8e39eeb312ec Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 2 Feb 2018 21:45:08 +0300
+Subject: [PATCH 053/248] dt-bindings: arm: document Condor board bindings
+
+Document the Condor device tree bindings, listing it as a supported board.
+
+This allows to use checkpatch.pl to validate .dts files referring to the
+Condor board.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit 8dc09f400a08108984c0bacc4af5cb395a3c5c22
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/arm/shmobile.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/shmobile.txt b/Documentation/devicetree/bindings/arm/shmobile.txt
+index b4e5679..ca7c1c1 100644
+--- a/Documentation/devicetree/bindings/arm/shmobile.txt
++++ b/Documentation/devicetree/bindings/arm/shmobile.txt
+@@ -63,6 +63,8 @@ Boards:
+     compatible = "renesas,blanche", "renesas,r8a7792"
+   - BOCK-W
+     compatible = "renesas,bockw", "renesas,r8a7778"
++  - Condor (RTP0RC77980SEB0010SS/RTP0RC77980SEB0010SA01)
++    compatible = "renesas,condor", "renesas,r8a77980"
+   - Draak (RTP0RC77995SEB0010S)
+     compatible = "renesas,draak", "renesas,r8a77995"
+   - Eagle (RTP0RC77970SEB0010S)
+-- 
+2.7.4
+

@@ -1,0 +1,46 @@
+From 24ea19168080c3f9d697ab40d835be1a8a99a928 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 7 Jan 2018 00:26:47 +0300
+Subject: [PATCH 031/248] sh_eth: fix TXALCR1 offsets
+
+The  TXALCR1 offsets are incorrect in the register offset tables, most
+probably due to copy&paste error.  Luckily, the driver never uses this
+register. :-)
+
+Fixes: 4a55530f38e4 ("net: sh_eth: modify the definitions of register")
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 50f3d740d376f664f6accc7e86c9afd8f1c7e1e4
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 494f1e2..cf514b5 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -146,7 +146,7 @@ static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
+ 	[FWNLCR0]	= 0x0090,
+ 	[FWALCR0]	= 0x0094,
+ 	[TXNLCR1]	= 0x00a0,
+-	[TXALCR1]	= 0x00a0,
++	[TXALCR1]	= 0x00a4,
+ 	[RXNLCR1]	= 0x00a8,
+ 	[RXALCR1]	= 0x00ac,
+ 	[FWNLCR1]	= 0x00b0,
+@@ -398,7 +398,7 @@ static const u16 sh_eth_offset_fast_sh3_sh2[SH_ETH_MAX_REGISTER_OFFSET] = {
+ 	[FWNLCR0]	= 0x0090,
+ 	[FWALCR0]	= 0x0094,
+ 	[TXNLCR1]	= 0x00a0,
+-	[TXALCR1]	= 0x00a0,
++	[TXALCR1]	= 0x00a4,
+ 	[RXNLCR1]	= 0x00a8,
+ 	[RXALCR1]	= 0x00ac,
+ 	[FWNLCR1]	= 0x00b0,
+-- 
+2.7.4
+

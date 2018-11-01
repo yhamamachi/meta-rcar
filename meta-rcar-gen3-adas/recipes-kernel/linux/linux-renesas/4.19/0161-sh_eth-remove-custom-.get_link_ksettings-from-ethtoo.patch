@@ -1,0 +1,55 @@
+From 7878b871dc455c5b36cac7a2be4606507157cf79 Mon Sep 17 00:00:00 2001
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Date: Wed, 4 Jul 2018 11:14:48 +0300
+Subject: [PATCH 161/248] sh_eth: remove custom .get_link_ksettings from
+ ethtool ops
+
+The generic phy_ethtool_get_link_ksettings() function from phylib can be
+used instead of in-house sh_eth_get_link_ksettings().
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 45abbd431939fe77b365949e946fb29094d72656
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 2f3351a..da5cb7c 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2023,17 +2023,6 @@ static int sh_eth_phy_start(struct net_device *ndev)
+ 	return 0;
+ }
+ 
+-static int sh_eth_get_link_ksettings(struct net_device *ndev,
+-				     struct ethtool_link_ksettings *cmd)
+-{
+-	if (!ndev->phydev)
+-		return -ENODEV;
+-
+-	phy_ethtool_ksettings_get(ndev->phydev, cmd);
+-
+-	return 0;
+-}
+-
+ static int sh_eth_set_link_ksettings(struct net_device *ndev,
+ 				     const struct ethtool_link_ksettings *cmd)
+ {
+@@ -2381,7 +2370,7 @@ static const struct ethtool_ops sh_eth_ethtool_ops = {
+ 	.get_sset_count     = sh_eth_get_sset_count,
+ 	.get_ringparam	= sh_eth_get_ringparam,
+ 	.set_ringparam	= sh_eth_set_ringparam,
+-	.get_link_ksettings = sh_eth_get_link_ksettings,
++	.get_link_ksettings = phy_ethtool_get_link_ksettings,
+ 	.set_link_ksettings = sh_eth_set_link_ksettings,
+ 	.get_wol	= sh_eth_get_wol,
+ 	.set_wol	= sh_eth_set_wol,
+-- 
+2.7.4
+

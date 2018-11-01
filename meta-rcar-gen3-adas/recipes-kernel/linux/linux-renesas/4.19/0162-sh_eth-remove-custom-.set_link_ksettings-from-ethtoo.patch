@@ -1,0 +1,53 @@
+From e471de9eff4e5543bf0dbd60cbd0e5c3c86731a6 Mon Sep 17 00:00:00 2001
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Date: Wed, 4 Jul 2018 11:14:49 +0300
+Subject: [PATCH 162/248] sh_eth: remove custom .set_link_ksettings from
+ ethtool ops
+
+The generic phy_ethtool_set_link_ksettings() function from phylib can
+be used instead of in-house sh_eth_set_link_ksettings().
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 6783f50ed144aafe8c3aceb223db2c7956278a1f
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index da5cb7c..e4db649 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -2023,15 +2023,6 @@ static int sh_eth_phy_start(struct net_device *ndev)
+ 	return 0;
+ }
+ 
+-static int sh_eth_set_link_ksettings(struct net_device *ndev,
+-				     const struct ethtool_link_ksettings *cmd)
+-{
+-	if (!ndev->phydev)
+-		return -ENODEV;
+-
+-	return phy_ethtool_ksettings_set(ndev->phydev, cmd);
+-}
+-
+ /* If it is ever necessary to increase SH_ETH_REG_DUMP_MAX_REGS, the
+  * version must be bumped as well.  Just adding registers up to that
+  * limit is fine, as long as the existing register indices don't
+@@ -2371,7 +2362,7 @@ static const struct ethtool_ops sh_eth_ethtool_ops = {
+ 	.get_ringparam	= sh_eth_get_ringparam,
+ 	.set_ringparam	= sh_eth_set_ringparam,
+ 	.get_link_ksettings = phy_ethtool_get_link_ksettings,
+-	.set_link_ksettings = sh_eth_set_link_ksettings,
++	.set_link_ksettings = phy_ethtool_set_link_ksettings,
+ 	.get_wol	= sh_eth_get_wol,
+ 	.set_wol	= sh_eth_set_wol,
+ };
+-- 
+2.7.4
+

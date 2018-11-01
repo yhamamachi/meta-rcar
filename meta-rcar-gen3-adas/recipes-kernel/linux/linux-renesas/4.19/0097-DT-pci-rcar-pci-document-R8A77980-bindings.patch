@@ -1,0 +1,35 @@
+From 6e5ab70a1666c06b714911b0947b7e97bf6b8486 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 3 May 2018 22:44:58 +0300
+Subject: [PATCH 097/248] DT: pci: rcar-pci: document R8A77980 bindings
+
+Document the R-Car V3H (R8A77980) SoC in the R-Car PCIe bindings.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Rob Herring <robh@kernel.org>
+
+(cherry picked from commit 2a291ead5e5e699ab1b08fc109e25e721a25b5e5
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/pci/rcar-pci.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/pci/rcar-pci.txt b/Documentation/devicetree/bindings/pci/rcar-pci.txt
+index 2964faae1..85c2eaf 100644
+--- a/Documentation/devicetree/bindings/pci/rcar-pci.txt
++++ b/Documentation/devicetree/bindings/pci/rcar-pci.txt
+@@ -7,6 +7,7 @@ compatible: "renesas,pcie-r8a7779" for the R8A7779 SoC;
+ 	    "renesas,pcie-r8a7793" for the R8A7793 SoC;
+ 	    "renesas,pcie-r8a7795" for the R8A7795 SoC;
+ 	    "renesas,pcie-r8a7796" for the R8A7796 SoC;
++	    "renesas,pcie-r8a77980" for the R8A77980 SoC;
+ 	    "renesas,pcie-r8a77990" for the R8A77990 SoC;
+ 	    "renesas,pcie-rcar-gen2" for a generic R-Car Gen2 compatible device.
+ 	    "renesas,pcie-rcar-gen3" for a generic R-Car Gen3 compatible device.
+-- 
+2.7.4
+

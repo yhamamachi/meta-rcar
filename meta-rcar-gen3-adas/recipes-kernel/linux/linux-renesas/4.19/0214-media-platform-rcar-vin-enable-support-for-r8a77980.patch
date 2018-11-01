@@ -1,0 +1,90 @@
+From b8a9538944ca0917442654fc5f376aa068b8ea3e Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 18 Oct 2018 11:40:46 +0300
+Subject: [PATCH 214/248] media: platform: rcar-vin: enable support for
+ r8a77980
+
+Add the SoC specific information for Renesas r8a77980.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/media/platform/rcar-vin/rcar-core.c | 56 +++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index 6ecadfb..328a383 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -1329,6 +1329,58 @@ static const struct rvin_info rcar_info_r8a77970 = {
+ 	},
+ };
+ 
++static const struct rvin_info rcar_info_r8a77980 = {
++	.chip = RCAR_GEN3,
++	.use_mc = true,
++	.max_width = 4096,
++	.max_height = 4096,
++
++	.num_chsels = 4,
++	.chsels = {
++		{
++			{ .csi = RVIN_CSI40, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 1 },
++			{ .csi = RVIN_CSI40, .chan = 0 },
++		}, {
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 1 },
++			{ .csi = RVIN_CSI40, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 1 },
++		}, {
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 2 },
++		}, {
++			{ .csi = RVIN_CSI40, .chan = 1 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI40, .chan = 3 },
++		}, {
++			{ .csi = RVIN_CSI41, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 1 },
++			{ .csi = RVIN_CSI41, .chan = 0 },
++		}, {
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 1 },
++			{ .csi = RVIN_CSI41, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 1 },
++		}, {
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 2 },
++		}, {
++			{ .csi = RVIN_CSI41, .chan = 1 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_NC, .chan = 0 },
++			{ .csi = RVIN_CSI41, .chan = 3 },
++		},
++	},
++};
++
+ static const struct of_device_id rvin_of_id_table[] = {
+ 	{
+ 		.compatible = "renesas,vin-r8a7778",
+@@ -1379,6 +1431,10 @@ static const struct of_device_id rvin_of_id_table[] = {
+ 		.data = &rcar_info_r8a77970,
+ 	},
+ 	{
++		.compatible = "renesas,vin-r8a77980",
++		.data = &rcar_info_r8a77980,
++	},
++	{
+ 		.compatible = "renesas,vin-r8a77990",
+ 		.data = &rcar_info_r8a77990,
+ 	},
+-- 
+2.7.4
+

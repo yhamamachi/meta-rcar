@@ -1,0 +1,58 @@
+From d7bcf558e2f765e4b58802a0a2c9dcdfb7e49499 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Thu, 26 Apr 2018 23:34:35 +0300
+Subject: [PATCH 122/248] arm64: dts: renesas: eagle: add CAN-FD support
+
+Define the Eagle board dependent part of the CAN-FD device node.
+
+Based on the original (and large) patch by Vladimir Barinov.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Acked-by: Ramesh Shanmugasundaram <ramesh.shanmugasundaram@bp.renesas.com>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+
+(cherry picked from commit bb8d20331f051a920df21aaf263a189e2ede20e6
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index b800a119..21f9cf5 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -95,6 +95,16 @@
+ 	};
+ };
+ 
++&canfd {
++	pinctrl-0 = <&canfd0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	channel0 {
++		status = "okay";
++	};
++};
++
+ &extal_clk {
+ 	clock-frequency = <16666666>;
+ };
+@@ -156,6 +166,11 @@
+ 		function = "avb0";
+ 	};
+ 
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
++
+ 	i2c0_pins: i2c0 {
+ 		groups = "i2c0";
+ 		function = "i2c0";
+-- 
+2.7.4
+

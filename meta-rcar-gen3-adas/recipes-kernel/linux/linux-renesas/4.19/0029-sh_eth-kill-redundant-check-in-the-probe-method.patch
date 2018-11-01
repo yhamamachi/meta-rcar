@@ -1,0 +1,39 @@
+From 26410d1041ee37525565798397d1827bcfcb5cc1 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 31 Dec 2017 21:41:36 +0300
+Subject: [PATCH 029/248] sh_eth: kill redundant check in the probe() method
+
+Browsing thru the driver disassembly, I noticed that gcc was  able to
+figure  out  that the 'ndev' pointer is always non-NULL when calling
+free_netdev()  on the probe() method's  error path and  thus skip that
+redundant NULL check... gcc is smart, be like gcc! :-)
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 4282fc47c01262fdda55a9d63a4e25173fd9afb4
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 56efd10..494f1e2 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -3295,8 +3295,7 @@ static int sh_eth_drv_probe(struct platform_device *pdev)
+ 
+ out_release:
+ 	/* net_dev free */
+-	if (ndev)
+-		free_netdev(ndev);
++	free_netdev(ndev);
+ 
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-- 
+2.7.4
+

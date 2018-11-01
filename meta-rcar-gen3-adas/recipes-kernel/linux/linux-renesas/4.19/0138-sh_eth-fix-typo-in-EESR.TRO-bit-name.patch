@@ -1,0 +1,94 @@
+From 0851302c960a7bc5b3e381086ed0ccfb5de1d643 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sun, 20 May 2018 00:02:36 +0300
+Subject: [PATCH 138/248] sh_eth: fix typo in EESR.TRO bit name
+
+The  correct name of the EESR bit 8 is TRO (transmit retry over), not RTO.
+Note that EESIPR bit 8, TROIP remained correct...
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+(cherry picked from commit 27164491cb82b611b5269e632e4af0664788794d
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/net/ethernet/renesas/sh_eth.c | 10 +++++-----
+ drivers/net/ethernet/renesas/sh_eth.h |  4 ++--
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 420a127..118e94e 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -706,7 +706,7 @@ static struct sh_eth_cpu_data rcar_gen1_data = {
+ 			  EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
+ 
+-	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_RTO,
++	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_TRO,
+ 	.eesr_err_check	= EESR_TWB | EESR_TABT | EESR_RABT | EESR_RFE |
+ 			  EESR_RDE | EESR_RFRMER | EESR_TFE | EESR_TDE,
+ 	.fdr_value	= 0x00000f0f,
+@@ -738,7 +738,7 @@ static struct sh_eth_cpu_data rcar_gen2_data = {
+ 			  EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
+ 
+-	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_RTO,
++	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_TRO,
+ 	.eesr_err_check	= EESR_TWB | EESR_TABT | EESR_RABT | EESR_RFE |
+ 			  EESR_RDE | EESR_RFRMER | EESR_TFE | EESR_TDE,
+ 	.fdr_value	= 0x00000f0f,
+@@ -774,7 +774,7 @@ static struct sh_eth_cpu_data r8a77980_data = {
+ 			  EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
+ 
+-	.tx_check       = EESR_FTC | EESR_CD | EESR_RTO,
++	.tx_check       = EESR_FTC | EESR_CD | EESR_TRO,
+ 	.eesr_err_check = EESR_TWB1 | EESR_TWB | EESR_TABT | EESR_RABT |
+ 			  EESR_RFE | EESR_RDE | EESR_RFRMER |
+ 			  EESR_TFE | EESR_TDE | EESR_ECI,
+@@ -831,7 +831,7 @@ static struct sh_eth_cpu_data sh7724_data = {
+ 			  EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
+ 
+-	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_RTO,
++	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_TRO,
+ 	.eesr_err_check	= EESR_TWB | EESR_TABT | EESR_RABT | EESR_RFE |
+ 			  EESR_RDE | EESR_RFRMER | EESR_TFE | EESR_TDE,
+ 
+@@ -876,7 +876,7 @@ static struct sh_eth_cpu_data sh7757_data = {
+ 			  EESIPR_RRFIP | EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
+ 
+-	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_RTO,
++	.tx_check	= EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | EESR_TRO,
+ 	.eesr_err_check	= EESR_TWB | EESR_TABT | EESR_RABT | EESR_RFE |
+ 			  EESR_RDE | EESR_RFRMER | EESR_TFE | EESR_TDE,
+ 
+diff --git a/drivers/net/ethernet/renesas/sh_eth.h b/drivers/net/ethernet/renesas/sh_eth.h
+index 6dd24fc..01671bd 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.h
++++ b/drivers/net/ethernet/renesas/sh_eth.h
+@@ -243,7 +243,7 @@ enum EESR_BIT {
+ 	EESR_CND	= 0x00000800,
+ 	EESR_DLC	= 0x00000400,
+ 	EESR_CD		= 0x00000200,
+-	EESR_RTO	= 0x00000100,
++	EESR_TRO	= 0x00000100,
+ 	EESR_RMAF	= 0x00000080,
+ 	EESR_CEEF	= 0x00000040,
+ 	EESR_CELF	= 0x00000020,
+@@ -263,7 +263,7 @@ enum EESR_BIT {
+ 				 EESR_CERF)  /* Recv frame CRC error */
+ 
+ #define DEFAULT_TX_CHECK	(EESR_FTC | EESR_CND | EESR_DLC | EESR_CD | \
+-				 EESR_RTO)
++				 EESR_TRO)
+ #define DEFAULT_EESR_ERR_CHECK	(EESR_TWB | EESR_TABT | EESR_RABT | EESR_RFE | \
+ 				 EESR_RDE | EESR_RFRMER | EESR_ADE | \
+ 				 EESR_TFE | EESR_TDE)
+-- 
+2.7.4
+
