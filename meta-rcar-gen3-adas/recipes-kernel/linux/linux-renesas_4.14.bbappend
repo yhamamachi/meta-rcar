@@ -69,6 +69,7 @@ SRC_URI_append = " \
     file://0113-arm64-dts-ulcb-kf-increase-SDIO-frequency-for-WLAN-c.patch \
     file://0114-Sony-IMX219-driver.patch \
     ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \
+    file://0116-media-i2c-soc_camera-Fix-Bad-of_node_put-error.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
