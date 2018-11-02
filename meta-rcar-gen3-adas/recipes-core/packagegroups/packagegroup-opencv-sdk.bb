@@ -8,10 +8,8 @@ PACKAGES = " \
     packagegroup-opencv-sdk \
 "
 
-RDEPENDS_packagegroup-opencv-sdk = '${@ " \
-    opencv \
-    opencv-apps \
-    opencv-dbg \
+RDEPENDS_packagegroup-opencv-sdk = " \
+    gstreamer1.0-plugins-base-app \
     libopencv-calib3d \
     libopencv-core \
     libopencv-features2d \
@@ -25,5 +23,7 @@ RDEPENDS_packagegroup-opencv-sdk = '${@ " \
     libopencv-superres \
     libopencv-video \
     libopencv-videostab \
-    gstreamer1.0-plugins-base-app \
-" if 'opencv-sdk' in '${DISTRO_FEATURES}' else ""}'
+    opencv \
+    opencv-apps \
+    opencv-dbg \
+"

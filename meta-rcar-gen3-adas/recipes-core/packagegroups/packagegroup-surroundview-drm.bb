@@ -8,13 +8,13 @@ PACKAGES = " \
     packagegroup-surroundview-drm \
 "
 
-RDEPENDS_packagegroup-surroundview-drm = '${@ " \
-    spacenavd \
-    libspnav \
+RDEPENDS_packagegroup-surroundview-drm = " \
     gstreamer1.0-plugins-base libgstallocators-1.0 \
     gstreamer1.0-plugins-base-app libgstapp-1.0 \
-    libdrm \
     kernel-module-mmngr \
     kernel-module-mmngrbuf \
+    libdrm \
+    libspnav \
     mmngr-user-module \
-" if 'surroundview' in '${DISTRO_FEATURES}' else ""}'
+    spacenavd \
+"
