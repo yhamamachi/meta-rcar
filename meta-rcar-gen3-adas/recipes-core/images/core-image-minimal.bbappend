@@ -4,5 +4,6 @@ IMAGE_INSTALL_append = " \
     packagegroup-bsp \
     packagegroup-bsp-devdbg \
     packagegroup-bsp-custom \
+    packagegroup-bsp-utest \
     packagegroup-v3x \
 "
