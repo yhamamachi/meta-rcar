@@ -45,7 +45,8 @@ index 02d25c7..9bbe82e 100644
 +	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
  
  devname: build/devname.o
- 	$(CC) -o $@ $^
+-	$(CC) -o $@ $^
++	$(CC) $(LDFLAGS) -o $@ $^
  
  install: all
 -	install -m 755 -p -t "$(DESTDIR)$(bindir)" netevent devname
