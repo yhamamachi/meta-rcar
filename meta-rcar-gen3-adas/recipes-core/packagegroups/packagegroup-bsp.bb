@@ -74,6 +74,7 @@ RDEPENDS_packagegroup-bsp-custom = " \
 # Utest (IMR, IMP, etc demos) related packages
 RDEPENDS_packagegroup-bsp-utest = " \
     utest-cam-imr-drm \
+    netevent \
     gstreamer1.0-plugins-base \
     libgstallocators-1.0 \
     gstreamer1.0-plugins-base-app \
