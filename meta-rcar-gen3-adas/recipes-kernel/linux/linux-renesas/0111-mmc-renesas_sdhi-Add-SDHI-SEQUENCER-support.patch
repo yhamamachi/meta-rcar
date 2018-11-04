@@ -29,11 +29,11 @@ carried out additionally twice.
 Signed-off-by: Masaharu Hayakawa <masaharu.hayakawa.ry@renesas.com>
 ---
  drivers/mmc/host/renesas_sdhi_core.c          |  20 +-
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 554 +++++++++++++++++++++++++-
- 2 files changed, 570 insertions(+), 4 deletions(-)
+ drivers/mmc/host/renesas_sdhi_internal_dmac.c | 556 +++++++++++++++++++++++++-
+ 2 files changed, 572 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
-index 7d3c35e..4ae36b3 100644
+index 4d8502e..f69270e 100644
 --- a/drivers/mmc/host/renesas_sdhi_core.c
 +++ b/drivers/mmc/host/renesas_sdhi_core.c
 @@ -53,11 +53,13 @@
@@ -52,7 +52,7 @@ index 7d3c35e..4ae36b3 100644
  	{ .soc_id = "r8a7796", .revision = "ES1.1",
  	  .data = (void *)HS400_USE_4TAP, },
  	{/*sentinel*/},
-@@ -730,6 +732,9 @@ int renesas_sdhi_probe(struct platform_device *pdev,
+@@ -723,6 +725,9 @@ int renesas_sdhi_probe(struct platform_device *pdev,
  	host->hs400_use_4tap = (host->sdhi_quirks & HS400_USE_4TAP) ?
  				true : false;
  
@@ -62,7 +62,7 @@ index 7d3c35e..4ae36b3 100644
  	if (of_data) {
  		mmc_data->flags |= of_data->tmio_flags;
  		mmc_data->ocr_mask = of_data->tmio_ocr_mask;
-@@ -742,7 +747,16 @@ int renesas_sdhi_probe(struct platform_device *pdev,
+@@ -735,7 +740,16 @@ int renesas_sdhi_probe(struct platform_device *pdev,
  		host->bus_shift = of_data->bus_shift;
  		priv->scc_offset = of_data->scc_offset;
  	}
@@ -81,10 +81,10 @@ index 7d3c35e..4ae36b3 100644
  	host->write16_hook	= renesas_sdhi_write16_hook;
  	host->clk_enable	= renesas_sdhi_clk_enable;
 diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index 92dcc88..caa9e30 100644
+index 2f24a48..7f8cc21 100644
 --- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
 +++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -14,6 +14,9 @@
+@@ -15,6 +15,9 @@
  #include <linux/io-64-nonatomic-hi-lo.h>
  #include <linux/mfd/tmio.h>
  #include <linux/mmc/host.h>
@@ -94,7 +94,7 @@ index 92dcc88..caa9e30 100644
  #include <linux/mod_devicetable.h>
  #include <linux/module.h>
  #include <linux/pagemap.h>
-@@ -23,6 +26,9 @@
+@@ -24,6 +27,9 @@
  #include "renesas_sdhi.h"
  #include "tmio_mmc.h"
  
@@ -104,7 +104,7 @@ index 92dcc88..caa9e30 100644
  #define DM_CM_DTRAN_MODE	0x820
  #define DM_CM_DTRAN_CTRL	0x828
  #define DM_CM_RST		0x830
-@@ -30,7 +36,16 @@
+@@ -31,7 +37,16 @@
  #define DM_CM_INFO1_MASK	0x848
  #define DM_CM_INFO2		0x850
  #define DM_CM_INFO2_MASK	0x858
@@ -121,7 +121,7 @@ index 92dcc88..caa9e30 100644
  
  /* DM_CM_DTRAN_MODE */
  #define DTRAN_MODE_CH_NUM_CH0	0	/* "downstream" = for write commands */
-@@ -44,6 +59,7 @@
+@@ -45,6 +60,7 @@
  /* DM_CM_RST */
  #define RST_DTRANRST1		BIT(9)
  #define RST_DTRANRST0		BIT(8)
@@ -129,7 +129,7 @@ index 92dcc88..caa9e30 100644
  #define RST_RESERVED_BITS	GENMASK_ULL(32, 0)
  
  /* DM_CM_INFO1 and DM_CM_INFO1_MASK */
-@@ -51,6 +67,8 @@
+@@ -52,6 +68,8 @@
  #define INFO1_DTRANEND1_BIT20	BIT(20)
  #define INFO1_DTRANEND1_BIT17	BIT(17)
  #define INFO1_DTRANEND0		BIT(16)
@@ -138,7 +138,7 @@ index 92dcc88..caa9e30 100644
  
  /* DM_CM_INFO2 and DM_CM_INFO2_MASK */
  #define INFO2_DTRANERR1		BIT(17)
-@@ -119,7 +137,8 @@ renesas_sdhi_internal_dmac_enable_dma(struct tmio_mmc_host *host, bool enable)
+@@ -132,7 +150,8 @@ renesas_sdhi_internal_dmac_enable_dma(struct tmio_mmc_host *host, bool enable)
  						    INFO1_CLEAR);
  
  	if (host->dma->enable) {
@@ -148,16 +148,18 @@ index 92dcc88..caa9e30 100644
  		host->dma->enable(host, enable);
  		renesas_sdhi_internal_dmac_dm_write(host, DM_CM_INFO1_MASK,
  						    host->dma_irq_mask);
-@@ -132,12 +151,20 @@ renesas_sdhi_internal_dmac_abort_dma(struct tmio_mmc_host *host) {
+@@ -145,6 +164,9 @@ renesas_sdhi_internal_dmac_abort_dma(struct tmio_mmc_host *host) {
  
  	renesas_sdhi_internal_dmac_enable_dma(host, false);
  
 +	if (host->seq_enabled)
 +		val |= RST_SEQRST;
++
  	renesas_sdhi_internal_dmac_dm_write(host, DM_CM_RST,
  					    RST_RESERVED_BITS & ~val);
  	renesas_sdhi_internal_dmac_dm_write(host, DM_CM_RST,
- 					    RST_RESERVED_BITS | val);
+@@ -154,6 +176,12 @@ renesas_sdhi_internal_dmac_abort_dma(struct tmio_mmc_host *host) {
+ 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
  
  	renesas_sdhi_internal_dmac_enable_dma(host, true);
 +
@@ -169,18 +171,20 @@ index 92dcc88..caa9e30 100644
  }
  
  static void
-@@ -215,17 +242,446 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
- 			     mmc_get_dma_dir(host->data));
+@@ -227,6 +255,12 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
  		host->data->host_cookie = COOKIE_UNMAPPED;
  	}
+ 
 +	if (host->bounce_sg_mapped) {
 +		dma_unmap_sg(&host->pdev->dev, &host->bounce_sg, 1,
 +			     DMA_FROM_DEVICE);
 +		host->bounce_sg_mapped = false;
 +	}
++
+ 	if (host->data->flags & MMC_DATA_READ)
+ 		clear_bit(SDHI_INTERNAL_DMAC_RX_IN_USE, &global_flags);
  
- 	tmio_mmc_do_data_irq(host);
- out:
+@@ -235,11 +269,435 @@ static void renesas_sdhi_internal_dmac_complete_tasklet_fn(unsigned long arg)
  	spin_unlock_irq(&host->lock);
  }
  
@@ -616,7 +620,7 @@ index 92dcc88..caa9e30 100644
  	ireg = status & ~host->dma_irq_mask;
  
  	if (ireg & INFO1_DTRANEND0) {
-@@ -244,6 +700,76 @@ static bool renesas_sdhi_internal_dmac_dma_irq(struct tmio_mmc_host *host)
+@@ -258,6 +716,76 @@ static bool renesas_sdhi_internal_dmac_dma_irq(struct tmio_mmc_host *host)
  	return false;
  }
  
@@ -693,7 +697,7 @@ index 92dcc88..caa9e30 100644
  static void
  renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
  				       struct tmio_mmc_data *pdata)
-@@ -260,6 +786,19 @@ renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
+@@ -274,6 +802,19 @@ renesas_sdhi_internal_dmac_request_dma(struct tmio_mmc_host *host,
  	tasklet_init(&host->dma_issue,
  		     renesas_sdhi_internal_dmac_issue_tasklet_fn,
  		     (unsigned long)host);
@@ -713,7 +717,7 @@ index 92dcc88..caa9e30 100644
  }
  
  static void
-@@ -267,6 +806,17 @@ renesas_sdhi_internal_dmac_release_dma(struct tmio_mmc_host *host)
+@@ -281,6 +822,17 @@ renesas_sdhi_internal_dmac_release_dma(struct tmio_mmc_host *host)
  {
  	/* Each value is set to zero to assume "disabling" each DMA */
  	host->chan_rx = host->chan_tx = NULL;
@@ -731,7 +735,7 @@ index 92dcc88..caa9e30 100644
  }
  
  static const struct tmio_mmc_dma_ops renesas_sdhi_internal_dmac_dma_ops = {
-@@ -277,6 +827,8 @@ static const struct tmio_mmc_dma_ops renesas_sdhi_internal_dmac_dma_ops = {
+@@ -291,6 +843,8 @@ static const struct tmio_mmc_dma_ops renesas_sdhi_internal_dmac_dma_ops = {
  	.abort = renesas_sdhi_internal_dmac_abort_dma,
  	.dataend = renesas_sdhi_internal_dmac_dataend_dma,
  	.dma_irq = renesas_sdhi_internal_dmac_dma_irq,

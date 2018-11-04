@@ -1,0 +1,11 @@
+patch 0014-lib-swiotlb-reduce-verbosity.patch
+patch 0018-arm64-renesas-r8a7797-Add-Renesas-R8A7797-SoC-suppor.patch
+patch 0051-arm64-renesas-r8a7798-Add-Renesas-R8A7798-SoC-suppor.patch
+patch 0052-soc-renesas-rcar-sysc-Add-workaround-for-A3-PD-issue.patch
+patch 0082-gpio-pca953x-fix-interrupt-trigger.patch
+patch 0100-LVDS-ar0132-use-raw12.patch
+patch 0101-LVDS-ar0132-use-context-swwitch.patch
+patch 0103-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
+patch 0104-media-vsp1-extend-DRM-VSP1-interface.patch
+patch 0105-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch
+patch 0106-media-rcar-imr-Add-RSE-support.patch
