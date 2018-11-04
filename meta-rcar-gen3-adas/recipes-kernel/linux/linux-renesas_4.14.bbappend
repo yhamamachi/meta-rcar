@@ -321,6 +321,8 @@ SRC_URI_append = " \
     file://4.19/0246-arm64-dts-renesas-Add-r8a77970-v3msk-vbm-support.patch \
     file://4.19/0247-arm64-dts-renesas-Add-r8a77970-v3mzf-support.patch \
     file://4.19/0248-arm64-dts-renesas-Add-r8a77980-v3hsk-vbm-support.patch \
+    file://4.19/0249-arm64-dts-renesas-r8a779-7-8-0-Add-IMP-devices.patch \
+    file://4.19/0250-arm64-dts-renesas-r8a77980-Add-VIP-nodes.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
