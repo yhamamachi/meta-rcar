@@ -1,0 +1,108 @@
+From 9a8cbb47de136e4665a0b5c50f2d5e88de142fbd Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 5 Nov 2018 13:49:54 +0300
+Subject: [PATCH] arm64: dts: renesas: r8a779[78]0: Add "linux,multimedia"
+ region to mmngr
+
+This adds "linux,multimedia" reserved memory region to mmngr regions
+on all R-Car V3x boards which is needed for rgnmm device registration.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts  | 4 ++--
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts  | 4 ++--
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts | 4 ++--
+ arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts  | 4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index f4a7dcf..82974f1 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -53,7 +53,7 @@
+ 		};
+ 
+ 		/* device specific region for contiguous allocations */
+-		linux,multimedia {
++		mmp_reserved: linux,multimedia {
+ 			compatible = "shared-dma-pool";
+ 			reusable;
+ 			reg = <0x00000000 0x7f000000 0x0 0x01000000>;
+@@ -62,7 +62,7 @@
+ 
+ 	mmngr {
+ 		compatible = "renesas,mmngr";
+-		memory-region = <&lossy_decompress>;
++		memory-region = <&mmp_reserved>, <&lossy_decompress>;
+ 	};
+ 
+ 	mmngrbuf {
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+index 270e28a..fc08558 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+@@ -50,7 +50,7 @@
+ 		};
+ 
+ 		/* device specific region for contiguous allocations */
+-		linux,multimedia {
++		mmp_reserved: linux,multimedia {
+ 			compatible = "shared-dma-pool";
+ 			reusable;
+ 			reg = <0x00000000 0x7f000000 0x0 0x01000000>;
+@@ -59,7 +59,7 @@
+ 
+ 	mmngr {
+ 		compatible = "renesas,mmngr";
+-		memory-region = <&lossy_decompress>;
++		memory-region = <&mmp_reserved>, <&lossy_decompress>;
+ 	};
+ 
+ 	mmngrbuf {
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index 67771bc..6a723eb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -50,7 +50,7 @@
+ 		};
+ 
+ 		/* device specific region for contiguous allocations */
+-		linux,multimedia {
++		mmp_reserved: linux,multimedia {
+ 			compatible = "shared-dma-pool";
+ 			reusable;
+ 			reg = <0x00000000 0x7f000000 0x0 0x01000000>;
+@@ -59,7 +59,7 @@
+ 
+ 	mmngr {
+ 		compatible = "renesas,mmngr";
+-		memory-region = <&lossy_decompress>;
++		memory-region = <&mmp_reserved>, <&lossy_decompress>;
+ 	};
+ 
+ 	mmngrbuf {
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+index 6902c10..ce68421 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+@@ -48,7 +48,7 @@
+ 		};
+ 
+ 		/* device specific region for contiguous allocations */
+-		linux,multimedia {
++		mmp_reserved: linux,multimedia {
+ 			compatible = "shared-dma-pool";
+ 			reusable;
+ 			reg = <0x00000000 0x7f000000 0x0 0x01000000>;
+@@ -57,7 +57,7 @@
+ 
+ 	mmngr {
+ 		compatible = "renesas,mmngr";
+-		memory-region = <&lossy_decompress>;
++		memory-region = <&mmp_reserved>, <&lossy_decompress>;
+ 	};
+ 
+ 	mmngrbuf {
+-- 
+2.7.4
+
