@@ -253,3 +253,8 @@ patch 0252-IMR-UIO-Driver-initial-version.patch
 patch 0253-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch
 patch 0254-media-rcar-imr-Add-RSE-support.patch
 patch 0255-rcar_imr-v4l2-driver-Fix-module-support.patch
+patch 0256-drivers-flag-buses-which-demand-DMA-configuration.patch
+patch 0257-gpu-host1x-Call-of_dma_configure-after-setting-bus.patch
+patch 0258-gpu-host1x-Cleanup-on-initialization-failure.patch
+patch 0259-dma-mapping-move-dma-configuration-to-bus-infrastruc.patch
+patch 0260-drivers-remove-force-dma-flag-from-buses.patch
