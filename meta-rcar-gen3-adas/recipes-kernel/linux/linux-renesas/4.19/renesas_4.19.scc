@@ -268,3 +268,4 @@ patch 0267-V3H-add-support-for-8-4-channel-VideoBox-board-from-.patch
 patch 0268-arm64-dts-r8a77970-Videobox-Mini-V3-board-support.patch
 patch 0269-arm64-dts-renesas-r8a77970-Add-ISP0-alias.patch
 patch 0270-arm64-dts-renesas-r8a77980-Add-ISP-aliases.patch
+patch 0271-media-soc_camera-Add-soc_camera-host-preregister.patch
