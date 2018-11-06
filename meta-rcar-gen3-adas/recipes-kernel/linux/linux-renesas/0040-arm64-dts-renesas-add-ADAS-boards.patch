@@ -8415,7 +8415,7 @@ index 0000000..8bb263d
 +					};
 +				};
 +				port@1 {
-+					ti9x4_csi1ep0: endpoint {
++					ti9x4_csi0ep0: endpoint {
 +						csi-rate = <700>;
 +						remote-endpoint = <&csi41_ep>;
 +					};
