@@ -4007,7 +4007,7 @@ index 0000000..d89f67b
 +				remote-endpoint = <&adv7513_in>;
 +			};
 +		};
-+		port@3 {
++		port@2 {
 +			endpoint {
 +				remote-endpoint = <&lvds_in>;
 +			};
