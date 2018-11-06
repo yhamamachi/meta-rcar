@@ -39,6 +39,9 @@ SRC_URI_append = " \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
     file://0035-ARM64-renesas-dts-add-m3nulcb-board-support.patch \
     file://0036-Add-MOST-support-for-r8a77965.patch \
+    file://0037-media-soc_camera-rcar_vin-Fix-VnCSI_IFMD-settings.patch \
+    file://0038-media-soc_camera-rcar_vin-Add-R-Car-M3N-support.patch \
+    file://0039-media-soc_camera-rcar_csi2-Add-R-Car-M3N-support.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0043-pinctrl-sh-pfc-pfc-r8a77965-Add-missing-avb_mii-pin-.patch \
