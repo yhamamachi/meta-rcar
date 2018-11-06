@@ -1,4 +1,4 @@
-From ffb5240740faf187a473567db10a38081359a8d8 Mon Sep 17 00:00:00 2001
+From 7c23f3e8c8479960d53970efec92b46c3de06707 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 6 Nov 2018 16:03:30 +0300
 Subject: [PATCH 3/3] media: soc_camera: rcar_csi2: Add R-Car M3N support

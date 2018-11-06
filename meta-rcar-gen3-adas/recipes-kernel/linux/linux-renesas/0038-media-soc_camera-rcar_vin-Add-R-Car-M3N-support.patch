@@ -1,4 +1,4 @@
-From d7300083a1f179e688e1cef0ae3b57c4d4b689fd Mon Sep 17 00:00:00 2001
+From d821653681ee33e45d146c40b394db014b97781b Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 6 Nov 2018 16:02:21 +0300
 Subject: [PATCH 2/3] media: soc_camera: rcar_vin: Add R-Car M3N support
@@ -11,7 +11,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 86 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 66de77b..650a9b0 100644
+index 77c8d6b..228bbf3 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
 @@ -200,6 +200,7 @@ static int ifmd4_init = true;
@@ -220,7 +220,7 @@ index 66de77b..650a9b0 100644
  		case RCAR_V3M:
  			gen3_ifmd_table = vin_v3_vc_ifmd;
  			break;
-@@ -3249,6 +3319,10 @@ static int rcar_vin_resume(struct device *dev)
+@@ -3242,6 +3312,10 @@ static int rcar_vin_resume(struct device *dev)
  		gen3_ifmd_table = vin_m3_vc_ifmd;
  		ifmd = VNCSI_IFMD_DES1;
  		break;
