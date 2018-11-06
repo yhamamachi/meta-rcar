@@ -101,6 +101,6 @@ KERNEL_MODULE_PROBECONF += "uio_imr"
 module_conf_uio_imr = 'blacklist uio_imr'
 
 # V3H VIP devices
-KERNEL_MODULE_AUTOLOAD_r8a77980 += "uio_pdrv_genirq"
-KERNEL_MODULE_PROBECONF_r8a77980 += "uio_pdrv_genirq"
+KERNEL_MODULE_AUTOLOAD_append_r8a77980 += "uio_pdrv_genirq"
+KERNEL_MODULE_PROBECONF_append_r8a77980 += "uio_pdrv_genirq"
 module_conf_uio_pdrv_genirq_r8a77980 = 'options uio_pdrv_genirq of_id="generic-uio"'
