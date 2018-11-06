@@ -258,3 +258,5 @@ patch 0257-gpu-host1x-Call-of_dma_configure-after-setting-bus.patch
 patch 0258-gpu-host1x-Cleanup-on-initialization-failure.patch
 patch 0259-dma-mapping-move-dma-configuration-to-bus-infrastruc.patch
 patch 0260-drivers-remove-force-dma-flag-from-buses.patch
+patch 0261-clk-renesas-r8a77980-cpg-mssr-Add-IMP-clocks.patch
+patch 0262-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
