@@ -273,3 +273,4 @@ patch 0272-media-soc_camera-rcar_isp-Drop-gs-et_register-callba.patch
 patch 0273-arm64-renesas-r8a77980-use-CSI-4-lanes.patch
 patch 0274-Bunch-update-of-r8a77980-v3hsk-vb-4ch.dts.patch
 patch 0275-arm64-dts-renesas-r8a77980-VideoBox-Mini-fix-csi-spe.patch
+patch 0276-arm64-dts-renesas-r8a77980-v3hsk-vb-4ch-and-8ch-fix-.patch
