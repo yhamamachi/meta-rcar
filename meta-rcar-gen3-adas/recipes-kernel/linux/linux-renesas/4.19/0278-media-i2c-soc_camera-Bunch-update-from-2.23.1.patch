@@ -1,17 +1,17 @@
-From 89d6f474f8ad0d81b7f275f75afd99ea4b37ab90 Mon Sep 17 00:00:00 2001
+From 804459d9d578e54287860848b3771d5dc77b9672 Mon Sep 17 00:00:00 2001
 From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
 Date: Wed, 7 Nov 2018 22:42:50 +0300
-Subject: [PATCH 1/2] media: i2c: soc_camera: Bunch update from 2.23.1
+Subject: [PATCH] media: i2c: soc_camera: Bunch update from 2.23.1
 
 ---
- drivers/media/i2c/soc_camera/ap0101_ar014x.c |   82 +-
- drivers/media/i2c/soc_camera/ar0132.c        |    7 +-
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c |   78 +-
+ drivers/media/i2c/soc_camera/ar0132.c        |    3 +-
  drivers/media/i2c/soc_camera/ar0132.h        |    9 +-
  drivers/media/i2c/soc_camera/ar0140.c        |  648 +++++
  drivers/media/i2c/soc_camera/ar0140.h        |  475 ++++
  drivers/media/i2c/soc_camera/ar0143.c        |  678 +++++
  drivers/media/i2c/soc_camera/ar0143.h        |  549 ++++
- drivers/media/i2c/soc_camera/ar0220.c        |   23 +-
+ drivers/media/i2c/soc_camera/ar0220.c        |   20 +-
  drivers/media/i2c/soc_camera/ar0220.h        |   18 +-
  drivers/media/i2c/soc_camera/ar0231.c        |  580 ++++
  drivers/media/i2c/soc_camera/ar0231.h        |   34 +
@@ -22,19 +22,19 @@ Subject: [PATCH 1/2] media: i2c: soc_camera: Bunch update from 2.23.1
  drivers/media/i2c/soc_camera/gw4200_ar014x.h |   28 +
  drivers/media/i2c/soc_camera/imx390.c        |  574 ++++
  drivers/media/i2c/soc_camera/imx390.h        | 3818 ++++++++++++++++++++++++++
- drivers/media/i2c/soc_camera/max9286.c       |  412 ++-
+ drivers/media/i2c/soc_camera/max9286.c       |  406 ++-
  drivers/media/i2c/soc_camera/max9286.h       |    1 +
- drivers/media/i2c/soc_camera/ov10635.c       |   42 +-
+ drivers/media/i2c/soc_camera/ov10635.c       |   41 +-
  drivers/media/i2c/soc_camera/ov10635.h       |   10 +-
  drivers/media/i2c/soc_camera/ov106xx.c       |   79 +-
- drivers/media/i2c/soc_camera/ov2775.c        |   18 +-
+ drivers/media/i2c/soc_camera/ov2775.c        |   14 +-
  drivers/media/i2c/soc_camera/ov2775.h        |   32 +-
- drivers/media/i2c/soc_camera/ov490_ov10640.c |    5 +-
- drivers/media/i2c/soc_camera/ov495_ov2775.c  |   20 +-
+ drivers/media/i2c/soc_camera/ov490_ov10640.c |    1 -
+ drivers/media/i2c/soc_camera/ov495_ov2775.c  |   16 +-
  drivers/media/i2c/soc_camera/ox03a.c         |  589 ++++
  drivers/media/i2c/soc_camera/ox03a.h         | 1766 ++++++++++++
- drivers/media/i2c/soc_camera/ti9x4.c         |   98 +-
- 30 files changed, 12323 insertions(+), 200 deletions(-)
+ drivers/media/i2c/soc_camera/ti9x4.c         |   94 +-
+ 30 files changed, 12306 insertions(+), 183 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ar0140.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0140.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0143.c
@@ -52,7 +52,7 @@ Subject: [PATCH 1/2] media: i2c: soc_camera: Bunch update from 2.23.1
  create mode 100644 drivers/media/i2c/soc_camera/ox03a.h
 
 diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
-index d8025a4..996bc9e 100644
+index d8025a4..142942d 100644
 --- a/drivers/media/i2c/soc_camera/ap0101_ar014x.c
 +++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
 @@ -19,11 +19,10 @@
@@ -193,24 +193,6 @@ index d8025a4..996bc9e 100644
  err:
  	ap0101_s_port(client, 0);
  
-@@ -420,6 +470,8 @@ static int ap0101_parse_dt(struct device_node *np, struct ap0101_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
- 		if (!rendpoint)
- 			continue;
-@@ -430,8 +482,6 @@ static int ap0101_parse_dt(struct device_node *np, struct ap0101_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->max9286_addr) {
- 		dev_err(&client->dev, "deserializer does not present for AP0101\n");
- 		return -EINVAL;
 @@ -443,9 +493,7 @@ static int ap0101_parse_dt(struct device_node *np, struct ap0101_priv *priv)
  	tmp_addr = client->addr;
  	if (priv->max9286_addr) {
@@ -233,7 +215,7 @@ index d8025a4..996bc9e 100644
  	ret = v4l2_async_register_subdev(&priv->sd);
  	if (ret)
 diff --git a/drivers/media/i2c/soc_camera/ar0132.c b/drivers/media/i2c/soc_camera/ar0132.c
-index 2865902..7f688c3 100644
+index 2865902..aedb4a5 100644
 --- a/drivers/media/i2c/soc_camera/ar0132.c
 +++ b/drivers/media/i2c/soc_camera/ar0132.c
 @@ -19,7 +19,6 @@
@@ -253,24 +235,6 @@ index 2865902..7f688c3 100644
  
  struct ar0132_priv {
  	struct v4l2_subdev		sd;
-@@ -379,6 +378,8 @@ static int ar0132_parse_dt(struct device_node *np, struct ar0132_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		of_property_read_u32(endpoint, "dvp-order", &priv->dvp_order);
- 
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
-@@ -397,8 +398,6 @@ static int ar0132_parse_dt(struct device_node *np, struct ar0132_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->max9286_addr && !priv->ti9x4_addr) {
- 		dev_err(&client->dev, "deserializer does not present for AR0132\n");
- 		return -EINVAL;
 diff --git a/drivers/media/i2c/soc_camera/ar0132.h b/drivers/media/i2c/soc_camera/ar0132.h
 index bafa193..7dfc4e3 100644
 --- a/drivers/media/i2c/soc_camera/ar0132.h
@@ -2691,7 +2655,7 @@ index 0000000..774a438
 +// end reg wizard WIDTHxHEIGHT@30fps
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0220.c b/drivers/media/i2c/soc_camera/ar0220.c
-index 8813522..b24ed88 100644
+index 8813522..b1ca101 100644
 --- a/drivers/media/i2c/soc_camera/ar0220.c
 +++ b/drivers/media/i2c/soc_camera/ar0220.c
 @@ -19,7 +19,6 @@
@@ -2744,24 +2708,7 @@ index 8813522..b24ed88 100644
  	/* Program wizard registers */
  	ar0220_set_regs(client, ar0220_regs_wizard, ARRAY_SIZE(ar0220_regs_wizard));
  
-@@ -358,6 +367,7 @@ static int ar0220_parse_dt(struct device_node *np, struct ar0220_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
- 
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
- 		if (!rendpoint)
-@@ -370,8 +380,6 @@ static int ar0220_parse_dt(struct device_node *np, struct ar0220_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->ti9x4_addr) {
- 		dev_err(&client->dev, "deserializer does not present\n");
- 		return -EINVAL;
-@@ -386,11 +394,8 @@ static int ar0220_parse_dt(struct device_node *np, struct ar0220_priv *priv)
+@@ -386,11 +395,8 @@ static int ar0220_parse_dt(struct device_node *np, struct ar0220_priv *priv)
  		usleep_range(2000, 2500);				/* wait 2ms */
  		reg8_write(client, 0x65, tmp_addr << 1);		/* Sensor translated I2C address */
  		reg8_write(client, 0x5d, AR0220_I2C_ADDR << 1);		/* Sensor native I2C address */
@@ -9827,7 +9774,7 @@ index 0000000..a7189e8
 +{0x0000, 0x00},
 +};
 diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
-index d01acdc..4b336a1 100644
+index d01acdc..88eab02 100644
 --- a/drivers/media/i2c/soc_camera/max9286.c
 +++ b/drivers/media/i2c/soc_camera/max9286.c
 @@ -17,10 +17,8 @@
@@ -10279,7 +10226,7 @@ index d01acdc..4b336a1 100644
  
  	/* module params override dts */
  	if (him)
-@@ -554,14 +733,27 @@ static int max9286_parse_dt(struct i2c_client *client)
+@@ -554,6 +733,18 @@ static int max9286_parse_dt(struct i2c_client *client)
  		priv->active_low_resetb = active_low_resetb;
  	if (poc_delay)
  		priv->poc_delay = poc_delay;
@@ -10298,33 +10245,7 @@ index d01acdc..4b336a1 100644
  
  	for (i = 0; i < priv->links; i++) {
  		endpoint = of_graph_get_next_endpoint(np, endpoint);
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		if (of_property_read_u32(endpoint, "max9271-addr", &priv->max9271_addr_map[i])) {
--			of_node_put(endpoint);
- 			dev_err(&client->dev, "max9271-addr not set\n");
- 			return -EINVAL;
- 		}
-@@ -569,7 +761,6 @@ static int max9286_parse_dt(struct i2c_client *client)
- 		priv->sd_fwnode[i] = of_fwnode_handle(endpoint);
- 	}
- 
--	of_node_put(endpoint);
- 	return 0;
- }
- 
-@@ -586,14 +777,16 @@ static void max9286_setup_remote_endpoint(struct i2c_client *client)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
- 		if (!rendpoint)
- 			continue;
+@@ -592,8 +783,8 @@ static void max9286_setup_remote_endpoint(struct i2c_client *client)
  
  		csi_rate_prop = of_find_property(endpoint, "csi-rate", NULL);
  		if (csi_rate_prop) {
@@ -10335,12 +10256,10 @@ index d01acdc..4b336a1 100644
  			csi_rate_prop->value = &priv->csi_rate;
  			of_update_property(rendpoint, csi_rate_prop);
  		}
-@@ -602,10 +795,88 @@ static void max9286_setup_remote_endpoint(struct i2c_client *client)
- 		if (dvp_order_prop)
- 			of_update_property(rendpoint, dvp_order_prop);
- 	}
-+}
-+
+@@ -606,6 +797,86 @@ static void max9286_setup_remote_endpoint(struct i2c_client *client)
+ 	of_node_put(endpoint);
+ }
+ 
 +static const char *line_status[] =
 +{
 +	"BAT",
@@ -10362,8 +10281,7 @@ index d01acdc..4b336a1 100644
 +
 +	if (!sscanf(attr->attr.name, "link_%d", &i))
 +                return -EINVAL;
- 
--	of_node_put(endpoint);
++
 +	if ((i < 0) || (i > 3))
 +		return -EINVAL;
 +
@@ -10403,8 +10321,8 @@ index d01acdc..4b336a1 100644
 +		priv->deterr[i], deterr,
 +		priv->correrr[i], correrr);
 +	return 0;
- }
- 
++}
++
 +static DEVICE_ATTR(link_0, S_IRUGO, max9286_link_show, NULL);
 +static DEVICE_ATTR(link_1, S_IRUGO, max9286_link_show, NULL);
 +static DEVICE_ATTR(link_2, S_IRUGO, max9286_link_show, NULL);
@@ -10459,7 +10377,7 @@ index 6c2a9e0..2875b3c 100644
  #define BROADCAST		0x6f
  
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
-index 8289b76..a294723 100644
+index 8289b76..e5cf5dc 100644
 --- a/drivers/media/i2c/soc_camera/ov10635.c
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
 @@ -19,7 +19,6 @@
@@ -10511,16 +10429,7 @@ index 8289b76..a294723 100644
  	return ret;
  }
  
-@@ -555,6 +550,8 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		of_property_read_u32(endpoint, "dvp-order", &priv->dvp_order);
- 
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
-@@ -567,21 +564,13 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
+@@ -567,21 +562,14 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
  			break;
  
  		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
@@ -10542,10 +10451,11 @@ index 8289b76..a294723 100644
 -
 -	if (!priv->max9286_addr && !priv->ti964_addr && !priv->ti954_addr) {
 +	if (!priv->max9286_addr && !priv->ti9x4_addr) {
++		of_node_put(endpoint);
  		dev_err(&client->dev, "deserializer does not present for OV10635\n");
  		return -EINVAL;
  	}
-@@ -598,19 +587,8 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
+@@ -598,19 +586,8 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
  		usleep_range(2000, 2500);				/* wait 2ms */
  	};
  
@@ -10740,7 +10650,7 @@ index fa775ae..c7bd92e 100644
  MODULE_AUTHOR("Vladimir Barinov");
  MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov2775.c b/drivers/media/i2c/soc_camera/ov2775.c
-index cb41764..9e8ad9f 100644
+index cb41764..2022d47 100644
 --- a/drivers/media/i2c/soc_camera/ov2775.c
 +++ b/drivers/media/i2c/soc_camera/ov2775.c
 @@ -19,7 +19,6 @@
@@ -10785,24 +10695,6 @@ index cb41764..9e8ad9f 100644
  	/* Program wizard registers */
  	ov2775_set_regs(client, ov2775_regs_wizard, ARRAY_SIZE(ov2775_regs_wizard));
  	/* Read OTP IDs */
-@@ -355,6 +365,8 @@ static int ov2775_parse_dt(struct device_node *np, struct ov2775_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
- 		if (!rendpoint)
- 			continue;
-@@ -366,8 +378,6 @@ static int ov2775_parse_dt(struct device_node *np, struct ov2775_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->ti9x4_addr) {
- 		dev_err(&client->dev, "deserializer does not present\n");
- 		return -EINVAL;
 diff --git a/drivers/media/i2c/soc_camera/ov2775.h b/drivers/media/i2c/soc_camera/ov2775.h
 index 1cdfb50..7e1ee31 100644
 --- a/drivers/media/i2c/soc_camera/ov2775.h
@@ -10894,7 +10786,7 @@ index 1cdfb50..7e1ee31 100644
  {0x30b0, 0x0d},
  {0x30b1, 0xde},
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-index 4b51a92..b90ea41 100644
+index 4b51a92..1c8aac8 100644
 --- a/drivers/media/i2c/soc_camera/ov490_ov10640.c
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 @@ -19,7 +19,6 @@
@@ -10905,26 +10797,8 @@ index 4b51a92..b90ea41 100644
  
  #include "max9286.h"
  #include "ov490_ov10640.h"
-@@ -904,6 +903,8 @@ static int ov490_parse_dt(struct device_node *np, struct ov490_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		of_property_read_u32(endpoint, "dvp-order", &priv->dvp_order);
- 
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
-@@ -931,8 +932,6 @@ static int ov490_parse_dt(struct device_node *np, struct ov490_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->max9286_addr && !priv->ti9x4_addr) {
- 		dev_err(&client->dev, "deserializer does not present for OV490\n");
- 		return -EINVAL;
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
-index 32b5078..078138d 100644
+index 32b5078..34b2f46 100644
 --- a/drivers/media/i2c/soc_camera/ov495_ov2775.c
 +++ b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 @@ -19,7 +19,6 @@
@@ -10971,24 +10845,6 @@ index 32b5078..078138d 100644
  	/* Program wizard registers */
  	ov495_set_regs(client, ov495_regs_wizard, ARRAY_SIZE(ov495_regs_wizard));
  	/* Read OTP IDs */
-@@ -464,6 +476,8 @@ static int ov495_parse_dt(struct device_node *np, struct ov495_priv *priv)
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
- 		if (!rendpoint)
- 			continue;
-@@ -475,8 +489,6 @@ static int ov495_parse_dt(struct device_node *np, struct ov495_priv *priv)
- 			break;
- 	}
- 
--	of_node_put(endpoint);
--
- 	if (!priv->ti9x4_addr) {
- 		dev_err(&client->dev, "deserializer does not present for OV495\n");
- 		return -EINVAL;
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
 index 0000000..f4fc3b1
@@ -13357,7 +13213,7 @@ index 0000000..4c20374
 +{0x0100, 0x01},
 +};
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
-index 7704bfa..1c1349a 100644
+index 7704bfa..e36ecdb 100644
 --- a/drivers/media/i2c/soc_camera/ti9x4.c
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
 @@ -17,10 +17,9 @@
@@ -13560,7 +13416,7 @@ index 7704bfa..1c1349a 100644
  
  	/* module params override dts */
  	if (is_stp)
-@@ -400,15 +446,20 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+@@ -400,6 +446,10 @@ static int ti9x4_parse_dt(struct i2c_client *client)
  		priv->ser_id = ser_id;
  	if (poc_delay)
  		priv->poc_delay = poc_delay;
@@ -13571,25 +13427,6 @@ index 7704bfa..1c1349a 100644
  
  	for (i = 0; ; i++) {
  		endpoint = of_graph_get_next_endpoint(np, endpoint);
- 		if (!endpoint)
- 			break;
- 
-+		of_node_put(endpoint);
-+
- 		if (i < priv->links) {
- 			if (of_property_read_u32(endpoint, "ti9x3-addr", &priv->ti9x3_addr_map[i])) {
--				of_node_put(endpoint);
- 				dev_err(&client->dev, "ti9x3-addr not set\n");
- 				return -EINVAL;
- 			}
-@@ -430,7 +481,6 @@ static int ti9x4_parse_dt(struct i2c_client *client)
- 			of_update_property(rendpoint, dvp_order_prop);
- 	}
- 
--	of_node_put(endpoint);
- 	return 0;
- }
- 
 -- 
 2.7.4
 
