@@ -276,3 +276,4 @@ patch 0275-arm64-dts-renesas-r8a77980-VideoBox-Mini-fix-csi-spe.patch
 patch 0276-arm64-dts-renesas-r8a77980-v3hsk-vb-4ch-and-8ch-fix-.patch
 patch 0277-arm64-dts-renesas-r8a77980-VB-4ch-and-8ch-Add-PCIE-p.patch
 patch 0278-media-i2c-soc_camera-Bunch-update-from-2.23.1.patch
+patch 0279-lvds-ti960-fix-frame-sync-time-for-different-ref-clo.patch
