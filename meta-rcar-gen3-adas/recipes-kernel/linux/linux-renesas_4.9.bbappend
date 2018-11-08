@@ -139,6 +139,7 @@ SRC_URI_append = " \
     file://v3h-vb/0007-arm64-renesas-r8a7798-fix-CSI-ch1-interrupt-source.patch \
     file://lvds/0013-media-rcar_csi2-Add-sample-interrupt-handling.patch \
     file://lvds/0014-LVDS-ap0101-add-serializer-HS-generator.patch \
+    file://lvds/0015-lvds-ti960-fix-frame-sync-time-for-different-ref-clo.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://dts/0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
     file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
