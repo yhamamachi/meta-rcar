@@ -59,3 +59,6 @@ patch 0113-arm64-dts-ulcb-kf-increase-SDIO-frequency-for-WLAN-c.patch
 patch 0114-Sony-IMX219-driver.patch
 patch 0116-media-i2c-soc_camera-Fix-Bad-of_node_put-error.patch
 patch 0117-rcar-vin-fix-get_selection-use.patch
+patch 0118-clk-clk-gpio-Allow-GPIO-to-sleep-in-set-get_parent.patch
+patch 0119-i2c-mix-pca954x-reset-mux-in-case-of-error-during-bu.patch
+patch 0120-arm64-dts-ulcb-kf-pcm3168a-reset-earlier-i2c-mux-dis.patch
