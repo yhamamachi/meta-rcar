@@ -73,6 +73,9 @@ SRC_URI_append = " \
     ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \
     file://0116-media-i2c-soc_camera-Fix-Bad-of_node_put-error.patch \
     file://0117-rcar-vin-fix-get_selection-use.patch \
+    file://0118-clk-clk-gpio-Allow-GPIO-to-sleep-in-set-get_parent.patch \
+    file://0119-i2c-mix-pca954x-reset-mux-in-case-of-error-during-bu.patch \
+    file://0120-arm64-dts-ulcb-kf-pcm3168a-reset-earlier-i2c-mux-dis.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
