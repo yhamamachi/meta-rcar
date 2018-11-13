@@ -284,3 +284,4 @@ patch 0283-media-rcar_csi2-Disable-data-type-matching.patch
 patch 0284-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
 patch 0285-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 0286-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
+patch 0287-media-platform-rcar_imr-Clean-up-to-avoid-compiler-w.patch
