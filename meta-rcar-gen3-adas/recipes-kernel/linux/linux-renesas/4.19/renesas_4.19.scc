@@ -279,3 +279,5 @@ patch 0278-media-i2c-soc_camera-Bunch-update-from-2.23.1.patch
 patch 0279-lvds-ti960-fix-frame-sync-time-for-different-ref-clo.patch
 patch 0280-gpu-drm-rcar_du-Fix-physical-address-of-the-CMA-back.patch
 patch 0281-media-soc_camera-rcar_csi2-add-dump-module-param.patch
+patch 0282-media-soc_camera-Add-CONFIG_VIDEO_ADV_DEBUG-support.patch
+patch 0283-media-rcar_csi2-Disable-data-type-matching.patch
