@@ -1,0 +1,33 @@
+From 48a130acd678c5c1c6caceb5222f1338a02ba5bd Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Sat, 18 Aug 2018 21:08:26 +0300
+Subject: [PATCH 289/290] mmc: renesas_sdhi_internal_dmac: add R8A77970 to
+ whitelist
+
+I've successfully tested eMMC on the V3H Starter Kit board and since the
+R8A77970 SoC has a single SDHI core, it can't be a subject to the known RX
+DMA errata.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+---
+ drivers/mmc/host/renesas_sdhi_internal_dmac.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
+index 7615e19..80888ba 100644
+--- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
++++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
+@@ -836,6 +836,7 @@ static const struct soc_device_attribute gen3_soc_whitelist[] = {
+ 	{ .soc_id = "r8a7795" },
+ 	{ .soc_id = "r8a7796" },
+ 	{ .soc_id = "r8a77965" },
++	{ .soc_id = "r8a77970" },
+ 	{ .soc_id = "r8a77980" },
+ 	{ .soc_id = "r8a77990" },
+ 	{ .soc_id = "r8a77995" },
+-- 
+2.7.4
+

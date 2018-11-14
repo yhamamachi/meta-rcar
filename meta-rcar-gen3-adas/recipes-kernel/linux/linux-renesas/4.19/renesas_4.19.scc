@@ -285,3 +285,7 @@ patch 0284-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
 patch 0285-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 0286-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
 patch 0287-media-platform-rcar_imr-Clean-up-to-avoid-compiler-w.patch
+patch 0288-mmc-renesas_sdhi-implement-R-Car-Gen-123-fallback-co.patch
+patch 0289-mmc-renesas_sdhi_internal_dmac-add-R8A77970-to-white.patch
+patch 0290-mmc-renesas_sdhi_internal_dmac-add-R8A77980-to-white.patch
+patch 0291-clk-renesas-r8a77970-Add-SD0H-SD0-clocks-for-SDHI.patch
