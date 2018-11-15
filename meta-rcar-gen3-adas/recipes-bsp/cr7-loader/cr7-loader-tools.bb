@@ -20,7 +20,7 @@ do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 
 do_install() {
-    install -d ${libexecdir}
-    tar -xvf ${DL_DIR}/${TOOLS}.tar.xz -C ${libexecdir}
-    ln -sf ${TOOLS} ${libexecdir}/${PN}
+    install -d ${D}${libexecdir}
+    tar -xvf ${DL_DIR}/${TOOLS}.tar.xz -C ${D}${libexecdir}
+    ln -sf ${TOOLS} ${D}${libexecdir}/${PN}
 }

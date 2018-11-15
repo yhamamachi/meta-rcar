@@ -1,0 +1,175 @@
+From 2d076a7a9b8de56a3858ee7c1c8a28a5087c6815 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 6 Nov 2018 21:42:51 +0300
+Subject: [PATCH] LVDS: ap0101: add serializer HS generator
+
+This adds the followsin:
+1) probe different imager addresses
+2) support HS generator with MAX96707
+3) detect imager resolution from firmware
+---
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c | 77 +++++++++++++++++++++++-----
+ 1 file changed, 63 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+index 2c6b034..6d0d3f4 100644
+--- a/drivers/media/i2c/soc_camera/ap0101_ar014x.c
++++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+@@ -22,7 +22,7 @@
+ 
+ #include "ap0101_ar014x.h"
+ 
+-#define AP0101_I2C_ADDR		0x5d
++static const int ap0101_i2c_addr[] = {0x5d, 0x48};
+ 
+ #define AP0101_PID		0x0000
+ #define AP0101_VERSION_REG	0x0160
+@@ -36,6 +36,8 @@ struct ap0101_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	int				max_width;
++	int				max_height;
+ 	int				init_complete;
+ 	u8				id[6];
+ 	int				exposure;
+@@ -47,6 +49,9 @@ struct ap0101_priv {
+ 	int				port;
+ 	int				gpio_resetb;
+ 	int				gpio_fsin;
++	int				hts;
++	int				vts;
++	int				frame_preamble;
+ };
+ 
+ static inline struct ap0101_priv *to_ap0101(const struct i2c_client *client)
+@@ -206,8 +211,8 @@ static int ap0101_set_selection(struct v4l2_subdev *sd,
+ 	rect->width = ALIGN(rect->width, 2);
+ 	rect->height = ALIGN(rect->height, 2);
+ 
+-	if ((rect->left + rect->width > AP0101_MAX_WIDTH) ||
+-	    (rect->top + rect->height > AP0101_MAX_HEIGHT))
++	if ((rect->left + rect->width > priv->max_width) ||
++	    (rect->top + rect->height > priv->max_height))
+ 		*rect = priv->rect;
+ 
+ 	priv->rect.left = rect->left;
+@@ -232,14 +237,14 @@ static int ap0101_get_selection(struct v4l2_subdev *sd,
+ 	case V4L2_SEL_TGT_CROP_BOUNDS:
+ 		sel->r.left = 0;
+ 		sel->r.top = 0;
+-		sel->r.width = AP0101_MAX_WIDTH;
+-		sel->r.height = AP0101_MAX_HEIGHT;
++		sel->r.width = priv->max_width;
++		sel->r.height = priv->max_height;
+ 		return 0;
+ 	case V4L2_SEL_TGT_CROP_DEFAULT:
+ 		sel->r.left = 0;
+ 		sel->r.top = 0;
+-		sel->r.width = AP0101_MAX_WIDTH;
+-		sel->r.height = AP0101_MAX_HEIGHT;
++		sel->r.width = priv->max_width;
++		sel->r.height = priv->max_height;
+ 		return 0;
+ 	case V4L2_SEL_TGT_CROP:
+ 		sel->r = priv->rect;
+@@ -380,11 +385,29 @@ static ssize_t ap0101_otp_id_show(struct device *dev,
+ static int ap0101_initialize(struct i2c_client *client)
+ {
+ 	struct ap0101_priv *priv = to_ap0101(client);
+-	u16 pid = 0;
++	u16 pid = 0, val = 0;
+ 	int ret = 0;
++	int tmp_addr;
++	int i;
+ 
+ 	ap0101_s_port(client, 1);
+ 
++	for (i = 0; i < ARRAY_SIZE(ap0101_i2c_addr); i++) {
++		tmp_addr = client->addr;
++		if (priv->max9286_addr) {
++			client->addr = priv->max9271_addr;			/* Serializer I2C address */
++			reg8_write(client, 0x0A, ap0101_i2c_addr[i] << 1);	/* Sensor native I2C address */
++			usleep_range(2000, 2500);				/* wait 2ms */
++		};
++		client->addr = tmp_addr;
++
++		/* check model ID */
++		reg16_read16(client, AP0101_PID, &pid);
++
++		if (pid == AP0101_VERSION_REG)
++			break;
++	}
++
+ 	/* check and show model ID */
+ 	reg16_read16(client, AP0101_PID, &pid);
+ 
+@@ -393,14 +416,42 @@ static int ap0101_initialize(struct i2c_client *client)
+ 		ret = -ENODEV;
+ 		goto err;
+ 	}
+-
++#if 1
++	/* read resolution used by current firmware */
++	reg16_read16(client, 0xca90, &val);
++	priv->max_width = val;
++	reg16_read16(client, 0xca92, &val);
++	priv->max_height = val;
++#else
++	priv->max_width = AP0101_MAX_WIDTH;
++	priv->max_height = AP0101_MAX_HEIGHT;
++#endif
+ 	/* Program wizard registers */
+ 	ap0101_set_regs(client, ap0101_regs_wizard, ARRAY_SIZE(ap0101_regs_wizard));
+ 	/* Read OTP IDs */
+ 	ap0101_otp_id_read(client);
+ 
++	tmp_addr = client->addr;
++	if (priv->max9271_addr) {
++		/* setup serializer HS generator */
++		client->addr = priv->max9271_addr;			/* Serializer I2C address */
++		priv->frame_preamble = 5;
++		priv->hts = 1280 * 2 + 548;
++		priv->vts = 960;
++		reg8_write(client, 0x4e, priv->frame_preamble >> 16);	/* HS delay */
++		reg8_write(client, 0x4f, (priv->frame_preamble >> 8) & 0xff);
++		reg8_write(client, 0x50, priv->frame_preamble & 0xff);
++		reg8_write(client, 0x54, (priv->max_width * 2) >> 8);	/* HS high period */
++		reg8_write(client, 0x55, (priv->max_width * 2) & 0xff);
++		reg8_write(client, 0x56, (priv->hts - priv->max_width * 2) >> 8); /* HS low period */
++		reg8_write(client, 0x57, (priv->hts - priv->max_width * 2) & 0xff);
++		reg8_write(client, 0x58, priv->vts >> 8);		/* HS count */
++		reg8_write(client, 0x59, priv->vts & 0xff);
++	}
++	client->addr = tmp_addr;
++
+ 	dev_info(&client->dev, "ap0101 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
+-		 pid, AP0101_MAX_WIDTH, AP0101_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++		 pid, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
+ err:
+ 	ap0101_s_port(client, 0);
+ 
+@@ -442,9 +493,7 @@ static int ap0101_parse_dt(struct device_node *np, struct ap0101_priv *priv)
+ 	tmp_addr = client->addr;
+ 	if (priv->max9286_addr) {
+ 		client->addr = priv->max9271_addr;			/* Serializer I2C address */
+-
+ 		reg8_write(client, 0x09, tmp_addr << 1);		/* Sensor translated I2C address */
+-		reg8_write(client, 0x0A, AP0101_I2C_ADDR << 1);		/* Sensor native I2C address */
+ 		usleep_range(2000, 2500);				/* wait 2ms */
+ 	};
+ 	client->addr = tmp_addr;
+@@ -517,8 +566,8 @@ static int ap0101_probe(struct i2c_client *client,
+ 
+ 	priv->rect.left = 0;
+ 	priv->rect.top = 0;
+-	priv->rect.width = AP0101_MAX_WIDTH;
+-	priv->rect.height = AP0101_MAX_HEIGHT;
++	priv->rect.width = priv->max_width;
++	priv->rect.height = priv->max_height;
+ 
+ 	ret = v4l2_async_register_subdev(&priv->sd);
+ 	if (ret)
+-- 
+1.9.1
+
