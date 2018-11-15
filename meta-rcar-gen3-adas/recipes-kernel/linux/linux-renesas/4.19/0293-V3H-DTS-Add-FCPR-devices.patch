@@ -1,0 +1,70 @@
+From bd6cc6b5389f70b02e27e70950d89278e61d8154 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Fri, 26 Oct 2018 18:38:42 +0300
+Subject: [PATCH] V3H DTS: Add FCPR devices.
+
+---
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 47 +++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index f79395d..4d77e11 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1452,6 +1452,53 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
++		fcpr_vip {
++			compatible = "generic-uio";
++			reg = <0 0xe7aa0000 0 0x20000>;
++		};
++
++		fcpr_ir {
++			compatible = "generic-uio";
++			reg = <0 0xff8d8000 0 0x10000>;
++		};
++
++		fcpr_vio0 {
++			compatible = "generic-uio";
++			reg = <0 0xfe9c0000 0 0x10000>;
++		};
++
++		fcpr_vio1 {
++			compatible = "generic-uio";
++			reg = <0 0xfea90000 0 0x10000>;
++		};
++
++		fcpr_rt {
++			compatible = "generic-uio";
++			reg = <0 0xffc70000 0 0x10000>;
++		};
++
++		fcpr_peri {
++			compatible = "generic-uio";
++			reg = <0 0xe7320000 0 0x10000>;
++		};
++
++		fcpra_peri {
++			compatible = "generic-uio";
++			reg = <0 0xe7410000 0 0x10000>;
++		};
++
++
++		fcpr_c53 {
++			compatible = "generic-uio";
++			reg = <0 0xf12a0000 0 0x10000>;
++		};
++
++		fcpra_c53 {
++			compatible = "generic-uio";
++			reg = <0 0xf12f0000 0 0x10000>;
++		};
++
++
+ 		isp0: isp@fec00000 {
+ 			compatible = "renesas,isp-r8a77980";
+ 			reg = <0 0xfec00000 0 0x20000>,
+-- 
+2.7.4
+

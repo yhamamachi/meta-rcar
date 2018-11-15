@@ -290,3 +290,4 @@ patch 0289-mmc-renesas_sdhi_internal_dmac-add-R8A77970-to-white.patch
 patch 0290-mmc-renesas_sdhi_internal_dmac-add-R8A77980-to-white.patch
 patch 0291-clk-renesas-r8a77970-Add-SD0H-SD0-clocks-for-SDHI.patch
 patch 0292-arm64-dts-renesas-r8a77970-and-r8a77980-Add-CPU-oper.patch
+patch 0293-V3H-DTS-Add-FCPR-devices.patch
