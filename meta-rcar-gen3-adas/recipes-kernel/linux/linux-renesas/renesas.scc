@@ -58,3 +58,4 @@ patch 0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch
 patch 0113-arm64-dts-ulcb-kf-increase-SDIO-frequency-for-WLAN-c.patch
 patch 0114-Sony-IMX219-driver.patch
 patch 0116-media-i2c-soc_camera-Fix-Bad-of_node_put-error.patch
+patch 0117-rcar-vin-fix-get_selection-use.patch
