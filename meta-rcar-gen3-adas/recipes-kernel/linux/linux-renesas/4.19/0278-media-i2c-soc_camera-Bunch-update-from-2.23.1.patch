@@ -1,4 +1,4 @@
-From 804459d9d578e54287860848b3771d5dc77b9672 Mon Sep 17 00:00:00 2001
+From 286359d4e40b64560d69e78b3b75a88d39b3b739 Mon Sep 17 00:00:00 2001
 From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
 Date: Wed, 7 Nov 2018 22:42:50 +0300
 Subject: [PATCH] media: i2c: soc_camera: Bunch update from 2.23.1
@@ -24,7 +24,7 @@ Subject: [PATCH] media: i2c: soc_camera: Bunch update from 2.23.1
  drivers/media/i2c/soc_camera/imx390.h        | 3818 ++++++++++++++++++++++++++
  drivers/media/i2c/soc_camera/max9286.c       |  406 ++-
  drivers/media/i2c/soc_camera/max9286.h       |    1 +
- drivers/media/i2c/soc_camera/ov10635.c       |   41 +-
+ drivers/media/i2c/soc_camera/ov10635.c       |   38 +-
  drivers/media/i2c/soc_camera/ov10635.h       |   10 +-
  drivers/media/i2c/soc_camera/ov106xx.c       |   79 +-
  drivers/media/i2c/soc_camera/ov2775.c        |   14 +-
@@ -34,7 +34,7 @@ Subject: [PATCH] media: i2c: soc_camera: Bunch update from 2.23.1
  drivers/media/i2c/soc_camera/ox03a.c         |  589 ++++
  drivers/media/i2c/soc_camera/ox03a.h         | 1766 ++++++++++++
  drivers/media/i2c/soc_camera/ti9x4.c         |   94 +-
- 30 files changed, 12306 insertions(+), 183 deletions(-)
+ 30 files changed, 12305 insertions(+), 181 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ar0140.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0140.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0143.c
@@ -282,7 +282,7 @@ index bafa193..7dfc4e3 100644
  {0x30A8, 0x0001},	// Y Odd Inc. (B) = 1
 diff --git a/drivers/media/i2c/soc_camera/ar0140.c b/drivers/media/i2c/soc_camera/ar0140.c
 new file mode 100644
-index 0000000..08ae1bd
+index 0000000..807b6f8
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0140.c
 @@ -0,0 +1,648 @@
@@ -752,8 +752,6 @@ index 0000000..08ae1bd
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -769,6 +767,8 @@ index 0000000..08ae1bd
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->max9286_addr && !priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present for AR0140\n");
@@ -1417,7 +1417,7 @@ index 0000000..f90762c
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
 new file mode 100644
-index 0000000..801e57c
+index 0000000..b51dcfc
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0143.c
 @@ -0,0 +1,678 @@
@@ -1917,8 +1917,6 @@ index 0000000..801e57c
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -1934,6 +1932,8 @@ index 0000000..801e57c
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->max9286_addr && !priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present for AR0143\n");
@@ -2759,7 +2759,7 @@ index 8ef557d..205c351 100644
  #endif
 diff --git a/drivers/media/i2c/soc_camera/ar0231.c b/drivers/media/i2c/soc_camera/ar0231.c
 new file mode 100644
-index 0000000..4d7365a
+index 0000000..176e1bf
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0231.c
 @@ -0,0 +1,580 @@
@@ -3177,8 +3177,6 @@ index 0000000..4d7365a
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -3188,6 +3186,8 @@ index 0000000..4d7365a
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +		    break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->max9286_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
@@ -3739,7 +3739,7 @@ index 0000000..d4614ec
 +};
 diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
 new file mode 100644
-index 0000000..ee831a0
+index 0000000..6d034e2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0233.c
 @@ -0,0 +1,579 @@
@@ -4154,8 +4154,6 @@ index 0000000..ee831a0
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -4166,6 +4164,8 @@ index 0000000..ee831a0
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
@@ -4739,7 +4739,7 @@ index 0000000..f88e5a3
 +};
 diff --git a/drivers/media/i2c/soc_camera/gw4200_ar014x.c b/drivers/media/i2c/soc_camera/gw4200_ar014x.c
 new file mode 100644
-index 0000000..cb3b241
+index 0000000..2de6fe7
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/gw4200_ar014x.c
 @@ -0,0 +1,592 @@
@@ -5168,8 +5168,6 @@ index 0000000..cb3b241
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -5179,6 +5177,8 @@ index 0000000..cb3b241
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->max9286_addr) {
 +		dev_err(&client->dev, "deserializer does not present for GW4200\n");
@@ -5371,7 +5371,7 @@ index 0000000..003f2a6
 +};
 diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
 new file mode 100644
-index 0000000..1f585d4
+index 0000000..fc73b4b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/imx390.c
 @@ -0,0 +1,574 @@
@@ -5783,8 +5783,6 @@ index 0000000..1f585d4
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -5795,6 +5793,8 @@ index 0000000..1f585d4
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
@@ -10377,7 +10377,7 @@ index 6c2a9e0..2875b3c 100644
  #define BROADCAST		0x6f
  
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
-index 8289b76..e5cf5dc 100644
+index 8289b76..916173c 100644
 --- a/drivers/media/i2c/soc_camera/ov10635.c
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
 @@ -19,7 +19,6 @@
@@ -10429,7 +10429,7 @@ index 8289b76..e5cf5dc 100644
  	return ret;
  }
  
-@@ -567,21 +562,14 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
+@@ -567,21 +562,15 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
  			break;
  
  		if (!of_property_read_u32(rendpoint, "ti9x3-addr", &priv->ti9x3_addr) &&
@@ -10447,15 +10447,14 @@ index 8289b76..e5cf5dc 100644
  			break;
  	}
  
--	of_node_put(endpoint);
--
+ 	of_node_put(endpoint);
+ 
 -	if (!priv->max9286_addr && !priv->ti964_addr && !priv->ti954_addr) {
 +	if (!priv->max9286_addr && !priv->ti9x4_addr) {
-+		of_node_put(endpoint);
  		dev_err(&client->dev, "deserializer does not present for OV10635\n");
  		return -EINVAL;
  	}
-@@ -598,19 +586,8 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
+@@ -598,19 +587,8 @@ static int ov10635_parse_dt(struct device_node *np, struct ov10635_priv *priv)
  		usleep_range(2000, 2500);				/* wait 2ms */
  	};
  
@@ -10847,7 +10846,7 @@ index 32b5078..34b2f46 100644
  	/* Read OTP IDs */
 diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
 new file mode 100644
-index 0000000..f4fc3b1
+index 0000000..162c75b
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ox03a.c
 @@ -0,0 +1,589 @@
@@ -11269,8 +11268,6 @@ index 0000000..f4fc3b1
 +		if (!endpoint)
 +			break;
 +
-+		of_node_put(endpoint);
-+
 +		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
 +		if (!rendpoint)
 +			continue;
@@ -11281,6 +11278,8 @@ index 0000000..f4fc3b1
 +		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
 +			break;
 +	}
++
++	of_node_put(endpoint);
 +
 +	if (!priv->ti9x4_addr) {
 +		dev_err(&client->dev, "deserializer does not present\n");
