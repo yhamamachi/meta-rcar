@@ -1,0 +1,59 @@
+From e3bded6252d0fa71ffa9c6e15dab2194d35aa506 Mon Sep 17 00:00:00 2001
+From: Adnan Ali <adnan.ali@bp.renesas.com>
+Date: Wed, 8 Aug 2018 13:14:47 +0200
+Subject: [PATCH] sh-pfc/pfc-r8a7798.c Fix RCAR-V3H condor wrong IPSR9/10 reg
+ settings
+
+Signed-off-by: Adnan Ali <adnan.ali@bp.renesas.com>
+---
+ drivers/pinctrl/sh-pfc/pfc-r8a7798.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7798.c b/drivers/pinctrl/sh-pfc/pfc-r8a7798.c
+index f6f159e..3e2cfd0 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7798.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7798.c
+@@ -3122,24 +3122,24 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 		IP8_3_0 }
+ 	},
+ 	{ PINMUX_CFG_REG("IPSR9", 0xe6060224, 32, 4) {
+-		IP8_31_28
+-		IP8_27_24
+-		IP8_23_20
+-		IP8_19_16
+-		IP8_15_12
+-		IP8_11_8
+-		IP8_7_4
+-		IP8_3_0 }
++		IP9_31_28
++		IP9_27_24
++		IP9_23_20
++		IP9_19_16
++		IP9_15_12
++		IP9_11_8
++		IP9_7_4
++		IP9_3_0 }
+ 	},
+ 	{ PINMUX_CFG_REG("IPSR10", 0xe6060228, 32, 4) {
+-		IP8_31_28
+-		IP8_27_24
+-		IP8_23_20
+-		IP8_19_16
+-		IP8_15_12
+-		IP8_11_8
+-		IP8_7_4
+-		IP8_3_0 }
++		IP10_31_28
++		IP10_27_24
++		IP10_23_20
++		IP10_19_16
++		IP10_15_12
++		IP10_11_8
++		IP10_7_4
++		IP10_3_0 }
+ 	},
+ #undef F_
+ #undef FM
+-- 
+2.7.4
+
