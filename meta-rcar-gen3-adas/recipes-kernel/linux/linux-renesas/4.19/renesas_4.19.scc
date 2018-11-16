@@ -293,3 +293,9 @@ patch 0292-arm64-dts-renesas-r8a77970-and-r8a77980-Add-CPU-oper.patch
 patch 0293-V3H-DTS-Add-FCPR-devices.patch
 patch 0294-arm64-dts-r8a77980-v3hsk-Enable-onboard-eMMC.patch
 patch 0295-arm64-dts-renesas-r8a77980-v3hsk-vb-Xch-Fix-Ethernet.patch
+patch 0296-clk-renesas-r8a77970-Add-CMT-clocks.patch
+patch 0297-clk-renesas-r8a77970-Add-TMU-clocks.patch
+patch 0298-clk-renesas-r8a77970-Add-TPU-clock.patch
+patch 0299-clk-renesas-r8a77980-Add-CMT-clocks.patch
+patch 0300-clocksource-drivers-sh_cmt-Add-R-Car-gen3-support.patch
+patch 0301-arm64-dts-r8a77970-Enable-TMU-and-CMT.patch

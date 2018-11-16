@@ -1,0 +1,37 @@
+From 5986b503da614df3fccbf90edab3afa4c7550fa1 Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Wed, 5 Sep 2018 19:59:48 +0300
+Subject: clk: renesas: r8a77970: Add CMT clocks
+
+Add the R8A77970 CMT module clocks.
+
+Based on the original (and large) patch by Vladimir Barinov.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Chris Paterson <chris.paterson2@renesas.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ drivers/clk/renesas/r8a77970-cpg-mssr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+(limited to 'drivers/clk/renesas')
+
+diff --git a/drivers/clk/renesas/r8a77970-cpg-mssr.c b/drivers/clk/renesas/r8a77970-cpg-mssr.c
+index 07d0ddc1eefa..f07a1eeface6 100644
+--- a/drivers/clk/renesas/r8a77970-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77970-cpg-mssr.c
+@@ -118,6 +118,10 @@ static const struct mssr_mod_clk r8a77970_mod_clks[] __initconst = {
+ 	DEF_MOD("mfis",			 213,	R8A77970_CLK_S2D2),
+ 	DEF_MOD("sys-dmac2",		 217,	R8A77970_CLK_S2D1),
+ 	DEF_MOD("sys-dmac1",		 218,	R8A77970_CLK_S2D1),
++	DEF_MOD("cmt3",			 300,	R8A77970_CLK_R),
++	DEF_MOD("cmt2",			 301,	R8A77970_CLK_R),
++	DEF_MOD("cmt1",			 302,	R8A77970_CLK_R),
++	DEF_MOD("cmt0",			 303,	R8A77970_CLK_R),
+ 	DEF_MOD("sd-if",		 314,	R8A77970_CLK_SD0),
+ 	DEF_MOD("rwdt",			 402,	R8A77970_CLK_R),
+ 	DEF_MOD("intc-ex",		 407,	R8A77970_CLK_CP),
+-- 
+cgit 1.2-0.3.lf.el7
+
