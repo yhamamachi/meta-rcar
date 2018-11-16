@@ -1,11 +1,12 @@
-From 3581a86368481f57cd53b21eda67d47cd1842110 Mon Sep 17 00:00:00 2001
+From 0a91258a61d17824ec15cbec4cfc402cb79a6390 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 31 Oct 2018 00:46:40 +0300
-Subject: [PATCH] plat: renesas: rcar: Add R-Car V3H support
+Subject: [PATCH 2/2] plat: renesas: rcar: Add R-Car V3H support
 
-This adds R-Car V3H support based on the original patch for
-Yocto v2.23.1 by Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Add R-Car V3H support. This is based on the original
+V3H support patch for Yocto v2.23.1 by Vladimir Barinov.
 
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  plat/renesas/rcar/bl2_cpg_init.c             |   68 ++
@@ -14,7 +15,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  plat/renesas/rcar/drivers/rom/rom_api.c      |   17 +-
  plat/renesas/rcar/drivers/scif/scif.S        |    2 +-
  plat/renesas/rcar/include/bl2_dma_register.h |    2 +-
- plat/renesas/rcar/include/platform_def.h     |   14 +
+ plat/renesas/rcar/include/platform_def.h     |   10 +-
  plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c     | 1196 ++++++++++++++++++++++++++
  plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h     |   37 +
  plat/renesas/rcar/pfc/pfc.mk                 |    7 +
@@ -26,7 +27,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  plat/renesas/rcar/qos/qos_init.c             |   25 +
  plat/renesas/rcar/rcar_def.h                 |    1 +
  tools/dummy_create/makefile                  |   14 +-
- 18 files changed, 2125 insertions(+), 9 deletions(-)
+ 18 files changed, 2120 insertions(+), 10 deletions(-)
  create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
  create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h
  create mode 100644 plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
@@ -304,40 +305,29 @@ index f359156..cd083f6 100644
  #else
  #define	DMACH	0	/* DMA CH setting (0/16/32) */
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index 45a3414..9f16711 100644
+index 9864609..a9c27f5 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
-@@ -103,16 +103,30 @@
+@@ -103,10 +103,18 @@
   * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
   * size plus a little space for growth.
   */
 +#if RCAR_LSI == RCAR_V3H
 +#define RCAR_SYSRAM_BASE		U(0xEB200000)
++#define RCAR_SYSRAM_LIMIT		U(0xEB300000)
 +#else
  #define RCAR_SYSRAM_BASE		U(0xE6300000)
+ #define RCAR_SYSRAM_LIMIT		U(0xE6380000)
 +#endif
-+
- #if RCAR_LSI == RCAR_E3
- #define RCAR_SYSRAM_LIMIT		U(0xE6320000)
-+#elif RCAR_LSI == RCAR_V3H
-+#define RCAR_SYSRAM_LIMIT		U(0xEB2F0000)
- #else  /* RCAR_LSI == RCAR_E3 */
- #define RCAR_SYSRAM_LIMIT		U(0xE6360000)
- #endif /* RCAR_LSI == RCAR_E3 */
  
+-#if RCAR_LSI == RCAR_V3M
 +#if RCAR_LSI == RCAR_V3H
 +#define BL2_BASE			U(0xEB244000)
-+#else
- #define BL2_BASE			U(0xE6304000)
-+#endif
-+
- #if RCAR_LSI == RCAR_E3
- #define BL2_LIMIT			U(0xE6318000)
-+#elif RCAR_LSI == RCAR_V3H
 +#define BL2_LIMIT			U(0xEB26E800)
- #else  /* RCAR_LSI == RCAR_E3 */
- #define BL2_LIMIT			U(0xE632E800)
- #endif /* RCAR_LSI == RCAR_E3 */
++#elif RCAR_LSI == RCAR_V3M
+ #define BL2_BASE			U(0xE6344000)
+ #define BL2_LIMIT			U(0xE636E800)
+ #elif RCAR_LSI == RCAR_E3
 diff --git a/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
 new file mode 100644
 index 0000000..351747a
