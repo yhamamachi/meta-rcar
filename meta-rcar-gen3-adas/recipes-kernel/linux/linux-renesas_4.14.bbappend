@@ -28,7 +28,10 @@ SRC_URI_append_condor = " file://condor.cfg"
 SRC_URI_append_v3mzf = " file://v3mzf.cfg"
 SRC_URI_append_v3hsk = " file://v3hsk.cfg"
 
-SRC_URI_append_rcar-gen3-v3x = " file://cma.cfg"
+SRC_URI_append_rcar-gen3-v3x = " \
+    file://cma.cfg \
+    file://qspi.cfg \
+"
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-view.dtb \
