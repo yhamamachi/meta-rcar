@@ -146,6 +146,8 @@ SRC_URI_append = " \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
     file://0140-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch \
     file://0141-sh-pfc-pfc-r8a7798.c-Fix-RCAR-V3H-condor-wrong-IPSR9.patch \
+    file://0142-arm64-dts-r8a779-78-Set-QSPI-flash-address-and-size-.patch \
+    file://0143-arm64-dts-renesas-Fix-bl31-partition-size.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

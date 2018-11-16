@@ -1,0 +1,48 @@
+From d02a207b3037064e759b9cd447480ce42a3df337 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Sat, 17 Nov 2018 00:27:34 +0300
+Subject: [PATCH 1/2] arm64: dts: r8a779[78]: Set QSPI flash address and size
+ cells
+
+This explicitly sets QSPI flash address and size cells
+which fixes the following dtc warnings:
+  Warning (reg_format): "reg" property in /soc/qspi@ee200000/flash@0
+  has invalid length (4 bytes) (#address-cells == 2, #size-cells == 1)
+  Warning (avoid_default_addr_size): Relying on default #address-cells
+  value for /soc/qspi@ee200000/flash@0
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi | 2 ++
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+index 5dceb9d..5e05f11 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+@@ -891,6 +891,8 @@
+ 		};
+ 
+ 		qspi0: qspi@ee200000 {
++			#address-cells = <1>;
++			#size-cells = <0>;
+ 			compatible = "renesas,qspi-rpc-r8a7797";
+ 			reg = <0 0xee200000 0 0x1f0>,
+ 			      <0 0x08000000 0 0x04000000>,
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+index 9d58940..55321bb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+@@ -1029,6 +1029,8 @@
+ 		};
+ 
+ 		qspi0: qspi@ee200000 {
++			#address-cells = <1>;
++			#size-cells = <0>;
+ 			compatible = "renesas,qspi-rpc-r8a7798";
+ 			reg = <0 0xee200000 0 0x1f0>,
+ 			      <0 0x08000000 0 0x04000000>,
+-- 
+2.7.4
+

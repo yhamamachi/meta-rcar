@@ -1,0 +1,85 @@
+From a7594adce255c840790d758ddbbe95bee19152ee Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Sat, 17 Nov 2018 00:35:47 +0300
+Subject: [PATCH 2/2] arm64: dts: renesas: Fix bl31 partition size
+
+This fixes the RPC QSPI flash bl31 partition size for
+the following boards: V3MSK, V3MZF, Eagle, V3HSK, Condor.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts  | 2 +-
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts  | 2 +-
+ arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts  | 2 +-
+ arch/arm64/boot/dts/renesas/r8a7798-condor.dts | 2 +-
+ arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts  | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
+index 6517260..1045476 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
+@@ -238,7 +238,7 @@
+ 				read-only;
+ 			};
+ 			bl31@001C0000 {
+-				reg = <0x001C0000 0x460000>;
++				reg = <0x001C0000 0x480000>;
+ 				read-only;
+ 			};
+ 			uboot@00640000 {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+index 0ca44e8..1ea5868 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+@@ -255,7 +255,7 @@
+ 				read-only;
+ 			};
+ 			bl31@001C0000 {
+-				reg = <0x001C0000 0x460000>;
++				reg = <0x001C0000 0x480000>;
+ 				read-only;
+ 			};
+ 			uboot@00640000 {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
+index 4a64881..0719fa1 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7797-v3mzf.dts
+@@ -451,7 +451,7 @@
+ 				read-only;
+ 			};
+ 			bl31@001C0000 {
+-				reg = <0x001C0000 0x460000>;
++				reg = <0x001C0000 0x480000>;
+ 				read-only;
+ 			};
+ 			uboot@00640000 {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-condor.dts b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
+index d883903..2d41524 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7798-condor.dts
+@@ -282,7 +282,7 @@
+ 				read-only;
+ 			};
+ 			bl31@001C0000 {
+-				reg = <0x001C0000 0x460000>;
++				reg = <0x001C0000 0x480000>;
+ 				read-only;
+ 			};
+ 			uboot@00640000 {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+index 5226bf3..1ee18c5 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+@@ -398,7 +398,7 @@
+ 				read-only;
+ 			};
+ 			bl31@001C0000 {
+-				reg = <0x001C0000 0x460000>;
++				reg = <0x001C0000 0x480000>;
+ 				read-only;
+ 			};
+ 			uboot@00640000 {
+-- 
+2.7.4
+
