@@ -42,6 +42,7 @@ RDEPENDS_packagegroup-bsp-devdbg = " \
     devmem2 \
     wget \
     curl \
+    atop \
 "
 
 # Various packages needed for all boards
