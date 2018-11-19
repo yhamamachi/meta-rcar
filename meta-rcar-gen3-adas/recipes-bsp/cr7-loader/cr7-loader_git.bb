@@ -13,7 +13,7 @@ S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
 SRC_URI = "git://github.com/CogentEmbedded/cr7-loader.git;branch=${BRANCH}"
-SRCREV = "ba9649655b564b431db8e7fe8090eabe2368d46a"
+SRCREV = "f665a20984fbfcf6321f459f40dc0d419e310da2"
 
 PV = "v1.0+renesas+git"
 
