@@ -317,3 +317,4 @@ patch 0316-arm64-dts-renesas-condor-Add-s25fs512s-QSPI-flash-no.patch
 patch 0317-mtd-spi-nor-renesas-rpc-Support-single-mode-write-co.patch
 patch 0318-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch
 patch 0319-r8a779-78-dtsi-Add-iccom-nodes.patch
+patch 0320-arm64-dts-renesas-Add-temperature-emergency-levels.patch

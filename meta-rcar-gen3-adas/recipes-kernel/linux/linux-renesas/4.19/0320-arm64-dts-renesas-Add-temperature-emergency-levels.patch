@@ -1,0 +1,52 @@
+From 9008ef9bb09e5687750ec6627d9f0713afc71075 Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Sat, 17 Nov 2018 19:02:31 +0300
+Subject: [PATCH] arm64: dts: renesas: Add temperature emergency levels
+
+Add temperature emergency levels for SoCs r8a77970 and r8a77980
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 7 +++++++
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 9 +++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 37c0e4a..f9e84f6 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -1238,6 +1238,13 @@
+ 	};
+ 
+ 	thermal-zones {
++		emergency {
++			polling-delay = <1000>;
++			on-temperature = <110000>;
++			off-temperature = <95000>;
++			target_cpus = <&a53_1>;
++			status = "disabled";
++		};
+ 		cpu-thermal {
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <1000>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 4d77e11..6c3e52f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1818,6 +1818,15 @@
+ 	};
+ 
+ 	thermal-zones {
++		emergency {
++			polling-delay = <1000>;
++			on-temperature = <110000>;
++			off-temperature = <95000>;
++			target_cpus = <&a53_1>,
++				      <&a53_2>,
++				      <&a53_3>;
++			status = "disabled";
++		};
+ 		thermal-sensor-1 {
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <1000>;
+-- 
+2.7.4
+
