@@ -11,6 +11,7 @@ PACKAGES = " \
 RDEPENDS_packagegroup-opencv-sdk = " \
     opencv \
     opencv-apps \
+    opencv-dev \
     opencv-dbg \
     libopencv-calib3d \
     libopencv-core \
