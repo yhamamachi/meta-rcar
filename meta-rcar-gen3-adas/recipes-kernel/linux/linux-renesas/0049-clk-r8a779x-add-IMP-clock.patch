@@ -1,7 +1,7 @@
-From 9075957822c829026acfb5e8982a77f895a7a640 Mon Sep 17 00:00:00 2001
+From 99571fbaa1c9cae62453cca7a2980b58e89e6dd2 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 27 Nov 2017 16:53:06 +0300
-Subject: [PATCH] clk: r8a779x: add IMP clock
+Subject: [PATCH 37/61] clk: r8a779x: add IMP clock
 
 This adds IMP clock sources for Gen3 SoCs
 
@@ -9,14 +9,13 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/clk/renesas/r8a7795-cpg-mssr.c | 1 +
  drivers/clk/renesas/r8a7796-cpg-mssr.c | 1 +
- drivers/clk/renesas/r8a77970-cpg-mssr.c | 7 +++++++
- 3 files changed, 9 insertions(+)
+ 2 files changed, 2 insertions(+)
 
 diff --git a/drivers/clk/renesas/r8a7795-cpg-mssr.c b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-index bc10df3..9061f7f 100644
+index 6573203..aaa25c1 100644
 --- a/drivers/clk/renesas/r8a7795-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-@@ -234,6 +234,7 @@ enum clk_ids {
+@@ -232,6 +232,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
  	DEF_MOD("imr2",			 821,	R8A7795_CLK_S0D2),
  	DEF_MOD("imr1",			 822,	R8A7795_CLK_S0D2),
  	DEF_MOD("imr0",			 823,	R8A7795_CLK_S0D2),
@@ -25,10 +24,10 @@ index bc10df3..9061f7f 100644
  	DEF_MOD("gpio6",		 906,	R8A7795_CLK_S3D4),
  	DEF_MOD("gpio5",		 907,	R8A7795_CLK_S3D4),
 diff --git a/drivers/clk/renesas/r8a7796-cpg-mssr.c b/drivers/clk/renesas/r8a7796-cpg-mssr.c
-index 819d3c6..e886d8a 100644
+index 73e04a0..1e1a46a 100644
 --- a/drivers/clk/renesas/r8a7796-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a7796-cpg-mssr.c
-@@ -204,6 +204,7 @@ enum clk_ids {
+@@ -204,6 +204,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] __initconst = {
  	DEF_MOD("etheravb",		 812,	R8A7796_CLK_S0D6),
  	DEF_MOD("imr1",			 822,	R8A7796_CLK_S0D2),
  	DEF_MOD("imr0",			 823,	R8A7796_CLK_S0D2),
@@ -37,5 +36,5 @@ index 819d3c6..e886d8a 100644
  	DEF_MOD("gpio6",		 906,	R8A7796_CLK_S3D4),
  	DEF_MOD("gpio5",		 907,	R8A7796_CLK_S3D4),
 -- 
-1.9.1
+2.7.4
 

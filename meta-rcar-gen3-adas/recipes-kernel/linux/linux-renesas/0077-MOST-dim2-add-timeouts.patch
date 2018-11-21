@@ -1,7 +1,7 @@
-From f02aa2831e169a9f17eebb2784db4c95944ba927 Mon Sep 17 00:00:00 2001
+From e0fb46e093de5b435bf3545381b7feb66405c4b6 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Mon, 25 Sep 2017 07:13:29 +0300
-Subject: [PATCH] MOST: dim2: add timeouts
+Subject: [PATCH 50/61] MOST: dim2: add timeouts
 
 Get rid from loop hang if device not functional
 
@@ -42,5 +42,5 @@ index a685c5a..d0f78ac 100644
  	dimcb_io_write(&g.dim2->MCTL, 0);   /* clear transfer complete */
  }
 -- 
-1.9.1
+2.7.4
 

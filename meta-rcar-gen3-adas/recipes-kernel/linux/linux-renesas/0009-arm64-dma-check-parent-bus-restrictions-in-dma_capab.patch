@@ -1,7 +1,7 @@
-From 5b5a3f24401e194e8e0ffaf4df4f64ea7551d955 Mon Sep 17 00:00:00 2001
+From 1b817cd4d2e00a976309f25d2714301d5ccbb38c Mon Sep 17 00:00:00 2001
 From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 Date: Sun, 24 Jun 2018 18:04:23 +0300
-Subject: [PATCH 2/2] arm64: dma: check parent bus restrictions in
+Subject: [PATCH 06/61] arm64: dma: check parent bus restrictions in
  dma_capable()
 
 It may happen that although hardware device is capable of full 64-bit
@@ -31,7 +31,7 @@ Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
  3 files changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/include/asm/device.h b/arch/arm64/include/asm/device.h
-index 5a5fa47a6b18..ac3eb0ca0ddb 100644
+index 5a5fa47..ac3eb0c 100644
 --- a/arch/arm64/include/asm/device.h
 +++ b/arch/arm64/include/asm/device.h
 @@ -24,6 +24,7 @@ struct dev_archdata {
@@ -43,7 +43,7 @@ index 5a5fa47a6b18..ac3eb0ca0ddb 100644
  
  struct pdev_archdata {
 diff --git a/arch/arm64/include/asm/dma-mapping.h b/arch/arm64/include/asm/dma-mapping.h
-index 0df756b24863..15edb0c2a931 100644
+index 0df756b..15edb0c 100644
 --- a/arch/arm64/include/asm/dma-mapping.h
 +++ b/arch/arm64/include/asm/dma-mapping.h
 @@ -66,10 +66,17 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t dev_addr)
@@ -66,10 +66,10 @@ index 0df756b24863..15edb0c2a931 100644
  
  static inline void dma_mark_clean(void *addr, size_t size)
 diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
-index 614af886b7ef..ad1c2c3d41b8 100644
+index 58470b1..c9c1892 100644
 --- a/arch/arm64/mm/dma-mapping.c
 +++ b/arch/arm64/mm/dma-mapping.c
-@@ -927,7 +927,18 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+@@ -928,7 +928,18 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
  		dev->dma_ops = &swiotlb_dma_ops;
  
  	dev->archdata.dma_coherent = coherent;
@@ -90,5 +90,5 @@ index 614af886b7ef..ad1c2c3d41b8 100644
  #ifdef CONFIG_XEN
  	if (xen_initial_domain()) {
 -- 
-2.11.0
+2.7.4
 

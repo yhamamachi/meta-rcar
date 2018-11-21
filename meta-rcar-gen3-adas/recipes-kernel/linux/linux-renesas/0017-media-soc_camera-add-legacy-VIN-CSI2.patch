@@ -1,7 +1,7 @@
-From fd6f489456137d148132010c9da3251ba80f7948 Mon Sep 17 00:00:00 2001
+From 01b21f5186107e3838da8ade6db616570435f143 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 13:43:24 +0300
-Subject: [PATCH] media: soc_camera: add legacy VIN/CSI2
+Subject: [PATCH 13/61] media: soc_camera: add legacy VIN/CSI2
 
 Add legacy/old R-CAR VIN/CSI2 drivers
 
@@ -9,24 +9,24 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi     |  133 -
  arch/arm64/boot/dts/renesas/r8a7795.dtsi         |  271 --
- arch/arm64/boot/dts/renesas/r8a7796.dtsi         |  258 --
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi         |  259 --
  arch/arm64/boot/dts/renesas/r8a77965.dtsi        |  258 --
  arch/arm64/boot/dts/renesas/salvator-common.dtsi |   33 -
- drivers/media/platform/soc_camera/Kconfig        |   26 +
+ drivers/media/platform/soc_camera/Kconfig        |   28 +
  drivers/media/platform/soc_camera/Makefile       |    2 +
  drivers/media/platform/soc_camera/rcar_csi2.c    |  708 +++++
  drivers/media/platform/soc_camera/rcar_vin.c     | 3071 ++++++++++++++++++++++
  include/media/rcar_csi2.h                        |   66 +
- 10 files changed, 3873 insertions(+), 953 deletions(-)
+ 10 files changed, 3875 insertions(+), 954 deletions(-)
  create mode 100644 drivers/media/platform/soc_camera/rcar_csi2.c
  create mode 100644 drivers/media/platform/soc_camera/rcar_vin.c
  create mode 100644 include/media/rcar_csi2.h
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-index a1388fb..f0cbcb2 100644
+index 3b579cf..76247e2 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-@@ -197,51 +197,6 @@
+@@ -198,51 +198,6 @@
  		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  		resets = <&cpg 713>;
  		status = "disabled";
@@ -78,7 +78,7 @@ index a1388fb..f0cbcb2 100644
  	};
  };
  
-@@ -294,91 +249,3 @@
+@@ -295,91 +250,3 @@
  &du {
  	vsps = <&vspd0 &vspd1 &vspd2 &vspd3>;
  };
@@ -171,10 +171,234 @@ index a1388fb..f0cbcb2 100644
 -	};
 -};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index fa29f37..f5fa746 100644
+index 1331a09..6c0cdb7 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -1904,51 +1904,6 @@
+@@ -1794,27 +1794,6 @@
+ 			resets = <&cpg 811>;
+ 			renesas,id = <0>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin0csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin0>;
+-					};
+-					vin0csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin0>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin1: video@e6ef1000 {
+@@ -1826,27 +1805,6 @@
+ 			resets = <&cpg 810>;
+ 			renesas,id = <1>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin1csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin1>;
+-					};
+-					vin1csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin1>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin2: video@e6ef2000 {
+@@ -1858,27 +1816,6 @@
+ 			resets = <&cpg 809>;
+ 			renesas,id = <2>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin2csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin2>;
+-					};
+-					vin2csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin2>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin3: video@e6ef3000 {
+@@ -1890,27 +1827,6 @@
+ 			resets = <&cpg 808>;
+ 			renesas,id = <3>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin3csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin3>;
+-					};
+-					vin3csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin3>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin4: video@e6ef4000 {
+@@ -1922,27 +1838,6 @@
+ 			resets = <&cpg 807>;
+ 			renesas,id = <4>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin4csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin4>;
+-					};
+-					vin4csi41: endpoint@3 {
+-						reg = <3>;
+-						remote-endpoint= <&csi41vin4>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin5: video@e6ef5000 {
+@@ -1954,27 +1849,6 @@
+ 			resets = <&cpg 806>;
+ 			renesas,id = <5>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin5csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin5>;
+-					};
+-					vin5csi41: endpoint@3 {
+-						reg = <3>;
+-						remote-endpoint= <&csi41vin5>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin6: video@e6ef6000 {
+@@ -1986,27 +1860,6 @@
+ 			resets = <&cpg 805>;
+ 			renesas,id = <6>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin6csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin6>;
+-					};
+-					vin6csi41: endpoint@3 {
+-						reg = <3>;
+-						remote-endpoint= <&csi41vin6>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin7: video@e6ef7000 {
+@@ -2018,27 +1871,6 @@
+ 			resets = <&cpg 804>;
+ 			renesas,id = <7>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin7csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin7>;
+-					};
+-					vin7csi41: endpoint@3 {
+-						reg = <3>;
+-						remote-endpoint= <&csi41vin7>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		drif00: rif@e6f40000 {
+@@ -3317,51 +3149,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -226,7 +450,7 @@ index fa29f37..f5fa746 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -1959,35 +1914,6 @@
+@@ -3372,35 +3159,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -262,7 +486,7 @@ index fa29f37..f5fa746 100644
  		};
  
  		csi41: csi2@feab0000 {
-@@ -1998,35 +1924,6 @@
+@@ -3411,35 +3169,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 715>;
  			status = "disabled";
@@ -297,236 +521,236 @@ index fa29f37..f5fa746 100644
 -			};
  		};
  
- 		vin0: video@e6ef0000 {
-@@ -2038,27 +1935,6 @@
- 			resets = <&cpg 811>;
- 			renesas,id = <0>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin0csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin0>;
--					};
--					vin0csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin0>;
--					};
--				};
--			};
- 		};
- 
- 		vin1: video@e6ef1000 {
-@@ -2070,27 +1946,6 @@
- 			resets = <&cpg 810>;
- 			renesas,id = <1>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin1csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin1>;
--					};
--					vin1csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin1>;
--					};
--				};
--			};
- 		};
- 
- 		vin2: video@e6ef2000 {
-@@ -2102,27 +1957,6 @@
- 			resets = <&cpg 809>;
- 			renesas,id = <2>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin2csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin2>;
--					};
--					vin2csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin2>;
--					};
--				};
--			};
- 		};
- 
- 		vin3: video@e6ef3000 {
-@@ -2134,27 +1968,6 @@
- 			resets = <&cpg 808>;
- 			renesas,id = <3>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin3csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin3>;
--					};
--					vin3csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin3>;
--					};
--				};
--			};
- 		};
- 
- 		vin4: video@e6ef4000 {
-@@ -2166,27 +1979,6 @@
- 			resets = <&cpg 807>;
- 			renesas,id = <4>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin4csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin4>;
--					};
--					vin4csi41: endpoint@3 {
--						reg = <3>;
--						remote-endpoint= <&csi41vin4>;
--					};
--				};
--			};
- 		};
- 
- 		vin5: video@e6ef5000 {
-@@ -2198,27 +1990,6 @@
- 			resets = <&cpg 806>;
- 			renesas,id = <5>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin5csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin5>;
--					};
--					vin5csi41: endpoint@3 {
--						reg = <3>;
--						remote-endpoint= <&csi41vin5>;
--					};
--				};
--			};
- 		};
- 
- 		vin6: video@e6ef6000 {
-@@ -2230,27 +2001,6 @@
- 			resets = <&cpg 805>;
- 			renesas,id = <6>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin6csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin6>;
--					};
--					vin6csi41: endpoint@3 {
--						reg = <3>;
--						remote-endpoint= <&csi41vin6>;
--					};
--				};
--			};
- 		};
- 
- 		vin7: video@e6ef7000 {
-@@ -2262,27 +2012,6 @@
- 			resets = <&cpg 804>;
- 			renesas,id = <7>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin7csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin7>;
--					};
--					vin7csi41: endpoint@3 {
--						reg = <3>;
--						remote-endpoint= <&csi41vin7>;
--					};
--				};
--			};
- 		};
- 
- 		rcar_sound: sound@ec500000 {
+ 		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 58fea33..0139247 100644
+index ed332e7..059a2f4 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -1543,51 +1543,6 @@
+@@ -1700,27 +1700,6 @@
+ 			resets = <&cpg 811>;
+ 			renesas,id = <0>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin0csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin0>;
+-					};
+-					vin0csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin0>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin1: video@e6ef1000 {
+@@ -1732,27 +1711,6 @@
+ 			resets = <&cpg 810>;
+ 			renesas,id = <1>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin1csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin1>;
+-					};
+-					vin1csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin1>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin2: video@e6ef2000 {
+@@ -1764,27 +1722,6 @@
+ 			resets = <&cpg 809>;
+ 			renesas,id = <2>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin2csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin2>;
+-					};
+-					vin2csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin2>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin3: video@e6ef3000 {
+@@ -1796,27 +1733,6 @@
+ 			resets = <&cpg 808>;
+ 			renesas,id = <3>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin3csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin3>;
+-					};
+-					vin3csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin3>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin4: video@e6ef4000 {
+@@ -1828,27 +1744,6 @@
+ 			resets = <&cpg 807>;
+ 			renesas,id = <4>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin4csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin4>;
+-					};
+-					vin4csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin4>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin5: video@e6ef5000 {
+@@ -1860,27 +1755,6 @@
+ 			resets = <&cpg 806>;
+ 			renesas,id = <5>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin5csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin5>;
+-					};
+-					vin5csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin5>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin6: video@e6ef6000 {
+@@ -1892,27 +1766,6 @@
+ 			resets = <&cpg 805>;
+ 			renesas,id = <6>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin6csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin6>;
+-					};
+-					vin6csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin6>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin7: video@e6ef7000 {
+@@ -1924,27 +1777,6 @@
+ 			resets = <&cpg 804>;
+ 			renesas,id = <7>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin7csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin7>;
+-					};
+-					vin7csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin7>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		drif00: rif@e6f40000 {
+@@ -3043,51 +2875,6 @@
  			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -578,7 +802,7 @@ index 58fea33..0139247 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -1598,52 +1553,6 @@
+@@ -3098,52 +2885,6 @@
  			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -630,235 +854,236 @@ index 58fea33..0139247 100644
 -			};
  		};
  
- 		vin0: video@e6ef0000 {
-@@ -1655,27 +1564,6 @@
- 			resets = <&cpg 811>;
- 			renesas,id = <0>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin0csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin0>;
--					};
--					vin0csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin0>;
--					};
--				};
--			};
- 		};
- 
- 		vin1: video@e6ef1000 {
-@@ -1687,27 +1575,6 @@
- 			resets = <&cpg 810>;
- 			renesas,id = <1>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin1csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin1>;
--					};
--					vin1csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin1>;
--					};
--				};
--			};
- 		};
- 
- 		vin2: video@e6ef2000 {
-@@ -1719,27 +1586,6 @@
- 			resets = <&cpg 809>;
- 			renesas,id = <2>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin2csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin2>;
--					};
--					vin2csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin2>;
--					};
--				};
--			};
- 		};
- 
- 		vin3: video@e6ef3000 {
-@@ -1751,26 +1597,6 @@
- 			resets = <&cpg 808>;
- 			renesas,id = <3>;
- 			status = "disabled";
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin3csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin3>;
--					};
--					vin3csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin3>;
--					};
--				};
--			};
- 		};
- 
- 		vin4: video@e6ef4000 {
-@@ -1782,27 +1608,6 @@
- 			resets = <&cpg 807>;
- 			renesas,id = <4>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin4csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin4>;
--					};
--					vin4csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin4>;
--					};
--				};
--			};
- 		};
- 
- 		vin5: video@e6ef5000 {
-@@ -1814,27 +1619,6 @@
- 			resets = <&cpg 806>;
- 			renesas,id = <5>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin5csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin5>;
--					};
--					vin5csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin5>;
--					};
--				};
--			};
- 		};
- 
- 		vin6: video@e6ef6000 {
-@@ -1846,27 +1630,6 @@
- 			resets = <&cpg 805>;
- 			renesas,id = <6>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin6csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin6>;
--					};
--					vin6csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin6>;
--					};
--				};
--			};
- 		};
- 
- 		vin7: video@e6ef7000 {
-@@ -1878,27 +1641,6 @@
- 			resets = <&cpg 804>;
- 			renesas,id = <7>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin7csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin7>;
--					};
--					vin7csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin7>;
--					};
--				};
--			};
- 		};
- 
- 		scif2: serial@e6e88000 {
+ 		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 4de8e13..a37113c 100644
+index 05861b4..5d4ac38 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -995,51 +995,6 @@
+@@ -1231,27 +1231,6 @@
+ 			resets = <&cpg 811>;
+ 			renesas,id = <0>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin0csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin0>;
+-					};
+-					vin0csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin0>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin1: video@e6ef1000 {
+@@ -1263,27 +1242,6 @@
+ 			resets = <&cpg 810>;
+ 			renesas,id = <1>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin1csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin1>;
+-					};
+-					vin1csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin1>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin2: video@e6ef2000 {
+@@ -1295,27 +1253,6 @@
+ 			resets = <&cpg 809>;
+ 			renesas,id = <2>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin2csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin2>;
+-					};
+-					vin2csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin2>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin3: video@e6ef3000 {
+@@ -1327,27 +1264,6 @@
+ 			resets = <&cpg 808>;
+ 			renesas,id = <3>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin3csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin3>;
+-					};
+-					vin3csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin3>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin4: video@e6ef4000 {
+@@ -1359,27 +1275,6 @@
+ 			resets = <&cpg 807>;
+ 			renesas,id = <4>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin4csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin4>;
+-					};
+-					vin4csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin4>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin5: video@e6ef5000 {
+@@ -1391,27 +1286,6 @@
+ 			resets = <&cpg 806>;
+ 			renesas,id = <5>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin5csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin5>;
+-					};
+-					vin5csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin5>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin6: video@e6ef6000 {
+@@ -1423,27 +1297,6 @@
+ 			resets = <&cpg 805>;
+ 			renesas,id = <6>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin6csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin6>;
+-					};
+-					vin6csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin6>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		vin7: video@e6ef7000 {
+@@ -1455,27 +1308,6 @@
+ 			resets = <&cpg 804>;
+ 			renesas,id = <7>;
+ 			status = "disabled";
+-
+-			ports {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				port@1 {
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					reg = <1>;
+-
+-					vin7csi20: endpoint@0 {
+-						reg = <0>;
+-						remote-endpoint= <&csi20vin7>;
+-					};
+-					vin7csi40: endpoint@2 {
+-						reg = <2>;
+-						remote-endpoint= <&csi40vin7>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		rcar_adsp_sound: adsp_sound@0 {
+@@ -2232,51 +2064,6 @@
  			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -910,7 +1135,7 @@ index 4de8e13..a37113c 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -1050,52 +1005,6 @@
+@@ -2287,51 +2074,6 @@
  			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -958,239 +1183,15 @@ index 4de8e13..a37113c 100644
 -						remote-endpoint = <&vin7csi40>;
 -					};
 -				};
--
 -			};
  		};
  
- 		vin0: video@e6ef0000 {
-@@ -1107,27 +1016,6 @@
- 			resets = <&cpg 811>;
- 			renesas,id = <0>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin0csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin0>;
--					};
--					vin0csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin0>;
--					};
--				};
--			};
- 		};
- 
- 		vin1: video@e6ef1000 {
-@@ -1139,27 +1027,6 @@
- 			resets = <&cpg 810>;
- 			renesas,id = <1>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin1csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin1>;
--					};
--					vin1csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin1>;
--					};
--				};
--			};
- 		};
- 
- 		vin2: video@e6ef2000 {
-@@ -1171,27 +1038,6 @@
- 			resets = <&cpg 809>;
- 			renesas,id = <2>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin2csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin2>;
--					};
--					vin2csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin2>;
--					};
--				};
--			};
- 		};
- 
- 		vin3: video@e6ef3000 {
-@@ -1203,26 +1049,6 @@
- 			resets = <&cpg 808>;
- 			renesas,id = <3>;
- 			status = "disabled";
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin3csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin3>;
--					};
--					vin3csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin3>;
--					};
--				};
--			};
- 		};
- 
- 		vin4: video@e6ef4000 {
-@@ -1234,27 +1060,6 @@
- 			resets = <&cpg 807>;
- 			renesas,id = <4>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin4csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin4>;
--					};
--					vin4csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin4>;
--					};
--				};
--			};
- 		};
- 
- 		vin5: video@e6ef5000 {
-@@ -1266,27 +1071,6 @@
- 			resets = <&cpg 806>;
- 			renesas,id = <5>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin5csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin5>;
--					};
--					vin5csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin5>;
--					};
--				};
--			};
- 		};
- 
- 		vin6: video@e6ef6000 {
-@@ -1298,27 +1082,6 @@
- 			resets = <&cpg 805>;
- 			renesas,id = <6>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin6csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin6>;
--					};
--					vin6csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin6>;
--					};
--				};
--			};
- 		};
- 
- 		vin7: video@e6ef7000 {
-@@ -1330,27 +1093,6 @@
- 			resets = <&cpg 804>;
- 			renesas,id = <7>;
- 			status = "disabled";
--
--			ports {
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				port@1 {
--					#address-cells = <1>;
--					#size-cells = <0>;
--
--					reg = <1>;
--
--					vin7csi20: endpoint@0 {
--						reg = <0>;
--						remote-endpoint= <&csi20vin7>;
--					};
--					vin7csi40: endpoint@2 {
--						reg = <2>;
--						remote-endpoint= <&csi40vin7>;
--					};
--				};
--			};
- 		};
- 
- 		scif2: serial@e6e88000 {
+ 		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/salvator-common.dtsi b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-index 3b9675f..8ae6e2a 100644
+index 89fbcf6..5aba501 100644
 --- a/arch/arm64/boot/dts/renesas/salvator-common.dtsi
 +++ b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-@@ -343,37 +343,6 @@
+@@ -393,37 +393,6 @@
  	};
  };
  
@@ -1225,10 +1226,10 @@ index 3b9675f..8ae6e2a 100644
 -	};
 -};
 -
- &a57_0 {
- 	cpu-supply = <&dvfs>;
+ &lvds0 {
+ 	status = "okay";
  };
-@@ -505,7 +474,6 @@
+@@ -562,7 +531,6 @@
  			adv7482_txa: endpoint {
  				clock-lanes = <0>;
  				data-lanes = <1 2 3 4>;
@@ -1236,7 +1237,7 @@ index 3b9675f..8ae6e2a 100644
  			};
  		};
  
-@@ -515,7 +483,6 @@
+@@ -572,7 +540,6 @@
  			adv7482_txb: endpoint {
  				clock-lanes = <0>;
  				data-lanes = <1>;
@@ -1245,7 +1246,7 @@ index 3b9675f..8ae6e2a 100644
  		};
  	};
 diff --git a/drivers/media/platform/soc_camera/Kconfig b/drivers/media/platform/soc_camera/Kconfig
-index f5979c1..9e9341e 100644
+index f5979c1..a3bf60d 100644
 --- a/drivers/media/platform/soc_camera/Kconfig
 +++ b/drivers/media/platform/soc_camera/Kconfig
 @@ -16,6 +16,34 @@ config SOC_CAMERA_PLATFORM
@@ -5157,5 +5158,5 @@ index 0000000..1a040fa
 +
 +#endif
 -- 
-1.9.1
+2.7.4
 

@@ -1,8 +1,8 @@
-From 26e7cff6e7c75917b058faff2185d69376ef6b03 Mon Sep 17 00:00:00 2001
+From 32ecf3ea8ee2a43dcc22bdf98420264e1662e55f Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 4 Apr 2018 01:37:09 +0300
-Subject: [PATCH] ARM64: dts: renesas: ulcb: Make AK4613 sound device name
- consistent
+Subject: [PATCH 55/61] ARM64: dts: renesas: ulcb: Make AK4613 sound device
+ name consistent
 
 This makes AK4613 sound device name consistent throughout all
 ULCB boards. This helps to avoid naming issues when pulseaudio
@@ -17,7 +17,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb.dtsi b/arch/arm64/boot/dts/renesas/ulcb.dtsi
-index 254a6d7..8fdd853 100644
+index 49359b2..4370c15 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb.dtsi
 @@ -100,6 +100,7 @@

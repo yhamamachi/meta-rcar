@@ -1,7 +1,7 @@
-From d65f8c054e4b84bf22906140760c6bbe07d6af17 Mon Sep 17 00:00:00 2001
+From 629824bccadec9ac6657ecca76e80ccbc28aad5f Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Wed, 3 Oct 2018 14:06:33 +0300
-Subject: [PATCH] arm64: dts: renesas: ulcb-kf: enable enable IMX219
+Subject: [PATCH 61/61] arm64: dts: renesas: ulcb-kf: enable enable IMX219
 
 This enables IMX219 instead OV5647
 
@@ -15,7 +15,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-imx219.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-imx219.dtsi
 new file mode 100644
-index 0000000..b63dc8e
+index 0000000..1779a2b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-imx219.dtsi
 @@ -0,0 +1,58 @@
@@ -78,10 +78,10 @@ index 0000000..b63dc8e
 +	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 79f97fd..0474035 100644
+index dbec19a..7875022 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -1439,3 +1439,8 @@
+@@ -1455,3 +1455,8 @@
  
  
  
@@ -91,5 +91,5 @@ index 79f97fd..0474035 100644
 +
 +
 -- 
-1.9.1
+2.7.4
 

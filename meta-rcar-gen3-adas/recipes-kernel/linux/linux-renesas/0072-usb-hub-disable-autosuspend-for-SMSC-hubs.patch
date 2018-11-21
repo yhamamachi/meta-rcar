@@ -1,7 +1,7 @@
-From 8276db72581e4d1e3f89ccce84555c9fea145e16 Mon Sep 17 00:00:00 2001
+From 63acd367809516e625219e75695cc914da771cdf Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 11 Aug 2017 17:30:40 +0300
-Subject: [PATCH] usb: hub: disable autosuspend for SMSC hubs
+Subject: [PATCH 45/61] usb: hub: disable autosuspend for SMSC hubs
 
 Disable autosuspend for SMSC hubs (USB5534B/USB2134B devices)
 This is a workaround for RCar Gen3 XHCI
@@ -12,7 +12,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 9 insertions(+)
 
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index e9ce6bb..434019d 100644
+index a9db088..b5e602f 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
 @@ -36,7 +36,9 @@
@@ -25,7 +25,7 @@ index e9ce6bb..434019d 100644
  
  /* Protect struct usb_device->state and ->children members
   * Note: Both are also protected by ->dev.sem, except that ->state can
-@@ -1788,6 +1790,9 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1797,6 +1799,9 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
  		hub->quirk_check_port_auto_suspend = 1;
  
@@ -35,7 +35,7 @@ index e9ce6bb..434019d 100644
  	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
  		return 0;
  
-@@ -5242,6 +5247,10 @@ static void hub_event(struct work_struct *work)
+@@ -5269,6 +5274,10 @@ static void hub_event(struct work_struct *work)
  }
  
  static const struct usb_device_id hub_id_table[] = {
@@ -47,5 +47,5 @@ index e9ce6bb..434019d 100644
  			| USB_DEVICE_ID_MATCH_INT_CLASS,
        .idVendor = USB_VENDOR_GENESYS_LOGIC,
 -- 
-1.9.1
+2.7.4
 

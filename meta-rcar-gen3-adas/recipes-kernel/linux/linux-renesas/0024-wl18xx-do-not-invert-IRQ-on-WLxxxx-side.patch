@@ -1,19 +1,18 @@
-From 60d86113a92ac35421865f9b8db504530962c829 Mon Sep 17 00:00:00 2001
+From d8b754b3bd6bd4a20ec82144bd33991d1abb5677 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Mon, 22 May 2017 17:22:38 +0300
-Subject: [PATCH] wl18xx: do not invert IRQ on WLxxxx side
-
+Subject: [PATCH 19/61] wl18xx: do not invert IRQ on WLxxxx side
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/net/wireless/ti/wl18xx/main.c |    8 ++++++++
+ drivers/net/wireless/ti/wl18xx/main.c | 8 ++++++++
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/net/wireless/ti/wl18xx/main.c b/drivers/net/wireless/ti/wl18xx/main.c
-index ae47c79..cdde6e0 100644
+index 0cf3b40..b1c4cdb 100644
 --- a/drivers/net/wireless/ti/wl18xx/main.c
 +++ b/drivers/net/wireless/ti/wl18xx/main.c
-@@ -876,7 +876,9 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
+@@ -878,7 +878,9 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
  {
  	u32 tmp;
  	int ret;
@@ -23,7 +22,7 @@ index ae47c79..cdde6e0 100644
  
  	BUILD_BUG_ON(sizeof(struct wl18xx_mac_and_phy_params) >
  		WL18XX_PHY_INIT_MEM_SIZE);
-@@ -929,6 +931,11 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
+@@ -931,6 +933,11 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
  	if (ret < 0)
  		goto out;
  
@@ -35,7 +34,7 @@ index ae47c79..cdde6e0 100644
  	ret = irq_get_trigger_type(wl->irq);
  	if ((ret == IRQ_TYPE_LEVEL_LOW) || (ret == IRQ_TYPE_EDGE_FALLING)) {
  		wl1271_info("using inverted interrupt logic: %d", ret);
-@@ -948,6 +955,7 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
+@@ -950,6 +957,7 @@ static int wl18xx_pre_upload(struct wl1271 *wl)
  
  		ret = wlcore_set_partition(wl, &wl->ptable[PART_PHY_INIT]);
  	}
@@ -44,5 +43,5 @@ index ae47c79..cdde6e0 100644
  out:
  	return ret;
 -- 
-1.7.10.4
+2.7.4
 

@@ -1,7 +1,7 @@
-From 1d403f68d16edfe73bb8bfb6b164d9c3015399fc Mon Sep 17 00:00:00 2001
+From d0f5f747998d652c61f2e9e279b157b9008814b9 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 21 Mar 2018 20:48:02 +0300
-Subject: [PATCH 1/2] gpu: drm: bridge: adv7511: Add interlaced mode support
+Subject: [PATCH 21/61] gpu: drm: bridge: adv7511: Add interlaced mode support
 
 This adds "interlace-allowed" DTS property
 that allows interlaced mode support when set.
@@ -25,12 +25,12 @@ index 06668bc..e0a2360 100644
    (-1200 ps .. 1600 ps). Defaults to no delay.
  - adi,embedded-sync: The input uses synchronization signals embedded in the
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 46f3da9e..e635b0b 100644
+index 7162f94..ab4ddfc 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -851,6 +851,9 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)
+@@ -863,6 +863,9 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)
  		adv->connector.polled = DRM_CONNECTOR_POLL_CONNECT |
- 					DRM_CONNECTOR_POLL_DISCONNECT;
+ 				DRM_CONNECTOR_POLL_DISCONNECT;
  
 +	adv->connector.interlace_allowed =
 +		of_property_read_bool(bridge->of_node, "interlace-allowed");

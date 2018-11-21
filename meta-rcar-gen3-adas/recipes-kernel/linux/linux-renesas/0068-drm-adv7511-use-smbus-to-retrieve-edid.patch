@@ -1,7 +1,7 @@
-From 2e2b673a2a47e8358ef92ec4019be87552949304 Mon Sep 17 00:00:00 2001
+From d593009608a70d887cc8822f3344ddb99a0b9f68 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Wed, 9 Aug 2017 11:52:22 +0300
-Subject: [PATCH] drm: adv7511: use smbus to retrieve edid
+Subject: [PATCH 43/61] drm: adv7511: use smbus to retrieve edid
 
 Get EDID using smbus protocol instead block i2c transfer
 This fixes often checksum errors while retriving EDID at 400kHz bus speed
@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index d3ece87..b2e1b58 100644
+index ab4ddfc..9fae2f9 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -500,18 +500,19 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
+@@ -551,18 +551,19 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
  		 * support 64 byte transfers than 256 byte transfers
  		 */
  
@@ -37,7 +37,7 @@ index d3ece87..b2e1b58 100644
  			ret = i2c_transfer(adv7511->i2c_edid->adapter, xfer,
  					   ARRAY_SIZE(xfer));
  			if (ret < 0)
-@@ -519,8 +520,8 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
+@@ -570,8 +571,8 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
  			else if (ret != 2)
  				return -EIO;
  
@@ -49,5 +49,5 @@ index d3ece87..b2e1b58 100644
  
  		adv7511->current_edid_segment = block / 2;
 -- 
-1.9.1
+2.7.4
 

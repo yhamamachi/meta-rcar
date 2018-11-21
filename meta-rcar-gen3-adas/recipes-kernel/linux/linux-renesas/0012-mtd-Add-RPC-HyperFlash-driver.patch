@@ -1,7 +1,7 @@
-From cc3bccbe6c479d8ad76a09b62fb63126403d0bab Mon Sep 17 00:00:00 2001
+From 0ad5dd04541186620f9c067909298f7e90fb892e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 3 Jun 2016 23:04:20 +0300
-Subject: [PATCH] mtd: Add RPC HyperFlash driver
+Subject: [PATCH 09/61] mtd: Add RPC HyperFlash driver
 
 This adds RPC HyperFlash driver.
 
@@ -14,7 +14,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 drivers/mtd/rpc_hyperflash.c
 
 diff --git a/drivers/mtd/Kconfig b/drivers/mtd/Kconfig
-index 42cc953..0c58a89 100644
+index 5a2d717..0619e1f 100644
 --- a/drivers/mtd/Kconfig
 +++ b/drivers/mtd/Kconfig
 @@ -11,6 +11,11 @@ menuconfig MTD
@@ -30,10 +30,10 @@ index 42cc953..0c58a89 100644
  config MTD_TESTS
  	tristate "MTD tests support (DANGEROUS)"
 diff --git a/drivers/mtd/Makefile b/drivers/mtd/Makefile
-index 99bb9a1..3b81efb 100644
+index d6f8f62..f3fb2b0 100644
 --- a/drivers/mtd/Makefile
 +++ b/drivers/mtd/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_MTD_AFS_PARTS)	+= afs.o
+@@ -15,6 +15,7 @@ obj-$(CONFIG_MTD_AR7_PARTS)	+= ar7part.o
  obj-$(CONFIG_MTD_BCM63XX_PARTS)	+= bcm63xxpart.o
  obj-$(CONFIG_MTD_BCM47XX_PARTS)	+= bcm47xxpart.o
  obj-y				+= parsers/
@@ -43,7 +43,7 @@ index 99bb9a1..3b81efb 100644
  obj-$(CONFIG_MTD_BLKDEVS)	+= mtd_blkdevs.o
 diff --git a/drivers/mtd/rpc_hyperflash.c b/drivers/mtd/rpc_hyperflash.c
 new file mode 100644
-index 0000000..f8a2c90
+index 0000000..cf4d56e
 --- /dev/null
 +++ b/drivers/mtd/rpc_hyperflash.c
 @@ -0,0 +1,976 @@

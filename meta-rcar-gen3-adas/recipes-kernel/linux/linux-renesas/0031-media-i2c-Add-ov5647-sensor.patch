@@ -1,7 +1,7 @@
-From 8b97232e3ecbb4ee38bda454915e62914ef52fcc Mon Sep 17 00:00:00 2001
+From 799ba3a8710dfa5e53eb44e7e78f7b8162a99882 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 1 Jun 2017 19:59:56 +0300
-Subject: [PATCH] media: i2c: Add ov5647 sensor
+Subject: [PATCH 23/61] media: i2c: Add ov5647 sensor
 
 Add ov5647 camera sensor driver
 
@@ -9,9 +9,9 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig  |   6 +
  drivers/media/i2c/soc_camera/Makefile |   1 +
- drivers/media/i2c/soc_camera/ov5647.c | 649 ++++++++++++++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov5647.c | 648 ++++++++++++++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov5647.h | 242 +++++++++++++
- 4 files changed, 898 insertions(+)
+ 4 files changed, 897 insertions(+)
  create mode 100644 drivers/media/i2c/soc_camera/ov5647.c
  create mode 100644 drivers/media/i2c/soc_camera/ov5647.h
 
@@ -46,7 +46,7 @@ index 1134c03..0d4242e 100644
  obj-$(CONFIG_SOC_CAMERA_OV9740)		+= ov9740.o
 diff --git a/drivers/media/i2c/soc_camera/ov5647.c b/drivers/media/i2c/soc_camera/ov5647.c
 new file mode 100644
-index 0000000..caccf39
+index 0000000..d8b87c1
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov5647.c
 @@ -0,0 +1,648 @@
@@ -947,5 +947,5 @@ index 0000000..f854da8
 +	{0x5000, 0x06}, /*No lenc,WBC on*/
 +};
 -- 
-1.9.1
+2.7.4
 

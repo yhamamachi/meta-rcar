@@ -1,20 +1,20 @@
-From 0ec0f782c0d19b1e1293e8e281c335186ce3f3cc Mon Sep 17 00:00:00 2001
+From 466822bdcdad1b8e04a10166ef51deb10ad34091 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Tue, 30 May 2017 17:41:21 +0300
-Subject: [PATCH] drm: adv7511: Enable HPD interrupts to support hotplug
+Subject: [PATCH 20/61] drm: adv7511: Enable HPD interrupts to support hotplug
 
 This patch enables HPD (hot plug detect) interrupt support
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index a104b43..e20f475 100644
+index dd3ff2f..7162f94 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -55,7 +55,7 @@ static const struct reg_sequence adv7511_fixed_registers[] = {
+@@ -27,7 +27,7 @@ static const struct reg_sequence adv7511_fixed_registers[] = {
  	{ 0x98, 0x03 },
  	{ 0x9a, 0xe0 },
  	{ 0x9c, 0x30 },
@@ -24,5 +24,5 @@ index a104b43..e20f475 100644
  	{ 0xa3, 0xa4 },
  	{ 0xe0, 0xd0 },
 -- 
-1.9.1
+2.7.4
 

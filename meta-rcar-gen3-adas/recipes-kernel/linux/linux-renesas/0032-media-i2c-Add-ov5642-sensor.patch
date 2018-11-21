@@ -1,21 +1,21 @@
-From 79ff5931fa2dede0a4c2e22e7a83c2edddcc6c20 Mon Sep 17 00:00:00 2001
+From 29ce353cd2c6a6cf2f8d908b385621f78fb8576d Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 11 Jun 2017 00:50:59 +0300
-Subject: [PATCH] media: i2c: ov5642 sensor
+Subject: [PATCH 24/61] media: i2c: ov5642 sensor
 
 Add ov5642 camera sensor driver update
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- drivers/media/i2c/soc_camera/ov5642.c      | 708 +++++-----------------------
+ drivers/media/i2c/soc_camera/ov5642.c      | 699 +++++-----------------------
  drivers/media/i2c/soc_camera/ov5642.h      | 592 ++++++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov5642_720p.h | 711 +++++++++++++++++++++++++++++
- 3 files changed, 1418 insertions(+), 593 deletions(-)
+ 3 files changed, 1409 insertions(+), 593 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/ov5642.h
  create mode 100644 drivers/media/i2c/soc_camera/ov5642_720p.h
 
 diff --git a/drivers/media/i2c/soc_camera/ov5642.c b/drivers/media/i2c/soc_camera/ov5642.c
-index 39f420d..f50b9da 100644
+index 39f420d..3fa4756 100644
 --- a/drivers/media/i2c/soc_camera/ov5642.c
 +++ b/drivers/media/i2c/soc_camera/ov5642.c
 @@ -22,584 +22,16 @@
@@ -720,7 +720,7 @@ index 39f420d..f50b9da 100644
  	return ret;
  }
  
-@@ -969,6 +409,63 @@ static int ov5642_s_power(struct v4l2_subdev *sd, int on)
+@@ -969,6 +409,63 @@ static const struct v4l2_subdev_ops ov5642_subdev_ops = {
  	.pad	= &ov5642_subdev_pad_ops,
  };
  
@@ -2151,5 +2151,5 @@ index 0000000..d5a52e3
 +	{0xffff, 0xff},
 +};
 -- 
-1.9.1
+2.7.4
 

@@ -1,23 +1,23 @@
-From 240504b182a2816696c6a02fe37a5048925cc1fb Mon Sep 17 00:00:00 2001
+From 5ce766ec81f6907f7afe4a9bcc58fa681d080468 Mon Sep 17 00:00:00 2001
 From: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com>
 Date: Wed, 7 Sep 2016 22:55:37 +0300
-Subject: [PATCH] IMR driver - interim patch
+Subject: [PATCH 10/61] IMR driver - interim patch
 
 Signed-off-by: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com>
 ---
- drivers/media/platform/Kconfig               |   11 +
- drivers/media/platform/Makefile              |    1 +
- drivers/media/platform/rcar_imr.c            | 1840 ++++++++++++++++++++++++++
- include/uapi/linux/rcar-imr.h                |   98 ++
- 7 files changed, 2018 insertions(+)
+ drivers/media/platform/Kconfig    |   11 +
+ drivers/media/platform/Makefile   |    1 +
+ drivers/media/platform/rcar_imr.c | 1840 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/rcar-imr.h     |   98 ++
+ 4 files changed, 1950 insertions(+)
  create mode 100644 drivers/media/platform/rcar_imr.c
  create mode 100644 include/uapi/linux/rcar-imr.h
 
 diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
-index ba2b892..f4d12f5 100644
+index 63f434c..3e165fc 100644
 --- a/drivers/media/platform/Kconfig
 +++ b/drivers/media/platform/Kconfig
-@@ -315,6 +315,17 @@ config VIDEO_RENESAS_FCP
+@@ -454,6 +454,17 @@ config VIDEO_RENESAS_FCP
  	  To compile this driver as a module, choose M here: the module
  	  will be called rcar-fcp.
  
@@ -36,10 +36,10 @@ index ba2b892..f4d12f5 100644
  	tristate "Renesas VSP1 Video Processing Engine"
  	depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API && HAS_DMA
 diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
-index 40b18d1..9e9464c 100644
+index 76149a1..d985603 100644
 --- a/drivers/media/platform/Makefile
 +++ b/drivers/media/platform/Makefile
-@@ -49,6 +49,7 @@ obj-$(CONFIG_SOC_CAMERA)		+= soc_camera/
+@@ -62,6 +62,7 @@ obj-$(CONFIG_VIDEO_RENESAS_CEU)		+= renesas-ceu.o
  obj-$(CONFIG_VIDEO_RENESAS_FCP) 	+= rcar-fcp.o
  obj-$(CONFIG_VIDEO_RENESAS_FDP1)	+= rcar_fdp1.o
  obj-$(CONFIG_VIDEO_RENESAS_JPU) 	+= rcar_jpu.o
@@ -1998,5 +1998,5 @@ index 0000000..d02082f
 +
 +#endif  /* RCAR_IMR_USER_H */
 -- 
-1.9.1
+2.7.4
 

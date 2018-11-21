@@ -1,7 +1,7 @@
-From 36122fec4390663b5c05d5836beb977ba2c09a68 Mon Sep 17 00:00:00 2001
+From 9edd8f5792466f0e253e34d997f30f6cd4e4757c Mon Sep 17 00:00:00 2001
 From: Eyal Reizer <eyalr@ti.com>
 Date: Thu, 23 May 2013 17:11:14 +0300
-Subject: [PATCH 099/104] ti-st: add device tree support
+Subject: [PATCH 15/61] ti-st: add device tree support
 
 When using device tree, driver configuration data need to be read from
 device node.
@@ -13,12 +13,12 @@ Signed-off-by: Eyal Reizer <eyalr@ti.com>
 Signed-off-by: bvijay <bvijay@ti.com>
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/misc/ti-st/st_kim.c |   92 +++++++++++++++++++++++++++++++++++++++----
- drivers/misc/ti-st/st_ll.c  |   19 ++++++++-
+ drivers/misc/ti-st/st_kim.c | 92 +++++++++++++++++++++++++++++++++++++++++----
+ drivers/misc/ti-st/st_ll.c  | 19 +++++++++-
  2 files changed, 102 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/misc/ti-st/st_kim.c b/drivers/misc/ti-st/st_kim.c
-index 71b6455..a36db89 100644
+index b77aaca..5716caa 100644
 --- a/drivers/misc/ti-st/st_kim.c
 +++ b/drivers/misc/ti-st/st_kim.c
 @@ -43,6 +43,9 @@ static struct platform_device *st_kim_devices[MAX_ST_DEVICES];
@@ -31,7 +31,7 @@ index 71b6455..a36db89 100644
  /**
   * st_get_plat_device -
   *	function which returns the reference to the platform device
-@@ -464,7 +467,12 @@ long st_kim_start(void *kim_data)
+@@ -463,7 +466,12 @@ long st_kim_start(void *kim_data)
  	struct kim_data_s	*kim_gdata = (struct kim_data_s *)kim_data;
  
  	pr_info(" %s", __func__);
@@ -45,7 +45,7 @@ index 71b6455..a36db89 100644
  
  	do {
  		/* platform specific enabling code here */
-@@ -524,12 +532,17 @@ long st_kim_stop(void *kim_data)
+@@ -523,12 +531,17 @@ long st_kim_stop(void *kim_data)
  {
  	long err = 0;
  	struct kim_data_s	*kim_gdata = (struct kim_data_s *)kim_data;
@@ -65,7 +65,7 @@ index 71b6455..a36db89 100644
  	if (tty) {	/* can be called before ldisc is installed */
  		/* Flush any pending characters in the driver and discipline. */
  		tty_ldisc_flush(tty);
-@@ -721,13 +734,53 @@ static const struct file_operations list_debugfs_fops = {
+@@ -720,13 +733,53 @@ static const struct file_operations list_debugfs_fops = {
   * board-*.c file
   */
  
@@ -120,7 +120,7 @@ index 71b6455..a36db89 100644
  	if ((pdev->id != -1) && (pdev->id < MAX_ST_DEVICES)) {
  		/* multiple devices could exist */
  		st_kim_devices[pdev->id] = pdev;
-@@ -808,9 +861,16 @@ err_core_init:
+@@ -807,9 +860,16 @@ static int kim_probe(struct platform_device *pdev)
  static int kim_remove(struct platform_device *pdev)
  {
  	/* free the GPIOs requested */
@@ -138,7 +138,7 @@ index 71b6455..a36db89 100644
  	kim_gdata = platform_get_drvdata(pdev);
  
  	/* Free the Bluetooth/FM/GPIO
-@@ -828,12 +888,22 @@ static int kim_remove(struct platform_device *pdev)
+@@ -827,12 +887,22 @@ static int kim_remove(struct platform_device *pdev)
  
  	kfree(kim_gdata);
  	kim_gdata = NULL;
@@ -162,7 +162,7 @@ index 71b6455..a36db89 100644
  
  	if (pdata->suspend)
  		return pdata->suspend(pdev, state);
-@@ -843,7 +913,14 @@ static int kim_suspend(struct platform_device *pdev, pm_message_t state)
+@@ -842,7 +912,14 @@ static int kim_suspend(struct platform_device *pdev, pm_message_t state)
  
  static int kim_resume(struct platform_device *pdev)
  {
@@ -178,7 +178,7 @@ index 71b6455..a36db89 100644
  
  	if (pdata->resume)
  		return pdata->resume(pdev);
-@@ -860,6 +937,7 @@ static struct platform_driver kim_platform_driver = {
+@@ -859,6 +936,7 @@ static struct platform_driver kim_platform_driver = {
  	.resume = kim_resume,
  	.driver = {
  		.name = "kim",
@@ -232,5 +232,5 @@ index 93b4d67..644f00e 100644
  		pdata->chip_awake(NULL);
  }
 -- 
-1.7.10.4
+2.7.4
 

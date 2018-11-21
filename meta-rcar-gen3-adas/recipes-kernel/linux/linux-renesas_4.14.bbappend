@@ -30,7 +30,6 @@ SRC_URI_append = " \
     file://0023-ASoC-add-dummy-Si468x-driver.patch \
     file://0024-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch \
     file://0025-drm-adv7511-Enable-HPD-interrupts-to-support-hotplug.patch \
-    file://0026-drm-adv7511-add-polling-mode-when-no-irq-available.patch \
     file://0027-gpu-drm-bridge-adv7511-Add-interlaced-mode-support.patch \
     file://0030-Gen3-LVDS-cameras.patch \
     file://0031-media-i2c-Add-ov5647-sensor.patch \
@@ -45,7 +44,6 @@ SRC_URI_append = " \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0043-pinctrl-sh-pfc-pfc-r8a77965-Add-missing-avb_mii-pin-.patch \
-    file://0044-pinctrl-r8a779x-add-mlb-pinmux.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
     file://0046-arm64-dts-renesas-r8a779x-add-mlp-nodes.patch \
     ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \

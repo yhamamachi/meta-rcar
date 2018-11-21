@@ -1,7 +1,7 @@
-From 0949a5377b40d791cecee49f813bd04f131db06f Mon Sep 17 00:00:00 2001
+From c44d440785808d6c70a0d5b70bfbc7daf9b55060 Mon Sep 17 00:00:00 2001
 From: Yusuke Goda <yusuke.goda.sx@renesas.com>
 Date: Fri, 26 Oct 2018 15:42:38 +0900
-Subject: [PATCH] Add MOST support for r8a77965
+Subject: [PATCH 28/61] Add MOST support for r8a77965
 
 This adds MOST support to R-Car M3N.
 
@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  3 files changed, 28 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 7b05645..e1eef93 100644
+index 5d4ac38..79b171d 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -1159,6 +1159,19 @@
+@@ -1156,6 +1156,19 @@
  			status = "disabled";
  		};
  
@@ -38,22 +38,22 @@ index 7b05645..e1eef93 100644
  			compatible = "renesas,msiof-r8a77965",
  				     "renesas,rcar-gen3-msiof";
 diff --git a/drivers/clk/renesas/r8a77965-cpg-mssr.c b/drivers/clk/renesas/r8a77965-cpg-mssr.c
-index 92a4772..a7313e0 100644
+index 581a7a9..1555b15 100644
 --- a/drivers/clk/renesas/r8a77965-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a77965-cpg-mssr.c
-@@ -186,6 +186,7 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] __initconst = {
- 	DEF_MOD("du0",			 724,	R8A77965_CLK_S2D1),
- 	DEF_MOD("lvds",			 727,	R8A77965_CLK_S2D1),
- 	DEF_MOD("hdmi0",		 729,	R8A77965_CLK_HDMI),
+@@ -188,6 +188,7 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] __initconst = {
+ 	DEF_MOD("lvds",			727,	R8A77965_CLK_S2D1),
+ 	DEF_MOD("hdmi0",		729,	R8A77965_CLK_HDMI),
+ 
 +	DEF_MOD("mlp",			 802,	R8A77965_CLK_S2D1),
- 	DEF_MOD("vin7",			 804,	R8A77965_CLK_S0D2),
- 	DEF_MOD("vin6",			 805,	R8A77965_CLK_S0D2),
- 	DEF_MOD("vin5",			 806,	R8A77965_CLK_S0D2),
+ 	DEF_MOD("vin7",			804,	R8A77965_CLK_S0D2),
+ 	DEF_MOD("vin6",			805,	R8A77965_CLK_S0D2),
+ 	DEF_MOD("vin5",			806,	R8A77965_CLK_S0D2),
 diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
-index 62f7468..c298de6 100644
+index 85b0457..082e8b3 100644
 --- a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
 +++ b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
-@@ -2697,6 +2697,14 @@ static const unsigned int intc_ex_irq5_mux[] = {
+@@ -2608,6 +2608,14 @@ static const unsigned int intc_ex_irq5_mux[] = {
  	IRQ5_MARK,
  };
  
@@ -68,7 +68,7 @@ index 62f7468..c298de6 100644
  /* - MSIOF0 ----------------------------------------------------------------- */
  static const unsigned int msiof0_clk_pins[] = {
  	/* SCK */
-@@ -4984,6 +4992,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
+@@ -4543,6 +4551,7 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
  	SH_PFC_PIN_GROUP(intc_ex_irq3),
  	SH_PFC_PIN_GROUP(intc_ex_irq4),
  	SH_PFC_PIN_GROUP(intc_ex_irq5),
@@ -76,7 +76,7 @@ index 62f7468..c298de6 100644
  	SH_PFC_PIN_GROUP(msiof0_clk),
  	SH_PFC_PIN_GROUP(msiof0_sync),
  	SH_PFC_PIN_GROUP(msiof0_ss1),
-@@ -5399,6 +5408,10 @@ static const char * const intc_ex_groups[] = {
+@@ -4963,6 +4972,10 @@ static const char * const intc_ex_groups[] = {
  	"intc_ex_irq5",
  };
  
@@ -87,7 +87,7 @@ index 62f7468..c298de6 100644
  static const char * const msiof0_groups[] = {
  	"msiof0_clk",
  	"msiof0_sync",
-@@ -5736,6 +5749,7 @@ static const struct sh_pfc_function pinmux_functions[] = {
+@@ -5306,6 +5319,7 @@ static const struct sh_pfc_function pinmux_functions[] = {
  	SH_PFC_FUNCTION(i2c5),
  	SH_PFC_FUNCTION(i2c6),
  	SH_PFC_FUNCTION(intc_ex),

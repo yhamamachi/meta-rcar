@@ -1,7 +1,7 @@
-From 7a6b0c38e5e1502f309b89b16fad8c70645e1221 Mon Sep 17 00:00:00 2001
+From b4b425991f0514d4ad03524b576ea2ab2011ed4e Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 15:20:01 +0300
-Subject: [PATCH] Gen3: LVDS cameras
+Subject: [PATCH 22/61] Gen3: LVDS cameras
 
 This add Gen3 LVDS cameras support:
 - deserializers: MAX9286, DS90UB954/960/964
@@ -10165,7 +10165,7 @@ index 0000000..b53b4c6
 +}
 +#endif /* _TI9X4_H */
 diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
-index 05f623468..ad5dff3 100644
+index 05f623468..2e710e3 100644
 --- a/drivers/media/platform/soc_camera/rcar_csi2.c
 +++ b/drivers/media/platform/soc_camera/rcar_csi2.c
 @@ -20,24 +20,29 @@
@@ -10565,7 +10565,7 @@ index 05f623468..ad5dff3 100644
  	}
  
  	return ret;
-@@ -488,6 +612,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+@@ -488,6 +612,7 @@ static struct v4l2_subdev_ops rcar_csi2_subdev_ops = {
  
  #ifdef CONFIG_OF
  static const struct of_device_id rcar_csi2_of_table[] = {
@@ -10573,7 +10573,7 @@ index 05f623468..ad5dff3 100644
  	{ .compatible = "renesas,r8a7796-csi2", .data = (void *)RCAR_GEN3 },
  	{ .compatible = "renesas,r8a7795-csi2", .data = (void *)RCAR_GEN3 },
  	{ },
-@@ -496,6 +621,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+@@ -496,6 +621,7 @@ MODULE_DEVICE_TABLE(of, rcar_csi2_of_table);
  #endif
  
  static struct platform_device_id rcar_csi2_id_table[] = {
@@ -10581,7 +10581,7 @@ index 05f623468..ad5dff3 100644
  	{ "r8a7796-csi2",  RCAR_GEN3 },
  	{ "r8a7795-csi2",  RCAR_GEN3 },
  	{},
-@@ -505,7 +631,7 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+@@ -505,7 +631,7 @@ MODULE_DEVICE_TABLE(platform, rcar_csi2_id_table);
  static int rcar_csi2_parse_dt(struct device_node *np,
  			struct rcar_csi2_link_config *config)
  {
@@ -10787,7 +10787,7 @@ index 400958b..9733555 100644
  static int ifmd0_reg_match[VNCSI_IFMD_SEL_NUMBER];
  static int ifmd4_reg_match[VNCSI_IFMD_SEL_NUMBER];
  static int ifmd0_init = true;
-@@ -185,6 +196,7 @@
+@@ -185,6 +196,7 @@ static int ifmd4_init = true;
  
  enum chip_id {
  	RCAR_GEN3,
@@ -10795,7 +10795,7 @@ index 400958b..9733555 100644
  	RCAR_M3,
  	RCAR_H3,
  	RCAR_GEN2,
-@@ -360,10 +372,54 @@ struct vin_gen3_ifmd {
+@@ -360,10 +372,54 @@ static const struct vin_gen3_ifmd vin_m3_vc_ifmd[] = {
  	},
  };
  
@@ -11127,7 +11127,7 @@ index 400958b..9733555 100644
  		val = VNDMR2_FTEV;
  	else
  		val = VNDMR2_FTEV | VNDMR2_VLV(1);
-@@ -1815,6 +1973,14 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
+@@ -1815,6 +1973,14 @@ static const struct soc_mbus_pixelfmt rcar_vin_formats[] = {
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
  	{
@@ -11142,7 +11142,7 @@ index 400958b..9733555 100644
  		.fourcc			= V4L2_PIX_FMT_RGB565,
  		.name			= "RGB565",
  		.bits_per_sample	= 16,
-@@ -1846,6 +2012,22 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
+@@ -1846,6 +2012,22 @@ static const struct soc_mbus_pixelfmt rcar_vin_formats[] = {
  		.order			= SOC_MBUS_ORDER_LE,
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
@@ -11230,7 +11230,7 @@ index 400958b..9733555 100644
  static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.owner		= THIS_MODULE,
  	.add		= rcar_vin_add_device,
-@@ -2450,10 +2652,12 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2450,10 +2652,12 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.get_selection	= rcar_vin_get_selection,
  	.cropcap	= rcar_vin_cropcap,
  #endif
@@ -11243,7 +11243,7 @@ index 400958b..9733555 100644
  	{ .compatible = "renesas,vin-r8a7796", .data = (void *)RCAR_M3 },
  	{ .compatible = "renesas,vin-r8a7795", .data = (void *)RCAR_H3 },
  	{ .compatible = "renesas,vin-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -2469,7 +2673,7 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2469,7 +2673,7 @@ static const struct of_device_id rcar_vin_of_table[] = {
  MODULE_DEVICE_TABLE(of, rcar_vin_of_table);
  #endif
  
@@ -11456,7 +11456,7 @@ index 916ff68..1f840cf 100644
  			break;
  		}
  	}
-@@ -2013,6 +2025,7 @@ static int soc_camera_device_register(struct soc_camera_device *icd)
+@@ -2013,6 +2025,7 @@ static const struct v4l2_ioctl_ops soc_camera_ioctl_ops = {
  	.vidioc_s_selection	 = soc_camera_s_selection,
  	.vidioc_g_parm		 = soc_camera_g_parm,
  	.vidioc_s_parm		 = soc_camera_s_parm,
@@ -11468,7 +11468,7 @@ diff --git a/drivers/media/platform/soc_camera/soc_mediabus.c b/drivers/media/pl
 index 0ad4b28..d4e5c1e 100644
 --- a/drivers/media/platform/soc_camera/soc_mediabus.c
 +++ b/drivers/media/platform/soc_camera/soc_mediabus.c
-@@ -57,6 +57,16 @@
+@@ -57,6 +57,16 @@ static const struct soc_mbus_lookup mbus_fmt[] = {
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
  }, {
@@ -11559,5 +11559,5 @@ index 4d8cb07..4381be0 100644
  
  #define SOCAM_SENSOR_INVERT_PCLK	(1 << 0)
 -- 
-1.9.1
+2.7.4
 

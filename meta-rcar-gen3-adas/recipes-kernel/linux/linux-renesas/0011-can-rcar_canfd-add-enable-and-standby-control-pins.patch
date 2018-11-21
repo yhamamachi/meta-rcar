@@ -1,21 +1,21 @@
-From 0f55d888c83aed7ea5a10761edaff52de8dc06a1 Mon Sep 17 00:00:00 2001
+From 9f6da8fcab99efe9e648ad05e6e42125af699403 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 30 May 2016 01:51:47 +0300
-Subject: [PATCH] can: rcar_canfd: add enable and standby control pins
+Subject: [PATCH 08/61] can: rcar_canfd: add enable and standby control pins
 
 Add enable and standby can transceiver control pins
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- .../devicetree/bindings/net/can/rcar_canfd.txt     |  5 +++
- drivers/net/can/rcar/rcar_canfd.c                       | 48 ++++++++++++++++++----
- 2 files changed, 44 insertions(+), 9 deletions(-)
+ .../devicetree/bindings/net/can/rcar_canfd.txt     |  5 ++++
+ drivers/net/can/rcar/rcar_canfd.c                  | 33 +++++++++++++++++++++-
+ 2 files changed, 37 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/net/can/rcar_canfd.txt b/Documentation/devicetree/bindings/net/can/rcar_canfd.txt
-index 4299bd8..eede77a 100644
+index ac71daa..829604a 100644
 --- a/Documentation/devicetree/bindings/net/can/rcar_canfd.txt
 +++ b/Documentation/devicetree/bindings/net/can/rcar_canfd.txt
-@@ -16,6 +16,7 @@ Required properties:
+@@ -19,6 +19,7 @@ Required properties:
  - clock-names: 3 clock input name strings: "fck", "canfd", "can_clk".
  - pinctrl-0: pin control group to be used for this controller.
  - pinctrl-names: must be "default".
@@ -23,7 +23,7 @@ index 4299bd8..eede77a 100644
  
  Required child nodes:
  The controller supports two channels and each is represented as a child node.
-@@ -49,6 +50,10 @@ SoC common .dtsi file:
+@@ -62,6 +63,10 @@ SoC common .dtsi file:
  			power-domains = <&cpg>;
  			status = "disabled";
  
@@ -35,10 +35,10 @@ index 4299bd8..eede77a 100644
  				status = "disabled";
  			};
 diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
-index 15a14c5..4aa670d 100644
+index 602c19e..5b98f8c 100644
 --- a/drivers/net/can/rcar/rcar_canfd.c
 +++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -21,6 +21,7 @@
+@@ -38,6 +38,7 @@
  #include <linux/clk.h>
  #include <linux/of.h>
  #include <linux/of_device.h>
@@ -46,7 +46,7 @@ index 15a14c5..4aa670d 100644
  #include <linux/bitmap.h>
  #include <linux/bitops.h>
  #include <linux/iopoll.h>
-@@ -386,6 +387,8 @@ struct rcar_canfd_global {
+@@ -517,6 +518,8 @@ struct rcar_canfd_global {
  	enum rcar_canfd_fcanclk fcan;	/* CANFD or Ext clock */
  	unsigned long channels_mask;	/* Enabled channels mask */
  	bool fdmode;			/* CAN FD or Classical CAN only mode */
@@ -55,7 +55,7 @@ index 15a14c5..4aa670d 100644
  };
  
  /* CAN FD mode nominal rate constants */
-@@ -1063,6 +1066,10 @@ static int rcar_canfd_open(struct net_device *ndev)
+@@ -1268,6 +1271,10 @@ static int rcar_canfd_open(struct net_device *ndev)
  	struct rcar_canfd_global *gpriv = priv->gpriv;
  	int err;
  
@@ -66,7 +66,7 @@ index 15a14c5..4aa670d 100644
  	/* Peripheral clock is already enabled in probe */
  	err = clk_prepare_enable(gpriv->can_clk);
  	if (err) {
-@@ -1131,6 +1138,9 @@ static int rcar_canfd_close(struct net_device *ndev)
+@@ -1336,6 +1343,9 @@ static int rcar_canfd_close(struct net_device *ndev)
  	clk_disable_unprepare(gpriv->can_clk);
  	close_candev(ndev);
  	can_led_event(ndev, CAN_LED_EVENT_STOP);
@@ -76,7 +76,7 @@ index 15a14c5..4aa670d 100644
  	return 0;
  }
  
-@@ -1409,8 +1419,9 @@ static int rcar_canfd_probe(struct platform_device *pdev)
+@@ -1639,8 +1649,9 @@ static int rcar_canfd_probe(struct platform_device *pdev)
  	struct rcar_canfd_global *gpriv;
  	struct device_node *of_child;
  	unsigned long channels_mask = 0;
@@ -87,7 +87,7 @@ index 15a14c5..4aa670d 100644
  
  	if (of_property_read_bool(pdev->dev.of_node, "renesas,no-can-fd"))
  		fdmode = false;			/* Classical CAN only mode */
-@@ -1552,6 +1555,26 @@ static int rcar_canfd_probe(struct platform_device *pdev)
+@@ -1785,6 +1796,26 @@ static int rcar_canfd_probe(struct platform_device *pdev)
  			goto fail_channel;
  	}
  
@@ -115,5 +115,5 @@ index 15a14c5..4aa670d 100644
  	dev_info(&pdev->dev, "global operational state (clk %d, fdmode %d)\n",
  		 gpriv->fcan, gpriv->fdmode);
 -- 
-1.9.1
+2.7.4
 

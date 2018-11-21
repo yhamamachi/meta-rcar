@@ -1,7 +1,7 @@
-From df093e425629e3984e6487d3abd6db7d303495c0 Mon Sep 17 00:00:00 2001
+From e8fe2e8e59f72fc90814e47708b75d18b806483e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 13 Aug 2018 15:13:52 +0300
-Subject: [PATCH] media: i2c: soc_camera: Fix Bad of_node_put error
+Subject: [PATCH 58/61] media: i2c: soc_camera: Fix Bad of_node_put error
 
 This fixes "OF: ERROR: Bad of_node_put()" error and possible kernel
 crash when probing soc_camera sensor devices. When CONFIG_OF_DYNAMIC

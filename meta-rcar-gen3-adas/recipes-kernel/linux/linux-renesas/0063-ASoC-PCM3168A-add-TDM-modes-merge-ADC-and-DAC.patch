@@ -1,18 +1,18 @@
-From 963d9e84748bc43a8dbcd28019bd8ff0942b5934 Mon Sep 17 00:00:00 2001
+From 5b1082442b66e84ac3afc0da8b6cae5eb0af727f Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Wed, 13 Apr 2016 15:32:38 +0300
-Subject: [PATCH] ASoC: PCM3168A: add TDM modes, merge ADC and DAC
+Subject: [PATCH 40/61] ASoC: PCM3168A: add TDM modes, merge ADC and DAC
 
 Also disable 16 bit format and enable at start
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- sound/soc/codecs/pcm3168a.c | 320 ++++++++++++++++++++++++++++----------------
+ sound/soc/codecs/pcm3168a.c | 314 ++++++++++++++++++++++++++++----------------
  sound/soc/codecs/pcm3168a.h |   2 +-
- 2 files changed, 205 insertions(+), 117 deletions(-)
+ 2 files changed, 202 insertions(+), 114 deletions(-)
 
 diff --git a/sound/soc/codecs/pcm3168a.c b/sound/soc/codecs/pcm3168a.c
-index 992a77edcd5d..8b9e4ff6b354 100644
+index b9d1207..28975f1 100644
 --- a/sound/soc/codecs/pcm3168a.c
 +++ b/sound/soc/codecs/pcm3168a.c
 @@ -22,7 +22,7 @@
@@ -222,48 +222,30 @@ index 992a77edcd5d..8b9e4ff6b354 100644
 -		if (pcm3168a_scki_ratios[i] == ratio)
 -			break;
 -	}
--
--	if (i == max_ratio) {
--		dev_err(codec->dev, "unsupported sysclk ratio\n");
--		return -EINVAL;
--	}
 +	if (pcm3168a->master_mode) {
 +		ratio = pcm3168a->sysclk / rate;
 +		for (i = 0; i < max_ratio; i++)
 +			if (pcm3168a_scki_ratios[i] == ratio)
 +				break;
  
--	min_frame_size = params_width(params) * 2;
--	switch (min_frame_size) {
--	case 32:
--		if (master_mode || (fmt != PCM3168A_FMT_RIGHT_J)) {
--			dev_err(codec->dev, "32-bit frames are supported only for slave mode using right justified\n");
+-	if (i == max_ratio) {
+-		dev_err(codec->dev, "unsupported sysclk ratio\n");
+-		return -EINVAL;
 +		if (i == max_ratio) {
 +			dev_err(codec->dev, "unsupported sysclk ratio: %d\n", ratio);
- 			return -EINVAL;
- 		}
--		fmt = PCM3168A_FMT_RIGHT_J_16;
--		break;
--	case 48:
--		if (master_mode || (fmt & PCM3168A_FMT_DSP_MASK)) {
--			dev_err(codec->dev, "48-bit frames not supported in master mode, or slave mode using DSP\n");
--			return -EINVAL;
--		}
--		break;
--	case 64:
--		break;
--	default:
--		dev_err(codec->dev, "unsupported frame size: %d\n", min_frame_size);
--		return -EINVAL;
++			return -EINVAL;
++		}
 +		val = i + 1;
 +	} else {
 +		/* slave mode */
 +		val = 0;
  	}
  
--	if (master_mode)
--		val = ((i + 1) << shift);
--	else
+-	min_frame_size = params_width(params) * 2;
+-	switch (min_frame_size) {
+-	case 32:
+-		if (master_mode || (fmt != PCM3168A_FMT_RIGHT_J)) {
+-			dev_err(codec->dev, "32-bit frames are supported only for slave mode using right justified\n");
 +	if (pcm3168a->tdm == TDM_MODE_NONE) {
 +		/* one stereo frame size */
 +		min_frame_size = bits * 2;
@@ -288,8 +270,13 @@ index 992a77edcd5d..8b9e4ff6b354 100644
 +			break;
 +		default:
 +			dev_err(codec->dev, "unsupported frame size: %d\n", min_frame_size);
-+			return -EINVAL;
-+		}
+ 			return -EINVAL;
+ 		}
+-		fmt = PCM3168A_FMT_RIGHT_J_16;
+-		break;
+-	case 48:
+-		if (master_mode || (fmt & PCM3168A_FMT_DSP_MASK)) {
+-			dev_err(codec->dev, "48-bit frames not supported in master mode, or slave mode using DSP\n");
 +	}
 +	if ((pcm3168a->tdm == TDM_MODE_NORM) ||
 +		(pcm3168a->tdm == TDM_MODE_HS)) {
@@ -306,9 +293,19 @@ index 992a77edcd5d..8b9e4ff6b354 100644
 +		if ((min_frame_size != 256) &&
 +			(min_frame_size != 128)) {
 +			dev_err(codec->dev, "256/128-bit frames only supported in TDM formats\n");
-+			return -EINVAL;
-+		}
-+	}
+ 			return -EINVAL;
+ 		}
+-		break;
+-	case 64:
+-		break;
+-	default:
+-		dev_err(codec->dev, "unsupported frame size: %d\n", min_frame_size);
+-		return -EINVAL;
+ 	}
+-
+-	if (master_mode)
+-		val = ((i + 1) << shift);
+-	else
 + 
 +	/* Setup ADC in master mode, couse it drives ADC */
 +	if ((pcm3168a->master_mode) || (tx)) {
@@ -460,7 +457,7 @@ index 992a77edcd5d..8b9e4ff6b354 100644
  		dev_err(dev, "failed to register codec: %d\n", ret);
  		goto err_regulator;
 diff --git a/sound/soc/codecs/pcm3168a.h b/sound/soc/codecs/pcm3168a.h
-index 56c8332d82fb..658507f86c97 100644
+index 56c8332..658507f 100644
 --- a/sound/soc/codecs/pcm3168a.h
 +++ b/sound/soc/codecs/pcm3168a.h
 @@ -69,7 +69,7 @@ extern void pcm3168a_remove(struct device *dev);
@@ -473,5 +470,5 @@ index 56c8332d82fb..658507f86c97 100644
  #define PCM3168A_ADC_PWR_HPFB			0x52
  #define PCM3168A_ADC_PSVAD_SHIFT		4
 -- 
-2.13.0
+2.7.4
 

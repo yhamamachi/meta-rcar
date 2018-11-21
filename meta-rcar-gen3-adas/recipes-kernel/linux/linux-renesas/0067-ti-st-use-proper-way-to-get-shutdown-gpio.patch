@@ -1,7 +1,7 @@
-From 36a9b5317c58a1cdcb8a6fa05416efd524480fbe Mon Sep 17 00:00:00 2001
+From cc65aab16b73d1589e646b8e4114c6ea67ff42de Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Wed, 2 Aug 2017 17:39:56 +0300
-Subject: [PATCH] ti-st: use proper way to get shutdown gpio
+Subject: [PATCH 42/61] ti-st: use proper way to get shutdown gpio
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  1 file changed, 18 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/misc/ti-st/st_kim.c b/drivers/misc/ti-st/st_kim.c
-index cb2734568471..03b21d314b0b 100644
+index 5716caa..122d93f 100644
 --- a/drivers/misc/ti-st/st_kim.c
 +++ b/drivers/misc/ti-st/st_kim.c
 @@ -32,6 +32,8 @@
@@ -57,5 +57,5 @@ index cb2734568471..03b21d314b0b 100644
  
  static struct dentry *kim_debugfs_dir;
 -- 
-2.13.0
+2.7.4
 

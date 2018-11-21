@@ -1,7 +1,7 @@
-From 112395ed601c67a6ba935cec0107335e966888dc Mon Sep 17 00:00:00 2001
+From 9eaa3a5f0a5b1dec720c913e425e04427477bde3 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 21:55:20 +0300
-Subject: [PATCH] media: soc_camera: fix parallel i/f in VIN
+Subject: [PATCH 25/61] media: soc_camera: fix parallel i/f in VIN
 
 This fixes parallel interface in VIN
 
@@ -11,10 +11,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 10 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index f5c2528..a9cb72d 100644
+index 9733555..ded9288 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
-@@ -149,6 +149,9 @@
+@@ -154,6 +154,9 @@
  /* Video n Data Mode Register 2 bits */
  #define VNDMR2_VPS		(1 << 30)
  #define VNDMR2_HPS		(1 << 29)
@@ -24,7 +24,7 @@ index f5c2528..a9cb72d 100644
  #define VNDMR2_FTEV		(1 << 17)
  #define VNDMR2_VLV(n)		((n & 0xf) << 12)
  
-@@ -1850,10 +1853,15 @@ static int rcar_vin_set_bus_param(struct soc_camera_device *icd)
+@@ -1889,10 +1892,15 @@ static int rcar_vin_set_bus_param(struct soc_camera_device *icd)
  		val = VNDMR2_FTEV;
  	else
  		val = VNDMR2_FTEV | VNDMR2_VLV(1);
@@ -40,7 +40,7 @@ index f5c2528..a9cb72d 100644
  	iowrite32(val, priv->base + VNDMR2_REG);
  
  	ret = rcar_vin_set_rect(icd);
-@@ -2937,8 +2945,8 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2989,8 +2997,8 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		priv->max_height = 2048;
  	}
  
@@ -51,7 +51,7 @@ index f5c2528..a9cb72d 100644
  		u32 ifmd = 0;
  		bool match_flag = false;
  		const struct vin_gen3_ifmd *gen3_ifmd_table = NULL;
-@@ -2973,12 +2981,6 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -3025,12 +3033,6 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		else
  			priv->index = RCAR_VIN_CH_NONE;
  
@@ -65,5 +65,5 @@ index f5c2528..a9cb72d 100644
  			priv->csi_ch = RCAR_CSI40;
  		else if (strcmp(str, "csi20") == 0)
 -- 
-1.9.1
+2.7.4
 

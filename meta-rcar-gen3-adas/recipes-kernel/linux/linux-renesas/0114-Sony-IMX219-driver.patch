@@ -1,7 +1,7 @@
-From fdb06f18bcb35b448a108e297a585eafb15953a1 Mon Sep 17 00:00:00 2001
+From ecf84187c997e19556bbc8c8876e75ee2afcfaa0 Mon Sep 17 00:00:00 2001
 From: Sergey Lapin <sergey.lapin@cogentembedded.com>
 Date: Wed, 26 Sep 2018 03:48:08 +0200
-Subject: [PATCH] Sony IMX219 driver
+Subject: [PATCH 57/61] Sony IMX219 driver
 
 Signed-off-by: Sergey Lapin <sergey.lapin@cogentembedded.com>
 ---
@@ -15,7 +15,7 @@ Signed-off-by: Sergey Lapin <sergey.lapin@cogentembedded.com>
 
 diff --git a/Documentation/devicetree/bindings/media/i2c/imx219.txt b/Documentation/devicetree/bindings/media/i2c/imx219.txt
 new file mode 100644
-index 000000000000..bc2ccf3cecfd
+index 0000000..bc2ccf3
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/media/i2c/imx219.txt
 @@ -0,0 +1,35 @@
@@ -55,7 +55,7 @@ index 000000000000..bc2ccf3cecfd
 +			};
 +	};
 diff --git a/drivers/media/i2c/soc_camera/Kconfig b/drivers/media/i2c/soc_camera/Kconfig
-index 1db3c6b14456..627d8d92e1f9 100644
+index 1db3c6b..627d8d9 100644
 --- a/drivers/media/i2c/soc_camera/Kconfig
 +++ b/drivers/media/i2c/soc_camera/Kconfig
 @@ -100,3 +100,9 @@ config SOC_CAMERA_OV106XX
@@ -69,7 +69,7 @@ index 1db3c6b14456..627d8d92e1f9 100644
 +	help
 +	  This is Sony IMX219 driver
 diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camera/Makefile
-index 0d4242ea9845..eed6e24a7920 100644
+index 0d4242e..eed6e24 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
 @@ -14,4 +14,5 @@ obj-$(CONFIG_SOC_CAMERA_TW9910)		+= tw9910.o
@@ -80,7 +80,7 @@ index 0d4242ea9845..eed6e24a7920 100644
  
 diff --git a/drivers/media/i2c/soc_camera/imx219.c b/drivers/media/i2c/soc_camera/imx219.c
 new file mode 100644
-index 000000000000..f0ce3f7d9d11
+index 0000000..f0ce3f7
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/imx219.c
 @@ -0,0 +1,1026 @@
@@ -1111,5 +1111,5 @@ index 000000000000..f0ce3f7d9d11
 +MODULE_DESCRIPTION("A low-level driver for Sony imx219 sensors");
 +MODULE_LICENSE("GPL");
 -- 
-2.11.0
+2.7.4
 

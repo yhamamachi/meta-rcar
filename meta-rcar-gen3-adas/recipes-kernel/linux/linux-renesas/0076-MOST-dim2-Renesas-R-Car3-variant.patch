@@ -1,7 +1,7 @@
-From d595053486568b5be30fda582becf9240d171c66 Mon Sep 17 00:00:00 2001
+From 13c0f2a6ed03f50cbd4c5c24ad3d1a3610a237c0 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
-Date: Mon, 25 Sep 2017 7:16:25 +0300
-Subject: [PATCH] MOST: dim2: Renesas R-Car3 variant
+Date: Mon, 25 Sep 2017 07:16:25 +0300
+Subject: [PATCH 49/61] MOST: dim2: Renesas R-Car3 variant
 
 - R-Car H3 has 8 FPSB
 - remove not existing registers access
@@ -54,7 +54,7 @@ diff --git a/drivers/staging/most/hdm-dim2/dim2_hdm.c b/drivers/staging/most/hdm
 index 349eb66..2731398 100644
 --- a/drivers/staging/most/hdm-dim2/dim2_hdm.c
 +++ b/drivers/staging/most/hdm-dim2/dim2_hdm.c
-@@ -53,7 +53,7 @@
+@@ -53,7 +53,7 @@ MODULE_PARM_DESC(clock_speed, "MediaLB Clock Speed");
   * The values 0, 1, 2, 3, 4, 5, 6 represent corresponding number of frames per
   * sub-buffer 1, 2, 4, 8, 16, 32, 64.
   */
@@ -116,5 +116,5 @@ index f7d9fbc..30a0f27 100644
  
  #define DIM2_MASK(n)  (~((~(u32)0) << (n)))
 -- 
-1.9.1
+2.7.4
 
