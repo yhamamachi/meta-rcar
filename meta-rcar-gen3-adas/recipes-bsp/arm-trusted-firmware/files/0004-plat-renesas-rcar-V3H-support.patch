@@ -1,7 +1,7 @@
-From 0a91258a61d17824ec15cbec4cfc402cb79a6390 Mon Sep 17 00:00:00 2001
+From 08e28989209ab66768405df96759426add9a5f3d Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 31 Oct 2018 00:46:40 +0300
-Subject: [PATCH 2/2] plat: renesas: rcar: Add R-Car V3H support
+Subject: [PATCH 4/4] plat: renesas: rcar: Add R-Car V3H support
 
 Add R-Car V3H support. This is based on the original
 V3H support patch for Yocto v2.23.1 by Vladimir Barinov.
@@ -10,7 +10,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  plat/renesas/rcar/bl2_cpg_init.c             |   68 ++
- plat/renesas/rcar/bl2_rcar_setup.c           |   11 +-
+ plat/renesas/rcar/bl2_rcar_setup.c           |   13 +-
  plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c |    7 +
  plat/renesas/rcar/drivers/rom/rom_api.c      |   17 +-
  plat/renesas/rcar/drivers/scif/scif.S        |    2 +-
@@ -27,14 +27,14 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  plat/renesas/rcar/qos/qos_init.c             |   25 +
  plat/renesas/rcar/rcar_def.h                 |    1 +
  tools/dummy_create/makefile                  |   14 +-
- 18 files changed, 2120 insertions(+), 10 deletions(-)
+ 18 files changed, 2121 insertions(+), 11 deletions(-)
  create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
  create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h
  create mode 100644 plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
  create mode 100644 plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
 
 diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
-index 0e6b350..30d9e3a 100644
+index 32a6746..1481029 100644
 --- a/plat/renesas/rcar/bl2_cpg_init.c
 +++ b/plat/renesas/rcar/bl2_cpg_init.c
 @@ -32,6 +32,10 @@ static void bl2_system_cpg_init_e3(void);
@@ -148,20 +148,23 @@ index 0e6b350..30d9e3a 100644
  #error "Don't have CPG initialize routine(unknown)."
  #endif /* RCAR_LSI == RCAR_XX */
 diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
-index d74aab6..c76bce8 100755
+index 155ec2d..80760d6 100755
 --- a/plat/renesas/rcar/bl2_rcar_setup.c
 +++ b/plat/renesas/rcar/bl2_rcar_setup.c
-@@ -130,6 +130,9 @@
+@@ -129,8 +129,11 @@
  #elif RCAR_LSI == RCAR_V3M
  #define TARGET_PRODUCT		RCAR_PRODUCT_V3M
  #define TARGET_NAME		"R-Car V3M"
 +#elif RCAR_LSI == RCAR_V3H
 +#define TARGET_PRODUCT		RCAR_PRODUCT_V3H
 +#define TARGET_NAME		"R-Car V3H"
+ #elif RCAR_LSI == RCAR_AUTO
+-#define TARGET_NAME		"R-Car H3/M3/M3N/V3M"
++#define TARGET_NAME		"R-Car H3/M3/M3N/V3M/V3H"
  #endif
  
  /* for SuspendToRAM */
-@@ -403,6 +406,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -387,6 +390,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	const char *product_m3n     = "M3N";
  	const char *product_e3      = "E3";
  	const char *product_v3m     = "V3M";
@@ -169,7 +172,7 @@ index d74aab6..c76bce8 100755
  	const char *lcs_cm          = "CM";
  	const char *lcs_dm          = "DM";
  	const char *lcs_sd          = "SD";
-@@ -484,6 +488,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -474,6 +478,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	case RCAR_PRODUCT_V3M:
  		str = product_v3m;
  		break;
@@ -179,7 +182,7 @@ index d74aab6..c76bce8 100755
  	default:
  		str = unknown;
  		break;
-@@ -550,7 +557,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -541,7 +548,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	}
  #endif /* RCAR_LSI != RCAR_AUTO */
  
@@ -188,7 +191,7 @@ index d74aab6..c76bce8 100755
  	/* Initialize AVS Settings */
  	bl2_avs_init();
  
-@@ -584,7 +591,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -575,7 +582,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
  	NOTICE("%s", msg);
  
@@ -198,10 +201,10 @@ index d74aab6..c76bce8 100755
  	bl2_avs_setting();
  #endif
 diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-index 4cee117..a28d61a 100644
+index 906de16..164d903 100644
 --- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
 +++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-@@ -3756,6 +3756,13 @@ int32_t InitDram(void)
+@@ -3847,6 +3847,13 @@ int32_t InitDram(void)
  	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
  #endif//RCAR_DDR_FIXED_LSI_TYPE
  
@@ -212,7 +215,7 @@ index 4cee117..a28d61a 100644
 +	}
 +#endif
 +
- 	if (Prr_Product==PRR_PRODUCT_H3) {
+ 	if(Prr_Product==PRR_PRODUCT_H3){
  		if(Prr_Cut<=PRR_PRODUCT_11){
  			pDDR_REGDEF_TBL = (uint32_t *)&DDR_REGDEF_TBL[0][0];
 diff --git a/plat/renesas/rcar/drivers/rom/rom_api.c b/plat/renesas/rcar/drivers/rom/rom_api.c
@@ -279,7 +282,7 @@ index c683fc8..a555fd3 100644
  		index = NEW_API_TABLE;		/* M3N and E3 */
  		break;
 diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
-index 9ae35b8..e98642c 100644
+index 4df03b7..c21891c 100644
 --- a/plat/renesas/rcar/drivers/scif/scif.S
 +++ b/plat/renesas/rcar/drivers/scif/scif.S
 @@ -29,7 +29,7 @@
@@ -305,29 +308,28 @@ index f359156..cd083f6 100644
  #else
  #define	DMACH	0	/* DMA CH setting (0/16/32) */
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index 9864609..a9c27f5 100644
+index 61ae166..214a9dc 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
-@@ -103,10 +103,18 @@
+@@ -103,9 +103,17 @@
   * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
   * size plus a little space for growth.
   */
 +#if RCAR_LSI == RCAR_V3H
 +#define RCAR_SYSRAM_BASE		U(0xEB200000)
-+#define RCAR_SYSRAM_LIMIT		U(0xEB300000)
 +#else
  #define RCAR_SYSRAM_BASE		U(0xE6300000)
- #define RCAR_SYSRAM_LIMIT		U(0xE6380000)
 +#endif
  
 -#if RCAR_LSI == RCAR_V3M
 +#if RCAR_LSI == RCAR_V3H
 +#define BL2_BASE			U(0xEB244000)
-+#define BL2_LIMIT			U(0xEB26E800)
++#define BL2_LIMIT			U(0xEB260000)
++#define BL2_IMAGE_LIMIT			U(0xEB26E800)
 +#elif RCAR_LSI == RCAR_V3M
  #define BL2_BASE			U(0xE6344000)
- #define BL2_LIMIT			U(0xE636E800)
- #elif RCAR_LSI == RCAR_E3
+ #define BL2_LIMIT			U(0xE6360000)
+ #define BL2_IMAGE_LIMIT			U(0xE636E800)
 diff --git a/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
 new file mode 100644
 index 0000000..351747a
@@ -1672,10 +1674,10 @@ index c11a001..8fb638a 100644
    #error "Don't have PFC initialize routine(unknown)."
   #endif
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index b65bda9..ce2dcbb 100644
+index 9ef9f0c..7dade80 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -93,6 +93,7 @@ RCAR_M3N:=2
+@@ -95,6 +95,7 @@ RCAR_M3N:=2
  RCAR_E3:=3
  RCAR_H3N:=4
  RCAR_V3M:=5
@@ -1683,7 +1685,7 @@ index b65bda9..ce2dcbb 100644
  RCAR_AUTO:=99
  $(eval $(call add_define,RCAR_H3))
  $(eval $(call add_define,RCAR_M3))
-@@ -100,6 +101,7 @@ $(eval $(call add_define,RCAR_M3N))
+@@ -102,6 +103,7 @@ $(eval $(call add_define,RCAR_M3N))
  $(eval $(call add_define,RCAR_E3))
  $(eval $(call add_define,RCAR_H3N))
  $(eval $(call add_define,RCAR_V3M))
@@ -1691,7 +1693,7 @@ index b65bda9..ce2dcbb 100644
  $(eval $(call add_define,RCAR_AUTO))
  RCAR_CUT_10:=0
  RCAR_CUT_11:=1
-@@ -216,6 +218,22 @@ else
+@@ -218,6 +220,22 @@ else
        endif
        $(eval $(call add_define,RCAR_LSI_CUT))
      endif
@@ -2511,10 +2513,10 @@ index 6d0a477..1d99b55 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 349edcc..7136554 100644
+index 85d3fe9..f5e6950 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
-@@ -208,6 +208,7 @@
+@@ -207,6 +207,7 @@
  #define RCAR_PRODUCT_M3			U(0x00005200)
  #define RCAR_PRODUCT_V3M		U(0x00005400)
  #define RCAR_PRODUCT_M3N		U(0x00005500)

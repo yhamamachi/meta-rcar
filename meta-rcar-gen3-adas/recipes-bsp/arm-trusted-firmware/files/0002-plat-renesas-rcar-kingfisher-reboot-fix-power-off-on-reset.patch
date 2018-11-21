@@ -1,7 +1,7 @@
-From 04ad289ba1e861ab1dd915d7327095173707c236 Mon Sep 17 00:00:00 2001
+From 16c72454d988900cfc99d14e6c6c0a9a7cd56242 Mon Sep 17 00:00:00 2001
 From: Sergii Boryshchenko <sergii.boryshchenko@globallogic.com>
 Date: Thu, 30 Nov 2017 14:53:52 +0200
-Subject: [PATCH] kingfisher: reboot: fix power-off on reset
+Subject: [PATCH 2/4] kingfisher: reboot: fix power-off on reset
 
 Method cpld_reset_cpu of bl31 is called from the Linux kernel and uses
 GPIO6, GPIO2 pins as SPI bus lines to control the CPLD device. But in the
@@ -12,12 +12,14 @@ input-output mode.
 
 Signed-off-by: Sergii Boryshchenko <sergii.boryshchenko@globallogic.com>
 ---
+ plat/renesas/rcar/drivers/cpld/ulcb_cpld.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/plat/renesas/rcar/drivers/cpld/ulcb_cpld.c b/plat/renesas/rcar/drivers/cpld/ulcb_cpld.c
-index b0117ef..b171d79 100644
+index 1c3c750..b3ba4b6 100644
 --- a/plat/renesas/rcar/drivers/cpld/ulcb_cpld.c
 +++ b/plat/renesas/rcar/drivers/cpld/ulcb_cpld.c
-@@ -49,6 +49,9 @@
+@@ -26,6 +26,9 @@
  #define GPIO_INOUTSEL2		0xE6052004
  #define GPIO_INOUTSEL6		0xE6055404
  
@@ -27,7 +29,7 @@ index b0117ef..b171d79 100644
  /* GPIO/perihperal function select */
  #define PFC_GPSR2		0xE6060108
  #define PFC_GPSR6		0xE6060118
-@@ -115,6 +118,7 @@
+@@ -92,6 +95,7 @@ static void cpld_init(void)
  	gpio_pfc(PFC_GPSR2, SSTBZ);
  	gpio_pfc(PFC_GPSR6, MOSI);
  
@@ -35,3 +37,6 @@ index b0117ef..b171d79 100644
  	gpio_set_value(GPIO_OUTDT6, SCLK, 0);
  	gpio_set_value(GPIO_OUTDT2, SSTBZ, 1);
  	gpio_set_value(GPIO_OUTDT6, MOSI, 0);
+-- 
+2.7.4
+

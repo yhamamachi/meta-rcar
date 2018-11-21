@@ -1,7 +1,7 @@
-From e6c0ef0c7a8126597660a58d74a03f5e3e837f77 Mon Sep 17 00:00:00 2001
+From fa0a65aeef03affab0113a081048bbe4ff280a99 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 30 Oct 2018 02:06:17 +0300
-Subject: [PATCH 1/2] plat: renesas: rcar: Add R-Car V3M support
+Subject: [PATCH 3/4] plat: renesas: rcar: Add R-Car V3M support
 
 Add R-Car V3M support. This is based on the original
 V3M support patch for Yocto v2.23.1 by Vladimir Barinov.
@@ -10,7 +10,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  plat/renesas/rcar/bl2_cpg_init.c                   |   68 ++
- plat/renesas/rcar/bl2_rcar_setup.c                 |   11 +
+ plat/renesas/rcar/bl2_rcar_setup.c                 |   13 +-
  .../rcar/ddr/V3M/boot_init_dram_regdef_v3m.h       |    0
  plat/renesas/rcar/ddr/ddr.mk                       |    6 +-
  .../rcar/ddr/ddr_a/boot_init_dram_regdef_v3m.h     |  320 ++++++
@@ -21,7 +21,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  plat/renesas/rcar/drivers/rom/rom_api.c            |   21 +-
  plat/renesas/rcar/drivers/scif/scif.S              |   36 +-
  plat/renesas/rcar/include/bl2_dma_register.h       |    4 +
- plat/renesas/rcar/include/platform_def.h           |   17 +-
+ plat/renesas/rcar/include/platform_def.h           |   19 +-
  plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c           | 1077 ++++++++++++++++++++
  plat/renesas/rcar/pfc/V3M/pfc_init_v3m.h           |   37 +
  plat/renesas/rcar/pfc/pfc.mk                       |    7 +
@@ -32,7 +32,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  plat/renesas/rcar/qos/qos.mk                       |    7 +
  plat/renesas/rcar/qos/qos_init.c                   |   27 +-
  plat/renesas/rcar/rcar_def.h                       |    1 +
- 23 files changed, 2508 insertions(+), 26 deletions(-)
+ 23 files changed, 2511 insertions(+), 27 deletions(-)
  mode change 100644 => 100755 plat/renesas/rcar/bl2_rcar_setup.c
  create mode 100644 plat/renesas/rcar/ddr/V3M/boot_init_dram_regdef_v3m.h
  create mode 100644 plat/renesas/rcar/ddr/ddr_a/boot_init_dram_regdef_v3m.h
@@ -44,7 +44,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 plat/renesas/rcar/qos/V3M/qos_init_v3m.h
 
 diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
-index 249174d..0e6b350 100644
+index 2377cd2..32a6746 100644
 --- a/plat/renesas/rcar/bl2_cpg_init.c
 +++ b/plat/renesas/rcar/bl2_cpg_init.c
 @@ -28,6 +28,10 @@ static void bl2_system_cpg_init_m3n(void);
@@ -160,20 +160,23 @@ index 249174d..0e6b350 100644
 diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
 old mode 100644
 new mode 100755
-index f1b9b7a..d74aab6
+index 0338335..155ec2d
 --- a/plat/renesas/rcar/bl2_rcar_setup.c
 +++ b/plat/renesas/rcar/bl2_rcar_setup.c
-@@ -127,6 +127,9 @@
+@@ -126,8 +126,11 @@
  #elif RCAR_LSI == RCAR_E3
  #define TARGET_PRODUCT		RCAR_PRODUCT_E3
  #define TARGET_NAME		"R-Car E3"
 +#elif RCAR_LSI == RCAR_V3M
 +#define TARGET_PRODUCT		RCAR_PRODUCT_V3M
 +#define TARGET_NAME		"R-Car V3M"
+ #elif RCAR_LSI == RCAR_AUTO
+-#define TARGET_NAME		"R-Car H3/M3/M3N"
++#define TARGET_NAME		"R-Car H3/M3/M3N/V3M"
  #endif
  
  /* for SuspendToRAM */
-@@ -399,6 +402,7 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -383,6 +386,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	const char *product_m3      = "M3";
  	const char *product_m3n     = "M3N";
  	const char *product_e3      = "E3";
@@ -181,7 +184,7 @@ index f1b9b7a..d74aab6
  	const char *lcs_cm          = "CM";
  	const char *lcs_dm          = "DM";
  	const char *lcs_sd          = "SD";
-@@ -477,6 +481,9 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -467,6 +471,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	case RCAR_PRODUCT_E3:
  		str = product_e3;
  		break;
@@ -191,7 +194,7 @@ index f1b9b7a..d74aab6
  	default:
  		str = unknown;
  		break;
-@@ -543,11 +550,13 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -534,11 +541,13 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	}
  #endif /* RCAR_LSI != RCAR_AUTO */
  
@@ -205,7 +208,7 @@ index f1b9b7a..d74aab6
  
  	switch (modemr_boot_dev) {
  	case MODEMR_BOOT_DEV_HYPERFLASH160:
-@@ -575,8 +584,10 @@ void bl2_early_platform_setup(meminfo_t *mem_layout)
+@@ -566,8 +575,10 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
  	NOTICE("%s", msg);
  
@@ -993,7 +996,7 @@ index 0000000..59db5f6
 +
 +#endif /* BOOT_INIT_DRAM_V3M__ */
 diff --git a/plat/renesas/rcar/drivers/board/board.c b/plat/renesas/rcar/drivers/board/board.c
-index 87d3137..1addc28 100644
+index ca9b17d..c6c1f90 100644
 --- a/plat/renesas/rcar/drivers/board/board.c
 +++ b/plat/renesas/rcar/drivers/board/board.c
 @@ -15,6 +15,8 @@
@@ -1059,7 +1062,7 @@ index 876e7cd..c683fc8 100644
  		index = NEW_API_TABLE;		/* M3N and E3 */
  		break;
 diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
-index 0bfb728..9ae35b8 100644
+index 48622e0..4df03b7 100644
 --- a/plat/renesas/rcar/drivers/scif/scif.S
 +++ b/plat/renesas/rcar/drivers/scif/scif.S
 @@ -17,14 +17,30 @@
@@ -1136,9 +1139,9 @@ index 0bfb728..9ae35b8 100644
  1:
  	ldrh	w1, [x0, #SCIF_SCFDR]
  	ubfx	w1, w1, #8, #5
-@@ -312,7 +328,7 @@ func console_flush
- 	bl micro_wait
- 	mov x30, x3
+@@ -334,7 +350,7 @@ func console_flush
+ 
+ 	mov	x30, x9
  
 -	ldr	x0, =SCIF2_BASE
 +	ldr	x0, =SCIF_BASE
@@ -1162,31 +1165,33 @@ index de25dfc..f359156 100644
  #if (DMACH==0)		/* SYS-DMAC0 (CH0) */
  #define SYS_DMAC_BIT	((uint32_t)1U << 19U)
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index 45a3414..9864609 100644
+index dd00b58..61ae166 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
-@@ -104,18 +104,19 @@
+@@ -104,18 +104,21 @@
   * size plus a little space for growth.
   */
  #define RCAR_SYSRAM_BASE		U(0xE6300000)
 -#if RCAR_LSI == RCAR_E3
--#define RCAR_SYSRAM_LIMIT		U(0xE6320000)
+-#define BL2_LIMIT			U(0xE6320000)
 -#else  /* RCAR_LSI == RCAR_E3 */
--#define RCAR_SYSRAM_LIMIT		U(0xE6360000)
+-#define BL2_LIMIT			U(0xE6360000)
 -#endif /* RCAR_LSI == RCAR_E3 */
-+#define RCAR_SYSRAM_LIMIT		U(0xE6380000)
  
 +#if RCAR_LSI == RCAR_V3M
 +#define BL2_BASE			U(0xE6344000)
-+#define BL2_LIMIT			U(0xE636E800)
++#define BL2_LIMIT			U(0xE6360000)
++#define BL2_IMAGE_LIMIT			U(0xE636E800)
 +#elif RCAR_LSI == RCAR_E3
  #define BL2_BASE			U(0xE6304000)
 -#if RCAR_LSI == RCAR_E3
- #define BL2_LIMIT			U(0xE6318000)
++#define BL2_LIMIT			U(0xE6320000)
+ #define BL2_IMAGE_LIMIT			U(0xE6318000)
 -#else  /* RCAR_LSI == RCAR_E3 */
 +#else
 +#define BL2_BASE			U(0xE6304000)
- #define BL2_LIMIT			U(0xE632E800)
++#define BL2_LIMIT			U(0xE6360000)
+ #define BL2_IMAGE_LIMIT			U(0xE632E800)
 -#endif /* RCAR_LSI == RCAR_E3 */
 +#endif
 +
@@ -2418,10 +2423,10 @@ index 4e784eb..c11a001 100644
    #error "Don't have PFC initialize routine(unknown)."
   #endif
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 41f11ee..b65bda9 100644
+index 332f845..9ef9f0c 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -92,12 +92,14 @@ RCAR_M3:=1
+@@ -94,12 +94,14 @@ RCAR_M3:=1
  RCAR_M3N:=2
  RCAR_E3:=3
  RCAR_H3N:=4
@@ -2436,7 +2441,7 @@ index 41f11ee..b65bda9 100644
  $(eval $(call add_define,RCAR_AUTO))
  RCAR_CUT_10:=0
  RCAR_CUT_11:=1
-@@ -198,6 +200,22 @@ else
+@@ -200,6 +202,22 @@ else
        endif
        $(eval $(call add_define,RCAR_LSI_CUT))
      endif
@@ -3025,10 +3030,10 @@ index 47c156c..6d0a477 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 0cffb87..349edcc 100644
+index da3425d..85d3fe9 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
-@@ -206,6 +206,7 @@
+@@ -205,6 +205,7 @@
  #define RCAR_CUT_MASK			U(0x000000FF)
  #define RCAR_PRODUCT_H3			U(0x00004F00)
  #define RCAR_PRODUCT_M3			U(0x00005200)

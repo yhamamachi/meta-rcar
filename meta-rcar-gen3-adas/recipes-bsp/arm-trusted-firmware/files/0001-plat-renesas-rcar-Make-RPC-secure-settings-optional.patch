@@ -1,7 +1,7 @@
-From f94af8b95bbb421b31498a0cb08fee74da956ccb Mon Sep 17 00:00:00 2001
+From f25b765da66adf3383f20ae1ca532751af669f84 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 8 Aug 2018 14:43:40 +0300
-Subject: [PATCH] plat: renesas: rcar: Make RPC secure settings optional
+Subject: [PATCH 1/4] plat: renesas: rcar: Make RPC secure settings optional
 
 This adds RCAR_DISABLE_NONSECURE_RPC_ACCESS make variable which
 disables non-secure RPC access when set to a non-zero value.
@@ -39,10 +39,10 @@ index 2469780..6f6c374 100644
  	/** Security group 0 attribute setting for slave ports 14 */
  	/** Security group 1 attribute setting for slave ports 14 */
 diff --git a/plat/renesas/rcar/bl31_rcar_setup.c b/plat/renesas/rcar/bl31_rcar_setup.c
-index 50c22a5..a5e494e 100644
+index e393e55..1dd63fe 100644
 --- a/plat/renesas/rcar/bl31_rcar_setup.c
 +++ b/plat/renesas/rcar/bl31_rcar_setup.c
-@@ -231,3 +231,19 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
+@@ -226,3 +226,19 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
  	return rc;
  }
  
@@ -63,12 +63,12 @@ index 50c22a5..a5e494e 100644
 +	console_uninit();
 +}
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 01e8564..41f11ee 100644
+index f33701b..332f845 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -354,6 +354,12 @@ ERRATA_A53_855873  := 1
- # Enable workarounds for selected Cortex-A57 erratas.
- ERRATA_A57_859972  := 1
+@@ -375,6 +375,12 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
+ COLD_BOOT_SINGLE_CPU		:=	1
+ #endif /* IMAGE_BL2 */
  
 +# Process RCAR_DISABLE_NONSECURE_RPC_ACCESS flag
 +ifndef RCAR_DISABLE_NONSECURE_RPC_ACCESS
