@@ -320,3 +320,4 @@ patch 0319-r8a779-78-dtsi-Add-iccom-nodes.patch
 patch 0320-arm64-dts-renesas-Add-temperature-emergency-levels.patch
 patch 0321-r8a77980-dts-Add-vbm-v3-on-r8a77980-SoC.patch
 patch 0322-arm64-dts-r8a77980-Enable-TMU-and-CMT.patch
+patch 0323-arm64-dts-renesas-r8a77970-and-r8a77980-Add-QoS-node.patch
