@@ -1,50 +1,52 @@
-From 4afdb59d00b3cf8c92006b929bd9e48f4f87d6ce Mon Sep 17 00:00:00 2001
-From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
-Date: Thu, 19 May 2016 08:32:56 +0300
-Subject: [PATCH] uboot: H3ULCB console on scif1
+From 3418356836db17fc85784b38071f6f91e41b8c45 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 30 Nov 2018 01:17:31 +0300
+Subject: [PATCH 09/11] arm: dts: ulcb: Set H3ULCB-HAD console on SCIF1
 
-Set console on SCIF1 port for H3ULCB.
-This is only for H3ULCB.HAD
+This sets ULCB console on SCIF1 for H3ULCB board.
 
-Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- include/configs/h3ulcb.h  | 4 ++--
- board/renesas/ulcb/ulcb.c | 3 +++
- 2 file changed, 4 insertions(+), 1 deletions(-)
+ arch/arm/dts/ulcb.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/include/configs/h3ulcb.h b/include/configs/h3ulcb.h
-index b9be845..3da2e5a 100644
---- a/include/configs/h3ulcb.h
-+++ b/include/configs/h3ulcb.h
-@@ -23,6 +23,6 @@
+diff --git a/arch/arm/dts/ulcb.dtsi b/arch/arm/dts/ulcb.dtsi
+index 24f3b42..17a0578 100644
+--- a/arch/arm/dts/ulcb.dtsi
++++ b/arch/arm/dts/ulcb.dtsi
+@@ -16,7 +16,7 @@
+ 	model = "Renesas R-Car Gen3 ULCB board";
  
- /* SCIF */
- #define CONFIG_SCIF_CONSOLE
--#define CONFIG_CONS_SCIF2
-+#define CONFIG_CONS_SCIF1
- #define CONFIG_SH_SCIF_CLK_FREQ	CONFIG_S3D4_CLK_FREQ
+ 	aliases {
+-		serial0 = &scif2;
++		serial0 = &scif1;
+ 		ethernet0 = &avb;
+ 	};
  
-diff --git a/board/renesas/ulcb/ulcb.c b/board/renesas/ulcb/ulcb.c
-index 0d8752f..1be01cf 100644
---- a/board/renesas/ulcb/ulcb.c
-+++ b/board/renesas/ulcb/ulcb.c
-@@ -29,6 +29,7 @@
+@@ -285,9 +285,9 @@
+ 		function = "i2c2";
+ 	};
  
- DECLARE_GLOBAL_DATA_PTR;
+-	scif2_pins: scif2 {
+-		groups = "scif2_data_a";
+-		function = "scif2";
++	scif1_pins: scif1 {
++		groups = "scif1_data_a";
++		function = "scif1";
+ 	};
  
-+#define SCIF1_MSTP206	(1 << 6)
- #define SCIF2_MSTP310	(1 << 10)
- #define ETHERAVB_MSTP812	(1 << 12)
- #define DVFS_MSTP926	(1 << 26)
-@@ -49,6 +50,8 @@ int board_early_init_f(void)
+ 	scif_clk_pins: scif_clk {
+@@ -380,8 +380,8 @@
+ 	status = "okay";
+ };
  
- 	rcar_prr_init();
+-&scif2 {
+-	pinctrl-0 = <&scif2_pins>;
++&scif1 {
++	pinctrl-0 = <&scif1_pins>;
+ 	pinctrl-names = "default";
  
-+	/* SCIF1 */
-+	mstp_clrbits_le32(SMSTPCR2, SMSTPCR2, SCIF1_MSTP206);
- 	/* SCIF2 */
- 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
- 	/* EHTERAVB */
+ 	status = "okay";
 -- 
-1.9.1
+2.7.4
 
