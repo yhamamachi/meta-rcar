@@ -1,0 +1,90 @@
+From 3452682075ee985aa92ce1d208fd8d6c4e313ea6 Mon Sep 17 00:00:00 2001
+From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
+Date: Sat, 24 Nov 2018 20:00:53 +0300
+Subject: [PATCH] Add QT_WAYLAND_DISPLAY variable to choose display
+
+---
+ src/client/qwaylanddisplay.cpp        | 21 +++++++++++++++------
+ src/client/qwaylandwlshellsurface.cpp |  4 +++-
+ src/client/qwaylandwlshellsurface_p.h |  2 ++
+ 3 files changed, 20 insertions(+), 7 deletions(-)
+
+diff --git a/src/client/qwaylanddisplay.cpp b/src/client/qwaylanddisplay.cpp
+index a9fff41..ebd73e5 100644
+--- a/src/client/qwaylanddisplay.cpp
++++ b/src/client/qwaylanddisplay.cpp
+@@ -74,6 +74,7 @@
+ #include <QtCore/QDebug>
+ 
+ #include <errno.h>
++#include <stdio.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+@@ -235,14 +236,22 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
+     Q_UNUSED(version);
+ 
+     struct ::wl_registry *registry = object();
++    static int current_output = 0;
+ 
+     if (interface == QStringLiteral("wl_output")) {
+-        QWaylandScreen *screen = new QWaylandScreen(this, version, id);
+-        mScreens.append(screen);
+-        // We need to get the output events before creating surfaces
+-        forceRoundTrip();
+-        screen->init();
+-        mWaylandIntegration->screenAdded(screen);
++        char *env;
++        int idx;
++        env = getenv("QT_WAYLAND_DISPLAY");
++        if (!env || ((idx = atoi(env)) == current_output++)) {
++            QWaylandScreen *screen = new QWaylandScreen(this, version, id);
++            mScreens.append(screen);
++            // We need to get the output events before creating surfaces
++            forceRoundTrip();
++            screen->init();
++            mWaylandIntegration->screenAdded(screen);
++            wayland_output = wl_registry_bind (registry, id, &wl_output_interface, 1);
++        } else
++            return;
+     } else if (interface == QStringLiteral("wl_compositor")) {
+         mCompositorVersion = qMin((int)version, 3);
+         mCompositor.init(registry, id, mCompositorVersion);
+diff --git a/src/client/qwaylandwlshellsurface.cpp b/src/client/qwaylandwlshellsurface.cpp
+index 098eddc..0c16839 100644
+--- a/src/client/qwaylandwlshellsurface.cpp
++++ b/src/client/qwaylandwlshellsurface.cpp
+@@ -52,6 +52,8 @@ QT_BEGIN_NAMESPACE
+ 
+ namespace QtWaylandClient {
+ 
++void* wayland_output = NULL;
++
+ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_surface, QWaylandWindow *window)
+     : QWaylandShellSurface(window)
+     , QtWayland::wl_shell_surface(shell_surface)
+@@ -132,7 +134,7 @@ void QWaylandWlShellSurface::setFullscreen()
+ {
+     m_fullscreen = true;
+     m_size = m_window->window()->geometry().size();
+-    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
++    set_fullscreen(WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, (wl_output*)wayland_output);
+ }
+ 
+ void QWaylandWlShellSurface::setNormal()
+diff --git a/src/client/qwaylandwlshellsurface_p.h b/src/client/qwaylandwlshellsurface_p.h
+index 497ec60..90ffd4d 100644
+--- a/src/client/qwaylandwlshellsurface_p.h
++++ b/src/client/qwaylandwlshellsurface_p.h
+@@ -65,6 +65,8 @@ class QWindow;
+ 
+ namespace QtWaylandClient {
+ 
++extern void* wayland_output;
++
+ class QWaylandWindow;
+ class QWaylandInputDevice;
+ class QWaylandExtendedSurface;
+-- 
+2.19.1
+
