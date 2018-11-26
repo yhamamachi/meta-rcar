@@ -64,6 +64,7 @@ SRC_URI_append = " \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
     file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
+    file://0109-serial-sh-sci-Fix-minimal-rx_timeout-value.patch \
     file://0110-mmc-tmio-Add-SDHI-SEQUENCER-support.patch \
     file://0111-mmc-renesas_sdhi-Add-SDHI-SEQUENCER-support.patch \
     file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
