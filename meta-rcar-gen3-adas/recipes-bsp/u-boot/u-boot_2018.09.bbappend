@@ -9,6 +9,7 @@ SRC_URI_append = " \
     file://0028-board-renesas-Add-M3NULCB-board.patch \
     file://0040-arm-renesas-Enable-RPC-HF-MTD-support-for-all-Salvat.patch \
     file://0041-arm-renesas-Enable-RPC-HF-MTD-support-for-all-ULCB-b.patch \
+    file://0042-arm-cpu-armv8-Disable-dcache.patch \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', 'file://0061-board-renesas-ulcb-console-on-scif1.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', 'file://0062-board-renesas-ulcb-set-all-RAVB-pins-strengh-to-maximum.patch', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', 'file://0063-board-renesas-ulcb-support-fixed-PHY.patch', '', d)} \
