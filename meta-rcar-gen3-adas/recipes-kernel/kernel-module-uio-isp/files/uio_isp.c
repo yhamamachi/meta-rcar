@@ -423,8 +423,8 @@ static const struct dev_pm_ops uio_dev_pm_isp_ops =
 /* Compatible table */
 static const struct of_device_id rcar_isp_dt_ids[] =
 {
-    { .compatible = "renesas,isp-r8a7797", .data = 0 },
-    { .compatible = "renesas,isp-r8a7798", .data = 0 },
+    { .compatible = "renesas,isp-r8a77970", .data = 0 },
+    { .compatible = "renesas,isp-r8a77980", .data = 0 },
     {},
 };
 MODULE_DEVICE_TABLE(of, rcar_isp_dt_ids);
