@@ -1,16 +1,19 @@
-From 3452682075ee985aa92ce1d208fd8d6c4e313ea6 Mon Sep 17 00:00:00 2001
+From 6d690accfb10344ab87bd8202c322576fa32df3b Mon Sep 17 00:00:00 2001
 From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
-Date: Sat, 24 Nov 2018 20:00:53 +0300
-Subject: [PATCH] Add QT_WAYLAND_DISPLAY variable to choose display
+Date: Fri, 30 Nov 2018 19:13:56 +0300
+Subject: [PATCH] Add QT_WAYLAND_DISPLAY to choose output
 
+NOTE: working only with wl-shell, use QT_WAYLAND_SHELL_INTEGRATION=wl-shell
 ---
- src/client/qwaylanddisplay.cpp        | 21 +++++++++++++++------
+ src/client/qwaylanddisplay.cpp        | 10 ++++++++++
+ src/client/qwaylanddisplay_p.h        |  3 ++-
+ src/client/qwaylandwindow.cpp         |  6 ++++++
  src/client/qwaylandwlshellsurface.cpp |  4 +++-
  src/client/qwaylandwlshellsurface_p.h |  2 ++
- 3 files changed, 20 insertions(+), 7 deletions(-)
+ 5 files changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/src/client/qwaylanddisplay.cpp b/src/client/qwaylanddisplay.cpp
-index a9fff41..ebd73e5 100644
+index a9fff41..50bfd5a 100644
 --- a/src/client/qwaylanddisplay.cpp
 +++ b/src/client/qwaylanddisplay.cpp
 @@ -74,6 +74,7 @@
@@ -21,35 +24,61 @@ index a9fff41..ebd73e5 100644
  
  QT_BEGIN_NAMESPACE
  
-@@ -235,14 +236,22 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
+@@ -235,14 +236,23 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
      Q_UNUSED(version);
  
      struct ::wl_registry *registry = object();
 +    static int current_output = 0;
  
      if (interface == QStringLiteral("wl_output")) {
--        QWaylandScreen *screen = new QWaylandScreen(this, version, id);
--        mScreens.append(screen);
--        // We need to get the output events before creating surfaces
--        forceRoundTrip();
--        screen->init();
--        mWaylandIntegration->screenAdded(screen);
 +        char *env;
 +        int idx;
 +        env = getenv("QT_WAYLAND_DISPLAY");
-+        if (!env || ((idx = atoi(env)) == current_output++)) {
-+            QWaylandScreen *screen = new QWaylandScreen(this, version, id);
-+            mScreens.append(screen);
-+            // We need to get the output events before creating surfaces
-+            forceRoundTrip();
-+            screen->init();
-+            mWaylandIntegration->screenAdded(screen);
+         QWaylandScreen *screen = new QWaylandScreen(this, version, id);
+         mScreens.append(screen);
+         // We need to get the output events before creating surfaces
+         forceRoundTrip();
+         screen->init();
+         mWaylandIntegration->screenAdded(screen);
++
++        if (env && ((idx = atoi(env)) == current_output++))
++        {
 +            wayland_output = wl_registry_bind (registry, id, &wl_output_interface, 1);
-+        } else
-+            return;
++        }
      } else if (interface == QStringLiteral("wl_compositor")) {
          mCompositorVersion = qMin((int)version, 3);
          mCompositor.init(registry, id, mCompositorVersion);
+diff --git a/src/client/qwaylanddisplay_p.h b/src/client/qwaylanddisplay_p.h
+index a65ed32..b732a61 100644
+--- a/src/client/qwaylanddisplay_p.h
++++ b/src/client/qwaylanddisplay_p.h
+@@ -153,7 +153,8 @@ public:
+         QString interface;
+         uint32_t version;
+         struct ::wl_registry *registry = nullptr;
+-        RegistryGlobal(uint32_t id_, const QString &interface_, uint32_t version_, struct ::wl_registry *registry_)
++        RegistryGlobal(uint32_t id_, const QString &interface_, uint32_t version_, struct ::
++wl_registry *registry_)
+             : id(id_), interface(interface_), version(version_), registry(registry_) { }
+     };
+     QList<RegistryGlobal> globals() const { return mGlobals; }
+diff --git a/src/client/qwaylandwindow.cpp b/src/client/qwaylandwindow.cpp
+index 7149a2a..e5c0a49 100644
+--- a/src/client/qwaylandwindow.cpp
++++ b/src/client/qwaylandwindow.cpp
+@@ -926,6 +926,12 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
+ void QWaylandWindow::handleScreenChanged()
+ {
+     QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
++
++    if (!newScreen)
++    {
++        return;
++    }
++
+     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
+ 
+     int scale = newScreen->scale();
 diff --git a/src/client/qwaylandwlshellsurface.cpp b/src/client/qwaylandwlshellsurface.cpp
 index 098eddc..0c16839 100644
 --- a/src/client/qwaylandwlshellsurface.cpp
@@ -86,5 +115,5 @@ index 497ec60..90ffd4d 100644
  class QWaylandInputDevice;
  class QWaylandExtendedSurface;
 -- 
-2.19.1
+2.7.4
 
