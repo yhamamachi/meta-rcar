@@ -52,6 +52,7 @@ SRC_URI_append = " \
     file://0050-arm64-dts-renesas-r8a779x-add-IMP-nodes.patch \
     file://0062-IIO-lsm9ds0-add-IMU-driver.patch \
     file://0063-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch \
+    file://0064-drm-bridge-adv7511-Add-frequency-and-vrefresh-limita.patch \
     file://0066-pci-pcie-rcar-add-regulators-support.patch \
     file://0067-ti-st-use-proper-way-to-get-shutdown-gpio.patch \
     file://0068-drm-adv7511-use-smbus-to-retrieve-edid.patch \
