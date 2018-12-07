@@ -5,5 +5,6 @@ IMAGE_INSTALL_append = " \
     packagegroup-bsp-devdbg \
     packagegroup-bsp-custom \
     packagegroup-bsp-utest \
+    packagegroup-bsp-python2 \
     packagegroup-v3x \
 "

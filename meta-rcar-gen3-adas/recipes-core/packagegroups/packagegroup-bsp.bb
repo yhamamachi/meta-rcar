@@ -9,6 +9,7 @@ PACKAGES = " \
     packagegroup-bsp-devdbg \
     packagegroup-bsp-custom \
     packagegroup-bsp-utest \
+    packagegroup-bsp-python2 \
 "
 
 # Packages mandatory for BSP (but often not needed)
@@ -87,4 +88,14 @@ RDEPENDS_packagegroup-bsp-utest = " \
     libyaml \
     libinput \
     linux-renesas-uapi \
+"
+
+# Python2 packages requested by Renesas
+RDEPENDS_packagegroup-bsp-python2 = " \
+    python-pyyaml \
+    python-dbus \
+    python-nose \
+    python-numpy \
+    python-pygobject \
+    python-setuptools \
 "
