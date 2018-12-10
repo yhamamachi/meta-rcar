@@ -168,7 +168,7 @@ index f9c71df..da4a338 100644
 @@ -6,5 +6,33 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-xs.dtb
- 
+
 +# ADAS boards
 +dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x-view.dtb
 +dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-view.dtb
@@ -21108,7 +21108,7 @@ index 0000000..a5f767d
 +&can0 {
 +	pinctrl-0 = <&can0_pins>;
 +	pinctrl-names = "default";
-+	status = "okay";
++	status = "disabled";
 +
 +	renesas,can-clock-select = <0x0>;
 +};
@@ -21116,7 +21116,7 @@ index 0000000..a5f767d
 +&can1 {
 +	pinctrl-0 = <&can1_pins>;
 +	pinctrl-names = "default";
-+	status = "okay";
++	status = "disabled";
 +
 +	renesas,can-clock-select = <0x0>;
 +};
@@ -21124,7 +21124,7 @@ index 0000000..a5f767d
 +&canfd {
 +	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
 +	pinctrl-names = "default";
-+	status = "disabled";
++	status = "okay";
 +
 +	renesas,can-clock-select = <0x0>;
 +
@@ -21220,7 +21220,7 @@ index 0000000..ed04695
 +	pinctrl-names = "default";
 +	status = "okay";
 +};
-+ 
++
 +&can1 {
 +	pinctrl-0 = <&can1_pins>;
 +	pinctrl-names = "default";
@@ -21694,6 +21694,5 @@ index 0000000..ed04695
 +	};
 +};
 +
--- 
+--
 2.7.4
-
