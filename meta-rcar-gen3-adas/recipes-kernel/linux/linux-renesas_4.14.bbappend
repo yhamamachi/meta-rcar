@@ -42,6 +42,7 @@ SRC_URI_append = " \
     file://0038-media-soc_camera-rcar_vin-Add-R-Car-M3N-support.patch \
     file://0039-media-soc_camera-rcar_csi2-Add-R-Car-M3N-support.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
+    file://0041-arm64-dts-renesas-ulcb-kf-Move-panel-configuration-t.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0043-pinctrl-sh-pfc-pfc-r8a77965-Add-missing-avb_mii-pin-.patch \
     file://0045-clk-r8a779x-add-mlp-clock.patch \
@@ -75,6 +76,9 @@ SRC_URI_append = " \
     file://0118-clk-clk-gpio-Allow-GPIO-to-sleep-in-set-get_parent.patch \
     file://0119-i2c-mix-pca954x-reset-mux-in-case-of-error-during-bu.patch \
     file://0120-arm64-dts-ulcb-kf-pcm3168a-reset-earlier-i2c-mux-dis.patch \
+    ${@oe.utils.conditional("KF_PANEL_MODEL", "TX31D200VM0BAA", " file://0121-arm64-dts-renesas-ulcb-kf-Set-KOE-TX31D200VM0BAA-128.patch", "", d)} \
+    ${@oe.utils.conditional("KF_PANEL_MODEL", "AA104XD12", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA104XD12-1.patch", "", d)} \
+    ${@oe.utils.conditional("KF_PANEL_MODEL", "AA121TD01", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA121TD01-1.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

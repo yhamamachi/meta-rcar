@@ -14,7 +14,7 @@ diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/rene
 index 76de8c5..dbec19a 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -1450,3 +1450,8 @@
+@@ -1426,3 +1426,8 @@
  
  
  
