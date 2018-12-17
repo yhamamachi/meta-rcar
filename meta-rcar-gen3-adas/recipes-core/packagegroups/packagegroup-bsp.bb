@@ -91,7 +91,7 @@ RDEPENDS_packagegroup-bsp-utest = " \
 "
 
 # Python2 packages requested by Renesas
-RDEPENDS_packagegroup-bsp-python2 = " \
+RDEPENDS_packagegroup-bsp-python2_rcar-gen3-v3x = " \
     python-pyyaml \
     python-dbus \
     python-nose \
