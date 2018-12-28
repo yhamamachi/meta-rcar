@@ -158,7 +158,7 @@ index 0eab2c5..40fc336 100644
 +			alloc-dev = <&imr_v4l2_alloc>;
  		};
  
- 		imrlx4_ch1: imr0@fe870000 {
+ 		imrlx4_ch1: imr1@fe870000 {
 @@ -1223,6 +1228,7 @@
  			clocks = <&cpg CPG_MOD 822>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
@@ -166,7 +166,7 @@ index 0eab2c5..40fc336 100644
 +			alloc-dev = <&imr_v4l2_alloc>;
  		};
  
- 		imrlx4_ch2: imr1@fe880000 {
+ 		imrlx4_ch2: imr2@fe880000 {
 @@ -1233,6 +1239,7 @@
  			clocks = <&cpg CPG_MOD 821>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
@@ -174,7 +174,7 @@ index 0eab2c5..40fc336 100644
 +			alloc-dev = <&imr_v4l2_alloc>;
  		};
  
- 		imrlx4_ch3: imr2@fe890000 {
+ 		imrlx4_ch3: imr3@fe890000 {
 @@ -1243,6 +1250,7 @@
  			clocks = <&cpg CPG_MOD 820>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
