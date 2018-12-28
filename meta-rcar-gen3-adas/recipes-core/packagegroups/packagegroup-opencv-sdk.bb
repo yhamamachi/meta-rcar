@@ -12,7 +12,6 @@ RDEPENDS_packagegroup-opencv-sdk = '${@ " \
     opencv \
     opencv-apps \
     opencv-dbg \
-    libopencv-calib3d \
     libopencv-core \
     libopencv-features2d \
     libopencv-flann \
