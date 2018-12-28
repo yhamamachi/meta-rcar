@@ -321,3 +321,6 @@ patch 0320-arm64-dts-renesas-Add-temperature-emergency-levels.patch
 patch 0321-r8a77980-dts-Add-vbm-v3-on-r8a77980-SoC.patch
 patch 0322-arm64-dts-r8a77980-Enable-TMU-and-CMT.patch
 patch 0323-arm64-dts-renesas-r8a77970-and-r8a77980-Add-QoS-node.patch
+patch 0324-clk-renesas-r8a77970-cpg-mssr-Add-sadc-clock.patch
+patch 0325-arm64-dts-renesas-r8a77970-Add-sadc-node.patch
+patch 0326-iio-adc-Add-R-Car-SADC-driver.patch
