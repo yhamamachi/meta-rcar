@@ -48,7 +48,7 @@ index 9572c10..6ee0f32 100644
  obj-$(CONFIG_STX104) += stx104.o
 diff --git a/drivers/iio/adc/rcar-sadc.c b/drivers/iio/adc/rcar-sadc.c
 new file mode 100644
-index 0000000..00bba8f
+index 0000000..724ea21
 --- /dev/null
 +++ b/drivers/iio/adc/rcar-sadc.c
 @@ -0,0 +1,399 @@
@@ -319,21 +319,21 @@ index 0000000..00bba8f
 +	info->vref = devm_regulator_get(&pdev->dev, "vref");
 +	if (IS_ERR(info->vref)) {
 +		dev_err(&pdev->dev, "failed getting regulator: %ld\n",
-+			PTR_ERR(info->clk));
++			PTR_ERR(info->vref));
 +		return PTR_ERR(info->vref);
 +	}
 +
 +	ret = regulator_enable(info->vref);
 +	if (ret) {
-+		dev_err(&pdev->dev, "failed enabling regulator: %ld\n",
-+			PTR_ERR(info->clk));
++		dev_err(&pdev->dev, "failed enabling regulator: %d\n",
++			ret);
 +		return ret;
 +	}
 +
 +	ret = regulator_get_voltage(info->vref);
 +	if (ret <= 0) {
-+		dev_err(&pdev->dev, "failed to get vref: %ld\n",
-+			PTR_ERR(info->clk));
++		dev_err(&pdev->dev, "failed getting regulator voltage: %d\n",
++			ret);
 +		return ret;
 +	}
 +	info->vref_uv = ret;
