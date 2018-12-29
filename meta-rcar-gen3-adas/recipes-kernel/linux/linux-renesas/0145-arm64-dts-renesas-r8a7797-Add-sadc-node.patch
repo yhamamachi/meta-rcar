@@ -1,0 +1,37 @@
+From 15cfc89e932992b50e9f35e5f01a8fa784465f03 Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Tue, 10 Jul 2018 15:27:33 +0300
+Subject: [PATCH 2/3] arm64: dts: renesas: r8a7797: Add sadc node
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+index 5e05f11..52b00fb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
+@@ -1292,6 +1292,18 @@
+ 			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
+ 		};
+ 
++		sadc0: adc@ffce0000 {
++			compatible = "renesas,sadc-r8a7797";
++			reg = <0 0xffce0000 0 0x10000>;
++			interrupts = <GIC_SPI 295 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_CORE R8A7797_CLK_S2D4>,
++				 <&cpg CPG_CORE R8A7797_CLK_S2D2>,
++				 <&cpg CPG_MOD 503>;				/* RMSTPCR5/bit3:ADC */
++			clock-names = "phy_clk", "ip_clk", "adc";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		iccom0 {
+ 			compatible = "renesas,iccom-rcar";
+ 			interrupts = <0 224 4>;
+-- 
+2.7.4
+

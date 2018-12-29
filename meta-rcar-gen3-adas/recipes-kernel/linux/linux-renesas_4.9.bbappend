@@ -150,6 +150,9 @@ SRC_URI_append = " \
     file://0141-sh-pfc-pfc-r8a7798.c-Fix-RCAR-V3H-condor-wrong-IPSR9.patch \
     file://0142-arm64-dts-r8a779-78-Set-QSPI-flash-address-and-size-.patch \
     file://0143-arm64-dts-renesas-Fix-bl31-partition-size.patch \
+    file://0144-clk-renesas-r8a7797-cpg-mssr-Add-sadc-clock.patch \
+    file://0145-arm64-dts-renesas-r8a7797-Add-sadc-node.patch \
+    file://0146-iio-adc-Add-R-Car-SADC-driver.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
