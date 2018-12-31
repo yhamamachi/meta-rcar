@@ -143,6 +143,8 @@ SRC_URI_append = " \
     file://lvds/0016-lvds-add-AR0323-imager.patch \
     file://lvds/0017-lvds-add-ISX016-imager.patch \
     file://lvds/0018-LVDS-ar0233-set-frame-size-1920x1200.patch \
+    file://lvds/0019-lvds-AR0233-add-different-vendor.patch \
+    file://lvds/0020-VIN-add-ISP-source-enable.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://dts/0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
     file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
@@ -153,6 +155,7 @@ SRC_URI_append = " \
     file://0144-clk-renesas-r8a7797-cpg-mssr-Add-sadc-clock.patch \
     file://0145-arm64-dts-renesas-r8a7797-Add-sadc-node.patch \
     file://0146-iio-adc-Add-R-Car-SADC-driver.patch \
+    file://0147-arm-renesas-r8a7798-fix-VIN14-VIN15-interrupts.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
