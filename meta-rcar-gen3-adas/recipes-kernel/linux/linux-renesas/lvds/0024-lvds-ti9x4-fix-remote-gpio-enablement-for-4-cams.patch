@@ -1,0 +1,59 @@
+From 3788a6df14a129b80cf1e9f40eb6994a714bf8b5 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 6 Jan 2019 18:18:23 +0300
+Subject: [PATCH] lvds: ti9x4: fix remote gpio enablement for 4 cams
+
+This fix enablemnet of remote gpio (ti953) on all 4 cams
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ti9x4.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
+index a2642f9..bde0e0e 100644
+--- a/drivers/media/i2c/soc_camera/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/ti9x4.c
+@@ -280,7 +280,6 @@ static int ti9x4_initialize(struct i2c_client *client)
+ 	struct ti9x4_priv *priv = i2c_get_clientdata(client);
+ 	int idx, timeout;
+ 	u8 port_sts1 = 0, port_sts2 = 0;
+-	int tmp_addr;
+ 
+ 	dev_info(&client->dev, "LINKs=%d, LANES=%d, FORWARDING=%s, CABLE=%s, ID=%s\n",
+ 			       priv->links, priv->lanes, priv->forwarding_mode, priv->is_coax ? "coax" : "stp", priv->chip_id);
+@@ -306,14 +305,6 @@ static int ti9x4_initialize(struct i2c_client *client)
+ 			reg8_read(client, 0x4d, &port_sts1);			/* Lock status */
+ 			reg8_read(client, 0x4e, &port_sts2);			/* Freq stable */
+ 
+-			if (port_sts1 & 0x1) {
+-				tmp_addr = client->addr;
+-				client->addr = priv->ti9x3_addr_map[idx];	/* TI9X3 I2C addr */
+-				reg8_write(client, 0x0d, 0xf0);			/* Enable all remote GPIOs */
+-				reg8_write(client, 0x0e, 0xf0);			/* Enable serializer GPIOs */
+-				client->addr = tmp_addr;
+-			}
+-
+ 			if ((port_sts1 & 0x1) && (port_sts2 & 0x4))
+ 				goto out;
+ 		}
+@@ -322,6 +313,16 @@ static int ti9x4_initialize(struct i2c_client *client)
+ 	if (!timeout)
+ 		dev_info(&client->dev, "Receiver is not locked\n");
+ out:
++	for (idx = 0; idx < priv->links; idx++) {
++		reg8_write(client, 0x4c, (idx << 4) | (1 << idx));		/* Select RX port number */
++		usleep_range(1000, 1500);					/* wait 1ms */
++
++		client->addr = priv->ti9x3_addr_map[idx];			/* TI9X3 I2C addr */
++		reg8_write(client, 0x0d, 0xf0);					/* Enable all remote GPIOs */
++		reg8_write(client, 0x0e, 0xf0);					/* Enable serializer GPIOs */
++		client->addr = priv->des_addr;
++	}
++
+ 	if (priv->poc_delay)
+ 		mdelay(100);
+ 
+-- 
+1.9.1
+

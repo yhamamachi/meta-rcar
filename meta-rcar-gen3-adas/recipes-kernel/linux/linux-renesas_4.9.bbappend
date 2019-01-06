@@ -148,6 +148,7 @@ SRC_URI_append = " \
     file://lvds/0021-lvds-poll-ub960-deserializer-lock-status.patch \
     file://lvds/0022-lvds-AR0231-modify-with-rev7-silicon.patch \
     file://lvds/0023-lvds-AR0233-modify-with-rev2-silicon.patch \
+    file://lvds/0024-lvds-ti9x4-fix-remote-gpio-enablement-for-4-cams.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://dts/0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
     file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
