@@ -7,25 +7,35 @@ This fix enablemnet of remote gpio (ti953) on all 4 cams
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- drivers/media/i2c/soc_camera/ti9x4.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/media/i2c/soc_camera/ti9x4.c | 39 ++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/media/i2c/soc_camera/ti9x4.c b/drivers/media/i2c/soc_camera/ti9x4.c
-index a2642f9..bde0e0e 100644
+index a2642f9..55978fb 100644
 --- a/drivers/media/i2c/soc_camera/ti9x4.c
 +++ b/drivers/media/i2c/soc_camera/ti9x4.c
-@@ -280,7 +280,6 @@ static int ti9x4_initialize(struct i2c_client *client)
+@@ -279,8 +279,7 @@ static int ti9x4_initialize(struct i2c_client *client)
+ {
  	struct ti9x4_priv *priv = i2c_get_clientdata(client);
  	int idx, timeout;
- 	u8 port_sts1 = 0, port_sts2 = 0;
+-	u8 port_sts1 = 0, port_sts2 = 0;
 -	int tmp_addr;
++	u8 port_sts1[4] = {0, 0, 0, 0}, port_sts2[4] = {0, 0, 0, 0};
  
  	dev_info(&client->dev, "LINKs=%d, LANES=%d, FORWARDING=%s, CABLE=%s, ID=%s\n",
  			       priv->links, priv->lanes, priv->forwarding_mode, priv->is_coax ? "coax" : "stp", priv->chip_id);
-@@ -306,14 +305,6 @@ static int ti9x4_initialize(struct i2c_client *client)
- 			reg8_read(client, 0x4d, &port_sts1);			/* Lock status */
- 			reg8_read(client, 0x4e, &port_sts2);			/* Freq stable */
- 
+@@ -301,30 +300,36 @@ static int ti9x4_initialize(struct i2c_client *client)
+ 	/* check lock status */
+ 	for (timeout = 500 / priv->links; timeout > 0; timeout--) {
+ 		for (idx = 0; idx < priv->links; idx++) {
++			if ((port_sts1[idx] & 0x1) && (port_sts2[idx] & 0x4))
++				continue;
++
+ 			reg8_write(client, 0x4c, (idx << 4) | (1 << idx));	/* Select RX port number */
+ 			usleep_range(1000, 1500);				/* wait 1ms */
+-			reg8_read(client, 0x4d, &port_sts1);			/* Lock status */
+-			reg8_read(client, 0x4e, &port_sts2);			/* Freq stable */
+-
 -			if (port_sts1 & 0x1) {
 -				tmp_addr = client->addr;
 -				client->addr = priv->ti9x3_addr_map[idx];	/* TI9X3 I2C addr */
@@ -34,13 +44,25 @@ index a2642f9..bde0e0e 100644
 -				client->addr = tmp_addr;
 -			}
 -
- 			if ((port_sts1 & 0x1) && (port_sts2 & 0x4))
- 				goto out;
+-			if ((port_sts1 & 0x1) && (port_sts2 & 0x4))
+-				goto out;
++			reg8_read(client, 0x4d, &port_sts1[idx]);		/* Lock status */
++			reg8_read(client, 0x4e, &port_sts2[idx]);		/* Freq stable */
  		}
-@@ -322,6 +313,16 @@ static int ti9x4_initialize(struct i2c_client *client)
+ 	}
+ 
  	if (!timeout)
- 		dev_info(&client->dev, "Receiver is not locked\n");
- out:
+-		dev_info(&client->dev, "Receiver is not locked\n");
+-out:
++		dev_info(&client->dev, "Receiver lock status [%d,%d,%d,%d]\n",
++				       (port_sts1[0] & 0x1) && (port_sts2[0] & 0x4),
++				       (port_sts1[1] & 0x1) && (port_sts2[1] & 0x4),
++				       (port_sts1[2] & 0x1) && (port_sts2[2] & 0x4),
++				       (port_sts1[3] & 0x1) && (port_sts2[3] & 0x4));
++
+ 	if (priv->poc_delay)
+ 		mdelay(100);
+ 
 +	for (idx = 0; idx < priv->links; idx++) {
 +		reg8_write(client, 0x4c, (idx << 4) | (1 << idx));		/* Select RX port number */
 +		usleep_range(1000, 1500);					/* wait 1ms */
@@ -51,8 +73,8 @@ index a2642f9..bde0e0e 100644
 +		client->addr = priv->des_addr;
 +	}
 +
- 	if (priv->poc_delay)
- 		mdelay(100);
+ 	return 0;
+ }
  
 -- 
 1.9.1
