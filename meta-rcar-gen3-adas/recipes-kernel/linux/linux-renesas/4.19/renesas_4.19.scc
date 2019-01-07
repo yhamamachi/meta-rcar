@@ -324,3 +324,12 @@ patch 0323-arm64-dts-renesas-r8a77970-and-r8a77980-Add-QoS-node.patch
 patch 0324-clk-renesas-r8a77970-cpg-mssr-Add-sadc-clock.patch
 patch 0325-arm64-dts-renesas-r8a77970-Add-sadc-node.patch
 patch 0326-iio-adc-Add-R-Car-SADC-driver.patch
+patch 0327-lvds-add-AR0323-imager.patch
+patch 0328-lvds-add-ISX016-imager.patch
+patch 0329-LVDS-ar0233-set-frame-size-1920x1200.patch
+patch 0330-lvds-AR0233-add-different-vendor.patch
+patch 0331-VIN-add-ISP-source-enable.patch
+patch 0332-lvds-poll-ub960-deserializer-lock-status.patch
+patch 0333-lvds-AR0231-modify-with-rev7-silicon.patch
+patch 0334-lvds-AR0233-modify-with-rev2-silicon.patch
+patch 0335-lvds-ti9x4-fix-remote-gpio-enablement-for-4-cams.patch
