@@ -560,7 +560,7 @@ index 0000000..3122ef2
 +#endif /* 3exp Timing and Exposure - Serial */
 +
 +#if 1 /* HDR 12 bit Output */
-+{0x3AD0, 1}, // companding
++{0x31D0, 1}, // companding
 +{0x31AC, 0x140C}, // data_format_bits: RAW20, OUT12
 +#endif /* HDR 12 bit Output */
 +
