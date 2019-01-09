@@ -45,7 +45,7 @@ index 24262dd..b584a1a 100644
  		goto err;
  	}
  
-+	/* check reviion  */
++	/* check revision  */
 +	reg16_read16(client, AR0233_REV, &rev);
  	/* Read OTP IDs */
  	ar0233_otp_id_read(client);
@@ -56,7 +56,7 @@ index 24262dd..b584a1a 100644
 +		ar0233_set_regs(client, ar0233_regs_wizard_rev2, ARRAY_SIZE(ar0233_regs_wizard_rev2));
 +		break;
 +	default:
-+		ar0233_set_regs(client, ar0233_regs_wizard_rev2, ARRAY_SIZE(ar0233_regs_wizard_rev1));
++		ar0233_set_regs(client, ar0233_regs_wizard_rev1, ARRAY_SIZE(ar0233_regs_wizard_rev1));
 +	}
  
  	/* Enable stream */
