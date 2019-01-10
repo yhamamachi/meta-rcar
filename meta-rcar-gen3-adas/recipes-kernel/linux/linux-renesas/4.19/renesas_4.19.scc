@@ -333,3 +333,4 @@ patch 0332-lvds-poll-ub960-deserializer-lock-status.patch
 patch 0333-lvds-AR0231-modify-with-rev7-silicon.patch
 patch 0334-lvds-AR0233-modify-with-rev2-silicon.patch
 patch 0335-lvds-ti9x4-fix-remote-gpio-enablement-for-4-cams.patch
+patch 0336-media-soc_camera-imx390-Add-new-V4L-controls.patch
