@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  2 files changed, 8 insertions(+), 13 deletions(-)
 
 diff --git a/arch/arm/dts/ulcb.dtsi b/arch/arm/dts/ulcb.dtsi
-index c561d1d..cff3643 100644
+index 37f3fbe..8f62de0 100644
 --- a/arch/arm/dts/ulcb.dtsi
 +++ b/arch/arm/dts/ulcb.dtsi
 @@ -152,18 +152,13 @@
@@ -41,10 +41,10 @@ index c561d1d..cff3643 100644
  };
  
 diff --git a/configs/r8a7795_ulcb_defconfig b/configs/r8a7795_ulcb_defconfig
-index 9336a23..41ac184 100644
+index e815e71..84be7fc 100644
 --- a/configs/r8a7795_ulcb_defconfig
 +++ b/configs/r8a7795_ulcb_defconfig
-@@ -50,9 +50,9 @@ CONFIG_MTD_NOR_FLASH=y
+@@ -51,9 +51,9 @@ CONFIG_MTD_NOR_FLASH=y
  CONFIG_MTD_DEVICE=y
  CONFIG_CFI_FLASH=y
  CONFIG_RENESAS_RPC_HF=y

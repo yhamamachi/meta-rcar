@@ -1,6 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI_append = " \
+    file://0001-clk-renesas-Allow-reconfiguring-SDHI-clock-on-Gen3.patch \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://0002-net-ravb-remove-APSR-quirk.patch', '', d)} \
     file://0003-net-ravb-fix-unsafe-phy-access.patch \
     file://0009-configs-rcar-gen3-common-Enable-askenv-command.patch \

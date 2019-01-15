@@ -19,17 +19,17 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 configs/r8a77965_ulcb_defconfig
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 47d9a08..9bdc9ca 100644
+index adb1020..2eebdd7 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -463,6 +463,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
- 	r8a7796-salvator-x.dtb \
- 	r8a7796-salvator-xs.dtb \
- 	r8a77965-salvator-x.dtb \
+@@ -464,6 +464,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
+ 	r8a7796-salvator-xs-u-boot.dtb \
+ 	r8a77965-salvator-x-u-boot.dtb \
+ 	r8a77965-salvator-xs-u-boot.dtb \
 +	r8a77965-m3nulcb.dtb \
- 	r8a77970-eagle.dtb \
- 	r8a77980-condor.dtb \
- 	r8a77990-ebisu.dtb \
+ 	r8a77970-eagle-u-boot.dtb \
+ 	r8a77980-condor-u-boot.dtb \
+ 	r8a77990-ebisu-u-boot.dtb \
 diff --git a/arch/arm/dts/r8a77965-m3nulcb-u-boot.dts b/arch/arm/dts/r8a77965-m3nulcb-u-boot.dts
 new file mode 100644
 index 0000000..dffa042

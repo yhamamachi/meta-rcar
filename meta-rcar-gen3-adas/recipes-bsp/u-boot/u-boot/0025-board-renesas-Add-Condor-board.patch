@@ -47,17 +47,17 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 include/dt-bindings/power/r8a77980-sysc.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 5acb424..47d9a08 100644
+index 9ec3383..adb1020 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -464,6 +464,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
- 	r8a7796-salvator-xs.dtb \
- 	r8a77965-salvator-x.dtb \
- 	r8a77970-eagle.dtb \
-+	r8a77980-condor.dtb \
- 	r8a77990-ebisu.dtb \
- 	r8a77990-ebisu-4d.dtb \
- 	r8a77995-draak.dtb
+@@ -465,6 +465,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
+ 	r8a77965-salvator-x-u-boot.dtb \
+ 	r8a77965-salvator-xs-u-boot.dtb \
+ 	r8a77970-eagle-u-boot.dtb \
++	r8a77980-condor-u-boot.dtb \
+ 	r8a77990-ebisu-u-boot.dtb \
+ 	r8a77990-ebisu-4d-u-boot.dtb \
+ 	r8a77995-draak-u-boot.dtb
 diff --git a/arch/arm/dts/r8a77980-condor-u-boot.dts b/arch/arm/dts/r8a77980-condor-u-boot.dts
 new file mode 100644
 index 0000000..b554cbe
@@ -1872,10 +1872,10 @@ index cb9f569..59915a5 100644
  source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
 diff --git a/arch/arm/mach-rmobile/cpu_info.c b/arch/arm/mach-rmobile/cpu_info.c
-index 4b48938..5e36d06 100644
+index 5afa1d4..0049a18 100644
 --- a/arch/arm/mach-rmobile/cpu_info.c
 +++ b/arch/arm/mach-rmobile/cpu_info.c
-@@ -59,6 +59,7 @@ static const struct {
+@@ -62,6 +62,7 @@ static const struct {
  	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
  	{ RMOBILE_CPU_TYPE_R8A77965, "R8A77965" },
  	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
@@ -5362,7 +5362,7 @@ index 0000000..72f6abb
 +	.pinmux_data_size = ARRAY_SIZE(pinmux_data),
 +};
 diff --git a/drivers/pinctrl/renesas/pfc.c b/drivers/pinctrl/renesas/pfc.c
-index 9001153..534df8e 100644
+index b3a4ff9..e5e790d 100644
 --- a/drivers/pinctrl/renesas/pfc.c
 +++ b/drivers/pinctrl/renesas/pfc.c
 @@ -29,6 +29,7 @@ enum sh_pfc_model {
