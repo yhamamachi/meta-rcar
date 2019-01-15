@@ -160,10 +160,10 @@ index 2377cd2..32a6746 100644
 diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
 old mode 100644
 new mode 100755
-index 0338335..155ec2d
+index 09c1729..c162dc0
 --- a/plat/renesas/rcar/bl2_rcar_setup.c
 +++ b/plat/renesas/rcar/bl2_rcar_setup.c
-@@ -126,8 +126,11 @@
+@@ -129,8 +129,11 @@
  #elif RCAR_LSI == RCAR_E3
  #define TARGET_PRODUCT		RCAR_PRODUCT_E3
  #define TARGET_NAME		"R-Car E3"
@@ -176,7 +176,7 @@ index 0338335..155ec2d
  #endif
  
  /* for SuspendToRAM */
-@@ -383,6 +386,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -386,6 +389,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	const char *product_m3      = "M3";
  	const char *product_m3n     = "M3N";
  	const char *product_e3      = "E3";
@@ -184,7 +184,7 @@ index 0338335..155ec2d
  	const char *lcs_cm          = "CM";
  	const char *lcs_dm          = "DM";
  	const char *lcs_sd          = "SD";
-@@ -467,6 +471,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -470,6 +474,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	case RCAR_PRODUCT_E3:
  		str = product_e3;
  		break;
@@ -194,7 +194,7 @@ index 0338335..155ec2d
  	default:
  		str = unknown;
  		break;
-@@ -534,11 +541,13 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -537,11 +544,13 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	}
  #endif /* RCAR_LSI != RCAR_AUTO */
  
@@ -208,7 +208,7 @@ index 0338335..155ec2d
  
  	switch (modemr_boot_dev) {
  	case MODEMR_BOOT_DEV_HYPERFLASH160:
-@@ -566,8 +575,10 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -569,8 +578,10 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
  	NOTICE("%s", msg);
  
@@ -1062,7 +1062,7 @@ index 876e7cd..c683fc8 100644
  		index = NEW_API_TABLE;		/* M3N and E3 */
  		break;
 diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
-index 48622e0..4df03b7 100644
+index 4178848..2b0bae5 100644
 --- a/plat/renesas/rcar/drivers/scif/scif.S
 +++ b/plat/renesas/rcar/drivers/scif/scif.S
 @@ -17,14 +17,30 @@
@@ -1097,7 +1097,7 @@ index 48622e0..4df03b7 100644
  #define	SCIF_SCSMR		(0x00)		/* Serial mode register */
  #define	SCIF_SCBRR		(0x04)		/* Bit rate register */
  #define	SCIF_SCSCR		(0x08)		/* Serial control register */
-@@ -145,17 +161,17 @@ endfunc console_init
+@@ -147,17 +163,17 @@ endfunc console_init
  	 */
  func console_core_init
  	ldr	x0, =CPG_BASE
@@ -1121,7 +1121,7 @@ index 48622e0..4df03b7 100644
  	/* Clear bits TE and RE in SCSCR to 0 */
  	mov	w1, #(SCSCR_TE_DIS + SCSCR_RE_DIS)	/* TE=0,RE=0 */
  	strh	w1, [x0, #SCIF_SCSCR]
-@@ -254,7 +270,7 @@ endfunc console_putc
+@@ -256,7 +272,7 @@ endfunc console_putc
  	 * --------------------------------------------------------
  	 */
  func console_core_putc
@@ -1130,18 +1130,18 @@ index 48622e0..4df03b7 100644
  	cmp	w0, #0xA
  	/* Prepend '\r' to '\n' */
  	bne	2f
-@@ -300,7 +316,7 @@ endfunc console_getc
+@@ -307,7 +323,7 @@ endfunc console_getc
  	 * ---------------------------------------------
  	 */
  func console_flush
 -	ldr	x0, =SCIF2_BASE
 +	ldr	x0, =SCIF_BASE
  1:
- 	ldrh	w1, [x0, #SCIF_SCFDR]
- 	ubfx	w1, w1, #8, #5
-@@ -334,7 +350,7 @@ func console_flush
- 
- 	mov	x30, x9
+ 	/* Check TEND flag */
+ 	ldrh	w1, [x0, #SCIF_SCFSR]
+@@ -315,7 +331,7 @@ func console_flush
+ 	cmp	w1, #SCFSR_TEND_TRANS_END
+ 	bne	1b
  
 -	ldr	x0, =SCIF2_BASE
 +	ldr	x0, =SCIF_BASE
@@ -1165,7 +1165,7 @@ index de25dfc..f359156 100644
  #if (DMACH==0)		/* SYS-DMAC0 (CH0) */
  #define SYS_DMAC_BIT	((uint32_t)1U << 19U)
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index dd00b58..61ae166 100644
+index 2194e65..e9da655 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
 @@ -104,18 +104,21 @@
@@ -2423,10 +2423,10 @@ index 4e784eb..c11a001 100644
    #error "Don't have PFC initialize routine(unknown)."
   #endif
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 332f845..9ef9f0c 100644
+index 9d79ca5..714bed4 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -94,12 +94,14 @@ RCAR_M3:=1
+@@ -96,12 +96,14 @@ RCAR_M3:=1
  RCAR_M3N:=2
  RCAR_E3:=3
  RCAR_H3N:=4
@@ -2441,7 +2441,7 @@ index 332f845..9ef9f0c 100644
  $(eval $(call add_define,RCAR_AUTO))
  RCAR_CUT_10:=0
  RCAR_CUT_11:=1
-@@ -200,6 +202,22 @@ else
+@@ -202,6 +204,22 @@ else
        endif
        $(eval $(call add_define,RCAR_LSI_CUT))
      endif
@@ -2957,7 +2957,7 @@ index b738de6..4a280f5 100644
  
  BL2_SOURCES += plat/renesas/rcar/qos/qos_init.c
 diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
-index 47c156c..6d0a477 100644
+index eb85d1c..253bcf9 100644
 --- a/plat/renesas/rcar/qos/qos_init.c
 +++ b/plat/renesas/rcar/qos/qos_init.c
 @@ -17,6 +17,7 @@
@@ -3030,7 +3030,7 @@ index 47c156c..6d0a477 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index da3425d..85d3fe9 100644
+index 946394a..15af651 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
 @@ -205,6 +205,7 @@

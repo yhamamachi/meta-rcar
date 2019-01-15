@@ -39,10 +39,10 @@ index 2469780..6f6c374 100644
  	/** Security group 0 attribute setting for slave ports 14 */
  	/** Security group 1 attribute setting for slave ports 14 */
 diff --git a/plat/renesas/rcar/bl31_rcar_setup.c b/plat/renesas/rcar/bl31_rcar_setup.c
-index e393e55..1dd63fe 100644
+index 03b3d36..c35ae66 100644
 --- a/plat/renesas/rcar/bl31_rcar_setup.c
 +++ b/plat/renesas/rcar/bl31_rcar_setup.c
-@@ -226,3 +226,19 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
+@@ -216,3 +216,19 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
  	return rc;
  }
  
@@ -63,10 +63,10 @@ index e393e55..1dd63fe 100644
 +	console_uninit();
 +}
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index f33701b..332f845 100644
+index 78db0eb..9d79ca5 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -375,6 +375,12 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
+@@ -383,6 +383,12 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
  COLD_BOOT_SINGLE_CPU		:=	1
  #endif /* IMAGE_BL2 */
  

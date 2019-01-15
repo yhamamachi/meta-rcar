@@ -148,10 +148,10 @@ index 32a6746..1481029 100644
  #error "Don't have CPG initialize routine(unknown)."
  #endif /* RCAR_LSI == RCAR_XX */
 diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
-index 155ec2d..80760d6 100755
+index c162dc0..e605efe 100755
 --- a/plat/renesas/rcar/bl2_rcar_setup.c
 +++ b/plat/renesas/rcar/bl2_rcar_setup.c
-@@ -129,8 +129,11 @@
+@@ -132,8 +132,11 @@
  #elif RCAR_LSI == RCAR_V3M
  #define TARGET_PRODUCT		RCAR_PRODUCT_V3M
  #define TARGET_NAME		"R-Car V3M"
@@ -164,7 +164,7 @@ index 155ec2d..80760d6 100755
  #endif
  
  /* for SuspendToRAM */
-@@ -387,6 +390,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -390,6 +393,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	const char *product_m3n     = "M3N";
  	const char *product_e3      = "E3";
  	const char *product_v3m     = "V3M";
@@ -172,7 +172,7 @@ index 155ec2d..80760d6 100755
  	const char *lcs_cm          = "CM";
  	const char *lcs_dm          = "DM";
  	const char *lcs_sd          = "SD";
-@@ -474,6 +478,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -477,6 +481,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	case RCAR_PRODUCT_V3M:
  		str = product_v3m;
  		break;
@@ -182,7 +182,7 @@ index 155ec2d..80760d6 100755
  	default:
  		str = unknown;
  		break;
-@@ -541,7 +548,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -544,7 +551,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	}
  #endif /* RCAR_LSI != RCAR_AUTO */
  
@@ -191,7 +191,7 @@ index 155ec2d..80760d6 100755
  	/* Initialize AVS Settings */
  	bl2_avs_init();
  
-@@ -575,7 +582,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -578,7 +585,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
  	NOTICE("%s", msg);
  
@@ -282,7 +282,7 @@ index c683fc8..a555fd3 100644
  		index = NEW_API_TABLE;		/* M3N and E3 */
  		break;
 diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
-index 4df03b7..c21891c 100644
+index 2b0bae5..5b660d4 100644
 --- a/plat/renesas/rcar/drivers/scif/scif.S
 +++ b/plat/renesas/rcar/drivers/scif/scif.S
 @@ -29,7 +29,7 @@
@@ -308,7 +308,7 @@ index f359156..cd083f6 100644
  #else
  #define	DMACH	0	/* DMA CH setting (0/16/32) */
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index 61ae166..214a9dc 100644
+index e9da655..2094e22 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
 @@ -103,9 +103,17 @@
@@ -324,7 +324,7 @@ index 61ae166..214a9dc 100644
 -#if RCAR_LSI == RCAR_V3M
 +#if RCAR_LSI == RCAR_V3H
 +#define BL2_BASE			U(0xEB244000)
-+#define BL2_LIMIT			U(0xEB260000)
++#define BL2_LIMIT			U(0xEB261000)
 +#define BL2_IMAGE_LIMIT			U(0xEB26E800)
 +#elif RCAR_LSI == RCAR_V3M
  #define BL2_BASE			U(0xE6344000)
@@ -1674,10 +1674,10 @@ index c11a001..8fb638a 100644
    #error "Don't have PFC initialize routine(unknown)."
   #endif
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 9ef9f0c..7dade80 100644
+index 714bed4..413bc3f 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -95,6 +95,7 @@ RCAR_M3N:=2
+@@ -97,6 +97,7 @@ RCAR_M3N:=2
  RCAR_E3:=3
  RCAR_H3N:=4
  RCAR_V3M:=5
@@ -1685,7 +1685,7 @@ index 9ef9f0c..7dade80 100644
  RCAR_AUTO:=99
  $(eval $(call add_define,RCAR_H3))
  $(eval $(call add_define,RCAR_M3))
-@@ -102,6 +103,7 @@ $(eval $(call add_define,RCAR_M3N))
+@@ -104,6 +105,7 @@ $(eval $(call add_define,RCAR_M3N))
  $(eval $(call add_define,RCAR_E3))
  $(eval $(call add_define,RCAR_H3N))
  $(eval $(call add_define,RCAR_V3M))
@@ -1693,7 +1693,7 @@ index 9ef9f0c..7dade80 100644
  $(eval $(call add_define,RCAR_AUTO))
  RCAR_CUT_10:=0
  RCAR_CUT_11:=1
-@@ -218,6 +220,22 @@ else
+@@ -220,6 +222,22 @@ else
        endif
        $(eval $(call add_define,RCAR_LSI_CUT))
      endif
@@ -2449,7 +2449,7 @@ index 4a280f5..bd224eb 100644
  
  BL2_SOURCES += plat/renesas/rcar/qos/qos_init.c
 diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
-index 6d0a477..1d99b55 100644
+index 253bcf9..40a396e 100644
 --- a/plat/renesas/rcar/qos/qos_init.c
 +++ b/plat/renesas/rcar/qos/qos_init.c
 @@ -18,6 +18,7 @@
@@ -2513,7 +2513,7 @@ index 6d0a477..1d99b55 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 85d3fe9..f5e6950 100644
+index 15af651..535db44 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
 @@ -207,6 +207,7 @@
