@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  2 files changed, 160 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 46198d3..a2c7c12 100644
+index 417c1ca..71aa17b 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -3323,6 +3323,104 @@
+@@ -3307,6 +3307,104 @@
  		};
  	};
  
@@ -121,10 +121,10 @@ index 46198d3..a2c7c12 100644
  		emergency {
  			polling-delay = <1000>;
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 58c84d4..ce4215b 100644
+index 883459c..98801e5 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -2439,6 +2439,68 @@
+@@ -2680,6 +2680,68 @@
  			resets = <&cpg 822>;
  		};
  
@@ -190,9 +190,9 @@ index 58c84d4..ce4215b 100644
 +			power-domains = <&sysc R8A7796_PD_A3IR>;
 +		};
 +
- 		gsx_opp0: gsx_opp_table0 {
- 			compatible = "operating-points-v2";
- 
+ 		fcpci0: vcp4@fe8df000 {
+ 			compatible = "renesas,vcp4-fcpci0";
+ 			reg = <0 0xfe8df000 0 0x200>;
 -- 
 2.7.4
 

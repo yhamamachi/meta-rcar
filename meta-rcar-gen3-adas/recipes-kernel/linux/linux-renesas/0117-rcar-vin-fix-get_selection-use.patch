@@ -11,10 +11,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index b4ea2de..c05382d 100644
+index 228bbf3..50d393b 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
-@@ -2338,10 +2338,26 @@ static int rcar_vin_get_selection(struct soc_camera_device *icd,
+@@ -2334,10 +2334,26 @@ static int rcar_vin_get_selection(struct soc_camera_device *icd,
  				  struct v4l2_selection *sel)
  {
  	struct rcar_vin_cam *cam = icd->host_priv;

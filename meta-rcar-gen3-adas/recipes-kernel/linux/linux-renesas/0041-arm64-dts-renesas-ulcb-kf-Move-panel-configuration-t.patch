@@ -17,7 +17,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 new file mode 100644
-index 0000000..1bcb246
+index 0000000..b54c935
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 @@ -0,0 +1,41 @@
@@ -63,11 +63,11 @@ index 0000000..1bcb246
 +	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 0aa9009..aaa6ba8 100644
+index a70636e..4ab8d60 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -211,27 +211,7 @@
- 		};
+@@ -171,27 +171,7 @@
+ 		dais = <&rsnd_port3>;
  	};
  
 -	lvds {
@@ -95,7 +95,7 @@ index 0aa9009..aaa6ba8 100644
  		port {
  			lvds_in: endpoint {
  				remote-endpoint = <&lvds0_out>;
-@@ -364,15 +344,6 @@
+@@ -337,15 +317,6 @@
  	status = "okay";
  };
  
@@ -111,7 +111,7 @@ index 0aa9009..aaa6ba8 100644
  &gpio4 {
  	most_rst {
  		gpio-hog;
-@@ -1445,5 +1416,8 @@
+@@ -1457,5 +1428,8 @@
  	status = "okay";
  };
  

@@ -10,10 +10,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 79f97fdc4ea7..f7f10b3abc45 100644
+index 731300e..d4e17a2 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -16,11 +16,11 @@
+@@ -13,11 +13,11 @@
  		serial3 = &hscif1;
  	};
  
@@ -29,7 +29,7 @@ index 79f97fdc4ea7..f7f10b3abc45 100644
  	};
  
  	wlan_en: regulator@4 {
-@@ -55,15 +55,10 @@
+@@ -52,15 +52,10 @@
  
  	codec_en_reg: regulator@6 {
  		compatible = "regulator-fixed";
@@ -47,7 +47,7 @@ index 79f97fdc4ea7..f7f10b3abc45 100644
  	};
  
  	amp_en_reg: regulator@7 {
-@@ -456,6 +451,12 @@
+@@ -395,6 +390,12 @@
  			output-high;
  			line-name = "OTG EXTLPn";
  		};
@@ -60,7 +60,7 @@ index 79f97fdc4ea7..f7f10b3abc45 100644
  	};
  
  	gpio_exp_75: gpio@75 {
-@@ -487,6 +488,7 @@
+@@ -426,6 +427,7 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
@@ -68,7 +68,7 @@ index 79f97fdc4ea7..f7f10b3abc45 100644
  
  		i2c@0 {
  			#address-cells = <1>;
-@@ -591,7 +593,7 @@
+@@ -530,7 +532,7 @@
  				#sound-dai-cells = <0>;
  				compatible = "ti,pcm3168a";
  				reg = <0x44>;

@@ -63,7 +63,6 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  286 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  317 ++++
  .../arm64/boot/dts/renesas/r8a77965-m3nulcb-kf.dts |   41 +
- arch/arm64/boot/dts/renesas/r8a77965.dtsi          |   57 +
  .../boot/dts/renesas/r8a77970-eagle-function.dts   |   62 +
  arch/arm64/boot/dts/renesas/r8a77970-eagle.dts     |  356 +++++
  .../dts/renesas/r8a77970-es1-eagle-function.dts    |   17 +
@@ -87,12 +86,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  462 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1255 ++++++++++++++-
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1272 ++++++++++++++-
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  459 ++++++
  arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1591 +++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1641 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  523 +++++++
- 56 files changed, 13250 insertions(+), 3 deletions(-)
+ 55 files changed, 13210 insertions(+), 3 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
@@ -141,11 +140,11 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index 8abc96d..c9a9453 100644
+index b9f6bf0..e7fc36e 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -18,4 +18,27 @@ dtb-$(CONFIG_ARCH_R8A77990) += r8a77990-ebisu.dtb
- dtb-$(CONFIG_ARCH_R8A77990) += r8a77990-ebisu-4d.dtb
+@@ -20,4 +20,27 @@ dtb-$(CONFIG_ARCH_R8A77990) += r8a77990-ebisu-4d.dtb
+ dtb-$(CONFIG_ARCH_R8A77990) += r8a77990-es10-ebisu.dtb r8a77990-es10-ebisu-4d.dtb
  dtb-$(CONFIG_ARCH_R8A77995) += r8a77995-draak.dtb
  
 +# ADAS boards
@@ -438,10 +437,10 @@ index 0000000..484d97a
 +	pinctrl-names = "default";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
-index 009cb1c..5cc97d7 100644
+index 2f24dfc..88fee1f 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
-@@ -17,3 +17,28 @@
+@@ -14,3 +14,28 @@
  	compatible = "shimafuji,kingfisher", "renesas,h3ulcb",
  		     "renesas,r8a7795";
  };
@@ -2256,10 +2255,10 @@ index 0000000..2571de6
 +	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-index 4403227..72fec44 100644
+index 80791ed..c848c0e 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
-@@ -17,3 +17,28 @@
+@@ -14,3 +14,28 @@
  	compatible = "shimafuji,kingfisher", "renesas,h3ulcb",
  		     "renesas,r8a7795";
  };
@@ -3575,10 +3574,10 @@ index 0000000..d4d5557
 +	status = "okay";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-index de2390f..2f19ab9 100644
+index 2df50eb..803d3e1 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
-@@ -17,3 +17,29 @@
+@@ -14,3 +14,29 @@
  	compatible = "shimafuji,kingfisher", "renesas,m3ulcb",
  		     "renesas,r8a7796";
  };
@@ -4270,74 +4269,6 @@ index 0000000..806c873
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 79b171d..0a1de7e 100644
---- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -856,6 +856,63 @@
- 			status = "disabled";
- 		};
- 
-+		can0: can@e6c30000 {
-+			compatible = "renesas,can-r8a77965",
-+				     "renesas,rcar-gen3-can";
-+			reg = <0 0xe6c30000 0 0x1000>;
-+			interrupts = <GIC_SPI 186 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 916>,
-+			       <&cpg CPG_CORE R8A77965_CLK_CANFD>,
-+			       <&can_clk>;
-+			clock-names = "clkp1", "clkp2", "can_clk";
-+			assigned-clocks = <&cpg CPG_CORE R8A77965_CLK_CANFD>;
-+			assigned-clock-rates = <40000000>;
-+			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
-+			resets = <&cpg 916>;
-+			status = "disabled";
-+		};
-+
-+		can1: can@e6c38000 {
-+			compatible = "renesas,can-r8a77965",
-+				     "renesas,rcar-gen3-can";
-+			reg = <0 0xe6c38000 0 0x1000>;
-+			interrupts = <GIC_SPI 187 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 915>,
-+			       <&cpg CPG_CORE R8A77965_CLK_CANFD>,
-+			       <&can_clk>;
-+			clock-names = "clkp1", "clkp2", "can_clk";
-+			assigned-clocks = <&cpg CPG_CORE R8A77965_CLK_CANFD>;
-+			assigned-clock-rates = <40000000>;
-+			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
-+			resets = <&cpg 915>;
-+			status = "disabled";
-+		};
-+
-+		canfd: can@e66c0000 {
-+			compatible = "renesas,r8a77965-canfd",
-+				     "renesas,rcar-gen3-canfd";
-+			reg = <0 0xe66c0000 0 0x8000>;
-+			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
-+				   <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&cpg CPG_MOD 914>,
-+			       <&cpg CPG_CORE R8A77965_CLK_CANFD>,
-+			       <&can_clk>;
-+			clock-names = "fck", "canfd", "can_clk";
-+			assigned-clocks = <&cpg CPG_CORE R8A77965_CLK_CANFD>;
-+			assigned-clock-rates = <40000000>;
-+			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
-+			resets = <&cpg 914>;
-+			status = "disabled";
-+
-+			channel0 {
-+				status = "disabled";
-+			};
-+
-+			channel1 {
-+				status = "disabled";
-+			};
-+		};
-+
- 		avb: ethernet@e6800000 {
- 			compatible = "renesas,etheravb-r8a77965",
- 				     "renesas,etheravb-rcar-gen3";
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle-function.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle-function.dts
 new file mode 100644
 index 0000000..9043a07
@@ -4407,10 +4338,10 @@ index 0000000..9043a07
 +	status = "okay";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
-index 21f9cf5..1a26850 100644
+index b6d5332..6338ab3 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
-@@ -11,6 +11,7 @@
+@@ -8,6 +8,7 @@
  
  /dts-v1/;
  #include "r8a77970.dtsi"
@@ -4418,7 +4349,7 @@ index 21f9cf5..1a26850 100644
  
  / {
  	model = "Renesas Eagle board based on r8a77970";
-@@ -32,6 +33,58 @@
+@@ -29,6 +30,58 @@
  		reg = <0x0 0x48000000 0x0 0x38000000>;
  	};
  
@@ -4477,7 +4408,7 @@ index 21f9cf5..1a26850 100644
  	hdmi-out {
  		compatible = "hdmi-connector";
  		type = "a";
-@@ -105,6 +158,40 @@
+@@ -102,6 +155,40 @@
  	};
  };
  
@@ -4518,7 +4449,7 @@ index 21f9cf5..1a26850 100644
  &extal_clk {
  	clock-frequency = <16666666>;
  };
-@@ -158,6 +245,158 @@
+@@ -155,6 +242,158 @@
  			};
  		};
  	};
@@ -4677,7 +4608,7 @@ index 21f9cf5..1a26850 100644
  };
  
  &pfc {
-@@ -176,6 +415,11 @@
+@@ -173,6 +412,11 @@
  		function = "i2c0";
  	};
  
@@ -4689,7 +4620,7 @@ index 21f9cf5..1a26850 100644
  	scif0_pins: scif0 {
  		groups = "scif0_data";
  		function = "scif0";
-@@ -194,6 +438,118 @@
+@@ -191,6 +435,118 @@
  	status = "okay";
  };
  
@@ -6521,10 +6452,10 @@ index 0000000..75631fb
 +	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-index 9fce031..53e35fb 100644
+index 8eac8ca..2b614e4 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-@@ -30,6 +30,46 @@
+@@ -27,6 +27,46 @@
  		reg = <0x0 0x48000000 0x0 0x38000000>;
  	};
  
@@ -6571,7 +6502,7 @@ index 9fce031..53e35fb 100644
  	osc5_clk: osc5-clock {
  		compatible = "fixed-clock";
  		#clock-cells = <0>;
-@@ -181,6 +221,37 @@
+@@ -178,6 +218,37 @@
  			};
  		};
  	};
@@ -8307,15 +8238,15 @@ index 0000000..b854216
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index a4e715c..3e0d612 100644
+index 1b316d79..a70636e 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -13,6 +13,267 @@
+@@ -10,7 +10,239 @@
  	aliases {
  		serial1 = &hscif0;
  		serial2 = &scif1;
 +		serial3 = &hscif1;
-+	};
+ 	};
 +
 +	snd_clk: snd_clk {
 +		compatible = "fixed-clock";
@@ -8435,86 +8366,44 @@ index a4e715c..3e0d612 100644
 +	sound_ext: sound@0 {
 +		pinctrl-0 = <&sound_0_pins>;
 +		pinctrl-names = "default";
-+		compatible = "simple-audio-card";
 +
-+		simple-audio-card,format = "left_j";
-+		simple-audio-card,name = "pcm3168a";
++		compatible = "audio-graph-card";
 +
-+		simple-audio-card,bitclock-master = <&sound_ext_master>;
-+		simple-audio-card,frame-master = <&sound_ext_master>;
-+		sound_ext_master: simple-audio-card,cpu@0 {
-+			sound-dai = <&rcar_sound 0>;
-+			dai-tdm-slot-num = <8>;
-+			dai-tdm-slot-width = <32>;
-+		};
++		label = "pcm3168a";
 +
-+		simple-audio-card,codec@0 {
-+			sound-dai = <&pcm3168a>;
-+			dai-tdm-slot-num = <8>;
-+			dai-tdm-slot-width = <32>;
-+			system-clock-frequency = <24576000>;
-+		};
++		dais = <&rsnd_port0>;
 +	};
 +
 +	/delete-node/sound;
 +
 +	rsnd_ak4613: sound@1 {
-+		pinctrl-0 = <&sound_pins>;
-+		pinctrl-names = "default";
-+		compatible = "simple-audio-card";
++		compatible = "audio-graph-card";
 +
-+		simple-audio-card,format = "left_j";
-+		simple-audio-card,name = "ak4613";
++		label = "ak4613";
 +
-+		simple-audio-card,bitclock-master = <&sndcpu>;
-+		simple-audio-card,frame-master = <&sndcpu>;
-+
-+		sndcpu: simple-audio-card,cpu@1 {
-+			sound-dai = <&rcar_sound 1>;
-+		};
-+
-+		sndcodec: simple-audio-card,codec@1 {
-+			sound-dai = <&ak4613>;
-+		};
++		dais = <&rsnd_port1>;
 +	};
 +
 +	sound_radio: sound@2 {
 +		pinctrl-0 = <&sound_2_pins>;
 +		pinctrl-names = "default";
-+		compatible = "simple-audio-card";
 +
-+		simple-audio-card,format = "i2s";
-+		simple-audio-card,name = "radio";
++		compatible = "audio-graph-card";
 +
-+		simple-audio-card,bitclock-master = <&sound_radio_master>;
-+		simple-audio-card,frame-master = <&sound_radio_master>;
-+		simple-audio-card,cpu@2 {
-+			sound-dai = <&rcar_sound 2>;
-+		};
++		label = "radio";
 +
-+		sound_radio_master: simple-audio-card,codec@2 {
-+			sound-dai = <&radio>;
-+			system-clock-frequency = <12288000>;
-+		};
++		dais = <&rsnd_port2>;
 +	};
 +
 +	sound_wl18xx: sound@3 {
 +		pinctrl-0 = <&sound_3_pins>;
 +		pinctrl-names = "default";
-+		compatible = "simple-audio-card";
 +
-+		simple-audio-card,format = "i2s";
-+		simple-audio-card,name = "wl18xx";
++		compatible = "audio-graph-card";
 +
-+		simple-audio-card,bitclock-master = <&sound_wl18xx_master>;
-+		simple-audio-card,frame-master = <&sound_wl18xx_master>;
-+		sound_wl18xx_master: simple-audio-card,cpu@3 {
-+			sound-dai = <&rcar_sound 3>;
-+		};
++		label = "wl18xx";
 +
-+		simple-audio-card,codec@3 {
-+			sound-dai = <&wl18xx_pcm>;
-+		};
++		dais = <&rsnd_port3>;
 +	};
 +
 +	lvds {
@@ -8560,14 +8449,23 @@ index a4e715c..3e0d612 100644
 +		compatible = "si,si468x-pcm";
 +		status = "okay";
 +
-+		#sound-dai-cells = <0>;
++		port {
++			radio_endpoint: endpoint {
++				remote-endpoint = <&rsnd_endpoint2>;
++				system-clock-frequency = <12288000>;
++			};
++		};
 +	};
 +
 +	wl18xx_pcm: wl18xx_pcm@0 {
 +		compatible = "ti,wl18xx-pcm";
 +		status = "okay";
 +
-+		#sound-dai-cells = <0>;
++		port {
++			wl18xx_pcm_endpoint: endpoint {
++				remote-endpoint = <&rsnd_endpoint3>;
++			};
++		};
 +	};
 +
 +	camera_clk: camera_clk {
@@ -8575,10 +8473,15 @@ index a4e715c..3e0d612 100644
 +		#clock-cells = <0>;
 +		clock-frequency = <24000000>;
 +		clock-output-names = "mclk";
- 	};
++	};
++};
++
++&ak4613_endpoint {
++	remote-endpoint = <&rsnd_endpoint1>;
  };
  
-@@ -28,11 +289,113 @@
+ &can0 {
+@@ -25,11 +257,113 @@
  	status = "okay";
  };
  
@@ -8692,7 +8595,7 @@ index a4e715c..3e0d612 100644
  &hscif0 {
  	pinctrl-0 = <&hscif0_pins>;
  	pinctrl-names = "default";
-@@ -41,21 +404,31 @@
+@@ -38,21 +372,31 @@
  	status = "okay";
  };
  
@@ -8725,7 +8628,7 @@ index a4e715c..3e0d612 100644
  		hub_pwen {
  			gpio-hog;
  			gpios = <6 GPIO_ACTIVE_HIGH>;
-@@ -93,6 +466,19 @@
+@@ -90,6 +434,19 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio6>;
  		interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
@@ -8745,7 +8648,7 @@ index a4e715c..3e0d612 100644
  	};
  
  	i2cswitch2: i2c-switch@71 {
-@@ -101,6 +487,133 @@
+@@ -98,6 +455,142 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios = <&gpio5 3 GPIO_ACTIVE_LOW>;
@@ -8862,6 +8765,15 @@ index a4e715c..3e0d612 100644
 +				VCCAD2-supply = <&codec_en_reg>;
 +				VCCDA1-supply = <&amp_en_reg>;
 +				VCCDA2-supply = <&amp_en_reg>;
++
++				port {
++					pcm3168a_endpoint: endpoint {
++						remote-endpoint = <&rsnd_endpoint0>;
++						dai-tdm-slot-num = <8>;
++						dai-tdm-slot-width = <32>;
++						system-clock-frequency = <24576000>;
++					};
++				};
 +			};
 +
 +			lsm9ds0_acc_mag@1d {
@@ -8879,7 +8791,7 @@ index a4e715c..3e0d612 100644
  	};
  };
  
-@@ -113,6 +626,76 @@
+@@ -110,6 +603,76 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio7>;
  		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
@@ -8956,7 +8868,7 @@ index a4e715c..3e0d612 100644
  	};
  
  	gpio_exp_77: gpio@77 {
-@@ -123,6 +706,31 @@
+@@ -120,6 +683,31 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio5>;
  		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
@@ -8988,10 +8900,10 @@ index a4e715c..3e0d612 100644
  	};
  
  	i2cswitch4: i2c-switch@71 {
-@@ -131,9 +739,359 @@
+@@ -128,9 +716,359 @@
  		#size-cells = <0>;
  		reg = <0x71>;
- 		reset-gpios= <&gpio3 15 GPIO_ACTIVE_LOW>;
+ 		reset-gpios = <&gpio3 15 GPIO_ACTIVE_LOW>;
 +
 +		i2c@0 {
 +			#address-cells = <1>;
@@ -9348,7 +9260,7 @@ index a4e715c..3e0d612 100644
  &ohci0 {
  	dr_mode = "otg";
  	status = "okay";
-@@ -141,6 +1099,7 @@
+@@ -138,6 +1076,7 @@
  
  &pcie_bus_clk {
  	clock-frequency = <100000000>;
@@ -9356,7 +9268,7 @@ index a4e715c..3e0d612 100644
  };
  
  &pciec0 {
-@@ -149,6 +1108,9 @@
+@@ -146,6 +1085,9 @@
  
  &pciec1 {
  	status = "okay";
@@ -9366,7 +9278,7 @@ index a4e715c..3e0d612 100644
  };
  
  &pfc {
-@@ -162,30 +1124,146 @@
+@@ -159,30 +1101,183 @@
  		function = "can1";
  	};
  
@@ -9448,24 +9360,61 @@ index a4e715c..3e0d612 100644
 +	/* Multi DAI */
 +	#sound-dai-cells = <1>;
 +
-+	rcar_sound,dai {
-+		dai0 {
-+			playback = <&ssi3>;
-+			capture  = <&ssi4>;
-+		};
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		rsnd_port0: port@0 {
++			reg = <0>;
++			rsnd_endpoint0: endpoint {
++				remote-endpoint = <&pcm3168a_endpoint>;
 +
-+		dai1 {
-+			playback = <&ssi0 &src0 &dvc0>;
-+			capture  = <&ssi1 &src1 &dvc1>;
-+		};
++				dai-format = "left_j";
++				bitclock-master = <&pcm3168a_endpoint>;
++				frame-master = <&pcm3168a_endpoint>;
++				dai-tdm-slot-num = <8>;
++				dai-tdm-slot-width = <32>;
 +
-+		dai2 {
-+			capture  = <&ssi6>;
++				playback = <&ssi3>;
++				capture  = <&ssi4>;
++			};
 +		};
++		rsnd_port1: port@1 {
++			reg = <1>;
++			rsnd_endpoint1: endpoint {
++				remote-endpoint = <&ak4613_endpoint>;
 +
-+		dai3 {
-+			playback = <&ssi7>;
-+			capture  = <&ssi8>;
++				dai-format = "left_j";
++				bitclock-master = <&rsnd_endpoint1>;
++				frame-master = <&rsnd_endpoint1>;
++
++				playback = <&ssi0 &src0 &dvc0>;
++				capture  = <&ssi1 &src1 &dvc1>;
++			};
++		};
++		rsnd_port2: port@2  {
++			reg = <2>;
++			rsnd_endpoint2: endpoint {
++				remote-endpoint = <&radio_endpoint>;
++
++				dai-format = "i2s";
++				bitclock-master = <&radio_endpoint>;
++				frame-master = <&radio_endpoint>;
++
++				capture  = <&ssi6>;
++			};
++		};
++		rsnd_port3: port@3  {
++			reg = <3>;
++			rsnd_endpoint3: enpoint {
++				remote-endpoint = <&wl18xx_pcm_endpoint>;
++
++				simple-audio-card,format = "i2s";
++				bitclock-master = <&wl18xx_pcm_endpoint>;
++				frame-master = <&wl18xx_pcm_endpoint>;
++
++				playback = <&ssi7>;
++				capture  = <&ssi8>;
++			};
 +		};
 +	};
  };
@@ -9515,7 +9464,7 @@ index a4e715c..3e0d612 100644
  &usb2_phy0 {
  	pinctrl-0 = <&usb0_pins>;
  	pinctrl-names = "default";
-@@ -193,6 +1271,177 @@
+@@ -190,6 +1285,177 @@
  	status = "okay";
  };
  

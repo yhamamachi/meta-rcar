@@ -78,10 +78,10 @@ index 0000000..1779a2b
 +	};
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index dbec19a..7875022 100644
+index ccc84cb..731300e 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -1431,3 +1431,8 @@
+@@ -1443,3 +1443,8 @@
  
  
  

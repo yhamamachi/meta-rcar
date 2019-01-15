@@ -13,10 +13,10 @@ Signed-off-by: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
  2 files changed, 29 insertions(+)
 
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-index fe18a5d..821f78f 100644
+index 73d8ccb..8a30267 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-@@ -247,6 +247,8 @@ enum adv7511_sync_polarity {
+@@ -271,6 +271,8 @@ enum adv7511_sync_polarity {
   * @sync_pulse:			Select the sync pulse
   * @vsync_polarity:		vsync input signal configuration
   * @hsync_polarity:		hsync input signal configuration
@@ -25,7 +25,7 @@ index fe18a5d..821f78f 100644
   */
  struct adv7511_link_config {
  	unsigned int input_color_depth;
-@@ -261,6 +263,9 @@ struct adv7511_link_config {
+@@ -285,6 +287,9 @@ struct adv7511_link_config {
  	enum adv7511_input_sync_pulse sync_pulse;
  	enum adv7511_sync_polarity vsync_polarity;
  	enum adv7511_sync_polarity hsync_polarity;
@@ -35,7 +35,7 @@ index fe18a5d..821f78f 100644
  };
  
  /**
-@@ -327,6 +332,8 @@ struct adv7511 {
+@@ -354,6 +359,8 @@ struct adv7511 {
  	enum adv7511_sync_polarity vsync_polarity;
  	enum adv7511_sync_polarity hsync_polarity;
  	bool rgb;
@@ -45,7 +45,7 @@ index fe18a5d..821f78f 100644
  	struct gpio_desc *gpio_pd;
  
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index b2431ae..dba1d2f 100644
+index 808021f..470be69 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 @@ -323,6 +323,8 @@ static void adv7511_set_link_config(struct adv7511 *adv7511,
@@ -57,7 +57,7 @@ index b2431ae..dba1d2f 100644
  }
  
  static void __adv7511_power_on(struct adv7511 *adv7511)
-@@ -648,6 +650,16 @@ static int adv7511_mode_valid(struct adv7511 *adv7511,
+@@ -672,6 +674,16 @@ static enum drm_mode_status adv7511_mode_valid(struct adv7511 *adv7511,
  	if (mode->clock > 165000)
  		return MODE_CLOCK_HIGH;
  
@@ -74,7 +74,7 @@ index b2431ae..dba1d2f 100644
  	return MODE_OK;
  }
  
-@@ -999,6 +1011,16 @@ static int adv7511_parse_dt(struct device_node *np,
+@@ -1089,6 +1101,16 @@ static int adv7511_parse_dt(struct device_node *np,
  	config->vsync_polarity = ADV7511_SYNC_POLARITY_PASSTHROUGH;
  	config->hsync_polarity = ADV7511_SYNC_POLARITY_PASSTHROUGH;
  
