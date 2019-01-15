@@ -32,12 +32,12 @@ index 3965ce3..b3a0905 100644
      compatible = "renesas,marzen", "renesas,r8a7779"
    - Porter (M2-LCDP)
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index d21b561..8abc96d 100644
+index c8f2891..b9f6bf0 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -11,6 +11,7 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-x.dtb r8a7796-m3ulcb.dtb
- dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb
+@@ -12,6 +12,7 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-m3ulcb-kf.dtb
  dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
+ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs-2x4g.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb r8a77965-salvator-xs.dtb
 +dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-m3nulcb.dtb
  dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-eagle.dtb r8a77970-v3msk.dtb

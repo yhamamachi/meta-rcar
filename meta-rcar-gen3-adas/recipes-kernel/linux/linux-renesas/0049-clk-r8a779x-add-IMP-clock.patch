@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  2 files changed, 2 insertions(+)
 
 diff --git a/drivers/clk/renesas/r8a7795-cpg-mssr.c b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-index 6573203..aaa25c1 100644
+index 02cddcb..a45822d 100644
 --- a/drivers/clk/renesas/r8a7795-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a7795-cpg-mssr.c
-@@ -232,6 +232,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
+@@ -233,6 +233,7 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
  	DEF_MOD("imr2",			 821,	R8A7795_CLK_S0D2),
  	DEF_MOD("imr1",			 822,	R8A7795_CLK_S0D2),
  	DEF_MOD("imr0",			 823,	R8A7795_CLK_S0D2),
@@ -24,10 +24,10 @@ index 6573203..aaa25c1 100644
  	DEF_MOD("gpio6",		 906,	R8A7795_CLK_S3D4),
  	DEF_MOD("gpio5",		 907,	R8A7795_CLK_S3D4),
 diff --git a/drivers/clk/renesas/r8a7796-cpg-mssr.c b/drivers/clk/renesas/r8a7796-cpg-mssr.c
-index 73e04a0..1e1a46a 100644
+index dfc4741..957e64f 100644
 --- a/drivers/clk/renesas/r8a7796-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a7796-cpg-mssr.c
-@@ -204,6 +204,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] __initconst = {
+@@ -205,6 +205,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] __initconst = {
  	DEF_MOD("etheravb",		 812,	R8A7796_CLK_S0D6),
  	DEF_MOD("imr1",			 822,	R8A7796_CLK_S0D2),
  	DEF_MOD("imr0",			 823,	R8A7796_CLK_S0D2),

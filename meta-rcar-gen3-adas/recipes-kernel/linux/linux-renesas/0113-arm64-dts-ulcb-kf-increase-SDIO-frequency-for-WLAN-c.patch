@@ -15,10 +15,10 @@ Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 74555ad..2a09276 100644
+index 61b7851..ccc84cb 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -1243,7 +1243,7 @@
+@@ -1228,7 +1228,7 @@
  	no-1-8-v;
  	non-removable;
  	cap-power-off-card;

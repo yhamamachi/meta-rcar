@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index ab4ddfc..9fae2f9 100644
+index 470be69..06a70f0 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -551,18 +551,19 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
+@@ -553,18 +553,19 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
  		 * support 64 byte transfers than 256 byte transfers
  		 */
  
@@ -37,7 +37,7 @@ index ab4ddfc..9fae2f9 100644
  			ret = i2c_transfer(adv7511->i2c_edid->adapter, xfer,
  					   ARRAY_SIZE(xfer));
  			if (ret < 0)
-@@ -570,8 +571,8 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
+@@ -572,8 +573,8 @@ static int adv7511_get_edid_block(void *data, u8 *buf, unsigned int block,
  			else if (ret != 2)
  				return -EIO;
  
