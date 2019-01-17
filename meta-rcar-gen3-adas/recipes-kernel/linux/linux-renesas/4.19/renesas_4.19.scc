@@ -338,3 +338,4 @@ patch 0337-lvds-AR233-add-rev1-silion-setup.patch
 patch 0338-lvds-AR0231-add-rev6-rev4-on-max9286.patch
 patch 0339-lvds-add-OV10640-imager.patch
 patch 0340-lvds-ti9x4-fix-remote-gpio-enablement-on-UB913.patch
+patch 0341-lvds-add-dummy-imager-driver.patch
