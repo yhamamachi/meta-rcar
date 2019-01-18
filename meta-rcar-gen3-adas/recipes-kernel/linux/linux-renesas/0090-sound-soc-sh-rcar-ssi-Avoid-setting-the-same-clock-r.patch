@@ -1,0 +1,42 @@
+From d09475f7e3aa4d1275b6dc03ccdab6cc002a8fb2 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 17 Jan 2019 22:00:11 +0300
+Subject: [PATCH] sound: soc: sh: rcar: ssi: Avoid setting the same clock
+ rate
+
+When the SSI master clock is re-enabled with the same clock rate,
+the sound stops working. This issue has been observed on Kingfisher
+PCM3168a sound card. Avoid re-enabling the clock with the same rate
+to workaround the issue.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ sound/soc/sh/rcar/ssi.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index a9d0692..a5fe80b 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -287,13 +287,12 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
+ 	if (rsnd_ssi_is_multi_slave(mod, io))
+ 		return 0;
+ 
+-	if (ssi->usrcnt > 1) {
+-		if (ssi->rate != rate) {
+-			dev_err(dev, "SSI parent/child should use same rate\n");
+-			return -EINVAL;
+-		}
+-
++	if (ssi->rate == rate)
+ 		return 0;
++
++	if (ssi->usrcnt > 1) {
++		dev_err(dev, "SSI parent/child should use same rate\n");
++		return -EINVAL;
+ 	}
+ 
+ 	main_rate = rsnd_ssi_clk_query(priv, rate, chan, &idx);
+-- 
+2.7.4
+
