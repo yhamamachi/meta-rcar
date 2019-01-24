@@ -167,6 +167,7 @@ SRC_URI_append = " \
     file://0145-arm64-dts-renesas-r8a7797-Add-sadc-node.patch \
     file://0146-iio-adc-Add-R-Car-SADC-driver.patch \
     file://0147-arm-renesas-r8a7798-fix-VIN14-VIN15-interrupts.patch \
+    file://0148-media-rcar-imr-Add-stride-support-to-IMR.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
