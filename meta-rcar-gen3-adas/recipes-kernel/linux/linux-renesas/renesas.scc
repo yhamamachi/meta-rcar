@@ -52,6 +52,8 @@ patch 0076-MOST-dim2-Renesas-R-Car3-variant.patch
 patch 0077-MOST-dim2-add-timeouts.patch
 patch 0078-MOST-aim-fix-null-pointer-crash.patch
 patch 0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch
+patch 0080-clk-renesas-r8a77965-cpg-mssr-Add-IMR-clocks.patch
+patch 0081-arm64-dts-renesas-r8a77965-Add-IMR-device-nodes.patch
 patch 0110-mmc-tmio-Add-SDHI-SEQUENCER-support.patch
 patch 0111-mmc-renesas_sdhi-Add-SDHI-SEQUENCER-support.patch
 patch 0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch
