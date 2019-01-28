@@ -340,3 +340,4 @@ patch 0339-lvds-add-OV10640-imager.patch
 patch 0340-lvds-ti9x4-fix-remote-gpio-enablement-on-UB913.patch
 patch 0341-lvds-add-dummy-imager-driver.patch
 patch 0342-media-soc_camera-Add-events-support.patch
+patch 0343-media-rcar-imr-Add-stride-support-to-IMR.patch
