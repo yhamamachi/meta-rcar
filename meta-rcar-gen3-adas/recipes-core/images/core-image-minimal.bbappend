@@ -6,5 +6,8 @@ IMAGE_INSTALL_append = " \
     packagegroup-bsp-custom \
     packagegroup-bsp-utest \
     packagegroup-bsp-python2 \
+"
+
+IMAGE_INSTALL_append_rcar-gen3-v3x = " \
     packagegroup-v3x \
 "
