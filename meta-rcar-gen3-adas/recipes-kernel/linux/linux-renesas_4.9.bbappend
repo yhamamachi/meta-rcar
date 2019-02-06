@@ -141,10 +141,33 @@ SRC_URI_append = " \
     file://lvds/0014-LVDS-ap0101-add-serializer-HS-generator.patch \
     file://lvds/0015-lvds-ti960-fix-frame-sync-time-for-different-ref-clo.patch \
     file://lvds/0016-lvds-add-AR0323-imager.patch \
+    file://lvds/0017-lvds-add-ISX016-imager.patch \
+    file://lvds/0018-LVDS-ar0233-set-frame-size-1920x1200.patch \
+    file://lvds/0019-lvds-AR0233-add-different-vendor.patch \
+    file://lvds/0020-VIN-add-ISP-source-enable.patch \
+    file://lvds/0021-lvds-poll-ub960-deserializer-lock-status.patch \
+    file://lvds/0022-lvds-AR0231-modify-with-rev7-silicon.patch \
+    file://lvds/0023-lvds-AR0233-modify-with-rev2-silicon.patch \
+    file://lvds/0024-lvds-ti9x4-fix-remote-gpio-enablement-for-4-cams.patch \
+    file://lvds/0025-lvds-AR233-add-rev1-silion-setup.patch \
+    file://lvds/0026-lvds-AR0231-add-rev6-rev4-on-max9286.patch \
+    file://lvds/0027-media-soc_camera-imx390-Add-new-V4L-controls.patch \
+    file://lvds/0028-lvds-add-OV10640-imager.patch \
+    file://lvds/0029-lvds-ti9x4-fix-remote-gpio-enablement-on-UB913.patch \
+    file://lvds/0030-lvds-add-dummy-imager-driver.patch \
+    file://lvds/0031-media-soc_camera-Add-events-support.patch \
     ${@base_conditional("EAGLE_ENABLE_ADV7482", "1", " file://dts/0001-arch-arm64-dts-Add-Eagle-function-ADV7482-dtsi.patch", "", d)} \
     file://0138-mtd-spi-nor-remove-WARN_ONCE-message-in-spi_nor_writ.patch \
     file://0139-Renesas-RPC-support-single-mode-write-command.patch \
     file://0140-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch \
+    file://0141-sh-pfc-pfc-r8a7798.c-Fix-RCAR-V3H-condor-wrong-IPSR9.patch \
+    file://0142-arm64-dts-r8a779-78-Set-QSPI-flash-address-and-size-.patch \
+    file://0143-arm64-dts-renesas-Fix-bl31-partition-size.patch \
+    file://0144-clk-renesas-r8a7797-cpg-mssr-Add-sadc-clock.patch \
+    file://0145-arm64-dts-renesas-r8a7797-Add-sadc-node.patch \
+    file://0146-iio-adc-Add-R-Car-SADC-driver.patch \
+    file://0147-arm-renesas-r8a7798-fix-VIN14-VIN15-interrupts.patch \
+    file://0148-media-rcar-imr-Add-stride-support-to-IMR.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

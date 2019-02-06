@@ -132,7 +132,7 @@ index 2681c8a..542ca5a 100644
  	format.pad = RWPF_PAD_SOURCE;
 +	/* ...force conversion back to ARGB at the output */
 +	format.format.code = MEDIA_BUS_FMT_ARGB8888_1X32;
-+	ret = v4l2_subdev_call(&vsp1->wpf[0]->entity.subdev, pad, set_fmt, NULL,
++	ret = v4l2_subdev_call(&vsp1->wpf[lif_index]->entity.subdev, pad, set_fmt, NULL,
 +			       &format);
 +	if (ret < 0)
 +		return ret;

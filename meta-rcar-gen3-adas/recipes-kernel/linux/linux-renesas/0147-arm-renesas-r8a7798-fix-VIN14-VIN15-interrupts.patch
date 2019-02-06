@@ -1,0 +1,35 @@
+From 31d9373fcf84e15c412d1e9e0fbf7452dde6b26a Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sat, 29 Dec 2018 17:27:22 +0300
+Subject: [PATCH] arm: renesas: r8a7798: fix VIN14, VIN15 interrupts
+
+This fixes VIN14, VIN15 interrupt sources
+---
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+index 3224adf..41e74a3 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+@@ -1251,7 +1251,7 @@
+ 		vin14: video@e6efe000 {
+ 			compatible = "renesas,vin-r8a7798";
+ 			reg = <0 0xe6efe000 0 0x1000>;
+-			interrupts = <GIC_SPI 000 IRQ_TYPE_LEVEL_HIGH>; /* FIXME no info in datasheet */
++			interrupts = <GIC_SPI 301 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 605>;
+ 			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
+ 			status = "disabled";
+@@ -1260,7 +1260,7 @@
+ 		vin15: video@e6eff000 {
+ 			compatible = "renesas,vin-r8a7798";
+ 			reg = <0 0xe6eff000 0 0x1000>;
+-			interrupts = <GIC_SPI 000 IRQ_TYPE_LEVEL_HIGH>; /* FIXME no info in datasheet */
++			interrupts = <GIC_SPI 302 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 604>;
+ 			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
+ 			status = "disabled";
+-- 
+1.9.1
+
