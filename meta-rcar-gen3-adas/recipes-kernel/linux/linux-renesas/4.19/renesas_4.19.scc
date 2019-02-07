@@ -341,3 +341,8 @@ patch 0340-lvds-ti9x4-fix-remote-gpio-enablement-on-UB913.patch
 patch 0341-lvds-add-dummy-imager-driver.patch
 patch 0342-media-soc_camera-Add-events-support.patch
 patch 0343-media-rcar-imr-Add-stride-support-to-IMR.patch
+patch 0344-arm64-renesas-r8a7798-VB-use-REFCLK-23.0MHZ.patch
+patch 0345-lvds-ti9x4-use-REFCLK-23.0MHz.patch
+patch 0346-lvds-ar0231-fix-comments.patch
+patch 0347-lvds-ISX019-rename-isx016-to-isx019.patch
+patch 0348-lvds-add-ISX016-imager.patch
