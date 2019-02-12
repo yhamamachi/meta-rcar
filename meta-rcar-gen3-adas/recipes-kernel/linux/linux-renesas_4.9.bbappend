@@ -174,6 +174,8 @@ SRC_URI_append = " \
     file://lvds/0034-lvds-ISX019-rename-isx016-to-isx019.patch \
     file://lvds/0035-lvds-add-ISX016-imager.patch \
     file://lvds/0036-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch \
+    file://lvds/0037-lvds-AR323-fix-reset-gpio-nadling.patch \
+    file://lvds/0038-lvds-OV495-fix-reset-gpio-handling.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
