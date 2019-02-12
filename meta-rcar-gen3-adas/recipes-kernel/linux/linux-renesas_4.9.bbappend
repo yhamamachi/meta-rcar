@@ -168,6 +168,14 @@ SRC_URI_append = " \
     file://0146-iio-adc-Add-R-Car-SADC-driver.patch \
     file://0147-arm-renesas-r8a7798-fix-VIN14-VIN15-interrupts.patch \
     file://0148-media-rcar-imr-Add-stride-support-to-IMR.patch \
+    file://v3h-vb//0008-arm64-renesas-r8a7798-VB-use-REFCLK-23.0MHZ.patch \
+    file://lvds/0032-lvds-ti9x4-use-REFCLK-23.0MHz.patch \
+    file://lvds/0033-lvds-ar0231-fix-comments.patch \
+    file://lvds/0034-lvds-ISX019-rename-isx016-to-isx019.patch \
+    file://lvds/0035-lvds-add-ISX016-imager.patch \
+    file://lvds/0036-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch \
+    file://lvds/0037-lvds-AR323-fix-reset-gpio-nadling.patch \
+    file://lvds/0038-lvds-OV495-fix-reset-gpio-handling.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
