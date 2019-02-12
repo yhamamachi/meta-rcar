@@ -347,3 +347,5 @@ patch 0346-lvds-ar0231-fix-comments.patch
 patch 0347-lvds-ISX019-rename-isx016-to-isx019.patch
 patch 0348-lvds-add-ISX016-imager.patch
 patch 0349-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch
+patch 0350-lvds-AR323-fix-reset-gpio-nadling.patch
+patch 0351-lvds-OV495-fix-reset-gpio-handling.patch
