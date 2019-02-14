@@ -176,6 +176,7 @@ SRC_URI_append = " \
     file://lvds/0036-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch \
     file://lvds/0037-lvds-AR323-fix-reset-gpio-nadling.patch \
     file://lvds/0038-lvds-OV495-fix-reset-gpio-handling.patch \
+    file://lvds/0039-lvds-AR0323-replace-with-REV2-setup-table.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
