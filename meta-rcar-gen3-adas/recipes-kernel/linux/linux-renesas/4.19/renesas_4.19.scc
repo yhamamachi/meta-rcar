@@ -351,3 +351,4 @@ patch 0350-lvds-AR323-fix-reset-gpio-nadling.patch
 patch 0351-lvds-OV495-fix-reset-gpio-handling.patch
 patch 0352-lvds-AR0323-replace-with-REV2-setup-table.patch
 patch 0353-block-blk-mq-Fix-IO-hang.patch
+patch 0354-nvme-Workaround-Samsung-970-Pro-power-state-issues.patch
