@@ -352,3 +352,7 @@ patch 0351-lvds-OV495-fix-reset-gpio-handling.patch
 patch 0352-lvds-AR0323-replace-with-REV2-setup-table.patch
 patch 0353-block-blk-mq-Fix-IO-hang.patch
 patch 0354-nvme-Workaround-Samsung-970-Pro-power-state-issues.patch
+patch 0355-nvme-pci-add-SGL-support.patch
+patch 0356-nvme-pci-don-t-open-code-nvme_reset_ctrl.patch
+patch 0357-nvme-pci-limit-max-IO-size-and-segments-to-avoid-hig.patch
+patch 0358-swiotlb-Respect-DMA_ATTR_NO_WARN-in-swiotlb_map_sg_a.patch
