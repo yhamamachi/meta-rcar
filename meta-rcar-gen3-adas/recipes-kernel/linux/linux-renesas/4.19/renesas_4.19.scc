@@ -350,3 +350,4 @@ patch 0349-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch
 patch 0350-lvds-AR323-fix-reset-gpio-nadling.patch
 patch 0351-lvds-OV495-fix-reset-gpio-handling.patch
 patch 0352-lvds-AR0323-replace-with-REV2-setup-table.patch
+patch 0353-block-blk-mq-Fix-IO-hang.patch
