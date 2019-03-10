@@ -86,6 +86,7 @@ SRC_URI_append = " \
     file://0125-nvme-pci-don-t-open-code-nvme_reset_ctrl.patch \
     file://0126-nvme-pci-limit-max-IO-size-and-segments-to-avoid-hig.patch \
     file://0127-swiotlb-Respect-DMA_ATTR_NO_WARN-in-swiotlb_map_sg_a.patch \
+    file://0128-arm64-dts-Add-H3ULCB-VideoBox-2.1-support.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -113,9 +114,11 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-h3ulcb-4x2g-kf.dtb \
     renesas/r8a7795-h3ulcb-vb.dtb \
     renesas/r8a7795-h3ulcb-vb2.dtb \
+    renesas/r8a7795-h3ulcb-vb2.1.dtb \
     renesas/r8a7795-h3ulcb-vbm.dtb \
     renesas/r8a7795-h3ulcb-4x2g-vb.dtb \
     renesas/r8a7795-h3ulcb-4x2g-vb2.dtb \
+    renesas/r8a7795-h3ulcb-4x2g-vb2.1.dtb \
     renesas/r8a7795-h3ulcb-4x2g-vbm.dtb \
 "
 
