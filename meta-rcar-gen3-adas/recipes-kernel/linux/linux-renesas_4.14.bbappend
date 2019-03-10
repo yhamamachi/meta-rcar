@@ -82,6 +82,10 @@ SRC_URI_append = " \
     ${@oe.utils.conditional("KF_PANEL_MODEL", "AA121TD01", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA121TD01-1.patch", "", d)} \
     file://0122-block-blk-mq-Fix-IO-hang.patch \
     file://0123-nvme-Workaround-Samsung-970-Pro-power-state-issues.patch \
+    file://0124-nvme-pci-add-SGL-support.patch \
+    file://0125-nvme-pci-don-t-open-code-nvme_reset_ctrl.patch \
+    file://0126-nvme-pci-limit-max-IO-size-and-segments-to-avoid-hig.patch \
+    file://0127-swiotlb-Respect-DMA_ATTR_NO_WARN-in-swiotlb_map_sg_a.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
