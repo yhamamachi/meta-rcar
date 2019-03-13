@@ -17,6 +17,8 @@ SRC_URI_append = " \
     file://0002-plat-renesas-rcar-kingfisher-reboot-fix-power-off-on-reset.patch \
     file://0003-plat-renesas-rcar-V3M-support.patch \
     file://0004-plat-renesas-rcar-V3H-support.patch \
+    file://0005-plat-renesas-rcar-Introduce-RPC-clock-functions.patch \
+    file://0006-plat-renesas-rcar-Set-maximum-supported-RPC-frequenc.patch \
 "
 
 do_deploy_append() {

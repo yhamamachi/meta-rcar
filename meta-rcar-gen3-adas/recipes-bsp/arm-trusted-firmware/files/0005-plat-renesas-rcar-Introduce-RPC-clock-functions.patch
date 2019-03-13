@@ -1,0 +1,126 @@
+From c83f29304123ed4bcb5f9df7eea7f63d5282c85f Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Tue, 19 Jun 2018 20:47:04 +0300
+Subject: [PATCH 1/2] plat: renesas: rcar: Introduce RPC clock functions
+
+This introduces the following callbacks:
+ - uint32_t rpc_clk_freq_max(void);
+ - void rpc_clk_freq_set(uint32_t).
+The former returns maximum supported RPC frequency in MHz.
+The latter sets closest RPC interface frequency in the CPG
+if it's supported. Otherwise, it does nothing.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ plat/renesas/rcar/aarch64/rcar_drivers_common.c | 80 +++++++++++++++++++++++++
+ plat/renesas/rcar/rcar_private.h                |  8 +++
+ 2 files changed, 88 insertions(+)
+
+diff --git a/plat/renesas/rcar/aarch64/rcar_drivers_common.c b/plat/renesas/rcar/aarch64/rcar_drivers_common.c
+index 0ad22b2..3d37f1f 100644
+--- a/plat/renesas/rcar/aarch64/rcar_drivers_common.c
++++ b/plat/renesas/rcar/aarch64/rcar_drivers_common.c
+@@ -31,3 +31,83 @@ void
+ 	while ((mmio_read_32(mstpsr) & target_bit) != 0U) {
+ 	}
+ }
++
++#if (RCAR_LSI != RCAR_V3H) && (RCAR_LSI != RCAR_V3M)
++#include <debug.h>
++#define CPG_RPCCKCR     (0xE6150238U)
++
++uint32_t
++#if IMAGE_BL31
++	__attribute__ ((section (".system_ram")))
++#endif
++	rpc_clk_freq_max(void)
++{
++	uint32_t reg = mmio_read_32(RCAR_PRR);
++	uint32_t cut = reg & RCAR_CUT_MASK;
++
++	switch (reg & RCAR_PRODUCT_MASK) {
++	case RCAR_PRODUCT_E3:
++		return 150;
++	case RCAR_PRODUCT_H3:
++		if ((cut == RCAR_CUT_VER10) || (cut == RCAR_CUT_VER11))
++			return 80;
++		break;
++	case RCAR_PRODUCT_M3:
++		if (cut == RCAR_CUT_VER10)
++			return 80;
++		break;
++	case RCAR_PRODUCT_M3N:
++		break;
++	default:
++		return 40;
++	}
++
++	return 160;
++}
++
++void
++#if IMAGE_BL31
++	__attribute__ ((section (".system_ram")))
++#endif
++	rpc_clk_freq_set(uint32_t freq)
++{
++	uint32_t reg = mmio_read_32(RCAR_PRR);
++	uint32_t dataL;
++
++	switch (reg & RCAR_PRODUCT_MASK) {
++	case RCAR_PRODUCT_H3:
++	case RCAR_PRODUCT_M3:
++	case RCAR_PRODUCT_M3N:
++		if (freq >= 160) {
++			freq = 160;
++			dataL = 0x00000011U;	/* RPC clock 160MHz */
++		} else if (freq >= 80) {
++			freq = 80;
++			dataL = 0x00000013U;	/* RPC clock 80MHz */
++		} else {
++			freq = 40;
++			dataL = 0x00000017U;	/* RPC clock 40MHz */
++		}
++		break;
++	case RCAR_PRODUCT_E3:
++		if (freq >= 150) {
++			freq = 150;
++			dataL = 0x00000011U;	/* RPC clock 150MHz */
++		} else if (freq >= 80) {
++			freq = 80;
++			dataL = 0x00000001U;	/* RPC clock 80MHz */
++		} else {
++			freq = 40;
++			dataL = 0x00000003U;	/* RPC clock 40MHz */
++		}
++		break;
++	default:
++		return;
++	}
++
++	cpg_write(CPG_RPCCKCR, dataL);
++	while (mmio_read_32(CPG_RPCCKCR) != dataL);
++
++	VERBOSE("RPC frequency: %d MHz\n", freq);
++}
++#endif
+diff --git a/plat/renesas/rcar/rcar_private.h b/plat/renesas/rcar/rcar_private.h
+index 865cb53..f7de1ad 100644
+--- a/plat/renesas/rcar/rcar_private.h
++++ b/plat/renesas/rcar/rcar_private.h
+@@ -149,4 +149,12 @@ void iciallu(void);
+ void cpg_write(uintptr_t regadr, uint32_t regval);
+ void mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit);
+ 
++/* Function prototypes for RPC clock */
++#if (RCAR_LSI != RCAR_V3H) && (RCAR_LSI != RCAR_V3M)
++uint32_t rpc_clk_freq_max(void);
++void rpc_clk_freq_set(uint32_t freq);
++#else
++static inline uint32_t rpc_clk_freq_max(void) { return 0; };
++static inline void rpc_clk_freq_set(uint32_t freq __unused) { }
++#endif
+ #endif /* RCAR_PRIVATE_H__ */
+-- 
+2.7.4
+
