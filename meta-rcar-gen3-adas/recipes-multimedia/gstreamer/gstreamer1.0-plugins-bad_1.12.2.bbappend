@@ -7,3 +7,5 @@ SRC_URI_append = " \
 "
 
 PACKAGECONFIG_append = " kms"
+
+DEPENDS_remove = '${@ "weston" if not ('wayland' in '${DISTRO_FEATURES}') else ""}'
