@@ -8,4 +8,5 @@ SRC_URI_append = " \
 
 PACKAGECONFIG_append = " kms"
 
+PACKAGECONFIG_remove = '${@ "vulkan" if not ('opengl' in '${DISTRO_FEATURES}') else ""}'
 DEPENDS_remove = '${@ "weston" if not ('wayland' in '${DISTRO_FEATURES}') else ""}'
