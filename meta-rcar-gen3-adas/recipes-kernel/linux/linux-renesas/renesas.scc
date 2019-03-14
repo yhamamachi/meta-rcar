@@ -67,3 +67,4 @@ patch 0120-arm64-dts-ulcb-kf-pcm3168a-reset-earlier-i2c-mux-dis.patch
 patch 0121-arm64-dts-Add-r8a7795-h3ulcb-vb2.1-support.patch
 patch 0122-arm64-dts-Add-r8a7795-h3ulcb-4x2g-support.patch
 patch 0123-arm64-dts-Add-8GB-H3ULCB-Kingfisher-and-VideoBox-sup.patch
+patch 0124-can-rcar_canfd-fix-possible-IRQ-storm-on-high-load.patch
