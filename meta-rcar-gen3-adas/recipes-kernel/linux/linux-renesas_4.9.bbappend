@@ -130,7 +130,6 @@ SRC_URI_append = " \
     file://lvds/0005-TI9x4-toggle-PDB-on-probe.patch \
     file://lvds/0006-LVDS-TI9x4-double-CSI-AR0233-new-blanking.patch \
     file://lvds/0007-LVDS-add-AR0231-sensor.patch \
-    file://lvds/0008-v4l2-Add-V4L2_PIX_FMT_SGRBG16.patch \
     file://lvds/0009-TI9x4-add-1500Hz.patch \
     file://v3h-vb/0006-V3HSK-VideoBox-use-23.5Mhz.patch \
     file://lvds/0010-max9286-add-SWITHCIN.patch \
@@ -177,6 +176,8 @@ SRC_URI_append = " \
     file://lvds/0037-lvds-AR323-fix-reset-gpio-nadling.patch \
     file://lvds/0038-lvds-OV495-fix-reset-gpio-handling.patch \
     file://lvds/0039-lvds-AR0323-replace-with-REV2-setup-table.patch \
+    file://lvds/0040-LVDS-max9286-add-lock-status-show-and-change-poc_tri.patch \
+    file://lvds/0041-media-v4l-Add-16-bit-raw-bayer-pixel-formats.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
