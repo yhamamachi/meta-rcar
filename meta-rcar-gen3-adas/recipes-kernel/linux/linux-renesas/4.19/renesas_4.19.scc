@@ -356,3 +356,8 @@ patch 0355-nvme-pci-add-SGL-support.patch
 patch 0356-nvme-pci-don-t-open-code-nvme_reset_ctrl.patch
 patch 0357-nvme-pci-limit-max-IO-size-and-segments-to-avoid-hig.patch
 patch 0358-swiotlb-Respect-DMA_ATTR_NO_WARN-in-swiotlb_map_sg_a.patch
+patch 0359-AR0143-add-original-ONSEMI-setup.patch
+patch 0360-AR0143-enable-3exp-in-custom-setup.patch
+patch 0361-AR0143-add-choose-of-imager-setup.patch
+patch 0362-MAX9286-fix-BWS-setup-to-reserve-reboot.patch
+patch 0363-MAX9286-adjust-POC-trigger-for-unstable-link.patch
