@@ -361,3 +361,5 @@ patch 0360-AR0143-enable-3exp-in-custom-setup.patch
 patch 0361-AR0143-add-choose-of-imager-setup.patch
 patch 0362-MAX9286-fix-BWS-setup-to-reserve-reboot.patch
 patch 0363-MAX9286-adjust-POC-trigger-for-unstable-link.patch
+patch 0364-dt-bindings-thermal-rcar-gen3-thermal-document-R8A77.patch
+patch 0365-thermal-rcar_gen3_thermal-add-R8A77980-support.patch

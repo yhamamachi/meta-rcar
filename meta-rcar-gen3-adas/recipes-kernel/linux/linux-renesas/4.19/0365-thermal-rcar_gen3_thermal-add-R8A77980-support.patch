@@ -1,0 +1,40 @@
+From e489d113369e162fae0dd48c2c4b2f143621bf2e Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Tue, 9 Oct 2018 22:11:51 +0300
+Subject: [PATCH 2/2] thermal: rcar_gen3_thermal: add R8A77980 support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add the R-Car V3H (R8A77980) SoC support to the R-Car gen3 thermal driver.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+
+(cherry picked from commit 853cbc1f2d3a6ef9d5f6f99fe7c4b7595eae9d3a
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Slightly amended to make it apply with no fuzz.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/thermal/rcar_gen3_thermal.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
+index 70a6588..c39c96a 100644
+--- a/drivers/thermal/rcar_gen3_thermal.c
++++ b/drivers/thermal/rcar_gen3_thermal.c
+@@ -503,6 +503,7 @@ static const struct of_device_id rcar_gen3_thermal_dt_ids[] = {
+ 	{ .compatible = "renesas,r8a7795-thermal", .data = &r8a7795_data},
+ 	{ .compatible = "renesas,r8a7796-thermal", .data = &r8a7796_data},
+ 	{ .compatible = "renesas,r8a77965-thermal", .data = &r8a7796_data},
++	{ .compatible = "renesas,r8a77980-thermal", .data = &r8a7796_data},
+ 	{ .compatible = "renesas,r8a77990-thermal", .data = &r8a77990_data},
+ 	{},
+ };
+-- 
+2.7.4
+
