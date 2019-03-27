@@ -1,0 +1,67 @@
+From 94d7a5ef712c66bea19da56c43fb81c78a12c985 Mon Sep 17 00:00:00 2001
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date: Sat, 4 Nov 2017 21:20:09 +0100
+Subject: [PATCH] i2c: rcar: skip DMA if buffer is not safe
+
+This HW is prone to races, so it needs to setup new messages in irq
+context. That means we can't alloc bounce buffers if a message buffer is
+not DMA safe. So, in that case, simply fall back to PIO.
+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+(cherry picked from commit adbd77b589d0345cfc42f1ae0b3414e62a2bf866)
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Renamed rcar_i2c_is_dma() to rcar_i2c_is_pio() and added the same
+DMA-safety test to the function. This is done in v4.14.75 commit
+55d2d2fb8b04b4b7bbdbd68d5e0523841b610de2 as well.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 9eac8eb..a25fd9c 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -380,7 +380,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
+ 	int len;
+ 
+ 	/* Do not use DMA if it's not available or for messages < 8 bytes */
+-	if (IS_ERR(chan) || msg->len < 8)
++	if (IS_ERR(chan) || msg->len < 8 || !(msg->flags & I2C_M_DMA_SAFE))
+ 		return;
+ 
+ 	if (read) {
+@@ -437,14 +437,14 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
+ 	dma_async_issue_pending(chan);
+ }
+ 
+-static int rcar_i2c_is_dma(struct rcar_i2c_priv *priv)
++static int rcar_i2c_is_pio(struct rcar_i2c_priv *priv)
+ {
+ 	struct i2c_msg *msg = priv->msg;
+ 	bool read = msg->flags & I2C_M_RD;
+ 	struct dma_chan *chan = read ? priv->dma_rx : priv->dma_tx;
+ 
+ 	/* Do not use DMA if it's not available or for messages < 8 bytes */
+-	return !(IS_ERR(chan) || msg->len < 8);
++	return (IS_ERR(chan) || msg->len < 8 || !(msg->flags & I2C_M_DMA_SAFE));
+ }
+ 
+ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+@@ -456,7 +456,7 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 		return;
+ 
+ 	if (priv->pos < msg->len) {
+-		if (priv->pos == 0 || !rcar_i2c_is_dma(priv)) {
++		if (priv->pos == 0 || rcar_i2c_is_pio(priv)) {
+ 			/*
+ 			 * Prepare next data to ICRXTX register.
+ 			 * This data will go to _SHIFT_ register.
+-- 
+2.7.4
+
