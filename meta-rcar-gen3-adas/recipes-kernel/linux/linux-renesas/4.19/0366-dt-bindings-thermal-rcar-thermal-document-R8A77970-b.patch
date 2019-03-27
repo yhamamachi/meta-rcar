@@ -1,0 +1,51 @@
+From 0c051b21e35bfe22503cc23dd6e6ee190e98177d Mon Sep 17 00:00:00 2001
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Date: Fri, 5 Oct 2018 00:01:38 +0300
+Subject: [PATCH 1/2] dt-bindings: thermal: rcar-thermal: document R8A77970
+ bindings
+
+Document  the R-Car V3M (R8A77970) SoC in the Renesas R-Car gen2 thermal
+bindings. The hardware is the same as  in the R-Car D3 (R8A77995) plus an
+extra status register.
+
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+
+(cherry picked from commit a14404a9f04b904bd0c22f34e2119afbf1425abe
+https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git)
+
+Slightly amended to make it apply with no fuzz.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ Documentation/devicetree/bindings/thermal/rcar-thermal.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/thermal/rcar-thermal.txt b/Documentation/devicetree/bindings/thermal/rcar-thermal.txt
+index a8e52c8..0dfae17 100644
+--- a/Documentation/devicetree/bindings/thermal/rcar-thermal.txt
++++ b/Documentation/devicetree/bindings/thermal/rcar-thermal.txt
+@@ -3,7 +3,8 @@
+ Required properties:
+ - compatible		: "renesas,thermal-<soctype>",
+ 			   "renesas,rcar-gen2-thermal" (with thermal-zone) or
+-			   "renesas,rcar-thermal" (without thermal-zone) as fallback.
++			   "renesas,rcar-thermal" (without thermal-zone) as
++                           fallback except R-Car V3M.
+ 			  Examples with soctypes are:
+ 			    - "renesas,thermal-r8a73a4" (R-Mobile APE6)
+ 			    - "renesas,thermal-r8a7779" (R-Car H1)
+@@ -11,6 +12,7 @@ Required properties:
+ 			    - "renesas,thermal-r8a7791" (R-Car M2-W)
+ 			    - "renesas,thermal-r8a7792" (R-Car V2H)
+ 			    - "renesas,thermal-r8a7793" (R-Car M2-N)
++			    - "renesas,thermal-r8a77970" (R-Car V3M)
+ - reg			: Address range of the thermal registers.
+ 			  The 1st reg will be recognized as common register
+ 			  if it has "interrupts".
+-- 
+2.7.4
+

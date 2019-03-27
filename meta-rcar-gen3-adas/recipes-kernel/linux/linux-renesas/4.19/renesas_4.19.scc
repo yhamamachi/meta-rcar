@@ -363,3 +363,5 @@ patch 0362-MAX9286-fix-BWS-setup-to-reserve-reboot.patch
 patch 0363-MAX9286-adjust-POC-trigger-for-unstable-link.patch
 patch 0364-dt-bindings-thermal-rcar-gen3-thermal-document-R8A77.patch
 patch 0365-thermal-rcar_gen3_thermal-add-R8A77980-support.patch
+patch 0366-dt-bindings-thermal-rcar-thermal-document-R8A77970-b.patch
+patch 0367-thermal-rcar_thermal-add-R8A77970-support.patch
