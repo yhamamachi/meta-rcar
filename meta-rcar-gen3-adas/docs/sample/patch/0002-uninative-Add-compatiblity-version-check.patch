@@ -1,0 +1,73 @@
+From 3f0fb0dc85d306f4ca3a00479f906c49882475d5 Mon Sep 17 00:00:00 2001
+From: Petr Nechaev <petr.nechaev@cogentembedded.com>
+Date: Tue, 26 Mar 2019 11:21:24 +0800
+Subject: [PATCH 2/2] uninative: Add compatiblity version check
+
+If glibc is newer on the host than in uninative, the failure mode is
+pretty nasty for clusters where the sstate is shared, including the
+Yocto
+Project autobuilder.
+
+This check aborts the use of uninative in such scenarios where a newer
+glibc version appears and avoids corruption of sstate caches.
+
+We use ldd to check the glibc version since that is included in libc-bin
+(or equivalent) which locales use so it should always be present.
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+---
+ meta/classes/uninative.bbclass               | 10 ++++++++++
+ meta/conf/distro/include/yocto-uninative.inc |  2 ++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/meta/classes/uninative.bbclass b/meta/classes/uninative.bbclass
+index a266355aad..23c5314818 100644
+--- a/meta/classes/uninative.bbclass
++++ b/meta/classes/uninative.bbclass
+@@ -8,6 +8,9 @@ UNINATIVE_TARBALL ?= "${BUILD_ARCH}-nativesdk-libc.tar.bz2"
+ #UNINATIVE_CHECKSUM[x86_64] = "dead"
+ UNINATIVE_DLDIR ?= "${DL_DIR}/uninative/"
+ 
++# Enabling uninative will change the following variables so they need to go the parsing white list to prevent multiple recipe parsing
++BB_HASHCONFIG_WHITELIST += "NATIVELSBSTRING SSTATEPOSTUNPACKFUNCS BUILD_LDFLAGS"
++
+ addhandler uninative_event_fetchloader
+ uninative_event_fetchloader[eventmask] = "bb.event.BuildStarted"
+ 
+@@ -77,6 +80,11 @@ python uninative_event_fetchloader() {
+                 except FileExistsError:
+                     pass
+ 
++        # ldd output is "ldd (Ubuntu GLIBC 2.23-0ubuntu10) 2.23", extract last option from first line
++        glibcver = subprocess.check_output(["ldd", "--version"]).decode('utf-8').split('\n')[0].split()[-1]
++        if bb.utils.vercmp_string(d.getVar("UNINATIVE_MAXGLIBCVERSION"), glibcver) < 0:
++            raise RuntimeError("Your host glibc verson (%s) is newer than that in uninative (%s). Disabling uninative so that sstate is not corrupted." % (glibcver, d.getVar("UNINATIVE_MAXGLIBCVERSION")))
++
+         cmd = d.expand("\
+ mkdir -p ${UNINATIVE_STAGING_DIR}-uninative; \
+ cd ${UNINATIVE_STAGING_DIR}-uninative; \
+@@ -94,6 +102,8 @@ ${UNINATIVE_STAGING_DIR}-uninative/relocate_sdk.py \
+ 
+         enable_uninative(d)
+ 
++    except RuntimeError as e:
++        bb.warn(str(e))
+     except bb.fetch2.BBFetchException as exc:
+         bb.warn("Disabling uninative as unable to fetch uninative tarball: %s" % str(exc))
+         bb.warn("To build your own uninative loader, please bitbake uninative-tarball and set UNINATIVE_TARBALL appropriately.")
+diff --git a/meta/conf/distro/include/yocto-uninative.inc b/meta/conf/distro/include/yocto-uninative.inc
+index 839c19aa57..7dbe9833f1 100644
+--- a/meta/conf/distro/include/yocto-uninative.inc
++++ b/meta/conf/distro/include/yocto-uninative.inc
+@@ -6,6 +6,8 @@
+ # to the distro running on the build machine.
+ #
+ 
++UNINATIVE_MAXGLIBCVERSION = "2.26"
++
+ UNINATIVE_URL ?= "http://downloads.yoctoproject.org/releases/uninative/1.7/"
+ UNINATIVE_CHECKSUM[i686] ?= "d7c341460035936c19d63fe02f354ef1bc993c62d694ae3a31458d1c6997f0c5"
+ UNINATIVE_CHECKSUM[x86_64] ?= "ed033c868b87852b07957a4400f3b744c00aef5d6470346ea1a59b6d3e03075e"
+-- 
+2.17.2
+

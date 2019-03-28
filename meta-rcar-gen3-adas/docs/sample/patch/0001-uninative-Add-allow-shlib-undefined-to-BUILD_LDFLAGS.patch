@@ -1,0 +1,169 @@
+From 5e446481c1b1b537c0138f78f200cb20305bcede Mon Sep 17 00:00:00 2001
+From: Petr Nechaev <petr.nechaev@cogentembedded.com>
+Date: Tue, 26 Mar 2019 11:21:01 +0800
+Subject: [PATCH 1/2] uninative: Add allow-shlib-undefined to BUILD_LDFLAGS and
+ drop other workarounds
+
+We have a problem when for example, a glibc 2.27 based system builds
+some
+library like libpopt-native and puts it into sstate then it is reused
+on a pre glibc-2.27 system to build something which depends on popt like
+rpm-native. This results in an error like:
+
+recipe-sysroot-native/usr/lib/libpopt.so: undefined reference to
+`glob@GLIBC_2.27'
+
+In the past we've had this problem with new symbols like getrandom and
+getentropy, here its with a more complex symbol where there is an old
+version and a newer version.
+
+We've looked into various options, basically we cannot link against our
+uninative libc/ld.so since we don't have the right headers or compiler
+link libraries. The compiler doesn't allow you to switch in a new set
+either, even if we did want to ship them. Shipping a complete compiler,
+dev headers and libs also isn't an option.
+
+On the other hand if we follow the ld man page, it does say:
+
+"""
+The reasons for allowing undefined symbol references in shared libraries
+specified at link time are that:
+
+- A shared library specified at link time may not be the same as the one
+that is available at load time, so the symbol might actually be
+resolvable at load time.
+"""
+
+which is exactly this case. By the time the binary runs, it will use
+our uninative loader and libc and the symbol will be available.
+
+Therefore we basically have a choice, we get weird intermittent bugs,
+we drop uninative entirely, or we pass this option.
+
+If we pass the option, we can drop the other workarounds too.
+
+(From OE-Core rev: 75a62ede393bf6b4972390ef5290d50add19341a)
+
+Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
+---
+ meta/classes/uninative.bbclass                |  2 ++
+ meta/recipes-core/expat/expat.inc             |  3 ++-
+ .../expat/expat/no_getrandom.patch            | 23 -------------------
+ .../util-linux/util-linux/no_getrandom.patch  | 21 -----------------
+ .../util-linux/util-linux_2.30.bb             |  1 -
+ .../python/python3-native_3.5.3.bb            |  2 +-
+ 6 files changed, 5 insertions(+), 47 deletions(-)
+ delete mode 100644 meta/recipes-core/expat/expat/no_getrandom.patch
+ delete mode 100644 meta/recipes-core/util-linux/util-linux/no_getrandom.patch
+
+diff --git a/meta/classes/uninative.bbclass b/meta/classes/uninative.bbclass
+index 670efa9f05..a266355aad 100644
+--- a/meta/classes/uninative.bbclass
++++ b/meta/classes/uninative.bbclass
+@@ -119,6 +119,8 @@ def enable_uninative(d):
+         d.setVar("NATIVELSBSTRING", "universal%s" % oe.utils.host_gcc_version(d))
+         d.appendVar("SSTATEPOSTUNPACKFUNCS", " uninative_changeinterp")
+         d.appendVarFlag("SSTATEPOSTUNPACKFUNCS", "vardepvalueexclude", "| uninative_changeinterp")
++        d.appendVar("BUILD_LDFLAGS", " -Wl,--allow-shlib-undefined")
++        d.appendVarFlag("BUILD_LDFLAGS", "vardepvalueexclude", "| -Wl,--allow-shlib-undefined")
+         d.prependVar("PATH", "${STAGING_DIR}-uninative/${BUILD_ARCH}-linux${bindir_native}:")
+ 
+ python uninative_changeinterp () {
+diff --git a/meta/recipes-core/expat/expat.inc b/meta/recipes-core/expat/expat.inc
+index 0ee6c276d9..b815f736ff 100644
+--- a/meta/recipes-core/expat/expat.inc
++++ b/meta/recipes-core/expat/expat.inc
+@@ -9,7 +9,8 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/expat/expat-${PV}.tar.bz2 \
+            file://libtool-tag.patch \
+ 	  "
+ 
+-SRC_URI_append_class-native = " file://no_getrandom.patch"
++SRC_URI[md5sum] = "789e297f547980fc9ecc036f9a070d49"
++SRC_URI[sha256sum] = "d9dc32efba7e74f788fcc4f212a43216fc37cf5f23f4c2339664d473353aedf6"
+ 
+ inherit autotools lib_package
+ 
+diff --git a/meta/recipes-core/expat/expat/no_getrandom.patch b/meta/recipes-core/expat/expat/no_getrandom.patch
+deleted file mode 100644
+index d64f1bf113..0000000000
+--- a/meta/recipes-core/expat/expat/no_getrandom.patch
++++ /dev/null
+@@ -1,23 +0,0 @@
+-The native version of expat may be used on older systems which dont have glibc 2.25
+-and hence don't have getrandom() thanks to uninative. Disable the libc call and
+-use the syscall instead to avoid a compatibility issue until we have 2.25 everywhere
+-we support with uninative.
+-
+-RP
+-2017/8/14
+-
+-Upstream-Status: Inappropriate
+-
+-Index: expat-2.2.3/configure.ac
+-===================================================================
+---- expat-2.2.3.orig/configure.ac
+-+++ expat-2.2.3/configure.ac
+-@@ -151,7 +151,7 @@ AC_LINK_IFELSE([AC_LANG_SOURCE([
+-   #include <stdlib.h>  /* for NULL */
+-   #include <sys/random.h>
+-   int main() {
+--    return getrandom(NULL, 0U, 0U);
+-+    return getrandomBREAKME(NULL, 0U, 0U);
+-   }
+- ])], [
+-     AC_DEFINE([HAVE_GETRANDOM], [1],
+diff --git a/meta/recipes-core/util-linux/util-linux/no_getrandom.patch b/meta/recipes-core/util-linux/util-linux/no_getrandom.patch
+deleted file mode 100644
+index b9fa1cace4..0000000000
+--- a/meta/recipes-core/util-linux/util-linux/no_getrandom.patch
++++ /dev/null
+@@ -1,21 +0,0 @@
+-getrandom() is only available in glibc 2.25+ and uninative may relocate 
+-binaries onto systems that don't have this function. For now, force the 
+-code to the older codepath until we can come up with a better solution 
+-for this kind of issue.
+-
+-Upstream-Status: Inappropriate
+-RP
+-2016/8/15
+-
+-Index: util-linux-2.30/configure.ac
+-===================================================================
+---- util-linux-2.30.orig/configure.ac
+-+++ util-linux-2.30/configure.ac
+-@@ -399,7 +399,6 @@ AC_CHECK_FUNCS([ \
+- 	getdtablesize \
+- 	getexecname \
+- 	getmntinfo \
+--	getrandom \
+- 	getrlimit \
+- 	getsgnam \
+- 	inotify_init \
+diff --git a/meta/recipes-core/util-linux/util-linux_2.30.bb b/meta/recipes-core/util-linux/util-linux_2.30.bb
+index 39449d9ac9..6b309b555f 100644
+--- a/meta/recipes-core/util-linux/util-linux_2.30.bb
++++ b/meta/recipes-core/util-linux/util-linux_2.30.bb
+@@ -15,7 +15,6 @@ SRC_URI += "file://configure-sbindir.patch \
+             file://display_testname_for_subtest.patch \
+             file://avoid_parallel_tests.patch \
+ "
+-SRC_URI_append_class-native = " file://no_getrandom.patch"
+ SRC_URI[md5sum] = "eaa3429150268027908a1b8ae6ee9a62"
+ SRC_URI[sha256sum] = "c208a4ff6906cb7f57940aa5bc3a6eed146e50a7cc0a092f52ef2ab65057a08d"
+ 
+diff --git a/meta/recipes-devtools/python/python3-native_3.5.3.bb b/meta/recipes-devtools/python/python3-native_3.5.3.bb
+index 8cd9c88a82..1da87ca4e4 100644
+--- a/meta/recipes-devtools/python/python3-native_3.5.3.bb
++++ b/meta/recipes-devtools/python/python3-native_3.5.3.bb
+@@ -45,7 +45,7 @@ inherit native
+ require python-native-${PYTHON_MAJMIN}-manifest.inc
+ 
+ # uninative may be used on pre glibc 2.25 systems which don't have getentropy
+-EXTRA_OECONF_append = " --bindir=${bindir}/${PN} --without-ensurepip ac_cv_func_getentropy=no"
++EXTRA_OECONF_append = " --bindir=${bindir}/${PN} --without-ensurepip"
+ 
+ EXTRA_OEMAKE = '\
+   LIBC="" \
+-- 
+2.17.2
+
