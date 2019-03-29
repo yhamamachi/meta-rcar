@@ -6,8 +6,8 @@ SECTION = "multimedia"
 
 inherit pkgconfig cmake
 
-LIC_FILES_CHKSUM = " \
-	file://copying.txt;md5=6ba02d5f908587c6f3942e76bf6d92d6 \
+SRC_URI = "\
+    https://github.com/g-truc/${BPN}/archive/${PV}.tar.gz \
 "
 
 ALLOW_EMPTY_${PN} = "1"

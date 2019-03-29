@@ -1,8 +1,9 @@
 require glm.inc
 
-SRC_URI = "\
-	https://github.com/g-truc/${BPN}/archive/${PV}.tar.gz \
-	file://0001-Fix-cmake-pathes.patch \
+LIC_FILES_CHKSUM = "file://copying.txt;md5=6ba02d5f908587c6f3942e76bf6d92d6"
+
+SRC_URI_append = " \
+    file://0001-Fix-cmake-pathes.patch \
 "
 
 SRC_URI[md5sum] = "5b75955d21ce2c2d515919d30c69a3eb"
