@@ -1,0 +1,46 @@
+From 27db8f97b5e0ca34476b04346941db5d35fc0cce Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 18 Apr 2019 01:48:11 +0300
+Subject: [PATCH] arm64: dts: renesas: v3xsk: Enable FDPLink output
+
+This enables FDPLink output.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts | 4 ++--
+ arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+index 1ea5868..30364e2 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk.dts
+@@ -161,8 +161,8 @@
+ 	ports {
+ 		port@0 {
+ 			endpoint {
+-				remote-endpoint = <&adv7511_in>;
+-//				remote-endpoint = <&lvds_in>;
++//				remote-endpoint = <&adv7511_in>;
++				remote-endpoint = <&lvds_in>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+index 1ee18c5..24ebad2 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+@@ -161,8 +161,8 @@
+ 	ports {
+ 		port@0 {
+ 			endpoint {
+-				remote-endpoint = <&adv7511_in>;
+-//				remote-endpoint = <&lvds_in>;
++//				remote-endpoint = <&adv7511_in>;
++				remote-endpoint = <&lvds_in>;
+ 			};
+ 		};
+ 	};
+-- 
+2.7.4
+

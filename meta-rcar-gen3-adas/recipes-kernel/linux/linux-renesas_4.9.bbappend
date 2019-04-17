@@ -178,6 +178,7 @@ SRC_URI_append = " \
     file://lvds/0039-lvds-AR0323-replace-with-REV2-setup-table.patch \
     file://lvds/0040-LVDS-max9286-add-lock-status-show-and-change-poc_tri.patch \
     file://lvds/0041-media-v4l-Add-16-bit-raw-bayer-pixel-formats.patch \
+    ${@base_conditional("VB_ENABLE_FDPLINK", "1", " file://0149-arm64-dts-renesas-v3xsk-Enable-FDPLink-output.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
