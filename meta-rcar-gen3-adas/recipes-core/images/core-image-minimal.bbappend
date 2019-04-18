@@ -1,5 +1,5 @@
 IMAGE_INSTALL_append = " \
-    packagegroup-opencv-sdk \
+    ${@bb.utils.contains('DISTRO_FEATURES', "opencv-sdk", "packagegroup-opencv-sdk", "", d)} \
     packagegroup-surroundview-drm \
     packagegroup-bsp \
     packagegroup-bsp-devdbg \

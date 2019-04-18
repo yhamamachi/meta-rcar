@@ -8,7 +8,7 @@ PACKAGES = " \
     packagegroup-opencv-sdk \
 "
 
-RDEPENDS_packagegroup-opencv-sdk = '${@ " \
+RDEPENDS_packagegroup-opencv-sdk = " \
     opencv \
     opencv-apps \
     opencv-dbg \
@@ -26,4 +26,4 @@ RDEPENDS_packagegroup-opencv-sdk = '${@ " \
     libopencv-video \
     libopencv-videostab \
     gstreamer1.0-plugins-base-app \
-" if 'opencv-sdk' in '${DISTRO_FEATURES}' else ""}'
+"
