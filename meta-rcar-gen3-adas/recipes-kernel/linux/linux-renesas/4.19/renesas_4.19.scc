@@ -367,3 +367,4 @@ patch 0366-dt-bindings-thermal-rcar-thermal-document-R8A77970-b.patch
 patch 0367-thermal-rcar_thermal-add-R8A77970-support.patch
 patch 0368-arm64-dts-renesas-Add-V3x-VideoBox-FDPLink-support.patch
 patch 0370-lvds-onsemi-fix-revsion-parsing.patch
+patch 0371-lvds-AR0233-add-module-trigger-parameter.patch
