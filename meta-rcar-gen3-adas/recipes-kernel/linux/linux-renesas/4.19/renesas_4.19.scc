@@ -369,3 +369,4 @@ patch 0368-arm64-dts-renesas-Add-V3x-VideoBox-FDPLink-support.patch
 patch 0370-lvds-onsemi-fix-revsion-parsing.patch
 patch 0371-lvds-AR0233-add-module-trigger-parameter.patch
 patch 0372-lvds-AR0233-migrate-to-composed-tables.patch
+patch 0373-lvds-AP0101-AR014X-add-TI-serializers.patch
