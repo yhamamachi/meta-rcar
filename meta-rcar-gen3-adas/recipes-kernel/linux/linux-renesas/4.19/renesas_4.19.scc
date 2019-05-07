@@ -371,3 +371,4 @@ patch 0371-lvds-AR0233-add-module-trigger-parameter.patch
 patch 0372-lvds-AR0233-migrate-to-composed-tables.patch
 patch 0373-lvds-AP0101-AR014X-add-TI-serializers.patch
 patch 0374-lvds-fix-vendor-names.patch
+patch 0375-lvds-add-GW5200-IMX390-camera.patch
