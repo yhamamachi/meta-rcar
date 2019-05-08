@@ -372,3 +372,4 @@ patch 0372-lvds-AR0233-migrate-to-composed-tables.patch
 patch 0373-lvds-AP0101-AR014X-add-TI-serializers.patch
 patch 0374-lvds-fix-vendor-names.patch
 patch 0375-lvds-add-GW5200-IMX390-camera.patch
+patch 0376-lvds-AR0233-add-superexposure-plus.patch
