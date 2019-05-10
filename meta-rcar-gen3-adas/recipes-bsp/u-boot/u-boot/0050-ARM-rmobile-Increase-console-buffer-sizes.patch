@@ -1,0 +1,44 @@
+From 1a940ed752cc690ef3223a94cc8e1151de0a14a1 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marek.vasut@gmail.com>
+Date: Fri, 21 Jul 2017 23:16:08 +0200
+Subject: [PATCH] ARM: rmobile: Increase console buffer sizes
+
+Allow pasting extra long lines into the U-Boot console on RCar Gen3.
+This is OK since we have plenty of resources and it's convenient.
+
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+Cc: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+(cherry picked from commit 52caae363cc8f4ae9919031aaa853644391db883)
+Slightly adjusted the original patch to make it apply with no fuzz.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ include/configs/rcar-gen3-common.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
+index 3dbfa0a..8ebff00 100644
+--- a/include/configs/rcar-gen3-common.h
++++ b/include/configs/rcar-gen3-common.h
+@@ -87,11 +87,12 @@
+ #undef  CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+ #undef  CONFIG_SYS_CONSOLE_ENV_OVERWRITE
+ 
++#define CONFIG_SYS_CBSIZE		2048
++#define CONFIG_SYS_PBSIZE		\
++	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
++#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+ #define CONFIG_SYS_LONGHELP
+-#define CONFIG_SYS_CBSIZE		256
+-#define CONFIG_SYS_PBSIZE		256
+-#define CONFIG_SYS_MAXARGS		16
+-#define CONFIG_SYS_BARGSIZE		512
++#define CONFIG_SYS_MAXARGS		64
+ #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
+ 
+ /* MEMORY */
+-- 
+2.7.4
+
