@@ -374,4 +374,4 @@ patch 0374-lvds-fix-vendor-names.patch
 patch 0375-lvds-add-GW5200-IMX390-camera.patch
 patch 0376-lvds-AR0233-add-superexposure-plus.patch
 patch 0377-lvds-AR0233-fix-matrix-size-set-default-h-vflip.patch
-patch 0388-lvds-ISX019-fix-add-address-intf-fix-read-write.patch
+patch 0378-lvds-ISX019-fix-add-address-intf-fix-read-write.patch
