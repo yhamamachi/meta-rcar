@@ -376,3 +376,4 @@ patch 0376-lvds-AR0233-add-superexposure-plus.patch
 patch 0377-lvds-AR0233-fix-matrix-size-set-default-h-vflip.patch
 patch 0378-lvds-ISX019-fix-add-address-intf-fix-read-write.patch
 patch 0379-lvds-OVT-add-dvp_order-parameter-for-ov10635.patch
+patch 0380-lvds-ONSEMI-fix-matrix-position-during-crop.patch
