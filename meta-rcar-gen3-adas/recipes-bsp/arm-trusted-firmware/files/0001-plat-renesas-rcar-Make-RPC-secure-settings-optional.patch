@@ -1,7 +1,7 @@
-From f25b765da66adf3383f20ae1ca532751af669f84 Mon Sep 17 00:00:00 2001
+From b212c75174b228c78170ec3720c5113346222bc9 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 8 Aug 2018 14:43:40 +0300
-Subject: [PATCH 1/4] plat: renesas: rcar: Make RPC secure settings optional
+Subject: [PATCH 1/5] plat: renesas: rcar: Make RPC secure settings optional
 
 This adds RCAR_DISABLE_NONSECURE_RPC_ACCESS make variable which
 disables non-secure RPC access when set to a non-zero value.
@@ -63,10 +63,10 @@ index 03b3d36..c35ae66 100644
 +	console_uninit();
 +}
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 78db0eb..9d79ca5 100644
+index a8b4672..3cac10a 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -383,6 +383,12 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
+@@ -392,6 +392,12 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
  COLD_BOOT_SINGLE_CPU		:=	1
  #endif /* IMAGE_BL2 */
  

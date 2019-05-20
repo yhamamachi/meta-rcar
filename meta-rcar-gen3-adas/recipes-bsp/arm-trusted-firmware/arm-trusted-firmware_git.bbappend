@@ -14,9 +14,10 @@ ATFW_OPT_append += " LIFEC_DBSC_PROTECT_ENABLE=0"
 
 SRC_URI_append = " \
     file://0001-plat-renesas-rcar-Make-RPC-secure-settings-optional.patch \
-    file://0002-plat-renesas-rcar-kingfisher-reboot-fix-power-off-on-reset.patch \
-    file://0003-plat-renesas-rcar-V3M-support.patch \
-    file://0004-plat-renesas-rcar-V3H-support.patch \
+    file://0002-plat-renesas-Fix-rcar_bl31_save_timer_state-defined-.patch \
+    file://0003-kingfisher-reboot-fix-power-off-on-reset.patch \
+    file://0004-plat-renesas-rcar-Add-R-Car-V3M-support.patch \
+    file://0005-plat-renesas-rcar-Add-R-Car-V3H-support.patch \
 "
 
 do_deploy_append() {

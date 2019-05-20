@@ -1,7 +1,7 @@
-From 08e28989209ab66768405df96759426add9a5f3d Mon Sep 17 00:00:00 2001
+From 43f7b551c11bb72eff3c7a8f7abccbf392603e3a Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 31 Oct 2018 00:46:40 +0300
-Subject: [PATCH 4/4] plat: renesas: rcar: Add R-Car V3H support
+Subject: [PATCH 5/5] plat: renesas: rcar: Add R-Car V3H support
 
 Add R-Car V3H support. This is based on the original
 V3H support patch for Yocto v2.23.1 by Vladimir Barinov.
@@ -148,7 +148,7 @@ index 32a6746..1481029 100644
  #error "Don't have CPG initialize routine(unknown)."
  #endif /* RCAR_LSI == RCAR_XX */
 diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
-index c162dc0..e605efe 100755
+index 02a15c2..375f5c0 100755
 --- a/plat/renesas/rcar/bl2_rcar_setup.c
 +++ b/plat/renesas/rcar/bl2_rcar_setup.c
 @@ -132,8 +132,11 @@
@@ -182,7 +182,7 @@ index c162dc0..e605efe 100755
  	default:
  		str = unknown;
  		break;
-@@ -544,7 +551,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -551,7 +558,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	}
  #endif /* RCAR_LSI != RCAR_AUTO */
  
@@ -191,7 +191,7 @@ index c162dc0..e605efe 100755
  	/* Initialize AVS Settings */
  	bl2_avs_init();
  
-@@ -578,7 +585,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+@@ -585,7 +592,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
  	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
  	NOTICE("%s", msg);
  
@@ -201,10 +201,10 @@ index c162dc0..e605efe 100755
  	bl2_avs_setting();
  #endif
 diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-index 906de16..164d903 100644
+index 6803ee5..883e365 100644
 --- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
 +++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-@@ -3847,6 +3847,13 @@ int32_t InitDram(void)
+@@ -3874,6 +3874,13 @@ int32_t InitDram(void)
  	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
  #endif//RCAR_DDR_FIXED_LSI_TYPE
  
@@ -1674,10 +1674,10 @@ index c11a001..8fb638a 100644
    #error "Don't have PFC initialize routine(unknown)."
   #endif
 diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index 714bed4..413bc3f 100644
+index e6eb04b..d0ec7cd 100644
 --- a/plat/renesas/rcar/platform.mk
 +++ b/plat/renesas/rcar/platform.mk
-@@ -97,6 +97,7 @@ RCAR_M3N:=2
+@@ -98,6 +98,7 @@ RCAR_M3N:=2
  RCAR_E3:=3
  RCAR_H3N:=4
  RCAR_V3M:=5
@@ -1685,7 +1685,7 @@ index 714bed4..413bc3f 100644
  RCAR_AUTO:=99
  $(eval $(call add_define,RCAR_H3))
  $(eval $(call add_define,RCAR_M3))
-@@ -104,6 +105,7 @@ $(eval $(call add_define,RCAR_M3N))
+@@ -105,6 +106,7 @@ $(eval $(call add_define,RCAR_M3N))
  $(eval $(call add_define,RCAR_E3))
  $(eval $(call add_define,RCAR_H3N))
  $(eval $(call add_define,RCAR_V3M))
@@ -1693,7 +1693,7 @@ index 714bed4..413bc3f 100644
  $(eval $(call add_define,RCAR_AUTO))
  RCAR_CUT_10:=0
  RCAR_CUT_11:=1
-@@ -220,6 +222,22 @@ else
+@@ -229,6 +231,22 @@ else
        endif
        $(eval $(call add_define,RCAR_LSI_CUT))
      endif
@@ -2417,18 +2417,18 @@ index 0000000..893d46f
 +
 +#endif	/* QOS_INIT_H_H3_V20__ */
 diff --git a/plat/renesas/rcar/qos/qos.mk b/plat/renesas/rcar/qos/qos.mk
-index 4a280f5..bd224eb 100644
+index 2512373..b833c25 100644
 --- a/plat/renesas/rcar/qos/qos.mk
 +++ b/plat/renesas/rcar/qos/qos.mk
-@@ -14,6 +14,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
-     BL2_SOURCES += plat/renesas/rcar/qos/M3/qos_init_m3_v11.c
+@@ -15,6 +15,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
+     BL2_SOURCES += plat/renesas/rcar/qos/M3/qos_init_m3_v30.c
      BL2_SOURCES += plat/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
      BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
 +    BL2_SOURCES += plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
  else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_H3})
      BL2_SOURCES += plat/renesas/rcar/qos/H3/qos_init_h3_v10.c
-@@ -37,6 +38,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
+@@ -39,6 +40,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_V3M})
      BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
    endif
@@ -2438,7 +2438,7 @@ index 4a280f5..bd224eb 100644
  else
    ifeq (${RCAR_LSI},${RCAR_H3})
      ifeq (${LSI_CUT},10)
-@@ -89,6 +93,9 @@ else
+@@ -95,6 +99,9 @@ else
    ifeq (${RCAR_LSI},${RCAR_V3M})
      BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
    endif
@@ -2449,18 +2449,18 @@ index 4a280f5..bd224eb 100644
  
  BL2_SOURCES += plat/renesas/rcar/qos/qos_init.c
 diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
-index 253bcf9..40a396e 100644
+index 81cf37d..d967584 100644
 --- a/plat/renesas/rcar/qos/qos_init.c
 +++ b/plat/renesas/rcar/qos/qos_init.c
-@@ -18,6 +18,7 @@
-   #include "M3/qos_init_m3_v11.h"
+@@ -19,6 +19,7 @@
+   #include "M3/qos_init_m3_v30.h"
    #include "M3N/qos_init_m3n_v10.h"
    #include "V3M/qos_init_v3m.h"
 +  #include "V3H/qos_init_v3h_v10.h"
  #endif
  #if RCAR_LSI == RCAR_H3	/* H3 */
    #include "H3/qos_init_h3_v10.h"
-@@ -41,6 +42,9 @@
+@@ -43,6 +44,9 @@
  #if RCAR_LSI == RCAR_V3M	/* V3M */
    #include "V3M/qos_init_v3m.h"
  #endif
@@ -2470,7 +2470,7 @@ index 253bcf9..40a396e 100644
  
   /* Product Register */
  #define PRR			(0xFFF00044U)
-@@ -50,6 +54,7 @@
+@@ -52,6 +56,7 @@
  #define PRR_PRODUCT_M3		(0x00005200U)           /* R-Car M3 */
  #define PRR_PRODUCT_V3M		(0x00005400U)           /* R-Car V3M */
  #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3N */
@@ -2478,7 +2478,7 @@ index 253bcf9..40a396e 100644
  #define PRR_PRODUCT_E3		(0x00005700U)           /* R-Car E3 */
  #define PRR_PRODUCT_10		(0x00U)
  #define PRR_PRODUCT_11		(0x01U)
-@@ -173,6 +178,19 @@ void qos_init(void)
+@@ -180,6 +185,19 @@ void qos_init(void)
  		PRR_PRODUCT_ERR(reg);
   #endif
  		break;
@@ -2498,7 +2498,7 @@ index 253bcf9..40a396e 100644
  	default:
  		PRR_PRODUCT_ERR(reg);
  		break;
-@@ -252,6 +270,13 @@ void qos_init(void)
+@@ -273,6 +291,13 @@ void qos_init(void)
  		PRR_PRODUCT_ERR(reg);
  	}
  	qos_init_v3m();
@@ -2513,7 +2513,7 @@ index 253bcf9..40a396e 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 15af651..535db44 100644
+index 50c868b..7caead2 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
 @@ -207,6 +207,7 @@
@@ -2523,7 +2523,7 @@ index 15af651..535db44 100644
 +#define RCAR_PRODUCT_V3H		U(0x00005600)
  #define RCAR_PRODUCT_E3			U(0x00005700)
  #define RCAR_CUT_VER10			U(0x00000000)
- #define RCAR_CUT_VER11			U(0x00000001)	/* H3/M3N Ver.1.1 */
+ #define RCAR_CUT_VER11			U(0x00000001)	/* H3/M3N/E3 Ver.1.1 */
 diff --git a/tools/dummy_create/makefile b/tools/dummy_create/makefile
 index 9093111..b7c48b5 100644
 --- a/tools/dummy_create/makefile
