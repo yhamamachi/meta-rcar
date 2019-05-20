@@ -1,7 +1,7 @@
-From 4f3db5c12a7fdd9287751355d52f133d0f45c07e Mon Sep 17 00:00:00 2001
+From 95cc88c09394ff4ce49b3ed08288cd15c90b89ee Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 19 Nov 2018 00:46:09 +0300
-Subject: [PATCH 03/11] configs: rcar-gen3: Enable askenv command
+Subject: [PATCH 03/10] configs: rcar-gen3: Enable askenv command
 
 This enables "askenv" command for R-Car Gen3 boards
 which can be used in U-Boot scripts for user input.
@@ -25,7 +25,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  14 files changed, 14 insertions(+)
 
 diff --git a/configs/r8a7795_salvator-x_defconfig b/configs/r8a7795_salvator-x_defconfig
-index 87870fc..f4ab59b 100644
+index 7b2129e..7c352a2 100644
 --- a/configs/r8a7795_salvator-x_defconfig
 +++ b/configs/r8a7795_salvator-x_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-salvator-x.dtb"
@@ -37,7 +37,7 @@ index 87870fc..f4ab59b 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7795_salvator-xs-2x2g_defconfig b/configs/r8a7795_salvator-xs-2x2g_defconfig
-index 22b11a8..89a208c 100644
+index 11300de..49dc5dd 100644
 --- a/configs/r8a7795_salvator-xs-2x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-2x2g_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-salvator-xs-2x2g.dtb"
@@ -49,7 +49,7 @@ index 22b11a8..89a208c 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7795_salvator-xs-4x2g_defconfig b/configs/r8a7795_salvator-xs-4x2g_defconfig
-index ab6284c..afa08e7 100644
+index 894bb71..a4ccb50 100644
 --- a/configs/r8a7795_salvator-xs-4x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-4x2g_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-salvator-xs-4x2g.dtb"
@@ -61,7 +61,7 @@ index ab6284c..afa08e7 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7795_salvator-xs_defconfig b/configs/r8a7795_salvator-xs_defconfig
-index e7b279c..03856c6 100644
+index ed6731d..c17f0a7 100644
 --- a/configs/r8a7795_salvator-xs_defconfig
 +++ b/configs/r8a7795_salvator-xs_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-salvator-xs.dtb"
@@ -73,7 +73,7 @@ index e7b279c..03856c6 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7795_ulcb-4x2g_defconfig b/configs/r8a7795_ulcb-4x2g_defconfig
-index 75ae03b..1b6fa53 100644
+index 597e89e..e91d8f9 100644
 --- a/configs/r8a7795_ulcb-4x2g_defconfig
 +++ b/configs/r8a7795_ulcb-4x2g_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-h3ulcb-4x2g.dtb"
@@ -85,7 +85,7 @@ index 75ae03b..1b6fa53 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7795_ulcb_defconfig b/configs/r8a7795_ulcb_defconfig
-index bdd5ef5..5ebb474 100644
+index 435e471..bf24ff7 100644
 --- a/configs/r8a7795_ulcb_defconfig
 +++ b/configs/r8a7795_ulcb_defconfig
 @@ -14,6 +14,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7795-h3ulcb.dtb"
@@ -97,7 +97,7 @@ index bdd5ef5..5ebb474 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a77965_salvator-x_defconfig b/configs/r8a77965_salvator-x_defconfig
-index 8ba969e..cbef603 100644
+index d37ff6b..6be612f 100644
 --- a/configs/r8a77965_salvator-x_defconfig
 +++ b/configs/r8a77965_salvator-x_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a77965-salvator-x.dtb"
@@ -109,7 +109,7 @@ index 8ba969e..cbef603 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7796_salvator-x_defconfig b/configs/r8a7796_salvator-x_defconfig
-index 482d39a..8eb0c83 100644
+index 28b26aa..9225d5b 100644
 --- a/configs/r8a7796_salvator-x_defconfig
 +++ b/configs/r8a7796_salvator-x_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7796-salvator-x.dtb"
@@ -121,7 +121,7 @@ index 482d39a..8eb0c83 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a7796_salvator-xs_defconfig b/configs/r8a7796_salvator-xs_defconfig
-index f08b7d2..7b0af07 100644
+index f1c2c6f..f0fd374 100644
 --- a/configs/r8a7796_salvator-xs_defconfig
 +++ b/configs/r8a7796_salvator-xs_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a7796-salvator-xs.dtb"
@@ -157,7 +157,7 @@ index 67ef263..81b0e84 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_SF=y
 diff --git a/configs/r8a77990_ebisu-4d_defconfig b/configs/r8a77990_ebisu-4d_defconfig
-index 53f360f..fd4ebf3 100644
+index 26eaef6..0c7ff85 100644
 --- a/configs/r8a77990_ebisu-4d_defconfig
 +++ b/configs/r8a77990_ebisu-4d_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a77990-ebisu-4d.dtb"
@@ -169,7 +169,7 @@ index 53f360f..fd4ebf3 100644
  CONFIG_CMD_I2C=y
  CONFIG_CMD_MMC=y
 diff --git a/configs/r8a77990_ebisu_defconfig b/configs/r8a77990_ebisu_defconfig
-index 2353504..efd8695 100644
+index 3edf7bd..8385488 100644
 --- a/configs/r8a77990_ebisu_defconfig
 +++ b/configs/r8a77990_ebisu_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a77990-ebisu.dtb"

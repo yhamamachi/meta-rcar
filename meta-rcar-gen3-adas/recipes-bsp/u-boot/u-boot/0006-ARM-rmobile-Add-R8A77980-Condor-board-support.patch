@@ -1,17 +1,17 @@
-From 687682954d639976ef0c9f8da920181dded02967 Mon Sep 17 00:00:00 2001
+From 10106d0762cc30b05e7425d1044b3e24967b327e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
-Date: Mon, 19 Nov 2018 19:36:16 +0300
-Subject: [PATCH 05/11] arm: Add Renesas R8A77980 Condor board support
+Date: Wed, 24 Apr 2019 22:22:36 +0300
+Subject: [PATCH 06/10] ARM: rmobile: Add R8A77980 Condor board support
 
 This adds R-Car V3H SoC along with Condor board support.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  arch/arm/dts/Makefile                         |    1 +
- arch/arm/dts/r8a77980-condor-u-boot.dts       |    9 +
- arch/arm/dts/r8a77980-condor.dts              |  138 ++
- arch/arm/dts/r8a77980-u-boot.dtsi             |   12 +
- arch/arm/dts/r8a77980.dtsi                    | 1596 ++++++++++++++
+ arch/arm/dts/r8a77980-condor-u-boot.dts       |   34 +
+ arch/arm/dts/r8a77980-condor.dts              |  118 +
+ arch/arm/dts/r8a77980-u-boot.dtsi             |   22 +
+ arch/arm/dts/r8a77980.dtsi                    | 1588 ++++++++++++++
  arch/arm/mach-rmobile/Kconfig.64              |    9 +
  arch/arm/mach-rmobile/cpu_info.c              |    1 +
  arch/arm/mach-rmobile/include/mach/rmobile.h  |    1 +
@@ -22,16 +22,18 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  drivers/clk/renesas/Kconfig                   |    7 +
  drivers/clk/renesas/Makefile                  |    1 +
  drivers/clk/renesas/r8a77980-cpg-mssr.c       |  246 +++
+ drivers/net/sh_eth.c                          |   13 +-
+ drivers/net/sh_eth.h                          |    6 +-
  drivers/pinctrl/renesas/Kconfig               |   11 +
  drivers/pinctrl/renesas/Makefile              |    1 +
- drivers/pinctrl/renesas/pfc-r8a77980.c        | 2920 +++++++++++++++++++++++++
+ drivers/pinctrl/renesas/pfc-r8a77980.c        | 2917 +++++++++++++++++++++++++
  drivers/pinctrl/renesas/pfc.c                 |   11 +
  drivers/pinctrl/renesas/sh_pfc.h              |    1 +
  drivers/spi/renesas_rpc_spi.c                 |    1 +
- include/configs/condor.h                      |   31 +
+ include/configs/condor.h                      |   40 +
  include/dt-bindings/clock/r8a77980-cpg-mssr.h |   51 +
  include/dt-bindings/power/r8a77980-sysc.h     |   43 +
- 24 files changed, 5293 insertions(+)
+ 26 files changed, 5321 insertions(+), 4 deletions(-)
  create mode 100644 arch/arm/dts/r8a77980-condor-u-boot.dts
  create mode 100644 arch/arm/dts/r8a77980-condor.dts
  create mode 100644 arch/arm/dts/r8a77980-u-boot.dtsi
@@ -47,23 +49,23 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 include/dt-bindings/power/r8a77980-sysc.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 9ec3383..adb1020 100644
+index c6e1908..b6a5ef2 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -465,6 +465,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
- 	r8a77965-salvator-x-u-boot.dtb \
- 	r8a77965-salvator-xs-u-boot.dtb \
+@@ -467,6 +467,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
+ 	r8a77965-m3nulcb-u-boot.dtb \
  	r8a77970-eagle-u-boot.dtb \
+ 	r8a77970-v3msk-u-boot.dtb \
 +	r8a77980-condor-u-boot.dtb \
  	r8a77990-ebisu-u-boot.dtb \
  	r8a77990-ebisu-4d-u-boot.dtb \
  	r8a77995-draak-u-boot.dtb
 diff --git a/arch/arm/dts/r8a77980-condor-u-boot.dts b/arch/arm/dts/r8a77980-condor-u-boot.dts
 new file mode 100644
-index 0000000..b554cbe
+index 0000000..4a153e9
 --- /dev/null
 +++ b/arch/arm/dts/r8a77980-condor-u-boot.dts
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,34 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Source extras for U-Boot for the Eagle board
@@ -73,12 +75,37 @@ index 0000000..b554cbe
 +
 +#include "r8a77980-condor.dts"
 +#include "r8a77980-u-boot.dtsi"
++
++/ {
++	aliases {
++		spi0 = &rpc;
++	};
++};
++
++&rpc {
++	num-cs = <1>;
++	status = "okay";
++	spi-max-frequency = <50000000>;
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	flash0: spi-flash@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "s25fs512s", "spi-flash", "jedec,spi-nor";
++		spi-max-frequency = <50000000>;
++		spi-tx-bus-width = <1>;
++		spi-rx-bus-width = <1>;
++		reg = <0>;
++		status = "okay";
++	};
++};
 diff --git a/arch/arm/dts/r8a77980-condor.dts b/arch/arm/dts/r8a77980-condor.dts
 new file mode 100644
-index 0000000..e9369df
+index 0000000..63c24ee
 --- /dev/null
 +++ b/arch/arm/dts/r8a77980-condor.dts
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,118 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Source for the Condor board
@@ -98,7 +125,6 @@ index 0000000..e9369df
 +	aliases {
 +		serial0 = &scif0;
 +		ethernet0 = &gether;
-+		spi0 = &rpc;
 +	};
 +
 +	chosen {
@@ -183,25 +209,6 @@ index 0000000..e9369df
 +	};
 +};
 +
-+&rpc {
-+	num-cs = <1>;
-+	status = "okay";
-+	spi-max-frequency = <50000000>;
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	flash0: spi-flash@0 {
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		compatible = "s25fs512s", "spi-flash", "jedec,spi-nor";
-+		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <1>;
-+		spi-rx-bus-width = <1>;
-+		reg = <0>;
-+		status = "okay";
-+	};
-+};
-+
 +&rwdt {
 +	timeout-sec = <60>;
 +	status = "okay";
@@ -219,10 +226,10 @@ index 0000000..e9369df
 +};
 diff --git a/arch/arm/dts/r8a77980-u-boot.dtsi b/arch/arm/dts/r8a77980-u-boot.dtsi
 new file mode 100644
-index 0000000..8fb7fe9
+index 0000000..e739324
 --- /dev/null
 +++ b/arch/arm/dts/r8a77980-u-boot.dtsi
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,22 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Source extras for U-Boot on RCar R8A77970 SoC
@@ -235,12 +242,22 @@ index 0000000..8fb7fe9
 +&extalr_clk {
 +	u-boot,dm-pre-reloc;
 +};
++
++&soc {
++	rpc: rpc@0xee200000 {
++		compatible = "renesas,rpc-r8a77980", "renesas,rpc";
++		reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
++		clocks = <&cpg CPG_MOD 917>;
++		bank-width = <2>;
++		status = "disabled";
++	};
++};
 diff --git a/arch/arm/dts/r8a77980.dtsi b/arch/arm/dts/r8a77980.dtsi
 new file mode 100644
-index 0000000..9645f1b
+index 0000000..b0b0550
 --- /dev/null
 +++ b/arch/arm/dts/r8a77980.dtsi
-@@ -0,0 +1,1596 @@
+@@ -0,0 +1,1588 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Source for the R-Car V3H (R8A77980) SoC
@@ -369,7 +386,7 @@ index 0000000..9645f1b
 +		clock-frequency = <0>;
 +	};
 +
-+	soc {
++	soc: soc {
 +		compatible = "simple-bus";
 +		interrupt-parent = <&gic>;
 +
@@ -1775,14 +1792,6 @@ index 0000000..9645f1b
 +			compatible = "renesas,prr";
 +			reg = <0 0xfff00044 0 4>;
 +		};
-+
-+		rpc: rpc@0xee200000 {
-+			compatible = "renesas,rpc-r8a77980", "renesas,rpc";
-+			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
-+			clocks = <&cpg CPG_MOD 917>;
-+			bank-width = <2>;
-+			status = "disabled";
-+		};
 +	};
 +
 +	thermal-zones {
@@ -1838,7 +1847,7 @@ index 0000000..9645f1b
 +	};
 +};
 diff --git a/arch/arm/mach-rmobile/Kconfig.64 b/arch/arm/mach-rmobile/Kconfig.64
-index cb9f569..59915a5 100644
+index 08239a6..00e74f8 100644
 --- a/arch/arm/mach-rmobile/Kconfig.64
 +++ b/arch/arm/mach-rmobile/Kconfig.64
 @@ -12,6 +12,9 @@ config R8A7796
@@ -1851,9 +1860,9 @@ index cb9f569..59915a5 100644
  config R8A77990
  	bool "Renesas SoC R8A77990"
  
-@@ -34,6 +37,11 @@ config TARGET_EAGLE
+@@ -39,6 +42,11 @@ config TARGET_V3MSK
  	help
-           Support for Renesas R-Car Gen3 Eagle platform
+           Support for Renesas R-Car Gen3 V3MSK platform
  
 +config TARGET_CONDOR
 +	bool "Condor board"
@@ -1863,19 +1872,19 @@ index cb9f569..59915a5 100644
  config TARGET_EBISU
  	bool "Ebisu board"
  	help
-@@ -56,6 +64,7 @@ config SYS_SOC
- 
+@@ -62,6 +70,7 @@ config SYS_SOC
  source "board/renesas/draak/Kconfig"
  source "board/renesas/eagle/Kconfig"
+ source "board/renesas/v3msk/Kconfig"
 +source "board/renesas/condor/Kconfig"
  source "board/renesas/ebisu/Kconfig"
  source "board/renesas/salvator-x/Kconfig"
  source "board/renesas/ulcb/Kconfig"
 diff --git a/arch/arm/mach-rmobile/cpu_info.c b/arch/arm/mach-rmobile/cpu_info.c
-index 5afa1d4..0049a18 100644
+index e2a820b..594f7ce 100644
 --- a/arch/arm/mach-rmobile/cpu_info.c
 +++ b/arch/arm/mach-rmobile/cpu_info.c
-@@ -62,6 +62,7 @@ static const struct {
+@@ -65,6 +65,7 @@ static const struct {
  	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
  	{ RMOBILE_CPU_TYPE_R8A77965, "R8A77965" },
  	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
@@ -2044,7 +2053,7 @@ index 0000000..95c4141
 +}
 diff --git a/configs/r8a77980_condor_defconfig b/configs/r8a77980_condor_defconfig
 new file mode 100644
-index 0000000..b9fdd0a
+index 0000000..218565a
 --- /dev/null
 +++ b/configs/r8a77980_condor_defconfig
 @@ -0,0 +1,73 @@
@@ -2102,7 +2111,7 @@ index 0000000..b9fdd0a
 +CONFIG_PHY_MICREL=y
 +CONFIG_PHY_MICREL_KSZ90X1=y
 +CONFIG_DM_ETH=y
-+CONFIG_RENESAS_RAVB=y
++CONFIG_SH_ETHER=y
 +CONFIG_PINCTRL=y
 +CONFIG_PINCONF=y
 +CONFIG_PINCTRL_PFC=y
@@ -2402,6 +2411,85 @@ index 0000000..d6de739
 +	.probe		= gen3_clk_probe,
 +	.remove		= gen3_clk_remove,
 +};
+diff --git a/drivers/net/sh_eth.c b/drivers/net/sh_eth.c
+index 2e1123c..3ef2155 100644
+--- a/drivers/net/sh_eth.c
++++ b/drivers/net/sh_eth.c
+@@ -373,10 +373,15 @@ static void sh_eth_write_hwaddr(struct sh_eth_info *port_info,
+ static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
+ {
+ 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
++	u32 val;
+ 
+ 	/* Configure e-dmac registers */
++	val = EMDR_DESC | EDMR_EL;
++#if defined(CONFIG_R8A77980)
++	val |= EDMR_NBST;
++#endif
+ 	sh_eth_write(port_info, (sh_eth_read(port_info, EDMR) & ~EMDR_DESC_R) |
+-			(EMDR_DESC | EDMR_EL), EDMR);
++			val, EDMR);
+ 
+ 	sh_eth_write(port_info, 0, EESIPR);
+ 	sh_eth_write(port_info, 0, TRSCER);
+@@ -406,7 +411,7 @@ static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
+ 
+ #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
+ 	sh_eth_write(port_info, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
+-#elif defined(CONFIG_RCAR_GEN2)
++#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_R8A77980)
+ 	sh_eth_write(port_info, sh_eth_read(port_info, RMIIMR) | 0x1, RMIIMR);
+ #endif
+ }
+@@ -425,7 +430,8 @@ static int sh_eth_phy_regs_config(struct sh_eth_dev *eth)
+ 		sh_eth_write(port_info, GECMR_100B, GECMR);
+ #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
+ 		sh_eth_write(port_info, 1, RTRATE);
+-#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_RCAR_GEN2)
++#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_RCAR_GEN2) || \
++      defined(CONFIG_R8A77980)
+ 		val = ECMR_RTM;
+ #endif
+ 	} else if (phy->speed == 10) {
+@@ -918,6 +924,7 @@ static const struct udevice_id sh_ether_ids[] = {
+ 	{ .compatible = "renesas,ether-r8a7791" },
+ 	{ .compatible = "renesas,ether-r8a7793" },
+ 	{ .compatible = "renesas,ether-r8a7794" },
++	{ .compatible = "renesas,gether-r8a77980" },
+ 	{ }
+ };
+ 
+diff --git a/drivers/net/sh_eth.h b/drivers/net/sh_eth.h
+index cd81900..1fa38e7 100644
+--- a/drivers/net/sh_eth.h
++++ b/drivers/net/sh_eth.h
+@@ -307,6 +307,9 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
+ #elif defined(CONFIG_R7S72100)
+ #define SH_ETH_TYPE_RZ
+ #define BASE_IO_ADDR	0xE8203000
++#elif defined(CONFIG_R8A77980)
++#define SH_ETH_TYPE_GETHER
++#define BASE_IO_ADDR	0xE7400000
+ #endif
+ 
+ /*
+@@ -323,6 +326,7 @@ enum EDSR_BIT {
+ 
+ /* EDMR */
+ enum DMAC_M_BIT {
++	EDMR_NBST	= 0x80, /* DMA transfer burst mode */
+ 	EDMR_DL1 = 0x20, EDMR_DL0 = 0x10,
+ #if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
+ 	EDMR_SRST	= 0x03, /* Receive/Send reset */
+@@ -512,7 +516,7 @@ enum FELIC_MODE_BIT {
+ 	ECMR_PRM = 0x00000001,
+ #ifdef CONFIG_CPU_SH7724
+ 	ECMR_RTM = 0x00000010,
+-#elif defined(CONFIG_RCAR_GEN2)
++#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_R8A77980)
+ 	ECMR_RTM = 0x00000004,
+ #endif
+ 
 diff --git a/drivers/pinctrl/renesas/Kconfig b/drivers/pinctrl/renesas/Kconfig
 index 1baab90..9a9d281 100644
 --- a/drivers/pinctrl/renesas/Kconfig
@@ -2437,10 +2525,10 @@ index 62bc40b..95d5969 100644
  obj-$(CONFIG_PINCTRL_PFC_R8A77995) += pfc-r8a77995.o
 diff --git a/drivers/pinctrl/renesas/pfc-r8a77980.c b/drivers/pinctrl/renesas/pfc-r8a77980.c
 new file mode 100644
-index 0000000..72f6abb
+index 0000000..3e2dcb5
 --- /dev/null
 +++ b/drivers/pinctrl/renesas/pfc-r8a77980.c
-@@ -0,0 +1,2920 @@
+@@ -0,0 +1,2917 @@
 +// SPDX-Lincense-Identifier: GPL 2.0
 +/*
 + * R8A77980 processor support - PFC hardware block.
@@ -4105,25 +4193,23 @@ index 0000000..72f6abb
 +	PWM4_B_MARK,
 +};
 +
-+/* - QSPI ------------------------------------------------------------------- */
++/* - QSPI0 ------------------------------------------------------------------ */
 +static const unsigned int qspi0_ctrl_pins[] = {
-+	/* QSPI0_SPCLK QSPI0_SSL */
-+	RCAR_GP_PIN(5, 5), RCAR_GP_PIN(5, 0),
++	/* SPCLK, SSL */
++	RCAR_GP_PIN(5, 0), RCAR_GP_PIN(5, 5),
 +};
 +static const unsigned int qspi0_ctrl_mux[] = {
 +	QSPI0_SPCLK_MARK, QSPI0_SSL_MARK,
 +};
-+
 +static const unsigned int qspi0_data2_pins[] = {
-+	/* QSPI0_MOSI_IO0, QSPI0_MISO_IO1 */
++	/* MOSI_IO0, MISO_IO1 */
 +	RCAR_GP_PIN(5, 1), RCAR_GP_PIN(5, 2),
 +};
 +static const unsigned int qspi0_data2_mux[] = {
 +	QSPI0_MOSI_IO0_MARK, QSPI0_MISO_IO1_MARK,
 +};
-+
 +static const unsigned int qspi0_data4_pins[] = {
-+	/* QSPI0_MOSI_IO0, QSPI0_MISO_IO1, QSPI0_IO2, QSPI0_IO3 */
++	/* MOSI_IO0, MISO_IO1, IO2, IO3 */
 +	RCAR_GP_PIN(5, 1), RCAR_GP_PIN(5, 2),
 +	RCAR_GP_PIN(5, 3), RCAR_GP_PIN(5, 4),
 +};
@@ -4132,24 +4218,23 @@ index 0000000..72f6abb
 +	QSPI0_IO2_MARK, QSPI0_IO3_MARK
 +};
 +
++/* - QSPI1 ------------------------------------------------------------------ */
 +static const unsigned int qspi1_ctrl_pins[] = {
-+	/* QSPI1_SPCLK QSPI1_SSL */
++	/* SPCLK, SSL */
 +	RCAR_GP_PIN(5, 6), RCAR_GP_PIN(5, 11),
 +};
 +static const unsigned int qspi1_ctrl_mux[] = {
 +	QSPI1_SPCLK_MARK, QSPI1_SSL_MARK,
 +};
-+
 +static const unsigned int qspi1_data2_pins[] = {
-+	/* QSPI1_MOSI_IO0, QSPI1_MISO_IO1 */
++	/* MOSI_IO0, MISO_IO1 */
 +	RCAR_GP_PIN(5, 7), RCAR_GP_PIN(5, 8),
 +};
 +static const unsigned int qspi1_data2_mux[] = {
 +	QSPI1_MOSI_IO0_MARK, QSPI1_MISO_IO1_MARK,
 +};
-+
 +static const unsigned int qspi1_data4_pins[] = {
-+	/* QSPI1_MOSI_IO0, QSPI1_MISO_IO1, QSPI1_IO2, QSPI1_IO3 */
++	/* MOSI_IO0, MISO_IO1, IO2, IO3 */
 +	RCAR_GP_PIN(5, 7), RCAR_GP_PIN(5, 8),
 +	RCAR_GP_PIN(5, 9), RCAR_GP_PIN(5, 10),
 +};
@@ -5269,7 +5354,7 @@ index 0000000..72f6abb
 +#define F_(x, y)	x,
 +#define FM(x)		FN_##x,
 +	{ PINMUX_CFG_REG_VAR("MOD_SEL0", 0xe6060500, 32,
-+			     4, 4, 4, 4,
++			     4, 4, 4, 4, 4,
 +			     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1) {
 +		/* RESERVED 31, 30, 29, 28 */
 +		0, 0, 0, 0, 0, 0, 0, 0,	0, 0, 0, 0, 0, 0, 0, 0,
@@ -5423,24 +5508,33 @@ index bec9095..2872402 100644
  };
 diff --git a/include/configs/condor.h b/include/configs/condor.h
 new file mode 100644
-index 0000000..f0e4bca
+index 0000000..75ce070
 --- /dev/null
 +++ b/include/configs/condor.h
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,40 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
-+ * include/configs/eagle.h
-+ *     This file is Eagle board configuration.
++ * include/configs/condor.h
++ *     This file is Condor board configuration.
 + *
-+ * Copyright (C) 2015 Renesas Electronics Corporation
++ * Copyright (C) 2019 Renesas Electronics Corporation
++ * Copyright (C) 2019 Cogent Embedded, Inc.
 + */
 +
-+#ifndef __EAGLE_H
-+#define __EAGLE_H
++#ifndef __CONDOR_H
++#define __CONDOR_H
 +
 +#include "rcar-gen3-common.h"
 +
-+/* Ethernet RAVB */
++/* Ethernet */
++#ifdef CONFIG_SH_ETHER
++#define CONFIG_SH_ETHER_USE_PORT	0
++#define CONFIG_SH_ETHER_PHY_ADDR	0x0
++#define CONFIG_SH_ETHER_PHY_MODE	PHY_INTERFACE_MODE_RGMII_ID
++#define CONFIG_SH_ETHER_ALIGNE_SIZE	64
++#define CONFIG_SH_ETHER_CACHE_WRITEBACK
++#define CONFIG_SH_ETHER_CACHE_INVALIDATE
++#endif
 +#define CONFIG_BITBANGMII
 +#define CONFIG_BITBANGMII_MULTI
 +
@@ -5457,7 +5551,7 @@ index 0000000..f0e4bca
 +/* Generic Timer Definitions (use in assembler source) */
 +#define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
 +
-+#endif /* __EAGLE_H */
++#endif /* __CONDOR_H */
 diff --git a/include/dt-bindings/clock/r8a77980-cpg-mssr.h b/include/dt-bindings/clock/r8a77980-cpg-mssr.h
 new file mode 100644
 index 0000000..a4c0d76

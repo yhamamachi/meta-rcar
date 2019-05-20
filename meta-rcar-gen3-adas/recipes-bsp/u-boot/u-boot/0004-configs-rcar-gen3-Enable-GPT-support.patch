@@ -1,7 +1,7 @@
-From 6ae2ac1d55806b7e4d58597eef4688fee9c25e05 Mon Sep 17 00:00:00 2001
+From 2d6e15be79a68abf774692c88a625befaf3e13f7 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 19 Nov 2018 16:30:33 +0300
-Subject: [PATCH 04/11] configs: rcar-gen3: Enable GPT support
+Subject: [PATCH 04/10] configs: rcar-gen3: Enable GPT support
 
 This enables GPT support in for R-Car Gen3 boards.
 It can be used for disk partitioning in U-Boot.
@@ -25,7 +25,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  14 files changed, 14 insertions(+)
 
 diff --git a/configs/r8a7795_salvator-x_defconfig b/configs/r8a7795_salvator-x_defconfig
-index f4ab59b..a2db010 100644
+index 7c352a2..92b1644 100644
 --- a/configs/r8a7795_salvator-x_defconfig
 +++ b/configs/r8a7795_salvator-x_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -37,7 +37,7 @@ index f4ab59b..a2db010 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7795_salvator-xs-2x2g_defconfig b/configs/r8a7795_salvator-xs-2x2g_defconfig
-index 89a208c..bc90c31 100644
+index 49dc5dd..e8aabd8 100644
 --- a/configs/r8a7795_salvator-xs-2x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-2x2g_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -49,7 +49,7 @@ index 89a208c..bc90c31 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7795_salvator-xs-4x2g_defconfig b/configs/r8a7795_salvator-xs-4x2g_defconfig
-index afa08e7..cd64de4 100644
+index a4ccb50..589fa57 100644
 --- a/configs/r8a7795_salvator-xs-4x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-4x2g_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -61,7 +61,7 @@ index afa08e7..cd64de4 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7795_salvator-xs_defconfig b/configs/r8a7795_salvator-xs_defconfig
-index 03856c6..7793e39 100644
+index c17f0a7..0b1411c 100644
 --- a/configs/r8a7795_salvator-xs_defconfig
 +++ b/configs/r8a7795_salvator-xs_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -73,7 +73,7 @@ index 03856c6..7793e39 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7795_ulcb-4x2g_defconfig b/configs/r8a7795_ulcb-4x2g_defconfig
-index 1b6fa53..1435e25 100644
+index e91d8f9..6ee62c6 100644
 --- a/configs/r8a7795_ulcb-4x2g_defconfig
 +++ b/configs/r8a7795_ulcb-4x2g_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -85,7 +85,7 @@ index 1b6fa53..1435e25 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7795_ulcb_defconfig b/configs/r8a7795_ulcb_defconfig
-index 5ebb474..032db37 100644
+index bf24ff7..e88ac08 100644
 --- a/configs/r8a7795_ulcb_defconfig
 +++ b/configs/r8a7795_ulcb_defconfig
 @@ -16,6 +16,7 @@ CONFIG_HUSH_PARSER=y
@@ -97,7 +97,7 @@ index 5ebb474..032db37 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a77965_salvator-x_defconfig b/configs/r8a77965_salvator-x_defconfig
-index cbef603..0fdf56c 100644
+index 6be612f..201a5c3 100644
 --- a/configs/r8a77965_salvator-x_defconfig
 +++ b/configs/r8a77965_salvator-x_defconfig
 @@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
@@ -109,7 +109,7 @@ index cbef603..0fdf56c 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7796_salvator-x_defconfig b/configs/r8a7796_salvator-x_defconfig
-index 8eb0c83..351f13f 100644
+index 9225d5b..931e431 100644
 --- a/configs/r8a7796_salvator-x_defconfig
 +++ b/configs/r8a7796_salvator-x_defconfig
 @@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
@@ -121,7 +121,7 @@ index 8eb0c83..351f13f 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a7796_salvator-xs_defconfig b/configs/r8a7796_salvator-xs_defconfig
-index 7b0af07..6578556 100644
+index f0fd374..9614951 100644
 --- a/configs/r8a7796_salvator-xs_defconfig
 +++ b/configs/r8a7796_salvator-xs_defconfig
 @@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
@@ -157,7 +157,7 @@ index 81b0e84..3430ccb 100644
  CONFIG_CMD_SF=y
  CONFIG_CMD_SPI=y
 diff --git a/configs/r8a77990_ebisu-4d_defconfig b/configs/r8a77990_ebisu-4d_defconfig
-index fd4ebf3..07fe7ba 100644
+index 0c7ff85..1506c60 100644
 --- a/configs/r8a77990_ebisu-4d_defconfig
 +++ b/configs/r8a77990_ebisu-4d_defconfig
 @@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
@@ -169,7 +169,7 @@ index fd4ebf3..07fe7ba 100644
  CONFIG_CMD_MMC=y
  CONFIG_CMD_USB=y
 diff --git a/configs/r8a77990_ebisu_defconfig b/configs/r8a77990_ebisu_defconfig
-index efd8695..87732af 100644
+index 8385488..92a247e 100644
 --- a/configs/r8a77990_ebisu_defconfig
 +++ b/configs/r8a77990_ebisu_defconfig
 @@ -17,6 +17,7 @@ CONFIG_HUSH_PARSER=y
