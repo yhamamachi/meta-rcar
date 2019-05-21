@@ -36,7 +36,6 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
-    file://0035-ARM64-renesas-dts-add-m3nulcb-board-support.patch \
     file://0036-Add-MOST-support-for-r8a77965.patch \
     file://0037-media-soc_camera-rcar_vin-Fix-VnCSI_IFMD-settings.patch \
     file://0038-media-soc_camera-rcar_vin-Add-R-Car-M3N-support.patch \
@@ -65,8 +64,6 @@ SRC_URI_append = " \
     file://0076-MOST-dim2-Renesas-R-Car3-variant.patch \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
-    file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
-    file://0090-ASoC-rsnd-fixup-rsnd_ssi_master_clk_start-user-count.patch \
     file://0109-serial-sh-sci-Fix-minimal-rx_timeout-value.patch \
     file://0112-ARM64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch \
     file://0113-arm64-dts-ulcb-kf-increase-SDIO-frequency-for-WLAN-c.patch \
@@ -87,6 +84,51 @@ SRC_URI_append = " \
     file://0126-nvme-pci-limit-max-IO-size-and-segments-to-avoid-hig.patch \
     file://0127-swiotlb-Respect-DMA_ATTR_NO_WARN-in-swiotlb_map_sg_a.patch \
     file://0128-arm64-dts-Add-H3ULCB-VideoBox-2.1-support.patch \
+    file://0129-can-rcar_canfd-fix-possible-IRQ-storm-on-high-load.patch \
+    file://0130-LVDS-ar0132-use-context-swwitch.patch \
+    file://0131-media-i2c-soc_camera-Bunch-update-from-2.23.1.patch \
+    file://0132-lvds-ti960-fix-frame-sync-time-for-different-ref-clo.patch \
+    file://0133-lvds-add-AR0323-imager.patch \
+    file://0134-lvds-add-ISX016-imager.patch \
+    file://0135-LVDS-ar0233-set-frame-size-1920x1200.patch \
+    file://0136-lvds-AR0233-add-different-vendor.patch \
+    file://0137-lvds-poll-ub960-deserializer-lock-status.patch \
+    file://0138-lvds-AR0231-modify-with-rev7-silicon.patch \
+    file://0139-lvds-AR0233-modify-with-rev2-silicon.patch \
+    file://0140-lvds-ti9x4-fix-remote-gpio-enablement-for-4-cams.patch \
+    file://0141-media-soc_camera-imx390-Add-new-V4L-controls.patch \
+    file://0142-lvds-AR233-add-rev1-silion-setup.patch \
+    file://0143-LVDS-AR0231-add-rev6-rev4-on-max9286.patch \
+    file://0144-lvds-add-OV10640-imager.patch \
+    file://0145-lvds-ti9x4-fix-remote-gpio-enablement-on-UB913.patch \
+    file://0146-lvds-add-dummy-imager-driver.patch \
+    file://0147-lvds-ti9x4-use-REFCLK-23.0MHz.patch \
+    file://0148-lvds-ar0231-fix-comments.patch \
+    file://0149-lvds-ISX019-rename-isx016-to-isx019.patch \
+    file://0150-lvds-add-ISX016-imager.patch \
+    file://0151-lvds-ti9x4-add-DVP-LSB-MSB-selection.patch \
+    file://0152-lvds-AR323-fix-reset-gpio-nadling.patch \
+    file://0153-lvds-OV495-fix-reset-gpio-handling.patch \
+    file://0154-lvds-AR0323-replace-with-REV2-setup-table.patch \
+    file://0155-AR0143-add-original-ONSEMI-setup.patch \
+    file://0156-AR0143-enable-3exp-in-custom-setup.patch \
+    file://0157-AR0143-add-choose-of-imager-setup.patch \
+    file://0158-MAX9286-fix-BWS-setup-to-reserve-reboot.patch \
+    file://0159-MAX9286-adjust-POC-trigger-for-unstable-link.patch \
+    file://0160-lvds-onsemi-fix-revsion-parsing.patch \
+    file://0161-lvds-AR0233-add-module-trigger-parameter.patch \
+    file://0162-lvds-AR0233-migrate-to-composed-tables.patch \
+    file://0163-lvds-AP0101-AR014X-add-TI-serializers.patch \
+    file://0164-lvds-fix-vendor-names.patch \
+    file://0165-LVDS-add-GW5200-IMX390-camera.patch \
+    file://0166-lvds-AR0233-add-superexposure-plus.patch \
+    file://0167-lvds-AR0233-fix-matrix-size-set-default-h-vflip.patch \
+    file://0168-lvds-ISX019-fix-add-address-intf-fix-read-write.patch \
+    file://0169-lvds-OVT-add-dvp_order-parameter-for-ov10635.patch \
+    file://0170-media-i2c-add-AR0147-imager.patch \
+    file://0171-lvds-ONSEMI-fix-matrix-position-during-crop.patch \
+    file://0172-media-i2c-ar0147-fix-super-exposure-artifact-line.patch \
+    file://0173-lvds-ti9x4-fix-remote-gpio-setup.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"

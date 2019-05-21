@@ -1,7 +1,7 @@
-From d087e9d0fb2b33c25ac7006bf6a8f90c1e2f5b83 Mon Sep 17 00:00:00 2001
+From 9995ac251006b1ca4989c009129e13ecac8b3e50 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 29 May 2016 23:18:49 +0300
-Subject: [PATCH 03/61] spi: spi-gpio: fix CPOL mode
+Subject: [PATCH 003/122] spi: spi-gpio: fix CPOL mode
 
 This fixes the SPI SPOL mode, since the cs_gpios is already used
 in generic code spi.c

@@ -1,7 +1,7 @@
-From 58ffe89399d20af16d270417cd5846c29a379ad4 Mon Sep 17 00:00:00 2001
+From c6c33a6088a78955da739ceac223843f66052745 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 6 Nov 2018 15:51:09 +0300
-Subject: [PATCH 29/61] media: soc_camera: rcar_vin: Fix VnCSI_IFMD settings
+Subject: [PATCH 028/122] media: soc_camera: rcar_vin: Fix VnCSI_IFMD settings
 
 This makes VnCSI_IFMD DES[01] bit settings identical in both
 probe and resume callbacks. The DES0 bit is set for all SoCs,

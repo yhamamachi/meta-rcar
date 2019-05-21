@@ -1,7 +1,7 @@
-From 7a7fb91400d0919c5a2df4c3aaba382cc89096f1 Mon Sep 17 00:00:00 2001
+From ea5e8199be27ecd2271485294084513fa72d78ae Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 9 Nov 2018 17:40:06 +0300
-Subject: [PATCH 119/119] arm64: dts: ulcb-kf: pcm3168a reset earlier, i2c-mux
+Subject: [PATCH 064/122] arm64: dts: ulcb-kf: pcm3168a reset earlier, i2c-mux
  disconnect on idle
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
@@ -78,5 +78,5 @@ index 731300e..d4e17a2 100644
  				tdm;
  				VDD1-supply = <&codec_en_reg>;
 -- 
-2.11.0
+2.7.4
 

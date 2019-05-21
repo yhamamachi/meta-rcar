@@ -1,7 +1,7 @@
-From 242466825031502b26ee165e58e2dec61cf4bb2e Mon Sep 17 00:00:00 2001
+From 5814a8b9881d3280577d7ccf640b63bfee9822ae Mon Sep 17 00:00:00 2001
 From: Sagi Grimberg <sagi@grimberg.me>
 Date: Sun, 31 Dec 2017 14:01:19 +0200
-Subject: [PATCH 4/6] nvme-pci: don't open-code nvme_reset_ctrl
+Subject: [PATCH 074/122] nvme-pci: don't open-code nvme_reset_ctrl
 
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>

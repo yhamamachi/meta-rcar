@@ -1,8 +1,8 @@
-From f4bb337c4c2932e659b40411869d9c2ccc06664e Mon Sep 17 00:00:00 2001
+From 226592cd140ed5f1b08d2ceb51f1a1b2e629b506 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Sun, 24 Feb 2019 01:05:24 +0300
-Subject: [PATCH 5/6] nvme-pci: limit max IO size and segments to avoid high
- order allocations
+Subject: [PATCH 075/122] nvme-pci: limit max IO size and segments to avoid
+ high order allocations
 
 nvme requires an sg table allocation for each request. If the request
 is large, then the allocation can become quite large. For instance,

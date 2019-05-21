@@ -1,7 +1,7 @@
-From 799ba3a8710dfa5e53eb44e7e78f7b8162a99882 Mon Sep 17 00:00:00 2001
+From 649acea146fb60eff7a7d924f2affcf76b13a3a8 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 1 Jun 2017 19:59:56 +0300
-Subject: [PATCH 23/61] media: i2c: Add ov5647 sensor
+Subject: [PATCH 023/122] media: i2c: Add ov5647 sensor
 
 Add ov5647 camera sensor driver
 

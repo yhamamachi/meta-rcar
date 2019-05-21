@@ -1,7 +1,7 @@
-From fffb15521b168f86a0d2708cfae40f44f721e2c8 Mon Sep 17 00:00:00 2001
+From 79d76546341424d3b712bfb65c96f5150386da72 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 22 Feb 2019 19:45:04 +0300
-Subject: [PATCH] arm64: dts: Add H3ULCB VideoBox 2.1 support.
+Subject: [PATCH 077/122] arm64: dts: Add H3ULCB VideoBox 2.1 support.
 
 This adds VideoBox 2.1 support for H3ULCB and H3ULCB 4x2G boards.
 

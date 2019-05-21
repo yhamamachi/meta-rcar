@@ -1,7 +1,7 @@
-From 1b817cd4d2e00a976309f25d2714301d5ccbb38c Mon Sep 17 00:00:00 2001
+From 98081ba7f59438b1c8f9176b5467b924b9b392f5 Mon Sep 17 00:00:00 2001
 From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 Date: Sun, 24 Jun 2018 18:04:23 +0300
-Subject: [PATCH 06/61] arm64: dma: check parent bus restrictions in
+Subject: [PATCH 006/122] arm64: dma: check parent bus restrictions in
  dma_capable()
 
 It may happen that although hardware device is capable of full 64-bit

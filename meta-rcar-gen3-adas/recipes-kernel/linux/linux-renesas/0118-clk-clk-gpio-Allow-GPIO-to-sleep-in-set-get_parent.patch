@@ -1,7 +1,7 @@
-From 09c29daaaa37c45664850ab96a78946090a51e0f Mon Sep 17 00:00:00 2001
+From 3ed86f45efc154e3a8e5ebd60beea30929b1c30c Mon Sep 17 00:00:00 2001
 From: Mike Looijmans <mike.looijmans@topic.nl>
 Date: Tue, 13 Mar 2018 09:54:03 +0100
-Subject: [PATCH 117/119] clk: clk-gpio: Allow GPIO to sleep in set/get_parent
+Subject: [PATCH 062/122] clk: clk-gpio: Allow GPIO to sleep in set/get_parent
 
 When changing or retrieving clock parents, the caller is in a sleepable
 state (like prepare) so the GPIO operation need not be atomic. Replace
@@ -18,7 +18,7 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clk/clk-gpio.c b/drivers/clk/clk-gpio.c
-index 86b245746a6b..3441e9cc9a83 100644
+index 86b2457..3441e9c 100644
 --- a/drivers/clk/clk-gpio.c
 +++ b/drivers/clk/clk-gpio.c
 @@ -75,14 +75,14 @@ static u8 clk_gpio_mux_get_parent(struct clk_hw *hw)
@@ -39,5 +39,5 @@ index 86b245746a6b..3441e9cc9a83 100644
  	return 0;
  }
 -- 
-2.11.0
+2.7.4
 

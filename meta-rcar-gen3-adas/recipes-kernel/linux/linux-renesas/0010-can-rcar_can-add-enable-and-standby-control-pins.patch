@@ -1,7 +1,7 @@
-From 8b6604f3a3094bc374c8813e1f9c3eab76d95409 Mon Sep 17 00:00:00 2001
+From ff03f1075bd445d1dbb5bb087c8d8d3f3b29a025 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 2 May 2016 22:05:53 +0300
-Subject: [PATCH 07/61] can: rcar_can: add enable and standby control pins
+Subject: [PATCH 007/122] can: rcar_can: add enable and standby control pins
 
 Add enable and standby can transceiver control pins
 

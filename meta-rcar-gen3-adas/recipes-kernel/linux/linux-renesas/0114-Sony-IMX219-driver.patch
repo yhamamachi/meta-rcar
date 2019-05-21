@@ -1,7 +1,7 @@
-From ecf84187c997e19556bbc8c8876e75ee2afcfaa0 Mon Sep 17 00:00:00 2001
+From 1a0e23a15528eb2715c13706fe6d74a32640cbb2 Mon Sep 17 00:00:00 2001
 From: Sergey Lapin <sergey.lapin@cogentembedded.com>
 Date: Wed, 26 Sep 2018 03:48:08 +0200
-Subject: [PATCH 57/61] Sony IMX219 driver
+Subject: [PATCH 058/122] Sony IMX219 driver
 
 Signed-off-by: Sergey Lapin <sergey.lapin@cogentembedded.com>
 ---

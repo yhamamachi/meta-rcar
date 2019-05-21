@@ -1,7 +1,7 @@
-From 629824bccadec9ac6657ecca76e80ccbc28aad5f Mon Sep 17 00:00:00 2001
+From f24ff97f1aad1bd121ef691d1b3294613e1646ea Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Wed, 3 Oct 2018 14:06:33 +0300
-Subject: [PATCH 61/61] arm64: dts: renesas: ulcb-kf: enable enable IMX219
+Subject: [PATCH 059/122] arm64: dts: renesas: ulcb-kf: enable enable IMX219
 
 This enables IMX219 instead OV5647
 

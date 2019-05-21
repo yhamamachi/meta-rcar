@@ -1,7 +1,7 @@
-From 0bac51e5078929bc32987e1c24209d90b348efdd Mon Sep 17 00:00:00 2001
+From 3130e4c0eed99cafc5e2431e7a7bbc0f85398aec Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 15 May 2016 21:47:02 +0300
-Subject: [PATCH 02/61] spi: spidev: add spi-gpio into spidev
+Subject: [PATCH 002/122] spi: spidev: add spi-gpio into spidev
 
 Add spi-gpio to spidev
 

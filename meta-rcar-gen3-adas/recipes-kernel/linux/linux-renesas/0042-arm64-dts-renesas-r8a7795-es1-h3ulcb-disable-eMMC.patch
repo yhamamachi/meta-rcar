@@ -1,7 +1,7 @@
-From 309eb6485dffc37dbffd6ab33f07006c40dabdf4 Mon Sep 17 00:00:00 2001
+From cee42d4e680e0d4f3485eb772371d26b769a5cec Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sat, 15 Jul 2017 00:44:12 +0300
-Subject: [PATCH 33/61] arm64: dts: renesas: r8a7795-es1-h3ulcb: disable eMMC
+Subject: [PATCH 033/122] arm64: dts: renesas: r8a7795-es1-h3ulcb: disable eMMC
 
 Disable eMMC due to ES1.x silicon bug
 

@@ -1,7 +1,7 @@
-From 7cc3708dac85816d2c38c872b71d51bafa2b5320 Mon Sep 17 00:00:00 2001
+From 8e7e1db3e1807fe910d14bdfcd22794ce8d4fb68 Mon Sep 17 00:00:00 2001
 From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Date: Mon, 16 Oct 2017 18:24:20 -0700
-Subject: [PATCH 3/6] nvme-pci: add SGL support
+Subject: [PATCH 073/122] nvme-pci: add SGL support
 
 This adds SGL support for NVMe PCIe driver, based on an earlier patch
 from Rajiv Shanmugam Madeswaran <smrajiv15 at gmail.com>. This patch

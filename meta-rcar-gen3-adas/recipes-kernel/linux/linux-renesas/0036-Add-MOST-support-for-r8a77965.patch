@@ -1,7 +1,7 @@
-From c44d440785808d6c70a0d5b70bfbc7daf9b55060 Mon Sep 17 00:00:00 2001
+From 084e65dfa693df84189b907ab06ec0bac92abc92 Mon Sep 17 00:00:00 2001
 From: Yusuke Goda <yusuke.goda.sx@renesas.com>
 Date: Fri, 26 Oct 2018 15:42:38 +0900
-Subject: [PATCH 28/61] Add MOST support for r8a77965
+Subject: [PATCH 027/122] Add MOST support for r8a77965
 
 This adds MOST support to R-Car M3N.
 
@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  3 files changed, 28 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 6f93cac..1c68036 100644
+index e682d10..b5926ff 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -1214,6 +1214,19 @@
+@@ -1188,6 +1188,19 @@
  			status = "disabled";
  		};
  
@@ -38,10 +38,10 @@ index 6f93cac..1c68036 100644
  			compatible = "renesas,msiof-r8a77965",
  				     "renesas,rcar-gen3-msiof";
 diff --git a/drivers/clk/renesas/r8a77965-cpg-mssr.c b/drivers/clk/renesas/r8a77965-cpg-mssr.c
-index 5831261..56042c1 100644
+index b3b637f..3d4fe53 100644
 --- a/drivers/clk/renesas/r8a77965-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a77965-cpg-mssr.c
-@@ -189,6 +189,7 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] __initconst = {
+@@ -190,6 +190,7 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] __initconst = {
  	DEF_MOD("lvds",			727,	R8A77965_CLK_S2D1),
  	DEF_MOD("hdmi0",		729,	R8A77965_CLK_HDMI),
  
@@ -50,7 +50,7 @@ index 5831261..56042c1 100644
  	DEF_MOD("vin6",			805,	R8A77965_CLK_S0D2),
  	DEF_MOD("vin5",			806,	R8A77965_CLK_S0D2),
 diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
-index 3944894..6d46e0c 100644
+index 8f4b73c..91aa6c0 100644
 --- a/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
 +++ b/drivers/pinctrl/sh-pfc/pfc-r8a77965.c
 @@ -2627,6 +2627,14 @@ static const unsigned int intc_ex_irq5_mux[] = {

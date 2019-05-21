@@ -1,7 +1,7 @@
-From 63acd367809516e625219e75695cc914da771cdf Mon Sep 17 00:00:00 2001
+From 2cba40e9f31caf67fccbec8310a1c9a1e53b2c79 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 11 Aug 2017 17:30:40 +0300
-Subject: [PATCH 45/61] usb: hub: disable autosuspend for SMSC hubs
+Subject: [PATCH 048/122] usb: hub: disable autosuspend for SMSC hubs
 
 Disable autosuspend for SMSC hubs (USB5534B/USB2134B devices)
 This is a workaround for RCar Gen3 XHCI

@@ -1,7 +1,7 @@
-From d593009608a70d887cc8822f3344ddb99a0b9f68 Mon Sep 17 00:00:00 2001
+From d8e286fd757432df78121151e5174ff64d902add Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Wed, 9 Aug 2017 11:52:22 +0300
-Subject: [PATCH 43/61] drm: adv7511: use smbus to retrieve edid
+Subject: [PATCH 046/122] drm: adv7511: use smbus to retrieve edid
 
 Get EDID using smbus protocol instead block i2c transfer
 This fixes often checksum errors while retriving EDID at 400kHz bus speed

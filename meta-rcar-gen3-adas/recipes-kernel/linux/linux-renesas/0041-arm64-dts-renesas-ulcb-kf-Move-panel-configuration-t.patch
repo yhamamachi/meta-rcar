@@ -1,8 +1,8 @@
-From 76f2207399d09b198aafceef3e6a3dbdd460c1eb Mon Sep 17 00:00:00 2001
+From 4345b900761a169590891eb1946aae7d55b0c749 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 17 Dec 2018 16:47:51 +0300
-Subject: [PATCH] arm64: dts: renesas: ulcb-kf: Move panel configuration to
- ulcb-kf-panel.dtsi
+Subject: [PATCH 032/122] arm64: dts: renesas: ulcb-kf: Move panel
+ configuration to ulcb-kf-panel.dtsi
 
 This moves LVDS panel configuration from ulcb-kf.dtsi
 to ulcb-kf-panel.dtsi. This various LVDS panel setup

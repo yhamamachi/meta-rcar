@@ -1,7 +1,7 @@
-From ce910283f9bce7d8797bd7bd6f1f1d762325dfb3 Mon Sep 17 00:00:00 2001
+From acc636a3603d2c541bfc758eea3dfa245a13cc46 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 7 Jul 2017 20:43:33 +0300
-Subject: [PATCH 47/61] MOST: dim2: add R-Car3 related initialization
+Subject: [PATCH 050/122] MOST: dim2: add R-Car3 related initialization
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---

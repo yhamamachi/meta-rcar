@@ -1,7 +1,7 @@
-From 3e5b26d6c5615c3c4254c9d7b180ce3538a3a460 Mon Sep 17 00:00:00 2001
+From 67845bd98cd08aa18a07c884263aea0110273e51 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 1 Mar 2019 22:22:04 +0300
-Subject: [PATCH 1/6] block: blk-mq: Fix IO hang
+Subject: [PATCH 071/122] block: blk-mq: Fix IO hang
 
 Sometimes IO hangs are observed on Samsung Pro 960 NVME device.
 If driver returns BLK_STS_RESOURCE and SCHED_RESTART is set,

@@ -1,7 +1,7 @@
-From 298305e3b8b83a59f63f8672691530b62266f958 Mon Sep 17 00:00:00 2001
+From c6a4047e20e95dd01e0c5ec629b77a50b3bc73d0 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 29 May 2016 23:18:49 +0300
-Subject: [PATCH 04/61] spi: spi-gpio: set CPOL default inverted
+Subject: [PATCH 004/122] spi: spi-gpio: set CPOL default inverted
 
 Workaround:
  Set default value at probe to 1 due to issue with H3ULCB.HAD FPGA

@@ -1,7 +1,7 @@
-From b12ab2425b5bdcc1ab1f166f746771822d3d85ff Mon Sep 17 00:00:00 2001
+From 49e089f9173aaf001ed82a250f8ff0ce6f585ac4 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 22 Feb 2019 02:55:02 +0300
-Subject: [PATCH 2/6] nvme: Workaround Samsung 970 Pro power state issues
+Subject: [PATCH 072/122] nvme: Workaround Samsung 970 Pro power state issues
 
 Sometimes Samsung 970 Pro NVME device just disappears.
 Looks like it drops into deep sleep mode during I/O.

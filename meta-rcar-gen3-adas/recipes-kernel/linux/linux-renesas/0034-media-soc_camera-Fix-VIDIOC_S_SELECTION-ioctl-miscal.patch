@@ -1,7 +1,7 @@
-From 16af50ce6e6d50f31b33ae937c64e150330fa50c Mon Sep 17 00:00:00 2001
+From e9d22a6f30941cad86b22258fd0a467a7b69ede4 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 31 Jul 2017 19:26:05 +0300
-Subject: [PATCH 26/61] media: soc_camera: Fix VIDIOC_S_SELECTION ioctl
+Subject: [PATCH 026/122] media: soc_camera: Fix VIDIOC_S_SELECTION ioctl
  miscalculation
 
 This patch corrects the miscalculation of the capture buffer

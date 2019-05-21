@@ -1,8 +1,8 @@
-From f465a0a037755880b35824ddd1c6a6974dba266c Mon Sep 17 00:00:00 2001
+From a345757975a1cbb6910d97b98976cc54f102888e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 17 Dec 2018 17:56:40 +0300
-Subject: [PATCH] arm64: dts: renesas: ulcb-kf: Set Mitsubishi AA104XD12
- 1024x768 panel
+Subject: [PATCH 067/122] arm64: dts: renesas: ulcb-kf: Set Mitsubishi
+ AA104XD12 1024x768 panel
 
 This sets LVDS LCD parameters for Mitsubishi AA104XD12 1024x768 panel.
 
@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 19 insertions(+), 12 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
-index 1bcb246..73c2378 100644
+index b54c935..73c2378 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 @@ -18,24 +18,31 @@

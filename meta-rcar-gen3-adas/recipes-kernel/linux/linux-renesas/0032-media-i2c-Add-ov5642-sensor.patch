@@ -1,7 +1,7 @@
-From 29ce353cd2c6a6cf2f8d908b385621f78fb8576d Mon Sep 17 00:00:00 2001
+From 989c2131d4bae27c2866d47206e2825cfd039778 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 11 Jun 2017 00:50:59 +0300
-Subject: [PATCH 24/61] media: i2c: ov5642 sensor
+Subject: [PATCH 024/122] media: i2c: ov5642 sensor
 
 Add ov5642 camera sensor driver update
 

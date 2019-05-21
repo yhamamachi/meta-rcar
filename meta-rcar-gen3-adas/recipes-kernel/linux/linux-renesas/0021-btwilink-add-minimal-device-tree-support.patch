@@ -1,7 +1,7 @@
-From 94bb260a1513730b67ffc66ea85cf6b6d1c27323 Mon Sep 17 00:00:00 2001
+From e1a68682ff98b44c9614dad8e21d2bd12d8038d8 Mon Sep 17 00:00:00 2001
 From: Eyal Reizer <eyalr@ti.com>
 Date: Thu, 23 May 2013 17:15:21 +0300
-Subject: [PATCH 16/61] btwilink: add minimal device tree support
+Subject: [PATCH 016/122] btwilink: add minimal device tree support
 
 Add minimal device tree support to the btwilink driver that is used
 for binding bluetooth with the ti-st shared transport driver.

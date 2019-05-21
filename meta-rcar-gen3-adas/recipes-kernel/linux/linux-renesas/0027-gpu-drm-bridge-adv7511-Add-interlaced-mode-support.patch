@@ -1,7 +1,8 @@
-From d0f5f747998d652c61f2e9e279b157b9008814b9 Mon Sep 17 00:00:00 2001
+From bf8408f6e06e4d6e80940d0c8e08f7e8da330de7 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 21 Mar 2018 20:48:02 +0300
-Subject: [PATCH 21/61] gpu: drm: bridge: adv7511: Add interlaced mode support
+Subject: [PATCH 021/122] gpu: drm: bridge: adv7511: Add interlaced mode
+ support
 
 This adds "interlace-allowed" DTS property
 that allows interlaced mode support when set.
@@ -25,7 +26,7 @@ index 06668bc..e0a2360 100644
    (-1200 ps .. 1600 ps). Defaults to no delay.
  - adi,embedded-sync: The input uses synchronization signals embedded in the
 diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 7162f94..ab4ddfc 100644
+index 69f605b..808021f 100644
 --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
 @@ -863,6 +863,9 @@ static int adv7511_bridge_attach(struct drm_bridge *bridge)

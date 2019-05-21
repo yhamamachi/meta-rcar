@@ -1,8 +1,8 @@
-From 76c3d12d17b1a4a90fc6bb7a91dace3c00c41a59 Mon Sep 17 00:00:00 2001
+From 1b9c44163036d1c28e55d508ffe6d33492e92569 Mon Sep 17 00:00:00 2001
 From: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
 Date: Thu, 7 Dec 2017 20:10:39 +0900
-Subject: [PATCH] drm/bridge: adv7511: Add frequency and vrefresh limitation
- option
+Subject: [PATCH 043/122] drm/bridge: adv7511: Add frequency and vrefresh
+ limitation option
 
 This patch adds processing of frequency and vrefresh to ADV7511.
 

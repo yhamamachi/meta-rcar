@@ -1,7 +1,7 @@
-From 6579f71c93117ce9d66e07753dbec31731ae1ff8 Mon Sep 17 00:00:00 2001
+From 3d10977e9e9811efe110d90b725f3132f80112ae Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 18 Jan 2019 23:24:15 +0300
-Subject: [PATCH 55/61] ARM64: dts: renesas: ulcb: Make AK4613 sound device
+Subject: [PATCH 056/122] ARM64: dts: renesas: ulcb: Make AK4613 sound device
  name consistent
 
 This makes AK4613 sound device name consistent throughout all

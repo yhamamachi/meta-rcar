@@ -1,7 +1,7 @@
-From 187c0277e7d522b74d96db7495ba854403853817 Mon Sep 17 00:00:00 2001
+From decad395fffdd4b5426434696596c908dbb6ca3a Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 7 Jul 2017 16:25:06 +0300
-Subject: [PATCH 36/61] arm64: dts: renesas: r8a779x: add mlp nodes
+Subject: [PATCH 036/122] arm64: dts: renesas: r8a779x: add mlp nodes
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
@@ -10,10 +10,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  2 files changed, 26 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 6e8c6d2..417c1ca 100644
+index f15d587..b9c4a39 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -1894,6 +1894,19 @@
+@@ -1868,6 +1868,19 @@
  			status = "disabled";
  		};
  
@@ -34,10 +34,10 @@ index 6e8c6d2..417c1ca 100644
  			compatible = "renesas,msiof-r8a7795",
  				     "renesas,rcar-gen3-msiof";
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 22af095..883459c 100644
+index 00433dc..c41d1c2 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -1817,6 +1817,19 @@
+@@ -1791,6 +1791,19 @@
  			status = "disabled";
  		};
  

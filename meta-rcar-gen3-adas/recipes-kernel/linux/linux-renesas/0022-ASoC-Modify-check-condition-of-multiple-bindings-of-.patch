@@ -1,7 +1,7 @@
-From def835d997e5c936ba5b8396a98222283551f44c Mon Sep 17 00:00:00 2001
+From e27c2e3bb765958c217e46429776a0386c5b089f Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Tue, 13 Dec 2016 18:08:39 +0300
-Subject: [PATCH 17/61] ASoC: Modify check condition of multiple bindings of
+Subject: [PATCH 017/122] ASoC: Modify check condition of multiple bindings of
  components
 
 https://patchwork.kernel.org/patch/7385501/

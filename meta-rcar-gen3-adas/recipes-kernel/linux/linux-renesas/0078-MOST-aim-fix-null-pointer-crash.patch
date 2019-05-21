@@ -1,7 +1,7 @@
-From 44af7f9a6796502b98253f6be6041e7be8bd27dd Mon Sep 17 00:00:00 2001
+From a68299f4a29874aee83938274100b323a72d4c3f Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 27 Oct 2017 17:34:05 +0300
-Subject: [PATCH 51/61] MOST: aim: fix null pointer crash
+Subject: [PATCH 054/122] MOST: aim: fix null pointer crash
 
 The snd_card_new now crashes if first argument NULL
 

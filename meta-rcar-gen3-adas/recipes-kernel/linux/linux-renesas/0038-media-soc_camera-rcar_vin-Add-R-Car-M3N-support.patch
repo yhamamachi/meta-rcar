@@ -1,7 +1,7 @@
-From 4d9420e63ace7a2684ae21e06ba55132e58b1431 Mon Sep 17 00:00:00 2001
+From d6c2b71e753a46bc72743d09000ca4589da51251 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 6 Nov 2018 16:02:21 +0300
-Subject: [PATCH 30/61] media: soc_camera: rcar_vin: Add R-Car M3N support
+Subject: [PATCH 029/122] media: soc_camera: rcar_vin: Add R-Car M3N support
 
 This adds R8A77965 SoC support.
 

@@ -1,8 +1,8 @@
-From 8699a414c94b07dad9c890b94c1665faceff8489 Mon Sep 17 00:00:00 2001
+From 10517a5740e7b6f24fd5a45d8f9635ed13e94ddd Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 17 Dec 2018 17:56:40 +0300
-Subject: [PATCH] arm64: dts: renesas: ulcb-kf: Set Mitsubishi AA121TD01
- 1280x800 panel
+Subject: [PATCH 069/122] arm64: dts: renesas: ulcb-kf: Set Mitsubishi
+ AA121TD01 1280x800 panel
 
 This sets LVDS LCD parameters for Mitsubishi AA121TD01 1280x800 panel.
 
@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
-index 1bcb246..2fe2b6c 100644
+index b54c935..2fe2b6c 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 @@ -12,30 +12,37 @@

@@ -1,7 +1,7 @@
-From 2dcb5e060318c23de248276c9a9ed375966d0943 Mon Sep 17 00:00:00 2001
+From 8b5bbc523cf41fbb8e657f9c81d7821b04ac1b89 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 26 Nov 2018 05:55:03 +0300
-Subject: [PATCH] serial: sh-sci: Fix minimal rx_timeout value
+Subject: [PATCH 055/122] serial: sh-sci: Fix minimal rx_timeout value
 
 Commit "serial: sh-sci: use hrtimer for receive timeout"
 breaks rx_timeout limit check. It used to be calculated

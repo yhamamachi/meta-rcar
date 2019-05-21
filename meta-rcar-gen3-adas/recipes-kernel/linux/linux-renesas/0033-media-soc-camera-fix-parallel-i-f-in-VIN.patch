@@ -1,7 +1,7 @@
-From 9eaa3a5f0a5b1dec720c913e425e04427477bde3 Mon Sep 17 00:00:00 2001
+From cbe8bbb04c7cff0d4c7cca6ca6b6f28f4998fb2a Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 14 Jul 2017 21:55:20 +0300
-Subject: [PATCH 25/61] media: soc_camera: fix parallel i/f in VIN
+Subject: [PATCH 025/122] media: soc_camera: fix parallel i/f in VIN
 
 This fixes parallel interface in VIN
 

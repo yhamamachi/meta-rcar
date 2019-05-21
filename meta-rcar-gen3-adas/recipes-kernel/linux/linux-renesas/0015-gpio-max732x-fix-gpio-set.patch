@@ -1,7 +1,7 @@
-From fbec3ccacd129512e39d58f8fe152cd2af5d7830 Mon Sep 17 00:00:00 2001
+From d3dd821694e6e2a99089bb4916ba4013de54c503 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Tue, 11 Apr 2017 20:12:56 +0300
-Subject: [PATCH 11/61] gpio: max732x: fix gpio set
+Subject: [PATCH 011/122] gpio: max732x: fix gpio set
 
 gpio set value/direction must 0 or 1, but
 gpiolib sets it to not binary values

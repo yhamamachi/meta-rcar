@@ -1,7 +1,7 @@
-From 01b21f5186107e3838da8ade6db616570435f143 Mon Sep 17 00:00:00 2001
+From 36b7bfbe6c0c45fdbb201f7a79899c7bd934fb17 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Sun, 14 May 2017 13:43:24 +0300
-Subject: [PATCH 13/61] media: soc_camera: add legacy VIN/CSI2
+Subject: [PATCH 013/122] media: soc_camera: add legacy VIN/CSI2
 
 Add legacy/old R-CAR VIN/CSI2 drivers
 
@@ -23,10 +23,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 include/media/rcar_csi2.h
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-index 600f56c..c02ad61 100644
+index 81e7625..a8c976e 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-@@ -195,51 +195,6 @@
+@@ -201,51 +201,6 @@
  		power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  		resets = <&cpg 713>;
  		status = "disabled";
@@ -78,7 +78,7 @@ index 600f56c..c02ad61 100644
  	};
  };
  
-@@ -292,91 +247,3 @@
+@@ -284,91 +239,3 @@
  &du {
  	vsps = <&vspd0 &vspd1 &vspd2 &vspd3>;
  };
@@ -171,10 +171,10 @@ index 600f56c..c02ad61 100644
 -	};
 -};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 8dfda0f..6e8c6d2 100644
+index 8c5b5fe..f15d587 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -1969,27 +1969,6 @@
+@@ -1943,27 +1943,6 @@
  			resets = <&cpg 811>;
  			renesas,id = <0>;
  			status = "disabled";
@@ -202,7 +202,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin1: video@e6ef1000 {
-@@ -2001,27 +1980,6 @@
+@@ -1975,27 +1954,6 @@
  			resets = <&cpg 810>;
  			renesas,id = <1>;
  			status = "disabled";
@@ -230,7 +230,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin2: video@e6ef2000 {
-@@ -2033,27 +1991,6 @@
+@@ -2007,27 +1965,6 @@
  			resets = <&cpg 809>;
  			renesas,id = <2>;
  			status = "disabled";
@@ -258,7 +258,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin3: video@e6ef3000 {
-@@ -2065,27 +2002,6 @@
+@@ -2039,27 +1976,6 @@
  			resets = <&cpg 808>;
  			renesas,id = <3>;
  			status = "disabled";
@@ -286,7 +286,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin4: video@e6ef4000 {
-@@ -2097,27 +2013,6 @@
+@@ -2071,27 +1987,6 @@
  			resets = <&cpg 807>;
  			renesas,id = <4>;
  			status = "disabled";
@@ -314,7 +314,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin5: video@e6ef5000 {
-@@ -2129,27 +2024,6 @@
+@@ -2103,27 +1998,6 @@
  			resets = <&cpg 806>;
  			renesas,id = <5>;
  			status = "disabled";
@@ -342,7 +342,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin6: video@e6ef6000 {
-@@ -2161,27 +2035,6 @@
+@@ -2135,27 +2009,6 @@
  			resets = <&cpg 805>;
  			renesas,id = <6>;
  			status = "disabled";
@@ -370,7 +370,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		vin7: video@e6ef7000 {
-@@ -2193,27 +2046,6 @@
+@@ -2167,27 +2020,6 @@
  			resets = <&cpg 804>;
  			renesas,id = <7>;
  			status = "disabled";
@@ -398,7 +398,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		drif00: rif@e6f40000 {
-@@ -3300,51 +3132,6 @@
+@@ -3258,51 +3090,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -450,7 +450,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -3355,35 +3142,6 @@
+@@ -3313,35 +3100,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -486,7 +486,7 @@ index 8dfda0f..6e8c6d2 100644
  		};
  
  		csi41: csi2@feab0000 {
-@@ -3394,35 +3152,6 @@
+@@ -3352,35 +3110,6 @@
  			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
  			resets = <&cpg 715>;
  			status = "disabled";
@@ -523,10 +523,10 @@ index 8dfda0f..6e8c6d2 100644
  
  		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 726c0d0..22af095 100644
+index 19f2199..00433dc 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -1875,27 +1875,6 @@
+@@ -1849,27 +1849,6 @@
  			resets = <&cpg 811>;
  			renesas,id = <0>;
  			status = "disabled";
@@ -554,7 +554,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin1: video@e6ef1000 {
-@@ -1907,27 +1886,6 @@
+@@ -1881,27 +1860,6 @@
  			resets = <&cpg 810>;
  			renesas,id = <1>;
  			status = "disabled";
@@ -582,7 +582,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin2: video@e6ef2000 {
-@@ -1939,27 +1897,6 @@
+@@ -1913,27 +1871,6 @@
  			resets = <&cpg 809>;
  			renesas,id = <2>;
  			status = "disabled";
@@ -610,7 +610,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin3: video@e6ef3000 {
-@@ -1971,27 +1908,6 @@
+@@ -1945,27 +1882,6 @@
  			resets = <&cpg 808>;
  			renesas,id = <3>;
  			status = "disabled";
@@ -638,7 +638,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin4: video@e6ef4000 {
-@@ -2003,27 +1919,6 @@
+@@ -1977,27 +1893,6 @@
  			resets = <&cpg 807>;
  			renesas,id = <4>;
  			status = "disabled";
@@ -666,7 +666,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin5: video@e6ef5000 {
-@@ -2035,27 +1930,6 @@
+@@ -2009,27 +1904,6 @@
  			resets = <&cpg 806>;
  			renesas,id = <5>;
  			status = "disabled";
@@ -694,7 +694,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin6: video@e6ef6000 {
-@@ -2067,27 +1941,6 @@
+@@ -2041,27 +1915,6 @@
  			resets = <&cpg 805>;
  			renesas,id = <6>;
  			status = "disabled";
@@ -722,7 +722,7 @@ index 726c0d0..22af095 100644
  		};
  
  		vin7: video@e6ef7000 {
-@@ -2099,27 +1952,6 @@
+@@ -2073,27 +1926,6 @@
  			resets = <&cpg 804>;
  			renesas,id = <7>;
  			status = "disabled";
@@ -750,7 +750,7 @@ index 726c0d0..22af095 100644
  		};
  
  		drif00: rif@e6f40000 {
-@@ -3040,51 +2872,6 @@
+@@ -2989,51 +2821,6 @@
  			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -802,7 +802,7 @@ index 726c0d0..22af095 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -3095,52 +2882,6 @@
+@@ -3044,52 +2831,6 @@
  			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -856,10 +856,10 @@ index 726c0d0..22af095 100644
  
  		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 799b005..6f93cac 100644
+index a58fba8..e682d10 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -1289,27 +1289,6 @@
+@@ -1263,27 +1263,6 @@
  			resets = <&cpg 811>;
  			renesas,id = <0>;
  			status = "disabled";
@@ -887,7 +887,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin1: video@e6ef1000 {
-@@ -1321,27 +1300,6 @@
+@@ -1295,27 +1274,6 @@
  			resets = <&cpg 810>;
  			renesas,id = <1>;
  			status = "disabled";
@@ -915,7 +915,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin2: video@e6ef2000 {
-@@ -1353,27 +1311,6 @@
+@@ -1327,27 +1285,6 @@
  			resets = <&cpg 809>;
  			renesas,id = <2>;
  			status = "disabled";
@@ -943,7 +943,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin3: video@e6ef3000 {
-@@ -1385,27 +1322,6 @@
+@@ -1359,27 +1296,6 @@
  			resets = <&cpg 808>;
  			renesas,id = <3>;
  			status = "disabled";
@@ -971,7 +971,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin4: video@e6ef4000 {
-@@ -1417,27 +1333,6 @@
+@@ -1391,27 +1307,6 @@
  			resets = <&cpg 807>;
  			renesas,id = <4>;
  			status = "disabled";
@@ -999,7 +999,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin5: video@e6ef5000 {
-@@ -1449,27 +1344,6 @@
+@@ -1423,27 +1318,6 @@
  			resets = <&cpg 806>;
  			renesas,id = <5>;
  			status = "disabled";
@@ -1027,7 +1027,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin6: video@e6ef6000 {
-@@ -1481,27 +1355,6 @@
+@@ -1455,27 +1329,6 @@
  			resets = <&cpg 805>;
  			renesas,id = <6>;
  			status = "disabled";
@@ -1055,7 +1055,7 @@ index 799b005..6f93cac 100644
  		};
  
  		vin7: video@e6ef7000 {
-@@ -1513,27 +1366,6 @@
+@@ -1487,27 +1340,6 @@
  			resets = <&cpg 804>;
  			renesas,id = <7>;
  			status = "disabled";
@@ -1083,7 +1083,7 @@ index 799b005..6f93cac 100644
  		};
  
  		rcar_sound: sound@ec500000 {
-@@ -2272,51 +2104,6 @@
+@@ -2230,51 +2062,6 @@
  			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
  			resets = <&cpg 714>;
  			status = "disabled";
@@ -1135,7 +1135,7 @@ index 799b005..6f93cac 100644
  		};
  
  		csi40: csi2@feaa0000 {
-@@ -2327,51 +2114,6 @@
+@@ -2285,51 +2072,6 @@
  			power-domains = <&sysc R8A77965_PD_ALWAYS_ON>;
  			resets = <&cpg 716>;
  			status = "disabled";
@@ -1188,7 +1188,7 @@ index 799b005..6f93cac 100644
  
  		hdmi0: hdmi@fead0000 {
 diff --git a/arch/arm64/boot/dts/renesas/salvator-common.dtsi b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-index 2c1d49c..d798829 100644
+index 1b191af..788d38f 100644
 --- a/arch/arm64/boot/dts/renesas/salvator-common.dtsi
 +++ b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
 @@ -341,37 +341,6 @@
