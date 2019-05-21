@@ -378,3 +378,4 @@ patch 0378-lvds-ISX019-fix-add-address-intf-fix-read-write.patch
 patch 0379-lvds-OVT-add-dvp_order-parameter-for-ov10635.patch
 patch 0380-media-i2c-add-AR0147-imager.patch
 patch 0381-lvds-ONSEMI-fix-matrix-position-during-crop.patch
+patch 0382-media-i2c-ar0147-fix-super-exposure-artifact-line.patch
