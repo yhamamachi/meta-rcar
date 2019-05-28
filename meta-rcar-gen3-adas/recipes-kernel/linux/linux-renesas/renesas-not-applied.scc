@@ -2,6 +2,7 @@ patch 0014-lib-swiotlb-reduce-verbosity.patch
 patch 0018-arm64-renesas-r8a7797-Add-Renesas-R8A7797-SoC-suppor.patch
 patch 0051-arm64-renesas-r8a7798-Add-Renesas-R8A7798-SoC-suppor.patch
 patch 0052-soc-renesas-rcar-sysc-Add-workaround-for-A3-PD-issue.patch
+patch 0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch
 patch 0082-gpio-pca953x-fix-interrupt-trigger.patch
 patch 0100-LVDS-ar0132-use-raw12.patch
 patch 0101-LVDS-ar0132-use-context-swwitch.patch

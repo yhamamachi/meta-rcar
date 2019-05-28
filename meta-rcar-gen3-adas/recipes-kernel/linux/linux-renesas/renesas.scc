@@ -51,7 +51,6 @@ patch 0075-MOST-core-fix-memory-allocation-at-arm64.patch
 patch 0076-MOST-dim2-Renesas-R-Car3-variant.patch
 patch 0077-MOST-dim2-add-timeouts.patch
 patch 0078-MOST-aim-fix-null-pointer-crash.patch
-patch 0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch
 patch 0080-clk-renesas-r8a77965-cpg-mssr-Add-IMR-clocks.patch
 patch 0081-arm64-dts-renesas-r8a77965-Add-IMR-device-nodes.patch
 patch 0110-mmc-tmio-Add-SDHI-SEQUENCER-support.patch
@@ -70,3 +69,12 @@ patch 0123-arm64-dts-Add-8GB-H3ULCB-Kingfisher-and-VideoBox-sup.patch
 patch 0124-can-rcar_canfd-fix-possible-IRQ-storm-on-high-load.patch
 patch 0125-i2c-rcar-skip-DMA-if-buffer-is-not-safe.patch
 patch 0126-arm64-dts-r8a7795-h3ulcb-Fix-source-clock-for-DU2.patch
+patch 0127-dmaengine-rcar-dmac-don-t-use-DMAC-error-interrupt.patch
+patch 0128-dmaengine-rcar-dmac-Disable-interrupts-while-stoppin.patch
+patch 0129-dmaengine-rcar-dmac-clear-channel-register-when-erro.patch
+patch 0130-dmaengine-sh-rcar-dmac-avoid-to-write-CHCR.TE-to-1-i.patch
+patch 0131-dmaengine-sh-rcar-dmac-add-a-new-function-to-clear-C.patch
+patch 0132-dmaengine-sh-rcar-dmac-Add-dma_pause-operation.patch
+patch 0133-dmaengine-sh-rcar-dmac-Should-not-stop-the-DMAC-by-r.patch
+patch 0134-dmaengine-sh-rcar-dmac-With-cyclic-DMA-residue-0-is-.patch
+patch 0135-dmaengine-sh-rcar-dmac-Fix-glitch-in-dmaengine_tx_st.patch

@@ -1,0 +1,62 @@
+From 9f2d88b8572386a135fd43d89e00516aa87743f1 Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Wed, 11 Jul 2018 11:10:16 +0900
+Subject: [PATCH 6/9] dmaengine: sh: rcar-dmac: Add dma_pause operation
+
+This patch adds dma_pause operation. This patch is based on
+Muhammad Hamza Farooq's patch.
+
+After this patch applied, an issue that the sh-sci driver with
+high baud rate might cause data lost disappeared because the DMAC
+is possible to transmit between [1] and [2] below, and then
+the residue of [1] is not true:
+
+In rx_timer_fn() of the sh-sci.c:
+	dmaengine_pause();
+	...
+	dmaengine_tx_status();		/* [1] */
+	...
+	dmaengine_terminate_all();	/* [2] */
+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+(cherry picked from commit 8115ce745fa26ccffe7d1a542ab4322acf4a682d)
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ drivers/dma/sh/rcar-dmac.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
+index cfe3d58..57ace4c 100644
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -837,6 +837,17 @@ static void rcar_dmac_stop_all_chan(struct rcar_dmac *dmac)
+ 	}
+ }
+ 
++static int rcar_dmac_chan_pause(struct dma_chan *chan)
++{
++	unsigned long flags;
++	struct rcar_dmac_chan *rchan = to_rcar_dmac_chan(chan);
++
++	spin_lock_irqsave(&rchan->lock, flags);
++	rcar_dmac_clear_chcr_de(rchan);
++	spin_unlock_irqrestore(&rchan->lock, flags);
++
++	return 0;
++}
+ 
+ /* -----------------------------------------------------------------------------
+  * Descriptors preparation
+@@ -1877,6 +1888,7 @@ static int rcar_dmac_probe(struct platform_device *pdev)
+ 	engine->device_prep_slave_sg		= rcar_dmac_prep_slave_sg;
+ 	engine->device_prep_dma_cyclic		= rcar_dmac_prep_dma_cyclic;
+ 	engine->device_config			= rcar_dmac_device_config;
++	engine->device_pause			= rcar_dmac_chan_pause;
+ 	engine->device_terminate_all		= rcar_dmac_chan_terminate_all;
+ 	engine->device_tx_status		= rcar_dmac_tx_status;
+ 	engine->device_issue_pending		= rcar_dmac_issue_pending;
+-- 
+2.7.4
+
