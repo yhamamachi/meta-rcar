@@ -128,6 +128,7 @@ SRC_URI_append = " \
     file://0171-lvds-ONSEMI-fix-matrix-position-during-crop.patch \
     file://0172-media-i2c-ar0147-fix-super-exposure-artifact-line.patch \
     file://0173-lvds-ti9x4-fix-remote-gpio-setup.patch \
+    file://0174-arm64-dts-renesas-ulcb-vb2-Drive-CAN-controller-rese.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
