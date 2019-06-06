@@ -78,3 +78,4 @@ patch 0132-dmaengine-sh-rcar-dmac-Add-dma_pause-operation.patch
 patch 0133-dmaengine-sh-rcar-dmac-Should-not-stop-the-DMAC-by-r.patch
 patch 0134-dmaengine-sh-rcar-dmac-With-cyclic-DMA-residue-0-is-.patch
 patch 0135-dmaengine-sh-rcar-dmac-Fix-glitch-in-dmaengine_tx_st.patch
+patch 0136-arm64-dts-renesas-ulcb-vb2-Drive-CAN-controller-rese.patch
