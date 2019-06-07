@@ -380,3 +380,7 @@ patch 0380-media-i2c-add-AR0147-imager.patch
 patch 0381-lvds-ONSEMI-fix-matrix-position-during-crop.patch
 patch 0382-media-i2c-ar0147-fix-super-exposure-artifact-line.patch
 patch 0383-lvds-ti9x4-fix-remote-gpio-setup.patch
+patch 0384-lvds-ov2775-add-exposure-gain.patch
+patch 0385-lvds-geosemi-put-imager-to-autodetect-tail.patch
+patch 0386-media-rcar_vin-add-GREY-Y8-bypass.patch
+patch 0387-lvds-add-OV2311-imager.patch
