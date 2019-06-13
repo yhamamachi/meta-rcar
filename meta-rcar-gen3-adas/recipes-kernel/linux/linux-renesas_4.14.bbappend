@@ -9,6 +9,7 @@ COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
+    file://nvme.cfg \
     file://0001-spi-sh-msiof-fixes.patch \
     file://0002-spi-spidev-add-spi-gpio-into-spidev.patch \
     file://0003-spi-spi-gpio-fix-CPOL-mode.patch \
