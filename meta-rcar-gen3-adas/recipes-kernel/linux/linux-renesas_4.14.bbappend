@@ -135,6 +135,7 @@ SRC_URI_append = " \
     file://0176-lvds-geosemi-put-imager-to-autodetect-tail.patch \
     file://0177-media-rcar_vin-add-GREY-Y8-bypass.patch \
     file://0178-lvds-add-OV2311-imager.patch \
+    file://0179-media-i2c-soc_camera-Fix-more-Bad-of_node_put-errors.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
