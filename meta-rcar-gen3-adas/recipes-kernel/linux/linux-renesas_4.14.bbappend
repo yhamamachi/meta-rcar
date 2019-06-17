@@ -131,6 +131,10 @@ SRC_URI_append = " \
     file://0172-media-i2c-ar0147-fix-super-exposure-artifact-line.patch \
     file://0173-lvds-ti9x4-fix-remote-gpio-setup.patch \
     file://0174-arm64-dts-renesas-ulcb-vb2-Drive-CAN-controller-rese.patch \
+    file://0175-lvds-ov2775-add-exposure-gain.patch \
+    file://0176-lvds-geosemi-put-imager-to-autodetect-tail.patch \
+    file://0177-media-rcar_vin-add-GREY-Y8-bypass.patch \
+    file://0178-lvds-add-OV2311-imager.patch \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
