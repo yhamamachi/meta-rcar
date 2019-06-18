@@ -37,11 +37,13 @@ diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camer
 index 4aa5046..367674b 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
-@@ -17,3 +17,4 @@ obj-$(CONFIG_SOC_CAMERA_OV106XX)	+= ov106xx.o
+@@ -17,5 +17,6 @@ obj-$(CONFIG_SOC_CAMERA_OV106XX)	+= ov106xx.o
+ obj-$(CONFIG_SOC_CAMERA_TI9X4)		+= ti9x4.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX)	+= ov106xx.o
  obj-$(CONFIG_SOC_CAMERA_IMX219)		+= imx219.o
++obj-$(CONFIG_SOC_CAMERA_AR0147)		+= ar0147.o
  obj-y					+= dummy.o
  
-+obj-$(CONFIG_SOC_CAMERA_AR0147)		+= ar0147.o
 diff --git a/drivers/media/i2c/soc_camera/ar0147.c b/drivers/media/i2c/soc_camera/ar0147.c
 new file mode 100644
 index 0000000..fc9015b

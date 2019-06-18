@@ -385,3 +385,4 @@ patch 0385-lvds-geosemi-put-imager-to-autodetect-tail.patch
 patch 0386-media-rcar_vin-add-GREY-Y8-bypass.patch
 patch 0387-lvds-add-OV2311-imager.patch
 patch 0388-media-i2c-soc_camera-Fix-more-Bad-of_node_put-errors.patch
+patch 0389-media-soc_camera-dummy-add-mbus-controls-ids.patch
