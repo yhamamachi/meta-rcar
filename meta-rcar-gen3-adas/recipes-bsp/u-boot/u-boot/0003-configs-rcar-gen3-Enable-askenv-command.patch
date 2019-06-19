@@ -1,4 +1,4 @@
-From 95cc88c09394ff4ce49b3ed08288cd15c90b89ee Mon Sep 17 00:00:00 2001
+From c88768372adcac07d3946720ec24f9594401061e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 19 Nov 2018 00:46:09 +0300
 Subject: [PATCH 03/10] configs: rcar-gen3: Enable askenv command
@@ -15,6 +15,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  configs/r8a7795_ulcb-4x2g_defconfig        | 1 +
  configs/r8a7795_ulcb_defconfig             | 1 +
  configs/r8a77965_salvator-x_defconfig      | 1 +
+ configs/r8a77965_ulcb_defconfig            | 1 +
  configs/r8a7796_salvator-x_defconfig       | 1 +
  configs/r8a7796_salvator-xs_defconfig      | 1 +
  configs/r8a7796_ulcb_defconfig             | 1 +
@@ -22,7 +23,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  configs/r8a77990_ebisu-4d_defconfig        | 1 +
  configs/r8a77990_ebisu_defconfig           | 1 +
  configs/r8a77995_draak_defconfig           | 1 +
- 14 files changed, 14 insertions(+)
+ 15 files changed, 15 insertions(+)
 
 diff --git a/configs/r8a7795_salvator-x_defconfig b/configs/r8a7795_salvator-x_defconfig
 index 7b2129e..7c352a2 100644
@@ -101,6 +102,18 @@ index d37ff6b..6be612f 100644
 --- a/configs/r8a77965_salvator-x_defconfig
 +++ b/configs/r8a77965_salvator-x_defconfig
 @@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a77965-salvator-x.dtb"
+ CONFIG_VERSION_VARIABLE=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_CMD_BOOTZ=y
++CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+diff --git a/configs/r8a77965_ulcb_defconfig b/configs/r8a77965_ulcb_defconfig
+index 51a584e..1519b10 100644
+--- a/configs/r8a77965_ulcb_defconfig
++++ b/configs/r8a77965_ulcb_defconfig
+@@ -15,6 +15,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a77965-m3nulcb.dtb"
  CONFIG_VERSION_VARIABLE=y
  CONFIG_HUSH_PARSER=y
  CONFIG_CMD_BOOTZ=y

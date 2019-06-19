@@ -1,4 +1,4 @@
-From 7a610e27576c830ca512eee662d48f86e5831821 Mon Sep 17 00:00:00 2001
+From 213a34e11ef258e3d7faf5e7d4208464733ac79a Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:16:15 +0300
 Subject: [PATCH 05/10] ARM: rmobile: Add R8A77970 V3MSK board support

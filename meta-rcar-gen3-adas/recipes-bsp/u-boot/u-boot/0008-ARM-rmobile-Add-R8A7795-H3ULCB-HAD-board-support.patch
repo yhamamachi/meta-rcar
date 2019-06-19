@@ -1,4 +1,4 @@
-From 92b5dba3c77b7a02f29336f06bad11d09dadd42b Mon Sep 17 00:00:00 2001
+From ac07bf4bc1095f63c7f54df715f4e7f9ac4f573e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 25 Apr 2019 00:59:01 +0300
 Subject: [PATCH 08/10] ARM: rmobile: Add R8A7795 H3ULCB HAD board support
