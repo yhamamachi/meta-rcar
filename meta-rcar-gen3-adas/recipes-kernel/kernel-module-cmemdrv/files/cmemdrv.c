@@ -369,7 +369,7 @@ static int cmemdrv_create_device(dev_t devt, size_t size)
 	{
 		struct device_node *np;
 		np = of_find_compatible_node(NULL, NULL, "shared-dma-pool");
-		of_dma_configure(dev, np);
+		of_dma_configure(dev, np, true);
 	}
 #endif
 
