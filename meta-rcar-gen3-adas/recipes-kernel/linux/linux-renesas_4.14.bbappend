@@ -10,6 +10,7 @@ SRC_URI_append = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
     ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
     file://nvme.cfg \
+    file://imr.cfg \
     file://disable-unused.cfg \
     file://renesas.scc \
     ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
@@ -102,6 +103,11 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vbm.dtb \
     renesas/r8a77980-v3hsk-vbm-v2.dtb \
 "
+# Prefer V4L2 rcar_imr driver over UIO uio_imr
+KERNEL_MODULE_AUTOLOAD_append = " rcar_imr"
+KERNEL_MODULE_PROBECONF_append = " rcar_imr"
+KERNEL_MODULE_PROBECONF_append = " uio_imr"
+module_conf_uio_imr = 'blacklist uio_imr'
 
 # V3H VIP devices
 KERNEL_MODULE_AUTOLOAD_append_r8a77980 = " uio_pdrv_genirq"
