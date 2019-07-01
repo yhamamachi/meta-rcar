@@ -387,3 +387,4 @@ patch 0387-lvds-add-OV2311-imager.patch
 patch 0388-media-i2c-soc_camera-Fix-more-Bad-of_node_put-errors.patch
 patch 0389-media-soc_camera-dummy-add-mbus-controls-ids.patch
 patch 0390-media-i2c-ov490-add-LI-cameras.patch
+patch 0391-media-i2c-ar0233-fix-superexposure.patch
