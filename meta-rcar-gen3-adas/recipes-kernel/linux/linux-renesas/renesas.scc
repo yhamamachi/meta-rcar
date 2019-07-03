@@ -328,3 +328,4 @@ patch 0387-media-soc_camera-Add-events-support.patch
 patch 0388-media-rcar-imr-Add-stride-support-to-IMR.patch
 patch 0389-arm64-renesas-r8a77980-VB-use-REFCLK-23.0MHZ.patch
 patch 0390-arm64-dts-renesas-Add-V3x-VideoBox-FDPLink-support.patch
+patch 0392-gpu-drm-bridge-thc63-Set-upper-clock-limit-to-150-MH.patch
