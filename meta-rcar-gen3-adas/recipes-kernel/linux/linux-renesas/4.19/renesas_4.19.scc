@@ -389,3 +389,4 @@ patch 0390-media-i2c-ov490-add-LI-cameras.patch
 patch 0391-media-i2c-ar0233-fix-superexposure.patch
 patch 0392-media-i2c-ap0101-add-V-H-flip.patch
 patch 0393-media-i2c-ar0233-fix-super-exposure-arifacts.patch
+patch 0394-media-i2c-ap0101-ar014x-get-OTP-more-complex.patch
