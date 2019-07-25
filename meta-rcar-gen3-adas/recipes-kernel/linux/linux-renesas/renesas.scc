@@ -329,3 +329,10 @@ patch 0388-media-rcar-imr-Add-stride-support-to-IMR.patch
 patch 0389-arm64-renesas-r8a77980-VB-use-REFCLK-23.0MHZ.patch
 patch 0390-arm64-dts-renesas-Add-V3x-VideoBox-FDPLink-support.patch
 patch 0392-gpu-drm-bridge-thc63-Set-upper-clock-limit-to-150-MH.patch
+patch 0393-media-soc_camera-dummy-add-mbus-controls-ids.patch
+patch 0394-media-i2c-ar0233-fix-superexposure.patch
+patch 0395-media-i2c-ap0101-add-V-H-flip.patch
+patch 0396-media-i2c-ap0101-ar014x-get-OTP-more-complex.patch
+patch 0397-media-i2c-ar0147-add-mipi-rev3-lvds-support.patch
+patch 0398-media-i2c-ar0147-add-SE-mode.patch
+patch 0399-media-i2c-ar0233-fix-artifact-line-at-vflip.patch
