@@ -50,7 +50,7 @@ index 0f1a0d4..49f373c 100644
 +		usleep_range(100, 150); /* wait 100 us */
 +		reg16_write(client, 0xc0, 0x3f);
 +
-+		mdelay(20);
++		mdelay(30);
 +	}
 +
  	/* read resolution used by current firmware */
