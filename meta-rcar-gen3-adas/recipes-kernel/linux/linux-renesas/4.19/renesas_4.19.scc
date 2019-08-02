@@ -395,3 +395,4 @@ patch 0397-media-i2c-ar0233-fix-artifact-line-at-vflip.patch
 patch 0398-media-platform-soc_mediabus-add-Bayer-16bit-format.patch
 patch 0399-media-i2c-ov490_ov10640-add-group-switch.patch
 patch 0400-media-i2c-gw5200-detection-workaround.patch
+patch 0401-media-i2c-ov2311-put-to-autodetect-head.patch
