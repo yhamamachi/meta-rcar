@@ -1,24 +1,24 @@
-From 213a34e11ef258e3d7faf5e7d4208464733ac79a Mon Sep 17 00:00:00 2001
+From 55888ce443c055b00476c3b5e31aaefbd3574656 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:16:15 +0300
-Subject: [PATCH 05/10] ARM: rmobile: Add R8A77970 V3MSK board support
+Subject: [PATCH 13/20] ARM: rmobile: Add R8A77970 V3MSK board support
 
 This adds V3MSK board support based on the Eagle board.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  arch/arm/dts/Makefile                  |   1 +
- arch/arm/dts/r8a77970-v3msk-u-boot.dts |  54 +++++++++
- arch/arm/dts/r8a77970-v3msk.dts        | 202 +++++++++++++++++++++++++++++++++
+ arch/arm/dts/r8a77970-v3msk-u-boot.dts |  54 ++++++++
+ arch/arm/dts/r8a77970-v3msk.dts        | 228 +++++++++++++++++++++++++++++++++
  arch/arm/mach-rmobile/Kconfig.64       |   6 +
  board/renesas/v3msk/Kconfig            |  15 +++
  board/renesas/v3msk/MAINTAINERS        |   6 +
  board/renesas/v3msk/Makefile           |  10 ++
- board/renesas/v3msk/v3msk.c            | 108 ++++++++++++++++++
- configs/r8a77970_v3msk_defconfig       |  73 ++++++++++++
+ board/renesas/v3msk/v3msk.c            | 107 ++++++++++++++++
+ configs/r8a77970_v3msk_defconfig       |  77 +++++++++++
  doc/README.rmobile                     |   1 +
- include/configs/v3msk.h                |  32 ++++++
- 11 files changed, 508 insertions(+)
+ include/configs/v3msk.h                |  32 +++++
+ 11 files changed, 537 insertions(+)
  create mode 100644 arch/arm/dts/r8a77970-v3msk-u-boot.dts
  create mode 100644 arch/arm/dts/r8a77970-v3msk.dts
  create mode 100644 board/renesas/v3msk/Kconfig
@@ -102,10 +102,10 @@ index 0000000..65a3061
 +};
 diff --git a/arch/arm/dts/r8a77970-v3msk.dts b/arch/arm/dts/r8a77970-v3msk.dts
 new file mode 100644
-index 0000000..c6c80f1
+index 0000000..72ddc82
 --- /dev/null
 +++ b/arch/arm/dts/r8a77970-v3msk.dts
-@@ -0,0 +1,202 @@
+@@ -0,0 +1,228 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Source for the V3M Starter Kit board
@@ -134,7 +134,7 @@ index 0000000..c6c80f1
 +	memory@48000000 {
 +		device_type = "memory";
 +		/* first 128MB is reserved for secure area. */
-+		reg = <0x0 0x48000000 0x0 0x38000000>;
++		reg = <0x0 0x48000000 0x0 0x78000000>;
 +	};
 +
 +	osc5_clk: osc5-clock {
@@ -155,6 +155,15 @@ index 0000000..c6c80f1
 +	vcc_d3_3v: regulator-1 {
 +		compatible = "regulator-fixed";
 +		regulator-name = "VCC_D3.3V";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vcc_vddq_vin0: regulator-2 {
++		compatible = "regulator-fixed";
++		regulator-name = "VCC_VDDQ_VIN0";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
 +		regulator-boot-on;
@@ -238,6 +247,12 @@ index 0000000..c6c80f1
 +		function = "i2c0";
 +	};
 +
++	mmc_pins: mmc_3_3v {
++		groups = "mmc_data8", "mmc_ctrl", "mmc_ds";
++		function = "mmc";
++		power-source = <3300>;
++	};
++
 +	scif0_pins: scif0 {
 +		groups = "scif0_data";
 +		function = "scif0";
@@ -300,6 +315,17 @@ index 0000000..c6c80f1
 +			};
 +		};
 +	};
++};
++
++&mmc0 {
++	pinctrl-0 = <&mmc_pins>;
++	pinctrl-names = "default";
++
++	vmmc-supply = <&vcc_d3_3v>;
++	vqmmc-supply = <&vcc_vddq_vin0>;
++	bus-width = <8>;
++	non-removable;
++	status = "okay";
 +};
 +
 +&scif0 {
@@ -383,17 +409,16 @@ index 0000000..f1ce184
 +obj-y	:= v3msk.o
 diff --git a/board/renesas/v3msk/v3msk.c b/board/renesas/v3msk/v3msk.c
 new file mode 100644
-index 0000000..bd2a7af
+index 0000000..4a1c546
 --- /dev/null
 +++ b/board/renesas/v3msk/v3msk.c
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,107 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * board/renesas/v3msk/v3msk.c
 + *     This file is V3MSK board support.
 + *
-+ * Based on Eagle board by
-+ * Marek Vasut <marek.vasut+renesas@gmail.com>
++ * Based on Eagle board support.
 + *
 + * Copyright (C) 2019 Cogent Embedded, Inc.
 + */
@@ -497,10 +522,10 @@ index 0000000..bd2a7af
 +}
 diff --git a/configs/r8a77970_v3msk_defconfig b/configs/r8a77970_v3msk_defconfig
 new file mode 100644
-index 0000000..439752f
+index 0000000..7de8af5
 --- /dev/null
 +++ b/configs/r8a77970_v3msk_defconfig
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,77 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_RMOBILE=y
 +CONFIG_SYS_TEXT_BASE=0x50000000
@@ -522,6 +547,7 @@ index 0000000..439752f
 +CONFIG_CMD_GPIO=y
 +CONFIG_CMD_GPT=y
 +CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
 +CONFIG_CMD_SF=y
 +CONFIG_CMD_SPI=y
 +CONFIG_CMD_USB=y
@@ -539,14 +565,17 @@ index 0000000..439752f
 +CONFIG_ENV_IS_IN_SPI_FLASH=y
 +CONFIG_REGMAP=y
 +CONFIG_SYSCON=y
-+CONFIG_BLK=y
 +CONFIG_CLK=y
 +CONFIG_CLK_RENESAS=y
 +CONFIG_DM_GPIO=y
 +CONFIG_RCAR_GPIO=y
 +CONFIG_DM_I2C=y
 +CONFIG_SYS_I2C_RCAR_IIC=y
-+# CONFIG_MMC is not set
++CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
++CONFIG_RENESAS_SDHI=y
 +CONFIG_DM_SPI_FLASH=y
 +CONFIG_SPI_FLASH=y
 +CONFIG_SPI_FLASH_BAR=y

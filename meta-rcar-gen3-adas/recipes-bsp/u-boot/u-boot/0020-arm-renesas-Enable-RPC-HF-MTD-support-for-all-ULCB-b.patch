@@ -1,7 +1,7 @@
-From 2a460425729555b293f5c7888912794a7995f28a Mon Sep 17 00:00:00 2001
+From 521ec80def85ff7f248fafb865cd1157c40d4bd8 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 22 Nov 2018 00:19:27 +0300
-Subject: [PATCH 10/10] arm: renesas: Enable RPC HF MTD support for all ULCB
+Subject: [PATCH 20/20] arm: renesas: Enable RPC HF MTD support for all ULCB
  boards
 
 This enables RPC HyperFlash MTD support
