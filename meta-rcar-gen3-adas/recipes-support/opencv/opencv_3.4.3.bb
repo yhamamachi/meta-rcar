@@ -191,4 +191,9 @@ do_install_append() {
         mv ${D}/usr/lib/* ${D}/${libdir}/
         rm -rf ${D}/usr/lib
     fi
+
+    # Remove references to yocto directories
+    sed -i "s,${STAGING_DIR_TARGET},,g"                   ${D}${datadir}/OpenCV/*.cmake
+    sed -i "/INTERFACE_LINK_LIBRARIES/ s,${libdir}/lib,,g" ${D}${datadir}/OpenCV/*.cmake
+    sed -i "/INTERFACE_LINK_LIBRARIES/ s,[.]so,,g"        ${D}${datadir}/OpenCV/*.cmake
 }
