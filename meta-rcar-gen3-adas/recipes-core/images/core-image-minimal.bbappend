@@ -10,4 +10,5 @@ IMAGE_INSTALL_append = " \
 IMAGE_INSTALL_append_rcar-gen3-v3x = " \
     packagegroup-bsp-python2 \
     packagegroup-v3x \
+    packagegroup-v3x-test \
 "
