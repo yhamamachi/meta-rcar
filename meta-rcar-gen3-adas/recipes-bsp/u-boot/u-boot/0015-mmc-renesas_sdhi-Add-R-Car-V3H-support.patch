@@ -1,7 +1,7 @@
-From a63a91f568be43c03ba6acbf2fd9b6a9007d16db Mon Sep 17 00:00:00 2001
+From 74ddbf612d3be33b87372b49720a69bf74e375df Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 23:45:40 +0300
-Subject: [PATCH 12/20] mmc: renesas_sdhi: Add R-Car V3H support
+Subject: [PATCH 15/23] mmc: renesas_sdhi: Add R-Car V3H support
 
 This adds R8A77980 SoC support to the renesas_sdhi driver.
 

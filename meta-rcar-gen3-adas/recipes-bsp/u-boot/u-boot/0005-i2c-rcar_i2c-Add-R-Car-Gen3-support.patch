@@ -1,7 +1,7 @@
-From 9b3b64bafd61357e1f03842d1759fdee4896c606 Mon Sep 17 00:00:00 2001
+From 463b29fd4fe1602e4b381a45c7d2a8d6bc01d0d3 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 8 Aug 2019 00:39:29 +0300
-Subject: [PATCH 05/20] i2c: rcar_i2c: Add R-Car Gen3 support
+Subject: [PATCH 05/23] i2c: rcar_i2c: Add R-Car Gen3 support
 
 This adds "renesas,rcar-gen3-i2c" string
 to the list of compatible i2c device ids.

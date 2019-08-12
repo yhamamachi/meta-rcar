@@ -1,17 +1,16 @@
-From 0573e4730417cd0b6894329efe9b321c4929e352 Mon Sep 17 00:00:00 2001
+From 666df2f025fbaf1c82dfdb31d28be973833c6257 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Sat, 3 Aug 2019 00:49:38 +0300
-Subject: [PATCH 11/20] arm: r8a77970: eagle: Add eMMC support
+Subject: [PATCH 12/23] ARM: dts: r8a77970: eagle: Add eMMC support
 
-The Eagle platform supports an expansion board
-with the eMMC device on it. Add eMMC device node
-and enable eMMC support by default.
+The Eagle platform supports an expansion board with
+the eMMC device on it. This Adds eMMC device node
+to Eagle device tree.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- arch/arm/dts/r8a77970-eagle.dts  | 44 ++++++++++++++++++++++++++++++++++++++++
- configs/r8a77970_eagle_defconfig |  8 ++++++--
- 2 files changed, 50 insertions(+), 2 deletions(-)
+ arch/arm/dts/r8a77970-eagle.dts | 44 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
 diff --git a/arch/arm/dts/r8a77970-eagle.dts b/arch/arm/dts/r8a77970-eagle.dts
 index b6d5332..49b3359 100644
@@ -82,38 +81,6 @@ index b6d5332..49b3359 100644
  	scif0_pins: scif0 {
  		groups = "scif0_data";
  		function = "scif0";
-diff --git a/configs/r8a77970_eagle_defconfig b/configs/r8a77970_eagle_defconfig
-index 3430ccb..7becd49 100644
---- a/configs/r8a77970_eagle_defconfig
-+++ b/configs/r8a77970_eagle_defconfig
-@@ -19,6 +19,7 @@ CONFIG_CMD_ASKENV=y
- CONFIG_CMD_GPIO=y
- CONFIG_CMD_GPT=y
- CONFIG_CMD_I2C=y
-+CONFIG_CMD_MMC=y
- CONFIG_CMD_SF=y
- CONFIG_CMD_SPI=y
- CONFIG_CMD_USB=y
-@@ -36,14 +37,17 @@ CONFIG_DEFAULT_DEVICE_TREE="r8a77970-eagle-u-boot"
- CONFIG_ENV_IS_IN_SPI_FLASH=y
- CONFIG_REGMAP=y
- CONFIG_SYSCON=y
--CONFIG_BLK=y
- CONFIG_CLK=y
- CONFIG_CLK_RENESAS=y
- CONFIG_DM_GPIO=y
- CONFIG_RCAR_GPIO=y
- CONFIG_DM_I2C=y
- CONFIG_SYS_I2C_RCAR_IIC=y
--# CONFIG_MMC is not set
-+CONFIG_DM_MMC=y
-+CONFIG_MMC_IO_VOLTAGE=y
-+CONFIG_MMC_UHS_SUPPORT=y
-+CONFIG_MMC_HS200_SUPPORT=y
-+CONFIG_RENESAS_SDHI=y
- CONFIG_DM_SPI_FLASH=y
- CONFIG_SPI_FLASH=y
- CONFIG_SPI_FLASH_BAR=y
 -- 
 2.7.4
 

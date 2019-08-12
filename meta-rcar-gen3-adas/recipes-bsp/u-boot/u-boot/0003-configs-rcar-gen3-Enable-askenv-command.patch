@@ -1,7 +1,7 @@
 From c88768372adcac07d3946720ec24f9594401061e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 19 Nov 2018 00:46:09 +0300
-Subject: [PATCH 03/20] configs: rcar-gen3: Enable askenv command
+Subject: [PATCH 03/23] configs: rcar-gen3: Enable askenv command
 
 This enables "askenv" command for R-Car Gen3 boards
 which can be used in U-Boot scripts for user input.

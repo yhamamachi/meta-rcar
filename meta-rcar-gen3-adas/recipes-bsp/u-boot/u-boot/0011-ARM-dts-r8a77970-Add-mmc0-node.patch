@@ -1,7 +1,7 @@
-From 84d92a5ed8cf0ef7072026ea2147ed1b5710c5cc Mon Sep 17 00:00:00 2001
+From eee2fe9857a206ddf7623e3a1855efa9f38052d0 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 23:47:00 +0300
-Subject: [PATCH 10/20] arm: dts: r8a77970: Add mmc0 node
+Subject: [PATCH 11/23] ARM: dts: r8a77970: Add mmc0 node
 
 This adds Renesas SDHI controller device node.
 

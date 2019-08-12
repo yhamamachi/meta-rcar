@@ -1,7 +1,7 @@
-From e9f9b2ba26e914e24f069c8e9ed7a50599d9f53c Mon Sep 17 00:00:00 2001
+From f9a95f0866f6d1d694392c5598330980105e14c9 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 22:44:03 +0300
-Subject: [PATCH 07/20] clk: renesas: cpg: Update SD-IF clock handling
+Subject: [PATCH 08/23] clk: renesas: cpg: Update SD-IF clock handling
 
 Make SD-IF clock division rate table configurable
 in the cpg_mssr_info structure. This is needed

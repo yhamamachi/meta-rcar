@@ -1,7 +1,7 @@
-From 4c216653201b30400535919c25c58a7196ab8d25 Mon Sep 17 00:00:00 2001
+From 071b9f4120d39d4b5277bf1e48b888fa984135bd Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:44:57 +0300
-Subject: [PATCH 15/20] ARM: rmobile: Add R8A77980 V3HSK board support
+Subject: [PATCH 18/23] ARM: rmobile: Add R8A77980 V3HSK board support
 
 This adds V3HSK board support based on the Condor board.
 

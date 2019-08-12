@@ -1,7 +1,7 @@
-From 55888ce443c055b00476c3b5e31aaefbd3574656 Mon Sep 17 00:00:00 2001
+From 5eed9c28ff8ef9a54bdebef89925f198e9caf846 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:16:15 +0300
-Subject: [PATCH 13/20] ARM: rmobile: Add R8A77970 V3MSK board support
+Subject: [PATCH 16/23] ARM: rmobile: Add R8A77970 V3MSK board support
 
 This adds V3MSK board support based on the Eagle board.
 
