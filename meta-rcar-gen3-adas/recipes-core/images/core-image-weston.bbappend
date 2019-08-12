@@ -1,6 +1,7 @@
 IMAGE_INSTALL_append = " \
     ${@bb.utils.contains('DISTRO_FEATURES', "opencv-sdk", "packagegroup-opencv-sdk", "", d)} \
     packagegroup-surroundview \
+    packagegroup-surroundview-drm \
     packagegroup-radio \
     packagegroup-bsp \
     packagegroup-bsp-devdbg \

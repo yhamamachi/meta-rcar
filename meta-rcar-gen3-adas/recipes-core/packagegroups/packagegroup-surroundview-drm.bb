@@ -17,4 +17,11 @@ RDEPENDS_packagegroup-surroundview-drm = '${@ " \
     kernel-module-mmngr \
     kernel-module-mmngrbuf \
     mmngr-user-module \
+    ceres-solver \
+    opencv \
+    libeigen \
+    glm \
+    yaml-cpp \
+    libspnav \
+    libyaml \
 " if 'surroundview' in '${DISTRO_FEATURES}' else ""}'
