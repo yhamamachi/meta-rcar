@@ -343,3 +343,6 @@ patch 0404-media-i2c-onsemi-imager-correct-trigger-handling.patch
 patch 0405-media-i2c-ov10640-fix-controls.patch
 patch 0406-Add-new-custom_ioctl-ops-for-soc-camera.patch
 patch 0407-arm64-dts-renesas-r8a77970-v3msk-Fix-memory-size.patch
+patch 0408-arm64-dts-renesas-v3hsk-Add-GEther-PHY-GPIO-reset-pi.patch
+patch 0409-arm64-dts-renesas-condor-Add-GEther-PHY-GPIO-reset-p.patch
+patch 0410-arm64-dts-renesas-eagle-Add-RAVB-PHY-GPIO-reset-pin-.patch
