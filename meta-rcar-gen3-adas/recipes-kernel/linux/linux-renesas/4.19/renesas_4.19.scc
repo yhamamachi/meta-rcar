@@ -402,3 +402,4 @@ patch 0404-media-i2c-ov10640-fix-controls.patch
 patch 0405-arm64-dts-renesas-r8a77970-v3msk-Fix-memory-size.patch
 patch 0406-media-soc_camera-add-MAX9288-support.patch
 patch 0407-media-i2c-soc_camera-differenciate-max9286-and-max92.patch
+patch 0408-media-i2c-max9288-fix-stream-on-off.patch
