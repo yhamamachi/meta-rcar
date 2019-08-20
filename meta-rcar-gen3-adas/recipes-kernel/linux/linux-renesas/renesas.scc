@@ -346,3 +346,5 @@ patch 0407-arm64-dts-renesas-r8a77970-v3msk-Fix-memory-size.patch
 patch 0408-arm64-dts-renesas-v3hsk-Add-GEther-PHY-GPIO-reset-pi.patch
 patch 0409-arm64-dts-renesas-condor-Add-GEther-PHY-GPIO-reset-p.patch
 patch 0410-arm64-dts-renesas-eagle-Add-RAVB-PHY-GPIO-reset-pin-.patch
+patch 0411-media-soc_camera-add-MAX9288-support.patch
+patch 0412-media-i2c-soc_camera-differenciate-max9286-and-max92.patch
