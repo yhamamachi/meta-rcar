@@ -18,6 +18,7 @@ SRC_URI_append = " \
     file://0003-kingfisher-reboot-fix-power-off-on-reset.patch \
     file://0004-plat-renesas-rcar-Add-R-Car-V3M-support.patch \
     file://0005-plat-renesas-rcar-Add-R-Car-V3H-support.patch \
+    file://0006-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
 "
 
 do_ipl_opt_deploy_append () {
