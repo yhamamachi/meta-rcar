@@ -19,6 +19,7 @@ SRC_URI_append = " \
     file://0004-plat-renesas-rcar-V3H-support.patch \
     file://0005-plat-renesas-rcar-Introduce-RPC-clock-functions.patch \
     file://0006-plat-renesas-rcar-Set-maximum-supported-RPC-frequenc.patch \
+    file://0007-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
 "
 
 do_deploy_append() {
