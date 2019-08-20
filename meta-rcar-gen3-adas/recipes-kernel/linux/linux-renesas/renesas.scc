@@ -348,3 +348,4 @@ patch 0409-arm64-dts-renesas-condor-Add-GEther-PHY-GPIO-reset-p.patch
 patch 0410-arm64-dts-renesas-eagle-Add-RAVB-PHY-GPIO-reset-pin-.patch
 patch 0411-media-soc_camera-add-MAX9288-support.patch
 patch 0412-media-i2c-soc_camera-differenciate-max9286-and-max92.patch
+patch 0413-media-i2c-max9288-fix-stream-on-off.patch
