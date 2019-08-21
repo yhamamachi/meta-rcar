@@ -1,7 +1,7 @@
-From 43f7b551c11bb72eff3c7a8f7abccbf392603e3a Mon Sep 17 00:00:00 2001
+From 47b1fe0ca134d3e434e498a7b3d10b723e9855e0 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 31 Oct 2018 00:46:40 +0300
-Subject: [PATCH 5/5] plat: renesas: rcar: Add R-Car V3H support
+Subject: [PATCH 4/5] plat: renesas: rcar: Add R-Car V3H support
 
 Add R-Car V3H support. This is based on the original
 V3H support patch for Yocto v2.23.1 by Vladimir Barinov.
@@ -201,12 +201,12 @@ index 02a15c2..375f5c0 100755
  	bl2_avs_setting();
  #endif
 diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-index 6803ee5..883e365 100644
+index 09f2f04..e4d2916 100644
 --- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
 +++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-@@ -3874,6 +3874,13 @@ int32_t InitDram(void)
+@@ -3852,6 +3852,13 @@ int32_t InitDram(void)
  	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
- #endif//RCAR_DDR_FIXED_LSI_TYPE
+ #endif /* RCAR_DDR_FIXED_LSI_TYPE */
  
 +#if RCAR_LSI == RCAR_V3H
 +	if (Prr_Product == PRR_PRODUCT_V3H) {
@@ -215,9 +215,9 @@ index 6803ee5..883e365 100644
 +	}
 +#endif
 +
- 	if(Prr_Product==PRR_PRODUCT_H3){
- 		if(Prr_Cut<=PRR_PRODUCT_11){
- 			pDDR_REGDEF_TBL = (uint32_t *)&DDR_REGDEF_TBL[0][0];
+ 	if (Prr_Product == PRR_PRODUCT_H3) {
+ 		if (Prr_Cut <= PRR_PRODUCT_11)
+ 			pDDR_REGDEF_TBL = (const uint32_t *)&DDR_REGDEF_TBL[0][0];
 diff --git a/plat/renesas/rcar/drivers/rom/rom_api.c b/plat/renesas/rcar/drivers/rom/rom_api.c
 index c683fc8..a555fd3 100644
 --- a/plat/renesas/rcar/drivers/rom/rom_api.c
@@ -308,7 +308,7 @@ index f359156..cd083f6 100644
  #else
  #define	DMACH	0	/* DMA CH setting (0/16/32) */
 diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index e9da655..2094e22 100644
+index e9da655..c461b95 100644
 --- a/plat/renesas/rcar/include/platform_def.h
 +++ b/plat/renesas/rcar/include/platform_def.h
 @@ -103,9 +103,17 @@
@@ -324,7 +324,7 @@ index e9da655..2094e22 100644
 -#if RCAR_LSI == RCAR_V3M
 +#if RCAR_LSI == RCAR_V3H
 +#define BL2_BASE			U(0xEB244000)
-+#define BL2_LIMIT			U(0xEB261000)
++#define BL2_LIMIT			U(0xEB264000)
 +#define BL2_IMAGE_LIMIT			U(0xEB26E800)
 +#elif RCAR_LSI == RCAR_V3M
  #define BL2_BASE			U(0xE6344000)
@@ -1608,7 +1608,7 @@ index d539dd2..b74f33b 100644
  
  BL2_SOURCES += plat/renesas/rcar/pfc/pfc_init.c
 diff --git a/plat/renesas/rcar/pfc/pfc_init.c b/plat/renesas/rcar/pfc/pfc_init.c
-index c11a001..8fb638a 100644
+index 75fecd6..12f46e3 100644
 --- a/plat/renesas/rcar/pfc/pfc_init.c
 +++ b/plat/renesas/rcar/pfc/pfc_init.c
 @@ -15,6 +15,7 @@
@@ -1637,7 +1637,7 @@ index c11a001..8fb638a 100644
  #define PRR_PRODUCT_E3		(0x00005700U)		/* R-Car E3 */
  #define PRR_PRODUCT_10		(0x00U)
  #define PRR_PRODUCT_11		(0x01U)
-@@ -87,6 +92,9 @@ void pfc_init(void)
+@@ -86,6 +91,9 @@ void pfc_init(void)
  	case RCAR_PRODUCT_V3M:
  		pfc_init_v3m();
  		break;
@@ -1647,7 +1647,7 @@ index c11a001..8fb638a 100644
  	default:
  		PRR_PRODUCT_ERR(reg);
  		break;
-@@ -139,6 +147,13 @@ void pfc_init(void)
+@@ -138,6 +146,13 @@ void pfc_init(void)
  		pfc_init_v3m();
  #endif
  		break;
@@ -1661,14 +1661,14 @@ index c11a001..8fb638a 100644
  	default:
  		PRR_PRODUCT_ERR(reg);
  		break;
-@@ -187,6 +202,11 @@ void pfc_init(void)
+@@ -186,6 +201,11 @@ void pfc_init(void)
  		PRR_PRODUCT_ERR(reg);
- 	}
+ 
  	pfc_init_v3m();
 + #elif RCAR_LSI == RCAR_V3H	/* V3H */
-+	if ((PRR_PRODUCT_V3H) != (reg & PRR_PRODUCT_MASK)) {
++	if ((PRR_PRODUCT_V3H) != (reg & PRR_PRODUCT_MASK))
 +		PRR_PRODUCT_ERR(reg);
-+	}
++
 +	pfc_init_v3h();
   #else
    #error "Don't have PFC initialize routine(unknown)."
@@ -2449,7 +2449,7 @@ index 2512373..b833c25 100644
  
  BL2_SOURCES += plat/renesas/rcar/qos/qos_init.c
 diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
-index 81cf37d..d967584 100644
+index cab2c28..07b6d8d 100644
 --- a/plat/renesas/rcar/qos/qos_init.c
 +++ b/plat/renesas/rcar/qos/qos_init.c
 @@ -19,6 +19,7 @@
@@ -2478,7 +2478,7 @@ index 81cf37d..d967584 100644
  #define PRR_PRODUCT_E3		(0x00005700U)           /* R-Car E3 */
  #define PRR_PRODUCT_10		(0x00U)
  #define PRR_PRODUCT_11		(0x01U)
-@@ -180,6 +185,19 @@ void qos_init(void)
+@@ -179,6 +184,19 @@ void qos_init(void)
  		PRR_PRODUCT_ERR(reg);
   #endif
  		break;
@@ -2498,7 +2498,7 @@ index 81cf37d..d967584 100644
  	default:
  		PRR_PRODUCT_ERR(reg);
  		break;
-@@ -273,6 +291,13 @@ void qos_init(void)
+@@ -272,6 +290,13 @@ void qos_init(void)
  		PRR_PRODUCT_ERR(reg);
  	}
  	qos_init_v3m();

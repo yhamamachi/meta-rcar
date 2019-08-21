@@ -1,4 +1,4 @@
-From b212c75174b228c78170ec3720c5113346222bc9 Mon Sep 17 00:00:00 2001
+From a473ace625dbb8e7d48ce12d209809cc3db93386 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 8 Aug 2018 14:43:40 +0300
 Subject: [PATCH 1/5] plat: renesas: rcar: Make RPC secure settings optional

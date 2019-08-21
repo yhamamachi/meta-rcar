@@ -1,7 +1,7 @@
-From e43a57d6a7501b855911f7191808b1b3850dd05f Mon Sep 17 00:00:00 2001
+From 45aef5d9296221a0b69e6159db30ea704710d780 Mon Sep 17 00:00:00 2001
 From: Sergii Boryshchenko <sergii.boryshchenko@globallogic.com>
 Date: Thu, 30 Nov 2017 14:53:52 +0200
-Subject: [PATCH 3/5] kingfisher: reboot: fix power-off on reset
+Subject: [PATCH 2/5] kingfisher: reboot: fix power-off on reset
 
 Method cpld_reset_cpu of bl31 is called from the Linux kernel and uses
 GPIO6, GPIO2 pins as SPI bus lines to control the CPLD device. But in the

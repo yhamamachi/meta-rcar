@@ -1,7 +1,7 @@
-From b7152764702ec600ff7d10ef3ea89b8a0fa162b7 Mon Sep 17 00:00:00 2001
+From c2823ddd8bacc26bb40c3ea0e4a0a898cb4b020d Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 20 Aug 2019 15:20:18 +0300
-Subject: [PATCH] lib: psci: Fix CPU0 offline issue on the V3x SoCs
+Subject: [PATCH 5/5] lib: psci: Fix CPU0 offline issue on the V3x SoCs
 
 When Linux requests CPU0 to go offline, such a request
 is denied on all R-Car SoCs by the PSCI firmware.
