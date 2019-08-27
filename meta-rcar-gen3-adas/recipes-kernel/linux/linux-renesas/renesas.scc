@@ -81,3 +81,4 @@ patch 0135-dmaengine-sh-rcar-dmac-Fix-glitch-in-dmaengine_tx_st.patch
 patch 0136-arm64-dts-renesas-ulcb-vb2-Drive-CAN-controller-rese.patch
 patch 0137-USB-tusb8041-add-simple-driver-to-start-device-over-.patch
 patch 0138-arm64-dts-renesas-ulcb-vb2-add-usb-HUB-nodes.patch
+patch 0139-GPIO-pca953x-do-not-ignore-i2c-errors.patch
