@@ -82,3 +82,4 @@ patch 0136-arm64-dts-renesas-ulcb-vb2-Drive-CAN-controller-rese.patch
 patch 0137-USB-tusb8041-add-simple-driver-to-start-device-over-.patch
 patch 0138-arm64-dts-renesas-ulcb-vb2-add-usb-HUB-nodes.patch
 patch 0139-GPIO-pca953x-do-not-ignore-i2c-errors.patch
+patch 0140-usb-host-xhci-rcar-Add-XHCI_TRUST_TX_LENGTH-quirk.patch
