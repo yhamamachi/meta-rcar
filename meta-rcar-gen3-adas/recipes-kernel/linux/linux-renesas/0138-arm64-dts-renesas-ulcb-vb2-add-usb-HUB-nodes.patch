@@ -1,4 +1,4 @@
-From 9258698d3da3f00ac010e4caf3596b7bf7dff0d2 Mon Sep 17 00:00:00 2001
+From d11e79b6ff3836511094801e4b619a3668760547 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Tue, 11 Jun 2019 16:21:41 +0300
 Subject: [PATCH 138/138] arm64: dts: renesas: ulcb-vb2: add usb HUB nodes
@@ -9,14 +9,51 @@ i2c for proper operation.
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi | 41 ++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-index 5831d12bc1af..8b7f5a8dfb7c 100644
+index 5831d12bc1af..fbc956a66263 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
-@@ -449,7 +449,24 @@
+@@ -74,17 +74,7 @@
+ 		regulator-always-on;
+ 	};
+ 
+-	hub_reset: regulator@9 {
+-		compatible = "regulator-fixed";
+-		regulator-name = "hub_reset";
+-		regulator-min-microvolt = <3300000>;
+-		regulator-max-microvolt = <3300000>;
+-		gpio = <&gpio5 5 0>;
+-		enable-active-high;
+-		regulator-always-on;
+-	};
+-
+-	hub_power: regulator@10 {
++	hub_power: regulator@9 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "hub_power";
+ 		regulator-min-microvolt = <5000000>;
+@@ -94,7 +84,7 @@
+ 		regulator-always-on;
+ 	};
+ 
+-	can2_power: regulator@11 {
++	can2_power: regulator@10 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "can2_power";
+ 		regulator-min-microvolt = <3300000>;
+@@ -103,7 +93,7 @@
+ 		enable-active-high;
+ 	};
+ 
+-	can3_power: regulator@12 {
++	can3_power: regulator@11 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "can3_power";
+ 		regulator-min-microvolt = <3300000>;
+@@ -449,7 +439,30 @@
  			#size-cells = <0>;
  			reg = <4>;
  			/* USB3.0 HUB node(s) */
@@ -28,7 +65,10 @@ index 5831d12bc1af..8b7f5a8dfb7c 100644
 +				ti,registers = /bits/ 8 <
 +					0x05 0x10
 +					0x06 0x0f
-+					0x0a 0x20>;
++					0x07 0x8f
++					0x08 0x0f
++					0x0a 0x20
++					0x0b 0x00>;
 +			};
 +			tusb8041_45@45 {
 +				compatible = "ti,tusb8041";
@@ -37,7 +77,10 @@ index 5831d12bc1af..8b7f5a8dfb7c 100644
 +				ti,registers = /bits/ 8 <
 +					0x05 0x10
 +					0x06 0x0f
-+					0x0a 0x20>;
++					0x07 0x8f
++					0x08 0x0f
++					0x0a 0x20
++					0x0b 0x00>;
 +			};
  		};
  
