@@ -1,11 +1,11 @@
-From 5872aa76fb0f767def5e079e0c67307b74df7154 Mon Sep 17 00:00:00 2001
+From 7e9d313945a9a47f7d016597a90797872114d079 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 29 Aug 2019 00:49:41 +0300
 Subject: [PATCH] configs: rcar-gen3-common: Enable loadb commands
 
 This adds CONFIG_CMD_LOADB to rcar-gen3-common.h
-which enables load{b|s|x|y} commands. These commands
-allow image download via serial interface.
+which enables load{b|x|y} commands. These commands
+allow binary image download via serial interface.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
