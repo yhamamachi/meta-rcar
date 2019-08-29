@@ -1,4 +1,4 @@
-From 48c5c3a65fffa44d607ee40b98edae5ee0c5e125 Mon Sep 17 00:00:00 2001
+From 9fa9aabf15ad90223e4adc9ea67b45e0b25b3dac Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Wed, 30 May 2018 17:59:22 +0300
 Subject: [PATCH 417/419] USB: tusb8041: add simple driver to start device over
@@ -8,8 +8,8 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
  drivers/usb/misc/Kconfig    |   7 ++
  drivers/usb/misc/Makefile   |   1 +
- drivers/usb/misc/tusb8041.c | 238 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 246 insertions(+)
+ drivers/usb/misc/tusb8041.c | 235 ++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 243 insertions(+)
  create mode 100644 drivers/usb/misc/tusb8041.c
 
 diff --git a/drivers/usb/misc/Kconfig b/drivers/usb/misc/Kconfig
@@ -44,10 +44,10 @@ index 109f54f5b9aa..9ae89e52abf2 100644
  obj-$(CONFIG_USB_SISUSBVGA)		+= sisusbvga/
 diff --git a/drivers/usb/misc/tusb8041.c b/drivers/usb/misc/tusb8041.c
 new file mode 100644
-index 000000000000..0a17c482b6b7
+index 000000000000..7405ace490b8
 --- /dev/null
 +++ b/drivers/usb/misc/tusb8041.c
-@@ -0,0 +1,238 @@
+@@ -0,0 +1,235 @@
 +/*
 + * Driver for TI TUSB8041 USB SSIC 4-port 3.0 hub controller driver
 + * Based on tusb8041 and usb3503 drivers
@@ -90,12 +90,6 @@ index 000000000000..0a17c482b6b7
 +static void tusb8041_reset(struct tusb8041 *hub, int state)
 +{
 +	gpiod_set_value_cansleep(hub->gpio_reset, state);
-+
-+	/* Wait for i2c logic to come up */
-+	if (state)
-+		usleep_range(250, 500);
-+	else
-+		usleep_range(1, 10);
 +}
 +
 +static int tusb8041_connect(struct tusb8041 *hub)
@@ -105,7 +99,6 @@ index 000000000000..0a17c482b6b7
 +	int ret;
 +	int retry = 100;
 +
-+	tusb8041_reset(hub, 0);
 +	tusb8041_reset(hub, 1);
 +
 +	/* reset and load defaults */
@@ -215,6 +208,10 @@ index 000000000000..0a17c482b6b7
 +		if (ret == 0)
 +			hub->regs_sz = sz;
 +	}
++
++	/* reset */
++	tusb8041_reset(hub, 0);
++	msleep(250);
 +
 +	return tusb8041_switch_mode(hub, hub->mode);
 +}

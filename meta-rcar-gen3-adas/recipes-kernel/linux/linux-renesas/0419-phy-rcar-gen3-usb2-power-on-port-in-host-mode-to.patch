@@ -1,4 +1,4 @@
-From 23dc57a3d23dd44d39c964fcaa34440cc57ba61f Mon Sep 17 00:00:00 2001
+From 2d283a342ba591ce42b46357e9abfb12c2802122 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Wed, 28 Aug 2019 17:16:35 +0300
 Subject: [PATCH 419/419] phy: rcar-gen3-usb2: power-on port in host mode to

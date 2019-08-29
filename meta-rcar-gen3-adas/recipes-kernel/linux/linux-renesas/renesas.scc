@@ -353,5 +353,5 @@ patch 0414-gpio-pca953x-do-not-ignore-i2c-errors.patch
 patch 0415-usb-host-xhci-rcar-Add-XHCI_TRUST_TX_LENGTH-quirk.patch
 patch 0416-arm64-dtb-renesas-vb2.1-enable-usb2-channel-3.patch
 patch 0417-USB-tusb8041-add-simple-driver-to-start-device-over-.patch
-patch 0418-arm64-dts-renesas-ulcb-vb2-add-usb-HUB-nodes.patch
+patch 0418-arm64-dts-renesas-ulcb-vb2-fix-USB30-and-HUB.patch
 patch 0419-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
