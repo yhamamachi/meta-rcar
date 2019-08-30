@@ -21,5 +21,5 @@ RDEPENDS_packagegroup-radio = " \
     si-tools \
     ti-bt \
     ti-bt-firmware \
-    wireless-tools \
+    iw \
 "
