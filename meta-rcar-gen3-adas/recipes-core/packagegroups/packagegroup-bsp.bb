@@ -44,7 +44,6 @@ RDEPENDS_packagegroup-bsp-devdbg = " \
     perf \
     procps \
     strace \
-    trace-cmd \
     vim \
     wget \
 "
