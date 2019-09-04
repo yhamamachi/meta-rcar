@@ -1,4 +1,4 @@
-From b1e88765b93c1d75a9e5bce7f0d6a2bb686a2b75 Mon Sep 17 00:00:00 2001
+From 90ea8f9afa19363f0bb98e9fd243079159cb4ca4 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Thu, 3 May 2018 16:25:08 +0200
 Subject: [PATCH 054/211] drivers: remove force dma flag from buses
@@ -16,19 +16,21 @@ Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
 (cherry picked from commit 3d6ce86ee79465e1b1b6e287f8ea26b553fc768e)
+[valentine.barshak: changed drivers/pci/endpoint/pci-epc-core.c as well]
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/amba/bus.c            | 1 -
- drivers/base/platform.c       | 3 +--
- drivers/bcma/main.c           | 2 +-
- drivers/dma/qcom/hidma_mgmt.c | 2 +-
- drivers/gpu/host1x/bus.c      | 5 ++---
- drivers/of/device.c           | 6 ++++--
- drivers/of/of_reserved_mem.c  | 2 +-
- drivers/pci/pci-driver.c      | 3 +--
- include/linux/device.h        | 4 ----
- include/linux/of_device.h     | 8 ++++++--
- 10 files changed, 17 insertions(+), 19 deletions(-)
+ drivers/amba/bus.c                  | 1 -
+ drivers/base/platform.c             | 3 +--
+ drivers/bcma/main.c                 | 2 +-
+ drivers/dma/qcom/hidma_mgmt.c       | 2 +-
+ drivers/gpu/host1x/bus.c            | 5 ++---
+ drivers/of/device.c                 | 6 ++++--
+ drivers/of/of_reserved_mem.c        | 2 +-
+ drivers/pci/endpoint/pci-epc-core.c | 2 +-
+ drivers/pci/pci-driver.c            | 3 +--
+ include/linux/device.h              | 4 ----
+ include/linux/of_device.h           | 8 ++++++--
+ 11 files changed, 18 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
 index b1f41f7..3b01187 100644
@@ -163,6 +165,19 @@ index 32771c2..e36c119 100644
  
  		dev_info(dev, "assigned reserved memory node %s\n", rmem->name);
  	} else {
+diff --git a/drivers/pci/endpoint/pci-epc-core.c b/drivers/pci/endpoint/pci-epc-core.c
+index 42c2a11..c09e08c 100644
+--- a/drivers/pci/endpoint/pci-epc-core.c
++++ b/drivers/pci/endpoint/pci-epc-core.c
+@@ -384,7 +384,7 @@ int pci_epc_add_epf(struct pci_epc *epc, struct pci_epf *epf)
+ 
+ 	epf->epc = epc;
+ 	if (dev->of_node) {
+-		of_dma_configure(&epf->dev, dev->of_node);
++		of_dma_configure(&epf->dev, dev->of_node, true);
+ 	} else {
+ 		dma_set_coherent_mask(&epf->dev, epc->dev.coherent_dma_mask);
+ 		epf->dev.dma_mask = epc->dev.dma_mask;
 diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
 index fddbb24..2d67f5f 100644
 --- a/drivers/pci/pci-driver.c
