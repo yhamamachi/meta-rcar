@@ -1,0 +1,27 @@
+From 4daf7df078f687059b624b430430ea85549884dd Mon Sep 17 00:00:00 2001
+From: Christophe Riccio <christophe.riccio@unity3d.com>
+Date: Mon, 7 May 2018 14:22:13 +0200
+Subject: [PATCH 2/3] Updated release note
+
+---
+ readme.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/readme.md b/readme.md
+index 3ea3cfa4..aee95dd7 100644
+--- a/readme.md
++++ b/readme.md
+@@ -51,6 +51,10 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
+ 
+ ## Release notes
+ 
++#### [GLM 0.9.8.6](https://github.com/g-truc/glm/tree/0.9.8)
++##### Fixes:
++- Fixed GCC 7.3 build error #751
++
+ #### [GLM 0.9.8.5](https://github.com/g-truc/glm/releases/tag/0.9.8.5) - 2017-08-16
+ ##### Features:
+ - Added Conan package support #647
+-- 
+2.20.1
+

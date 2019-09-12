@@ -3,7 +3,10 @@ require glm.inc
 LIC_FILES_CHKSUM = "file://copying.txt;md5=4431606d144252143c9c3df384a74cad"
 
 SRC_URI_append = " \
-    file://0001-Fix-cmake-pathes.patch \
+    file://0001-Fixed-build-with-GCC-7.3-751.patch \
+    file://0002-Updated-release-note.patch \
+    file://0003-Updated-GLM-version.patch \
+    file://0004-Fix-cmake-pathes.patch \
 "
 
 SRC_URI[md5sum] = "70eac538d5681132dd363f814c81ce22"

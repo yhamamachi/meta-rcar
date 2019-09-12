@@ -1,0 +1,30 @@
+From 89e52e327d7a3ae61eb402850ba36ac4dd111987 Mon Sep 17 00:00:00 2001
+From: Christophe Riccio <christophe.riccio@unity3d.com>
+Date: Mon, 7 May 2018 14:22:45 +0200
+Subject: [PATCH 3/3] Updated GLM version
+
+---
+ glm/detail/setup.hpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/glm/detail/setup.hpp b/glm/detail/setup.hpp
+index 6017bf5e..f30f1cd7 100644
+--- a/glm/detail/setup.hpp
++++ b/glm/detail/setup.hpp
+@@ -36,11 +36,11 @@
+ #define GLM_VERSION_MAJOR			0
+ #define GLM_VERSION_MINOR			9
+ #define GLM_VERSION_PATCH			8
+-#define GLM_VERSION_REVISION		5
++#define GLM_VERSION_REVISION		6
+ 
+ #if GLM_MESSAGES == GLM_MESSAGES_ENABLED && !defined(GLM_MESSAGE_VERSION_DISPLAYED)
+ #	define GLM_MESSAGE_VERSION_DISPLAYED
+-#	pragma message ("GLM: version 0.9.8.5")
++#	pragma message ("GLM: version 0.9.8.6")
+ #endif//GLM_MESSAGES
+ 
+ // Report compiler detection
+-- 
+2.20.1
+
