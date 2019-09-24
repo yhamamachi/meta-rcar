@@ -1,0 +1,154 @@
+From f3398e9ca2da00683e937e5421a54646d2760e45 Mon Sep 17 00:00:00 2001
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Date: Tue, 12 Jun 2018 05:43:28 -0400
+Subject: [PATCH 4/8] media: rcar-vin: Parse parallel input on Gen3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The rcar-vin driver so far had a mutually exclusive code path for
+handling parallel and CSI-2 video input subdevices, with only the CSI-2
+use case supporting media-controller. As we add support for parallel
+inputs to Gen3 media-controller compliant code path now parse both port@0
+and port@1, handling the media-controller use case in the parallel
+bound/unbind notifier operations.
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Acked-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+(cherry picked from commit a597a772cd3f51193e1917a729db8a991615341b)
+Signed-off-by: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
+---
+ drivers/media/platform/rcar-vin/rcar-core.c | 59 ++++++++++++++++++++---------
+ 1 file changed, 41 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index 8cd5afd..a707623 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -403,6 +403,11 @@ static int rvin_parallel_subdevice_attach(struct rvin_dev *vin,
+ 	ret = rvin_find_pad(subdev, MEDIA_PAD_FL_SINK);
+ 	vin->parallel->sink_pad = ret < 0 ? 0 : ret;
+ 
++	if (vin->info->use_mc) {
++		vin->parallel->subdev = subdev;
++		return 0;
++	}
++
+ 	/* Find compatible subdevices mbus format */
+ 	vin->mbus_code = 0;
+ 	code.index = 0;
+@@ -464,10 +469,12 @@ static int rvin_parallel_subdevice_attach(struct rvin_dev *vin,
+ static void rvin_parallel_subdevice_detach(struct rvin_dev *vin)
+ {
+ 	rvin_v4l2_unregister(vin);
+-	v4l2_ctrl_handler_free(&vin->ctrl_handler);
+-
+-	vin->vdev.ctrl_handler = NULL;
+ 	vin->parallel->subdev = NULL;
++
++	if (!vin->info->use_mc) {
++		v4l2_ctrl_handler_free(&vin->ctrl_handler);
++		vin->vdev.ctrl_handler = NULL;
++	}
+ }
+ 
+ static int rvin_parallel_notify_complete(struct v4l2_async_notifier *notifier)
+@@ -557,19 +564,20 @@ static int rvin_parallel_parse_v4l2(struct device *dev,
+ 	return 0;
+ }
+ 
+-static int rvin_parallel_graph_init(struct rvin_dev *vin)
++static int rvin_parallel_init(struct rvin_dev *vin)
+ {
+ 	int ret;
+ 	u32 id;
+ 
+-	ret = v4l2_async_notifier_parse_fwnode_endpoints(
+-		vin->dev, &vin->notifier,
+-		sizeof(struct rvin_parallel_entity), rvin_parallel_parse_v4l2);
++	ret = v4l2_async_notifier_parse_fwnode_endpoints_by_port(
++		vin->dev, &vin->notifier, sizeof(struct rvin_parallel_entity),
++		0, rvin_parallel_parse_v4l2);
+ 	if (ret)
+ 		return ret;
+ 
++	/* If using mc, it's fine not to have any input registered. */
+ 	if (!vin->parallel)
+-		return -ENODEV;
++		return vin->info->use_mc ? 0 : -ENODEV;
+ 
+ 	vin_dbg(vin, "Found parallel subdevice %pOF\n",
+ 		to_of_node(vin->parallel->asd.match.fwnode.fwnode));
+@@ -1208,12 +1216,16 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	platform_set_drvdata(pdev, vin);
+-	if (vin->info->use_mc)
++
++	if (vin->info->use_mc) {
+ 		ret = rvin_mc_init(vin);
+-	else
+-		ret = rvin_parallel_graph_init(vin);
+-	if (ret < 0)
+-		goto error;
++		if (ret)
++			goto error_dma_unregister;
++	}
++
++	ret = rvin_parallel_init(vin);
++	if (ret)
++		goto error_group_unregister;
+ 
+ 	pm_suspend_ignore_children(&pdev->dev, true);
+ 	pm_runtime_enable(&pdev->dev);
+@@ -1221,7 +1233,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 	vin->work_queue = create_singlethread_workqueue(dev_name(vin->dev));
+ 	if (!vin->work_queue) {
+ 		ret = -ENOMEM;
+-		goto error;
++		goto error_group_unregister;
+ 	}
+ 	INIT_DELAYED_WORK(&vin->rvin_resume, rvin_resume_start_streaming);
+ 
+@@ -1230,7 +1242,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "failed to get cpg reset %s\n",
+ 			dev_name(vin->dev));
+ 		ret = PTR_ERR(vin->rstc);
+-		goto error;
++		goto error_group_unregister;
+ 	}
+ 
+ 	vin->clk = devm_clk_get(&pdev->dev, NULL);
+@@ -1238,13 +1250,24 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "failed to get clock%s\n",
+ 			dev_name(vin->dev));
+ 		ret = PTR_ERR(vin->clk);
+-		goto error;
++		goto error_group_unregister;
+ 	}
+ 
+ 	return 0;
+-error:
++
++error_group_unregister:
++	if (vin->info->use_mc) {
++		mutex_lock(&vin->group->lock);
++		if (&vin->v4l2_dev == vin->group->notifier.v4l2_dev) {
++			v4l2_async_notifier_unregister(&vin->group->notifier);
++			v4l2_async_notifier_cleanup(&vin->group->notifier);
++		}
++		mutex_unlock(&vin->group->lock);
++		rvin_group_put(vin);
++	}
++
++error_dma_unregister:
+ 	rvin_dma_unregister(vin);
+-	v4l2_async_notifier_cleanup(&vin->notifier);
+ 
+ 	return ret;
+ }
+-- 
+1.9.1
+

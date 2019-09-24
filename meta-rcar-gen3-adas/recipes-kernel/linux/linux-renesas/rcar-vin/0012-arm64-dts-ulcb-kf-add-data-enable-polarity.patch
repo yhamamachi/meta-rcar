@@ -1,0 +1,27 @@
+From 746da7ae3d4378d9ac6b672a4db7b0ffc7a8ea0b Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 23 Sep 2019 21:51:36 +0300
+Subject: [PATCH] arm64: dts: ulcb-kf: add data-enable polarity
+
+This adds data-enable polarity that is required by rcar-vin
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index b678cd6..48ce2ce 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -1420,6 +1420,7 @@
+ 				/* #HSYNC, #VSYNC */
+ 				vsync-active = <1>;
+ 				hsync-active = <0>;
++				data-enable-active = <0>;
+ 				remote-endpoint = <&cmos_camera_in>;
+ 			};
+ 		};
+-- 
+2.7.4
+

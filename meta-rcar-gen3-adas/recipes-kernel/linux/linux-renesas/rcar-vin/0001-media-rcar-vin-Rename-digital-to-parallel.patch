@@ -1,0 +1,362 @@
+From 108ce9cc32aa905e5f8dda7ef9a97a86da41b732 Mon Sep 17 00:00:00 2001
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Date: Tue, 12 Jun 2018 05:43:23 -0400
+Subject: [PATCH 1/8] media: rcar-vin: Rename 'digital' to 'parallel'
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+As the term 'digital' is used all over the rcar-vin code in place of
+'parallel', rename all the occurrencies.
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Acked-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+(cherry picked from commit d24c029ed3fb64f4b61ff38b8db4e2b35fa140a8)
+Signed-off-by: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
+---
+ drivers/media/platform/rcar-vin/rcar-core.c | 73 +++++++++++++++--------------
+ drivers/media/platform/rcar-vin/rcar-dma.c  |  4 +-
+ drivers/media/platform/rcar-vin/rcar-v4l2.c | 22 ++++-----
+ drivers/media/platform/rcar-vin/rcar-vin.h  |  6 +--
+ 4 files changed, 53 insertions(+), 52 deletions(-)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index d6f99db..1cee456 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -382,12 +382,12 @@ static int rvin_find_pad(struct v4l2_subdev *sd, int direction)
+ }
+ 
+ /* -----------------------------------------------------------------------------
+- * Digital async notifier
++ * Parallel async notifier
+  */
+ 
+ /* The vin lock should be held when calling the subdevice attach and detach */
+-static int rvin_digital_subdevice_attach(struct rvin_dev *vin,
+-					 struct v4l2_subdev *subdev)
++static int rvin_parallel_subdevice_attach(struct rvin_dev *vin,
++					  struct v4l2_subdev *subdev)
+ {
+ 	struct v4l2_subdev_mbus_code_enum code = {
+ 		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+@@ -398,15 +398,15 @@ static int rvin_digital_subdevice_attach(struct rvin_dev *vin,
+ 	ret = rvin_find_pad(subdev, MEDIA_PAD_FL_SOURCE);
+ 	if (ret < 0)
+ 		return ret;
+-	vin->digital->source_pad = ret;
++	vin->parallel->source_pad = ret;
+ 
+ 	ret = rvin_find_pad(subdev, MEDIA_PAD_FL_SINK);
+-	vin->digital->sink_pad = ret < 0 ? 0 : ret;
++	vin->parallel->sink_pad = ret < 0 ? 0 : ret;
+ 
+ 	/* Find compatible subdevices mbus format */
+ 	vin->mbus_code = 0;
+ 	code.index = 0;
+-	code.pad = vin->digital->source_pad;
++	code.pad = vin->parallel->source_pad;
+ 	while (!vin->mbus_code &&
+ 	       !v4l2_subdev_call(subdev, pad, enum_mbus_code, NULL, &code)) {
+ 		code.index++;
+@@ -456,21 +456,21 @@ static int rvin_digital_subdevice_attach(struct rvin_dev *vin,
+ 
+ 	vin->vdev.ctrl_handler = &vin->ctrl_handler;
+ 
+-	vin->digital->subdev = subdev;
++	vin->parallel->subdev = subdev;
+ 
+ 	return 0;
+ }
+ 
+-static void rvin_digital_subdevice_detach(struct rvin_dev *vin)
++static void rvin_parallel_subdevice_detach(struct rvin_dev *vin)
+ {
+ 	rvin_v4l2_unregister(vin);
+ 	v4l2_ctrl_handler_free(&vin->ctrl_handler);
+ 
+ 	vin->vdev.ctrl_handler = NULL;
+-	vin->digital->subdev = NULL;
++	vin->parallel->subdev = NULL;
+ }
+ 
+-static int rvin_digital_notify_complete(struct v4l2_async_notifier *notifier)
++static int rvin_parallel_notify_complete(struct v4l2_async_notifier *notifier)
+ {
+ 	struct rvin_dev *vin = notifier_to_vin(notifier);
+ 	int ret;
+@@ -484,28 +484,28 @@ static int rvin_digital_notify_complete(struct v4l2_async_notifier *notifier)
+ 	return rvin_v4l2_register(vin);
+ }
+ 
+-static void rvin_digital_notify_unbind(struct v4l2_async_notifier *notifier,
+-				       struct v4l2_subdev *subdev,
+-				       struct v4l2_async_subdev *asd)
++static void rvin_parallel_notify_unbind(struct v4l2_async_notifier *notifier,
++					struct v4l2_subdev *subdev,
++					struct v4l2_async_subdev *asd)
+ {
+ 	struct rvin_dev *vin = notifier_to_vin(notifier);
+ 
+-	vin_dbg(vin, "unbind digital subdev %s\n", subdev->name);
++	vin_dbg(vin, "unbind parallel subdev %s\n", subdev->name);
+ 
+ 	mutex_lock(&vin->lock);
+-	rvin_digital_subdevice_detach(vin);
++	rvin_parallel_subdevice_detach(vin);
+ 	mutex_unlock(&vin->lock);
+ }
+ 
+-static int rvin_digital_notify_bound(struct v4l2_async_notifier *notifier,
+-				     struct v4l2_subdev *subdev,
+-				     struct v4l2_async_subdev *asd)
++static int rvin_parallel_notify_bound(struct v4l2_async_notifier *notifier,
++				      struct v4l2_subdev *subdev,
++				      struct v4l2_async_subdev *asd)
+ {
+ 	struct rvin_dev *vin = notifier_to_vin(notifier);
+ 	int ret;
+ 
+ 	mutex_lock(&vin->lock);
+-	ret = rvin_digital_subdevice_attach(vin, subdev);
++	ret = rvin_parallel_subdevice_attach(vin, subdev);
+ 	mutex_unlock(&vin->lock);
+ 	if (ret)
+ 		return ret;
+@@ -513,21 +513,22 @@ static int rvin_digital_notify_bound(struct v4l2_async_notifier *notifier,
+ 	v4l2_set_subdev_hostdata(subdev, vin);
+ 
+ 	vin_dbg(vin, "bound subdev %s source pad: %u sink pad: %u\n",
+-		subdev->name, vin->digital->source_pad,
+-		vin->digital->sink_pad);
++		subdev->name, vin->parallel->source_pad,
++		vin->parallel->sink_pad);
+ 
+ 	return 0;
+ }
+-static const struct v4l2_async_notifier_operations rvin_digital_notify_ops = {
+-	.bound = rvin_digital_notify_bound,
+-	.unbind = rvin_digital_notify_unbind,
+-	.complete = rvin_digital_notify_complete,
++
++static const struct v4l2_async_notifier_operations rvin_parallel_notify_ops = {
++	.bound = rvin_parallel_notify_bound,
++	.unbind = rvin_parallel_notify_unbind,
++	.complete = rvin_parallel_notify_complete,
+ };
+ 
+ 
+-static int rvin_digital_parse_v4l2(struct device *dev,
+-				   struct v4l2_fwnode_endpoint *vep,
+-				   struct v4l2_async_subdev *asd)
++static int rvin_parallel_parse_v4l2(struct device *dev,
++				    struct v4l2_fwnode_endpoint *vep,
++				    struct v4l2_async_subdev *asd)
+ {
+ 	struct rvin_dev *vin = dev_get_drvdata(dev);
+ 	struct rvin_graph_entity *rvge =
+@@ -552,27 +553,27 @@ static int rvin_digital_parse_v4l2(struct device *dev,
+ 		return -EINVAL;
+ 	}
+ 
+-	vin->digital = rvge;
++	vin->parallel = rvge;
+ 
+ 	return 0;
+ }
+ 
+-static int rvin_digital_graph_init(struct rvin_dev *vin)
++static int rvin_parallel_graph_init(struct rvin_dev *vin)
+ {
+ 	int ret;
+ 	u32 id;
+ 
+ 	ret = v4l2_async_notifier_parse_fwnode_endpoints(
+ 		vin->dev, &vin->notifier,
+-		sizeof(struct rvin_graph_entity), rvin_digital_parse_v4l2);
++		sizeof(struct rvin_graph_entity), rvin_parallel_parse_v4l2);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (!vin->digital)
++	if (!vin->parallel)
+ 		return -ENODEV;
+ 
+-	vin_dbg(vin, "Found digital subdevice %pOF\n",
+-		to_of_node(vin->digital->asd.match.fwnode.fwnode));
++	vin_dbg(vin, "Found parallel subdevice %pOF\n",
++		to_of_node(vin->parallel->asd.match.fwnode.fwnode));
+ 
+ 	/* Make sure VIN id is present and sane */
+ 	ret = of_property_read_u32(vin->dev->of_node, "renesas,id", &id);
+@@ -590,7 +591,7 @@ static int rvin_digital_graph_init(struct rvin_dev *vin)
+ 
+ 	vin->id = id;
+ 
+-	vin->notifier.ops = &rvin_digital_notify_ops;
++	vin->notifier.ops = &rvin_parallel_notify_ops;
+ 	ret = v4l2_async_notifier_register(&vin->v4l2_dev, &vin->notifier);
+ 	if (ret < 0) {
+ 		vin_err(vin, "Notifier registration failed\n");
+@@ -1221,7 +1222,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 	if (vin->info->use_mc)
+ 		ret = rvin_mc_init(vin);
+ 	else
+-		ret = rvin_digital_graph_init(vin);
++		ret = rvin_parallel_graph_init(vin);
+ 	if (ret < 0)
+ 		goto error;
+ 
+diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
+index 2fb048e..34db64a 100644
+--- a/drivers/media/platform/rcar-vin/rcar-dma.c
++++ b/drivers/media/platform/rcar-vin/rcar-dma.c
+@@ -893,7 +893,7 @@ static int rvin_setup(struct rvin_dev *vin)
+ 		vnmc |= VNMC_BPS;
+ 
+ 	if (vin->info->model == RCAR_GEN3) {
+-		/* Select between CSI-2 and Digital input */
++		/* Select between CSI-2 and parallel input */
+ 		if (vin->mbus_cfg.type == V4L2_MBUS_CSI2)
+ 			vnmc &= ~VNMC_DPINE;
+ 		else
+@@ -1380,7 +1380,7 @@ static int rvin_set_stream(struct rvin_dev *vin, int on)
+ 
+ 	/* No media controller used, simply pass operation to subdevice. */
+ 	if (!vin->info->use_mc) {
+-		ret = v4l2_subdev_call(vin->digital->subdev, video, s_stream,
++		ret = v4l2_subdev_call(vin->parallel->subdev, video, s_stream,
+ 				       on);
+ 
+ 		return ret == -ENOIOCTLCMD ? 0 : ret;
+diff --git a/drivers/media/platform/rcar-vin/rcar-v4l2.c b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+index 0c23ab8..5b537c8 100644
+--- a/drivers/media/platform/rcar-vin/rcar-v4l2.c
++++ b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+@@ -214,7 +214,7 @@ static int rvin_reset_format(struct rvin_dev *vin)
+ {
+ 	struct v4l2_subdev_format fmt = {
+ 		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+-		.pad = vin->digital->source_pad,
++		.pad = vin->parallel->source_pad,
+ 	};
+ 	int ret;
+ 
+@@ -245,7 +245,7 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
+ 	struct v4l2_subdev_pad_config *pad_cfg;
+ 	struct v4l2_subdev_format format = {
+ 		.which = which,
+-		.pad = vin->digital->source_pad,
++		.pad = vin->parallel->source_pad,
+ 	};
+ 	enum v4l2_field field;
+ 	u32 width, height;
+@@ -407,15 +407,15 @@ static int rvin_enum_fmt_vid_cap(struct file *file, void *priv,
+ 	return 0;
+ }
+ 
+-static int rvin_get_digital_sd_format(struct rvin_dev *vin,
+-				      struct v4l2_pix_format *pix)
++static int rvin_get_parallel_sd_format(struct rvin_dev *vin,
++				       struct v4l2_pix_format *pix)
+ {
+ 	struct v4l2_subdev_format fmt = {
+ 		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+ 	};
+ 	int ret;
+ 
+-	fmt.pad = vin->digital->source_pad;
++	fmt.pad = vin->parallel->source_pad;
+ 
+ 	ret = v4l2_subdev_call(vin_to_source(vin), pad, get_fmt, NULL, &fmt);
+ 	if (ret)
+@@ -462,7 +462,7 @@ static int rvin_g_selection(struct file *file, void *fh,
+ 			if (ret)
+ 				return ret;
+ 		} else {
+-			ret = rvin_get_digital_sd_format(vin, &vin->format);
++			ret = rvin_get_parallel_sd_format(vin, &vin->format);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -667,7 +667,7 @@ static int rvin_enum_dv_timings(struct file *file, void *priv_fh,
+ 	if (timings->pad)
+ 		return -EINVAL;
+ 
+-	timings->pad = vin->digital->sink_pad;
++	timings->pad = vin->parallel->sink_pad;
+ 
+ 	ret = v4l2_subdev_call(sd, pad, enum_dv_timings, timings);
+ 
+@@ -719,7 +719,7 @@ static int rvin_dv_timings_cap(struct file *file, void *priv_fh,
+ 	if (cap->pad)
+ 		return -EINVAL;
+ 
+-	cap->pad = vin->digital->sink_pad;
++	cap->pad = vin->parallel->sink_pad;
+ 
+ 	ret = v4l2_subdev_call(sd, pad, dv_timings_cap, cap);
+ 
+@@ -737,7 +737,7 @@ static int rvin_g_edid(struct file *file, void *fh, struct v4l2_edid *edid)
+ 	if (edid->pad)
+ 		return -EINVAL;
+ 
+-	edid->pad = vin->digital->sink_pad;
++	edid->pad = vin->parallel->sink_pad;
+ 
+ 	ret = v4l2_subdev_call(sd, pad, get_edid, edid);
+ 
+@@ -755,7 +755,7 @@ static int rvin_s_edid(struct file *file, void *fh, struct v4l2_edid *edid)
+ 	if (edid->pad)
+ 		return -EINVAL;
+ 
+-	edid->pad = vin->digital->sink_pad;
++	edid->pad = vin->parallel->sink_pad;
+ 
+ 	ret = v4l2_subdev_call(sd, pad, set_edid, edid);
+ 
+@@ -971,7 +971,7 @@ static int rvin_initialize_device(struct file *file)
+ 	if (ret < 0)
+ 		goto esfmt;
+ 
+-	rvin_get_digital_sd_format(vin, &vin->format);
++	rvin_get_parallel_sd_format(vin, &vin->format);
+ 
+ 	v4l2_ctrl_handler_setup(&vin->ctrl_handler);
+ 
+diff --git a/drivers/media/platform/rcar-vin/rcar-vin.h b/drivers/media/platform/rcar-vin/rcar-vin.h
+index b87ef55..02cc9fb 100644
+--- a/drivers/media/platform/rcar-vin/rcar-vin.h
++++ b/drivers/media/platform/rcar-vin/rcar-vin.h
+@@ -174,7 +174,7 @@ struct rvin_info {
+  * @v4l2_dev:		V4L2 device
+  * @ctrl_handler:	V4L2 control handler
+  * @notifier:		V4L2 asynchronous subdevs notifier
+- * @digital:		entity in the DT for local digital subdevice
++ * @parallel:		entity in the DT for local parallel subdevice
+  * @rstc:		CPG reset/release control
+  * @clk:		CPG clock control
+  *
+@@ -219,7 +219,7 @@ struct rvin_dev {
+ 	struct v4l2_device v4l2_dev;
+ 	struct v4l2_ctrl_handler ctrl_handler;
+ 	struct v4l2_async_notifier notifier;
+-	struct rvin_graph_entity *digital;
++	struct rvin_graph_entity *parallel;
+ 	struct reset_control *rstc;
+ 	struct clk *clk;
+ 
+@@ -256,7 +256,7 @@ struct rvin_dev {
+ 	u32 chip_info;
+ };
+ 
+-#define vin_to_source(vin)		((vin)->digital->subdev)
++#define vin_to_source(vin)		((vin)->parallel->subdev)
+ 
+ /* Debug */
+ #define vin_dbg(d, fmt, arg...)		dev_dbg(d->dev, fmt, ##arg)
+-- 
+1.9.1
+

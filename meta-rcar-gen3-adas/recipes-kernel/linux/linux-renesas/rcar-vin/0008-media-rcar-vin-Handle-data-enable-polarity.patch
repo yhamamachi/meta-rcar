@@ -1,0 +1,47 @@
+From dcedf6f0d87cf646b0928e7374414238ec87e1b5 Mon Sep 17 00:00:00 2001
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Date: Mon, 9 Jul 2018 10:19:21 -0400
+Subject: [PATCH 8/8] media: rcar-vin: Handle data-enable polarity
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Handle data-enable signal polarity. If the polarity is not specifically
+requested to be active low, use the active high default.
+
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Acked-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+(cherry picked from commit 53cf3100dd3af5f4ffbbe272e34f2150157aa425)
+Signed-off-by: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
+---
+ drivers/media/platform/rcar-vin/rcar-dma.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
+index 1236fe2..c3e4cfa 100644
+--- a/drivers/media/platform/rcar-vin/rcar-dma.c
++++ b/drivers/media/platform/rcar-vin/rcar-dma.c
+@@ -145,6 +145,7 @@
+ /* Video n Data Mode Register 2 bits */
+ #define VNDMR2_VPS		(1 << 30)
+ #define VNDMR2_HPS		(1 << 29)
++#define VNDMR2_CES		(1 << 28)
+ #define VNDMR2_FTEV		(1 << 17)
+ #define VNDMR2_VLV(n)		((n & 0xf) << 12)
+ 
+@@ -848,6 +849,10 @@ static int rvin_setup(struct rvin_dev *vin)
+ 		/* Vsync Signal Polarity Select */
+ 		if (!(vin->parallel->mbus_flags & V4L2_MBUS_VSYNC_ACTIVE_LOW))
+ 			dmr2 |= VNDMR2_VPS;
++
++		/* Data Enable Polarity Select */
++		if (vin->parallel->mbus_flags & V4L2_MBUS_DATA_ENABLE_LOW)
++			dmr2 |= VNDMR2_CES;
+ 	}
+ 
+ 	/*
+-- 
+1.9.1
+

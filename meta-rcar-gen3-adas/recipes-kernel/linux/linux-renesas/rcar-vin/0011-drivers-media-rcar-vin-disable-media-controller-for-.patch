@@ -1,0 +1,27 @@
+From cd12b936bbf82cf97f1742626fedce554fff1674 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 24 Sep 2019 10:25:06 +0300
+Subject: [PATCH] drivers: media: rcar-vin: disable media controller for 7795
+
+Temporary disable media controller stack for H3 becase broken
+---
+ drivers/media/platform/rcar-vin/rcar-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index b0045dd..20546c6 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -966,7 +966,8 @@ static const struct rvin_group_route rcar_info_r8a7795_routes[] = {
+ 
+ static const struct rvin_info rcar_info_r8a7795 = {
+ 	.model = RCAR_GEN3,
+-	.use_mc = true,
++//	.use_mc = true,
++	.use_mc = false,
+ 	.max_width = 4096,
+ 	.max_height = 4096,
+ 	.routes = rcar_info_r8a7795_routes,
+-- 
+2.7.4
+
