@@ -356,3 +356,4 @@ patch 0417-USB-tusb8041-add-simple-driver-to-start-device-over-.patch
 patch 0418-arm64-dts-renesas-ulcb-vb2-fix-USB30-and-HUB.patch
 patch 0419-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
 patch 0420-media-i2c-ov2311-fix-otp-id-read.patch
+patch 0421-media-i2c-imx390-add-user-defined-size-for-register-.patch
