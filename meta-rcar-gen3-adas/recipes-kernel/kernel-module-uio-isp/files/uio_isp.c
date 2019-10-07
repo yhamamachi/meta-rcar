@@ -1,4 +1,4 @@
-/**
+/*
  * This driver module supports both the ISP itself and the ISP Wrapper
  * by providing the user with two separate UIO devices in /dev, one for the
  * ISP and one for the ISP Wrapper. The struct uio_isp_platform_data contains
@@ -54,6 +54,7 @@
 /* ISP uio driver name */
 #define DRIVER_NAME "uio_isp"
 #define DRIVER_VERSION "0.1"
+
 
 /* Platform data for ISP and ISP Wrapper */
 struct uio_isp_platform_data
@@ -146,6 +147,7 @@ static int isp_wrapper_probe(struct platform_device *pdev, struct uio_isp_platfo
     }
     uio_info->handler = isp_wrapper_irq_handler;
     uio_info->irqcontrol = irq_control;
+    uio_info->priv = priv;
 
     /* Register the UIO device */
     if ((err = uio_register_device(dev, uio_info))) {
@@ -154,7 +156,6 @@ static int isp_wrapper_probe(struct platform_device *pdev, struct uio_isp_platfo
     }
 
     /* Register this uio_info with the platform data */
-    uio_info->priv = priv;
     priv->uio_info[1] = uio_info;
     spin_lock_init(&priv->wrapper_lock);
     priv->wrapper_flags = 1;    /* The ISP Wrapper interrupt is active */
@@ -186,6 +187,7 @@ static int isp_wrapper_close(struct uio_info *uio_info, struct inode *inode)
 static irqreturn_t isp_wrapper_irq_handler(int irq, struct uio_info *uio_info)
 {
     struct uio_isp_platform_data *priv = uio_info->priv;
+
     u32 ispint_status = read_reg(priv->wrapper_addr, ISPINT_STATUS);
 
     /* Mask all interrupts */
@@ -254,17 +256,16 @@ static int isp_probe(struct platform_device *pdev, struct uio_isp_platform_data 
         return -ENODEV;
     }
 
+    /* Register the uio_info with the platform data */
+    spin_lock_init(&priv->isp_lock);
+    priv->isp_flags = 1;        /* ISP interrupt is active */
+    uio_info->priv = priv;
+    priv->uio_info[0] = uio_info;
     /* Register the UIO device */
     if ((err = uio_register_device(dev, uio_info))) {
         dev_err(dev, "failed to register UIO device for ISP\n");
         return err;
     }
-
-    /* Register the uio_info with the platform data */
-    uio_info->priv = priv;
-    priv->uio_info[0] = uio_info;
-    spin_lock_init(&priv->isp_lock);
-    priv->isp_flags = 1;        /* ISP interrupt is active */
 
     /* Register the UIO device with the PM framework */
     pm_runtime_enable(dev);
@@ -315,7 +316,7 @@ static irqreturn_t isp_irq_handler(int irq, struct uio_info *uio_info)
     u32 fstart_status;
     u32 fend_status;
     u32 stats_status;
-
+    
     /* Mask all interrupts, umask by user process */
     write_reg(priv->base_addr, ISP_INT_FRAME_START_MASK, 0);
     write_reg(priv->base_addr, ISP_INT_FRAME_END_MASK, 0);
@@ -397,11 +398,18 @@ static int uio_isp_remove(struct platform_device *pdev)
 {
     struct uio_isp_platform_data *priv = platform_get_drvdata(pdev);
 
-    uio_unregister_device(priv->uio_info[0]);
-    uio_unregister_device(priv->uio_info[1]);
+    // disable all interrupts before unregistering the devices
+    write_reg(priv->base_addr, ISP_INT_FRAME_START_MASK, 0);
+    write_reg(priv->base_addr, ISP_INT_FRAME_END_MASK, 0);
+    write_reg(priv->base_addr, ISP_INT_STATS_MASK, 0);
+    write_reg(priv->wrapper_addr, ISPINT_ENABLE, 0);
+    write_reg(priv->wrapper_addr, ISPERR0_ENABLE, 0);
 
     clk_disable_unprepare(priv->isp_clock);
     pm_runtime_disable(&priv->pdev->dev);
+
+    uio_unregister_device(priv->uio_info[0]);
+    uio_unregister_device(priv->uio_info[1]);
 
     platform_set_drvdata(pdev, NULL);
 
