@@ -1,8 +1,18 @@
+From ddaa69f1fea7a8e5d73839bb3902046108eac4de Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 6 Mar 2019 00:17:31 +0300
+Subject: [PATCH 3/7] add window_set_fullscreen_at_output
+
+---
+ clients/toytoolkit.h |  9 +++++++++
+ clients/window.c     | 38 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 47 insertions(+)
+
 diff --git a/clients/toytoolkit.h b/clients/toytoolkit.h
-index fdf9b57..402836d 100644
+index 1c0b77d..2bcecc1 100644
 --- a/clients/toytoolkit.h
 +++ b/clients/toytoolkit.h
-@@ -84,6 +84,12 @@ display_get_compositor(struct display *display);
+@@ -74,6 +74,12 @@ display_get_compositor(struct display *display);
  struct output *
  display_get_output(struct display *display);
  
@@ -15,7 +25,7 @@ index fdf9b57..402836d 100644
  uint32_t
  display_get_serial(struct display *display);
  
-@@ -372,6 +378,9 @@ window_is_fullscreen(struct window *window);
+@@ -432,6 +438,9 @@ window_is_fullscreen(struct window *window);
  void
  window_set_fullscreen(struct window *window, int fullscreen);
  
@@ -26,11 +36,11 @@ index fdf9b57..402836d 100644
  window_is_maximized(struct window *window);
  
 diff --git a/clients/window.c b/clients/window.c
-index 0e73f5b..2d38796 100644
+index bb9c708..3a7467d 100644
 --- a/clients/window.c
 +++ b/clients/window.c
-@@ -4364,6 +4364,21 @@ window_set_fullscreen(struct window *window, int fullscreen)
- 		zxdg_toplevel_v6_unset_fullscreen(window->xdg_toplevel);
+@@ -4590,6 +4590,21 @@ window_set_fullscreen(struct window *window, int fullscreen)
+ 		xdg_toplevel_unset_fullscreen(window->xdg_toplevel);
  }
  
 +void
@@ -43,15 +53,15 @@ index 0e73f5b..2d38796 100644
 +		return;
 +
 +	if (fullscreen)
-+		zxdg_toplevel_v6_set_fullscreen(window->xdg_toplevel, output ? output_get_wl_output(output) : NULL);
++		xdg_toplevel_set_fullscreen(window->xdg_toplevel, output ? output_get_wl_output(output) : NULL);
 +	else
-+		zxdg_toplevel_v6_unset_fullscreen(window->xdg_toplevel);
++		xdg_toplevel_unset_fullscreen(window->xdg_toplevel);
 +}
 +
  int
  window_is_maximized(struct window *window)
  {
-@@ -5743,6 +5758,29 @@ display_get_output(struct display *display)
+@@ -6311,6 +6326,29 @@ display_get_output(struct display *display)
  	return container_of(display->output_list.next, struct output, link);
  }
  
@@ -81,3 +91,6 @@ index 0e73f5b..2d38796 100644
  struct wl_compositor *
  display_get_compositor(struct display *display)
  {
+-- 
+2.7.4
+

@@ -1,18 +1,18 @@
-From 32bb2f9f31945fda4d3a530c7e48632f3249d3a6 Mon Sep 17 00:00:00 2001
+From 7eef85e4f5a90d958452f946d038b807c89ae3d6 Mon Sep 17 00:00:00 2001
 From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
 Date: Tue, 13 Jun 2017 23:51:22 +0300
-Subject: [PATCH 1/4] Share toytoolkit lib
+Subject: [PATCH 2/7] Share toytoolkit lib
 
 ---
  Makefile.am          |  35 +++
- clients/toytoolkit.h | 728 +++++++++++++++++++++++++++++++++++++++++++++++++++
- clients/window.h     | 683 +----------------------------------------------
+ clients/toytoolkit.h | 741 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ clients/window.h     | 714 +------------------------------------------------
  configure.ac         |   2 +-
- 4 files changed, 765 insertions(+), 683 deletions(-)
+ 4 files changed, 778 insertions(+), 714 deletions(-)
  create mode 100644 clients/toytoolkit.h
 
 diff --git a/Makefile.am b/Makefile.am
-index 36cb859..229521e 100644
+index 5407b59..bf022c2 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -8,6 +8,7 @@ module_LTLIBRARIES =
@@ -22,8 +22,8 @@ index 36cb859..229521e 100644
 +lib_LTLIBRARIES =
  BUILT_SOURCES =
  
- AM_DISTCHECK_CONFIGURE_FLAGS = --disable-setuid-install
-@@ -110,6 +111,7 @@ libweston_@LIBWESTON_MAJOR@_la_SOURCES =			\
+ AM_DISTCHECK_CONFIGURE_FLAGS = --disable-setuid-install --enable-autotools
+@@ -108,6 +109,7 @@ libweston_@LIBWESTON_MAJOR@_la_SOURCES =			\
  	shared/matrix.h					\
  	shared/timespec-util.h				\
  	shared/zalloc.h					\
@@ -31,7 +31,7 @@ index 36cb859..229521e 100644
  	shared/platform.h				\
  	shared/weston-egl-ext.h
  
-@@ -280,6 +282,7 @@ dist_wayland_session_DATA = compositor/weston.desktop
+@@ -307,6 +309,7 @@ dist_wayland_session_DATA = compositor/weston.desktop
  
  libwestonincludedir = $(includedir)/libweston-${LIBWESTON_MAJOR}
  libwestoninclude_HEADERS =			\
@@ -39,7 +39,7 @@ index 36cb859..229521e 100644
  	libweston/version.h			\
  	libweston/compositor.h			\
  	libweston/compositor-drm.h		\
-@@ -672,6 +675,7 @@ noinst_LTLIBRARIES += libtoytoolkit.la
+@@ -713,6 +716,7 @@ noinst_LTLIBRARIES += libtoytoolkit.la
  libtoytoolkit_la_SOURCES =				\
  	clients/window.c				\
  	clients/window.h				\
@@ -47,7 +47,7 @@ index 36cb859..229521e 100644
  	shared/helpers.h
  
  nodist_libtoytoolkit_la_SOURCES =			\
-@@ -697,6 +701,37 @@ libtoytoolkit_la_LIBADD =			\
+@@ -736,6 +740,37 @@ libtoytoolkit_la_LIBADD =			\
  	libshared-cairo.la $(CLOCK_GETTIME_LIBS) -lm
  libtoytoolkit_la_CFLAGS = $(AM_CFLAGS) $(CLIENT_CFLAGS) $(CAIRO_EGL_CFLAGS)
  
@@ -87,10 +87,10 @@ index 36cb859..229521e 100644
  weston_flower_CFLAGS = $(AM_CFLAGS) $(CLIENT_CFLAGS)
 diff --git a/clients/toytoolkit.h b/clients/toytoolkit.h
 new file mode 100644
-index 0000000..18b7b40
+index 0000000..1c0b77d
 --- /dev/null
 +++ b/clients/toytoolkit.h
-@@ -0,0 +1,728 @@
+@@ -0,0 +1,741 @@
 +/*
 + * Copyright © 2008 Kristian Høgsberg
 + *
@@ -117,6 +117,7 @@ index 0000000..18b7b40
 +#ifndef _TOYTOOLKIT_H_
 +#define _TOYTOOLKIT_H_
 +
++#include <time.h>
 +#include <xkbcommon/xkbcommon.h>
 +#include <wayland-client.h>
 +#include <cairo.h>
@@ -165,12 +166,6 @@ index 0000000..18b7b40
 +
 +struct output *
 +display_get_output(struct display *display);
-+
-+unsigned int
-+display_get_outputs_number(struct display *display);
-+
-+struct output *
-+display_get_output_by_index(struct display *display, unsigned int index); 
 +
 +uint32_t
 +display_get_serial(struct display *display);
@@ -254,9 +249,6 @@ index 0000000..18b7b40
 +
 +void
 +display_run(struct display *d);
-+
-+int
-+display_poll(struct display *display, int timeout);
 +
 +void
 +display_exit(struct display *d);
@@ -533,12 +525,6 @@ index 0000000..18b7b40
 +void
 +window_set_fullscreen(struct window *window, int fullscreen);
 +
-+void
-+window_set_fullscreen_at_output(struct window *window, int fullscreen, struct output *output);
-+
-+void
-+window_set_fullscreen_hack(struct window *window, int fullscreen);
-+
 +int
 +window_is_maximized(struct window *window);
 +
@@ -638,9 +624,6 @@ index 0000000..18b7b40
 +widget_set_allocation(struct widget *widget,
 +		      int32_t x, int32_t y, int32_t width, int32_t height);
 +void
-+widget_set_surface_allocation(struct widget *widget,
-+		      int32_t x, int32_t y, int32_t width, int32_t height);
-+void
 +widget_set_size(struct widget *widget, int32_t width, int32_t height);
 +void
 +widget_set_transparent(struct widget *widget, int transparent);
@@ -708,6 +691,10 @@ index 0000000..18b7b40
 +			widget_axis_stop_handler_t axis_stop_handler,
 +			widget_axis_discrete_handler_t axis_discrete_handler);
 +
++void
++window_inhibit_redraw(struct window *window);
++void
++window_uninhibit_redraw(struct window *window);
 +void
 +widget_schedule_redraw(struct widget *widget);
 +void
@@ -818,15 +805,42 @@ index 0000000..18b7b40
 +keysym_modifiers_get_mask(struct wl_array *modifiers_map,
 +			  const char *name);
 +
++struct toytimer;
++typedef void (*toytimer_cb)(struct toytimer *);
++
++struct toytimer {
++	struct display *display;
++	struct task tsk;
++	int fd;
++	toytimer_cb callback;
++};
++
++void
++toytimer_init(struct toytimer *tt, clockid_t clock, struct display *display,
++	      toytimer_cb callback);
++
++void
++toytimer_fini(struct toytimer *tt);
++
++void
++toytimer_arm(struct toytimer *tt, const struct itimerspec *its);
++
++void
++toytimer_arm_once_usec(struct toytimer *tt, uint32_t usec);
++
++void
++toytimer_disarm(struct toytimer *tt);
++
 +#endif
 diff --git a/clients/window.h b/clients/window.h
-index 1ec9eac..fea173f 100644
+index fde5c2f..fea173f 100644
 --- a/clients/window.h
 +++ b/clients/window.h
-@@ -27,690 +27,9 @@
+@@ -27,721 +27,9 @@
  #include "config.h"
  
  #include <stdint.h>
+-#include <time.h>
 -#include <xkbcommon/xkbcommon.h>
 -#include <wayland-client.h>
 -#include <cairo.h>
@@ -1405,6 +1419,10 @@ index 1ec9eac..fea173f 100644
 -			widget_axis_discrete_handler_t axis_discrete_handler);
 -
 -void
+-window_inhibit_redraw(struct window *window);
+-void
+-window_uninhibit_redraw(struct window *window);
+-void
 -widget_schedule_redraw(struct widget *widget);
 -void
 -widget_set_use_cairo(struct widget *widget, int use_cairo);
@@ -1514,20 +1532,46 @@ index 1ec9eac..fea173f 100644
 -keysym_modifiers_get_mask(struct wl_array *modifiers_map,
 -			  const char *name);
 -
+-struct toytimer;
+-typedef void (*toytimer_cb)(struct toytimer *);
+-
+-struct toytimer {
+-	struct display *display;
+-	struct task tsk;
+-	int fd;
+-	toytimer_cb callback;
+-};
+-
+-void
+-toytimer_init(struct toytimer *tt, clockid_t clock, struct display *display,
+-	      toytimer_cb callback);
+-
+-void
+-toytimer_fini(struct toytimer *tt);
+-
+-void
+-toytimer_arm(struct toytimer *tt, const struct itimerspec *its);
+-
+-void
+-toytimer_arm_once_usec(struct toytimer *tt, uint32_t usec);
+-
+-void
+-toytimer_disarm(struct toytimer *tt);
+-
  #endif
 diff --git a/configure.ac b/configure.ac
-index 2d24fad..75f391e 100644
+index 681f7c8..34dcce7 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -77,7 +77,7 @@ AC_PROG_SED
+@@ -82,7 +82,7 @@ AC_PROG_SED
  
  # Initialize libtool
  LT_PREREQ([2.2])
 -LT_INIT([disable-static])
 +LT_INIT([shared static])
  
- AC_ARG_VAR([WESTON_NATIVE_BACKEND],
-            [Set the native backend to use, if Weston is not running under Wayland nor X11. @<:@default=drm-backend.so@:>@])
+ AC_ARG_ENABLE(autotools,
+ 	      AS_HELP_STRING([--enable-autotools],
 -- 
-1.9.1
+2.7.4
 
