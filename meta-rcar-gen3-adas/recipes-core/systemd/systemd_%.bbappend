@@ -1,10 +1,9 @@
 FILESEXTRAPATHS_append := '${THISDIR}/${PN}:'
 
-SRC_URI_append = "file://eth0.network"
-
-SRC_URI_append= '${@ " \
-    file://dummy0.network \
-" if 'surroundview' in '${DISTRO_FEATURES}' else ""}'
+SRC_URI_append = " \
+    file://eth0.network \
+    ${@bb.utils.contains("DISTRO_FEATURES", "surroundview", "file://dummy0.network", "", d)} \
+"
 
 FILES_${PN} += "${sysconfdir}/systemd/network/*"
 
