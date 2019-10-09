@@ -7,7 +7,7 @@ S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
 SRC_URI = "git://github.com/CogentEmbedded/utest-cam-imr-drm.git;branch=${BRANCH}"
-SRCREV = "27e5984c05357194759a1f81d0ffa20d523d0103"
+SRCREV = "fd160edb99b34223f2c49fecbef3cca3daddbe59"
 
 PV = "v1.0+renesas+git"
 
