@@ -118,11 +118,19 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vb-gmsl2-2x2.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl2-4.dtb \
 "
-# Prefer V4L2 rcar_imr driver over UIO uio_imr
-KERNEL_MODULE_AUTOLOAD_append = " rcar_imr"
+# Prefer UIO uio_imr driver over V4L2 rcar_imr
+KERNEL_MODULE_AUTOLOAD_append = " uio_imr"
 KERNEL_MODULE_PROBECONF_append = " rcar_imr"
 KERNEL_MODULE_PROBECONF_append = " uio_imr"
-module_conf_uio_imr = 'blacklist uio_imr'
+module_conf_uio_imr = 'blacklist rcar_imr'
+
+# Prefer UIO uio_csi2 driver over V4L2 rcar_csi2
+KERNEL_MODULE_PROBECONF_append = " rcar_csi2"
+module_conf_rcar_csi2 = 'blacklist rcar_csi2'
+
+# Prefer UIO uio_vin driver over V4L2 rcar_vin
+KERNEL_MODULE_PROBECONF_append = " rcar_vin"
+module_conf_rcar_vin = 'blacklist rcar_vin'
 
 # V3H VIP devices
 KERNEL_MODULE_AUTOLOAD_append_r8a77980 = " uio_pdrv_genirq"

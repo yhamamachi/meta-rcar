@@ -19,11 +19,10 @@ SRC_URI = " \
 
 S = "${WORKDIR}"
 
-# Prefer V4L2 rcar_csi2 driver over UIO uio_csi2
-KERNEL_MODULE_AUTOLOAD_append = " rcar_csi2"
-# KERNEL_MODULE_AUTOLOAD_append = "uio_csi2"
-KERNEL_MODULE_PROBECONF_append = "uio_csi2"
+# Prefer UIO uio_csi2 driver over V4L2 rcar_csi2
+KERNEL_MODULE_AUTOLOAD += "uio_csi2"
+KERNEL_MODULE_PROBECONF += "uio_csi2"
 
-module_conf_uio_csi2 = 'blacklist uio_csi2'
+module_conf_uio_csi2 = ""
 module_conf_uio_csi2_r8a7795 = "options uio_csi2 clear_int"
 module_conf_uio_csi2_r8a7796 = "options uio_csi2 clear_int"
