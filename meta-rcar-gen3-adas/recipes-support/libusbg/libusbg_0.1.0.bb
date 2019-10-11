@@ -1,9 +1,8 @@
 require libusbg.inc
 
-SRC_URI = "https://github.com/libusbg/libusbg/archive/v${PV}.tar.gz"
+S = "${WORKDIR}/git"
 
-SRC_URI[md5sum] = "2d3af961f7007a35ed3816de6b712ac1"
-SRC_URI[sha256sum] = "82fa5c71741a70477148ed455c307611075a4f9af6886ab3e7a4471377dfd2c7"
+SRC_URI = "https://github.com/${BPN}/${BPN}.git"
 
-S = "${WORKDIR}/libusbg-${PV}"
-
+# tag: v0.1.0
+SRCREV = "7e2b04363f319e8936a606bdb122dbde249a2f58"
