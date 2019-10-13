@@ -26,13 +26,9 @@ SRC_URI_append_h3ulcb = " file://ulcb.cfg"
 SRC_URI_append_m3ulcb = " file://ulcb.cfg"
 SRC_URI_append_m3nulcb = " file://ulcb.cfg"
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
-SRC_URI_append_eagle = " file://eagle.cfg"
-SRC_URI_append_v3msk = " file://v3msk.cfg"
-SRC_URI_append_condor = " file://condor.cfg"
-SRC_URI_append_v3mzf = " file://v3mzf.cfg"
-SRC_URI_append_v3hsk = " file://v3hsk.cfg"
 
 SRC_URI_append_rcar-gen3-v3x = " \
+    file://v3x.cfg \
     file://cma.cfg \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://qspi.cfg", d)} \
 "
@@ -77,14 +73,11 @@ KERNEL_DEVICETREE_append_salvator-x = " \
     renesas/r8a7796-salvator-x-view.dtb \
 "
 
-KERNEL_DEVICETREE_append_eagle = " \
+KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
     renesas/r8a77970-es1-eagle.dtb \
     renesas/r8a77970-es1-eagle-function.dtb \
     renesas/r8a77970-eagle.dtb \
     renesas/r8a77970-eagle-function.dtb \
-"
-
-KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a77970-es1-v3msk.dtb \
     renesas/r8a77970-es1-v3msk-kf.dtb \
     renesas/r8a77970-es1-v3msk-vbm.dtb \
@@ -97,17 +90,8 @@ KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a77970-v3msk-vbm-v2.dtb \
     renesas/r8a77970-v3msk-vbm-v3.dtb \
     renesas/r8a77970-v3msk-view.dtb \
-"
-
-KERNEL_DEVICETREE_append_v3mzf = " \
     renesas/r8a77970-v3mzf.dtb \
-"
-
-KERNEL_DEVICETREE_append_condor = " \
     renesas/r8a77980-condor.dtb \
-"
-
-KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk.dtb \
     renesas/r8a77980-v3hsk-vbm.dtb \
     renesas/r8a77980-v3hsk-vbm-v2.dtb \
@@ -118,6 +102,7 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vb-gmsl2-2x2.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl2-4.dtb \
 "
+
 # Prefer UIO uio_imr driver over V4L2 rcar_imr
 KERNEL_MODULE_AUTOLOAD_append = " uio_imr"
 KERNEL_MODULE_PROBECONF_append = " rcar_imr"
