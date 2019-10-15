@@ -1,8 +1,8 @@
 FILESEXTRAPATHS_append := '${THISDIR}/${PN}:'
 
 SRC_URI_append = " \
-    file://eth0.network \
-    ${@bb.utils.contains("DISTRO_FEATURES", "surroundview", "file://dummy0.network", "", d)} \
+    file://70-eth0.network \
+    ${@bb.utils.contains("DISTRO_FEATURES", "surroundview", "file://70-dummy0.network", "", d)} \
 "
 
 FILES_${PN} += "${sysconfdir}/systemd/network/*"
