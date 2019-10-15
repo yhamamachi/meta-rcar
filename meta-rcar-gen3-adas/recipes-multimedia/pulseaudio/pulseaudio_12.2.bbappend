@@ -2,6 +2,10 @@ FILESEXTRAPATHS_append := "${THISDIR}/files:"
 
 PR="r2"
 
+SRC_URI_append = " \
+    file://0001-alsa-Fix-inclusion-of-use-case.h.patch \
+"
+
 SRC_URI_append_rcar-gen3 = " \
     file://pulseaudio.init \
     file://rsnddai0ak4613h.conf \
