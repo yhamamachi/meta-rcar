@@ -110,10 +110,10 @@ index 32a6746..1481029 100644
  {
  	uint32_t	modemr;
 @@ -454,6 +512,9 @@ void bl2_cpg_init(void)
- 		case RCAR_PRODUCT_v3m:
+ 		case RCAR_PRODUCT_V3M:
  			bl2_realtime_cpg_init_v3m();
  			break;
-+		case RCAR_PRODUCT_v3h:
++		case RCAR_PRODUCT_V3H:
 +			bl2_realtime_cpg_init_v3h();
 +			break;
  		default:
