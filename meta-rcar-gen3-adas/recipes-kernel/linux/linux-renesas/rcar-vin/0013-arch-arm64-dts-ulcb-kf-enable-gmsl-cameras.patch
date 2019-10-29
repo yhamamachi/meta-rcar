@@ -1,0 +1,951 @@
+From 21d319853a7b36b759bea2d33aeb9a9d83ec6d54 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 29 Oct 2019 17:16:16 +0300
+Subject: [PATCH] arch: arm64: dts: ulcb-kf: enable gmsl cameras
+
+Enable gmsl cameras in media framework
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi | 390 ++++++++-----------------
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi      | 395 ++++++++------------------
+ 2 files changed, 225 insertions(+), 560 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
+index c5384ca..e50e54f 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
+@@ -18,175 +18,128 @@
+ 		reg = <2>;
+ 		/* Slot B (CN11) */
+ 
+-		ov106xx@4 {
+-			compatible = "ovti,ov106xx";
+-			reg = <0x64>;
+-
+-			port@0 {
+-				ov106xx_in4: endpoint {
+-					clock-lanes = <0>;
+-					data-lanes = <1 2 3 4>;
+-					remote-endpoint = <&vin4ep0>;
+-				};
+-			};
+-			port@1 {
+-				ov106xx_max9286_des1ep0: endpoint@0 {
+-					remote-endpoint = <&max9286_des1ep0>;
+-				};
+-				ov106xx_ti9x4_des1ep0: endpoint@1 {
+-					remote-endpoint = <&ti9x4_des1ep0>;
+-				};
+-			};
+-		};
++		max9286_b@2c {
++			compatible = "maxim,max9286";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x2c 0x50 0x51 0x52 0x53>;
++			maxim,resetb-gpio = <1>;
++			maxim,fsync-mode = "automatic";
++			maxim,timeout = <100>;
+ 
+-		ov106xx@5 {
+-			compatible = "ovti,ov106xx";
+-			reg = <0x65>;
++			POC0-gpios = <&gpio_exp_b_5c 9 GPIO_ACTIVE_HIGH>;
++			POC1-gpios = <&gpio_exp_b_5c 8 GPIO_ACTIVE_HIGH>;
++			POC2-gpios = <&gpio_exp_b_5c 11 GPIO_ACTIVE_HIGH>;
++			POC3-gpios = <&gpio_exp_b_5c 10 GPIO_ACTIVE_HIGH>;
+ 
+-			port@0 {
+-				ov106xx_in5: endpoint {
+-					clock-lanes = <0>;
+-					data-lanes = <1 2 3 4>;
+-					remote-endpoint = <&vin5ep0>;
+-				};
+-			};
+-			port@1 {
+-				ov106xx_max9286_des1ep1: endpoint@0 {
+-					remote-endpoint = <&max9286_des1ep1>;
+-				};
+-				ov106xx_ti9x4_des1ep1: endpoint@1 {
+-					remote-endpoint = <&ti9x4_des1ep1>;
+-				};
+-			};
+-		};
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
+ 
+-		ov106xx@6 {
+-			compatible = "ovti,ov106xx";
+-			reg = <0x66>;
+ 				port@0 {
+-				ov106xx_in6: endpoint {
+-					clock-lanes = <0>;
+-					data-lanes = <1 2 3 4>;
+-					remote-endpoint = <&vin6ep0>;
++					reg = <0>;
++					max9286_in4: endpoint {
++						remote-endpoint = <&gmsl_out4>;
++					};
+ 				};
+-			};
+-			port@1 {
+-				ov106xx_max9286_des1ep2: endpoint@0 {
+-					remote-endpoint = <&max9286_des1ep2>;
+-				};
+-				ov106xx_ti9x4_des1ep2: endpoint@1 {
+-					remote-endpoint = <&ti9x4_des1ep2>;
++
++				port@1 {
++					reg = <1>;
++					max9286_in5: endpoint {
++						remote-endpoint = <&gmsl_out5>;
++					};
+ 				};
+-			};
+-		};
+ 
+-		ov106xx@7 {
+-			compatible = "ovti,ov106xx";
+-			reg = <0x67>;
+-				port@0 {
+-				ov106xx_in7: endpoint {
+-					clock-lanes = <0>;
+-					data-lanes = <1 2 3 4>;
+-					remote-endpoint = <&vin7ep0>;
++				port@2 {
++					reg = <2>;
++					max9286_in6: endpoint {
++						remote-endpoint = <&gmsl_out6>;
++					};
+ 				};
+-			};
+-			port@1 {
+-				ov106xx_max9286_des1ep3: endpoint@0 {
+-					remote-endpoint = <&max9286_des1ep3>;
++
++				port@3 {
++					reg = <3>;
++					max9286_in7: endpoint {
++						remote-endpoint = <&gmsl_out7>;
++					};
+ 				};
+-				ov106xx_ti9x4_des1ep3: endpoint@1 {
+-					remote-endpoint = <&ti9x4_des1ep3>;
++
++				port@4 {
++					reg = <4>;
++					max9286_out1: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&csi41_in>;
++					};
+ 				};
+ 			};
+-		};
+ 
+-		/* DS90UB9x4 @ 0x3a */
+-		ti9x4@1 {
+-			compatible = "ti,ti9x4";
+-			reg = <0x3a>;
+-			ti,sensor_delay = <350>;
+-			ti,links = <4>;
+-			ti,lanes = <4>;
+-			ti,forwarding-mode = "round-robin";
+-			ti,cable-mode = "coax";
+-
+-			POC0-gpios = <&gpio_exp_b_5c 8 GPIO_ACTIVE_HIGH>;
+-			POC1-gpios = <&gpio_exp_b_5c 9 GPIO_ACTIVE_HIGH>;
+-			POC2-gpios = <&gpio_exp_b_5c 10 GPIO_ACTIVE_HIGH>;
+-			POC3-gpios = <&gpio_exp_b_5c 11 GPIO_ACTIVE_HIGH>;
+-
+-			port@0 {
+-				ti9x4_des1ep0: endpoint@0 {
+-					ti9x3-addr = <0x0c>;
+-					dvp-order = <0>;
+-					remote-endpoint = <&ov106xx_in4>;
+-				};
+-				ti9x4_des1ep1: endpoint@1 {
+-					ti9x3-addr = <0x0d>;
+-					dvp-order = <0>;
+-					remote-endpoint = <&ov106xx_in5>;
+-				};
+-				ti9x4_des1ep2: endpoint@2 {
+-					ti9x3-addr = <0x0e>;
+-					dvp-order = <0>;
+-					remote-endpoint = <&ov106xx_in6>;
+-				};
+-				ti9x4_des1ep3: endpoint@3 {
+-					ti9x3-addr = <0x0f>;
+-					dvp-order = <0>;
+-					remote-endpoint = <&ov106xx_in7>;
++			i2c@0 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0>;
++
++				camera@60 {
++					compatible = "gmsl,camera";
++					reg = <0x60 0x50>;
++
++					port {
++						gmsl_out4: endpoint {
++							remote-endpoint = <&max9286_in4>;
++						};
++					};
+ 				};
+ 			};
+-			port@1 {
+-				ti9x4_csi2ep0: endpoint {
+-					csi-rate = <1450>;
+-					remote-endpoint = <&csi41_ep>;
++
++
++			i2c@1 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <1>;
++
++				camera@61 {
++					compatible = "gmsl,camera";
++					reg = <0x61 0x51>;
++
++					port {
++						gmsl_out5: endpoint {
++							remote-endpoint = <&max9286_in5>;
++						};
++					};
+ 				};
+ 			};
+-		};
+ 
+-		/* MAX9286 @ 0x2c */
+-		max9286@1 {
+-			compatible = "maxim,max9286";
+-			reg = <0x2c>;
+-			maxim,sensor_delay = <350>;
+-			maxim,links = <4>;
+-			maxim,lanes = <4>;
+-			maxim,resetb-gpio = <1>;
+-			maxim,fsync-mode = "automatic";
+-			maxim,timeout = <100>;
++			i2c@2 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <2>;
+ 
+-			POC0-gpios = <&gpio_exp_b_5c 9 GPIO_ACTIVE_HIGH>;
+-			POC1-gpios = <&gpio_exp_b_5c 8 GPIO_ACTIVE_HIGH>;
+-			POC2-gpios = <&gpio_exp_b_5c 11 GPIO_ACTIVE_HIGH>;
+-			POC3-gpios = <&gpio_exp_b_5c 10 GPIO_ACTIVE_HIGH>;
++				camera@62 {
++					compatible = "gmsl,camera";
++					reg = <0x62 0x52>;
+ 
+-			port@0 {
+-				max9286_des1ep0: endpoint@0 {
+-					max9271-addr = <0x50>;
+-					dvp-order = <1>;
+-					remote-endpoint = <&ov106xx_in4>;
+-				};
+-				max9286_des1ep1: endpoint@1 {
+-					max9271-addr = <0x51>;
+-					dvp-order = <1>;
+-					remote-endpoint = <&ov106xx_in5>;
+-				};
+-				max9286_des1ep2: endpoint@2 {
+-					max9271-addr = <0x52>;
+-					dvp-order = <1>;
+-					remote-endpoint = <&ov106xx_in6>;
+-				};
+-				max9286_des1ep3: endpoint@3 {
+-					max9271-addr = <0x53>;
+-					dvp-order = <1>;
+-					remote-endpoint = <&ov106xx_in7>;
++					port {
++						gmsl_out6: endpoint {
++							remote-endpoint = <&max9286_in6>;
++						};
++					};
+ 				};
+ 			};
+-			port@1 {
+-				max9286_csi2ep0: endpoint {
+-					csi-rate = <700>;
+-					remote-endpoint = <&csi41_ep>;
++
++			i2c@3 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <3>;
++
++				camera@63 {
++					compatible = "gmsl,camera";
++					reg = <0x63 0x53>;
++
++					port {
++						gmsl_out7: endpoint {
++							remote-endpoint = <&max9286_in7>;
++						};
++					};
+ 				};
+ 			};
+ 		};
+@@ -308,155 +261,36 @@
+ };
+ 
+ &vin4 {
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin4ep0: endpoint {
+-				csi,select = "csi41";
+-				virtual,channel = <0>;
+-				remote-endpoint = <&ov106xx_in4>;
+-				data-lanes = <1 2 3 4>;
+-			};
+-		};
+-		port@1 {
+-			csi2ep0: endpoint {
+-				remote-endpoint = <&csi41_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin4_max9286_des1ep0: endpoint@0 {
+-				remote-endpoint = <&max9286_des1ep0>;
+-			};
+-			vin4_ti9x4_des1ep0: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des1ep0>;
+-			};
+-		};
+-	};
++	status = "okay";
+ };
+ 
+ &vin5 {
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin5ep0: endpoint@0 {
+-				csi,select = "csi41";
+-				virtual,channel = <1>;
+-				remote-endpoint = <&ov106xx_in5>;
+-				data-lanes = <1 2 3 4>;
+-			};
+-		};
+-		port@1 {
+-			csi2ep1: endpoint {
+-				remote-endpoint = <&csi41_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin5_max9286_des1ep1: endpoint@0 {
+-				remote-endpoint = <&max9286_des1ep1>;
+-			};
+-			vin5_ti9x4_des1ep1: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des1ep1>;
+-			};
+-		};
+-	};
++	status = "okay";
+ };
+ 
+ &vin6 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin6ep0: endpoint@0 {
+-				csi,select = "csi41";
+-				virtual,channel = <2>;
+-				remote-endpoint = <&ov106xx_in6>;
+-				data-lanes = <1 2 3 4>;
+-			};
+-		};
+-		port@1 {
+-			csi2ep2: endpoint {
+-				remote-endpoint = <&csi41_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin6_max9286_des1ep2: endpoint@0 {
+-				remote-endpoint = <&max9286_des1ep2>;
+-			};
+-			vin6_ti9x4_des1ep2: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des1ep2>;
+-			};
+-		};
+-	};
+ };
+ 
+ &vin7 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin7ep0: endpoint@0 {
+-				csi,select = "csi41";
+-				virtual,channel = <3>;
+-				remote-endpoint = <&ov106xx_in7>;
+-				data-lanes = <1 2 3 4>;
+-			};
+-		};
+-		port@1 {
+-			csi2ep3: endpoint {
+-				remote-endpoint = <&csi41_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin7_max9286_des1ep3: endpoint@0 {
+-				remote-endpoint = <&max9286_des1ep3>;
+-			};
+-			vin7_ti9x4_des1ep3: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des1ep3>;
+-			};
+-		};
+-	};
+ };
+ 
+ &csi41 {
+ 	status = "okay";
+ 
+-	virtual,channel {
+-		csi2_vc0 {
+-			data,type = "ycbcr422";
+-			receive,vc = <0>;
+-		};
+-		csi2_vc1 {
+-			data,type = "ycbcr422";
+-			receive,vc = <1>;
+-		};
+-		csi2_vc2 {
+-			data,type = "ycbcr422";
+-			receive,vc = <2>;
+-		};
+-		csi2_vc3 {
+-			data,type = "ycbcr422";
+-			receive,vc = <3>;
+-		};
+-	};
+-
+-	port {
++	ports {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		csi41_ep: endpoint {
+-			clock-lanes = <0>;
+-			data-lanes = <1 2 3 4>;
+-			csi-rate = <300>;
++		port@0 {
++			reg = <0>;
++
++			csi41_in: endpoint {
++				clock-lanes = <0>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&max9286_out1>;
++			};
+ 		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index b678cd6..2c1fc7a 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -249,39 +249,24 @@
+ &csi40 {
+ 	status = "okay";
+ 
+-	virtual,channel {
+-		csi2_vc0 {
+-			data,type = "ycbcr422";
+-			receive,vc = <0>;
+-		};
+-		csi2_vc1 {
+-			data,type = "ycbcr422";
+-			receive,vc = <1>;
+-		};
+-		csi2_vc2 {
+-			data,type = "ycbcr422";
+-			receive,vc = <2>;
+-		};
+-		csi2_vc3 {
+-			data,type = "ycbcr422";
+-			receive,vc = <3>;
+-		};
+-	};
+-
+-	port {
++	ports {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		csi40_ep: endpoint {
+-			clock-lanes = <0>;
+-			data-lanes = <1 2 3 4>;
+-			csi-rate = <300>;
++		port@0 {
++			reg = <0>;
++
++			csi40_in: endpoint {
++				clock-lanes = <0>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&max9286_out0>;
++			};
+ 		};
+ 	};
+ };
+ 
+ &csi20 {
+-	status = "okay";
++	status = "disabled";
+ 
+ 	virtual,channel {
+ 		csi2_vc0 {
+@@ -703,175 +688,128 @@
+ 			reg = <1>;
+ 			/* Slot A (CN10) */
+ 
+-			ov106xx@0 {
+-				compatible = "ovti,ov106xx";
+-				reg = <0x60>;
++			max9286@2c {
++				compatible = "maxim,max9286";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x2c 0x50 0x51 0x52 0x53>;
++				maxim,resetb-gpio = <1>;
++				maxim,fsync-mode = "automatic";
++				maxim,timeout = <100>;
+ 
+-				port@0 {
+-					ov106xx_in0: endpoint {
+-						clock-lanes = <0>;
+-						data-lanes = <1 2 3 4>;
+-						remote-endpoint = <&vin0ep0>;
+-					};
+-				};
+-				port@1 {
+-					ov106xx_max9286_des0ep0: endpoint@0 {
+-						remote-endpoint = <&max9286_des0ep0>;
+-					};
+-					ov106xx_ti9x4_des0ep0: endpoint@1 {
+-						remote-endpoint = <&ti9x4_des0ep0>;
+-					};
+-				};
+-			};
++				POC0-gpios = <&gpio_exp_a_5c 9 GPIO_ACTIVE_HIGH>;
++				POC1-gpios = <&gpio_exp_a_5c 8 GPIO_ACTIVE_HIGH>;
++				POC2-gpios = <&gpio_exp_a_5c 11 GPIO_ACTIVE_HIGH>;
++				POC3-gpios = <&gpio_exp_a_5c 10 GPIO_ACTIVE_HIGH>;
+ 
+-			ov106xx@1 {
+-				compatible = "ovti,ov106xx";
+-				reg = <0x61>;
++				ports {
++					#address-cells = <1>;
++					#size-cells = <0>;
+ 
+-				port@0 {
+-					ov106xx_in1: endpoint {
+-						clock-lanes = <0>;
+-						data-lanes = <1 2 3 4>;
+-						remote-endpoint = <&vin1ep0>;
+-					};
+-				};
+-				port@1 {
+-					ov106xx_max9286_des0ep1: endpoint@0 {
+-						remote-endpoint = <&max9286_des0ep1>;
+-					};
+-					ov106xx_ti9x4_des0ep1: endpoint@1 {
+-						remote-endpoint = <&ti9x4_des0ep1>;
++					port@0 {
++						reg = <0>;
++						max9286_in0: endpoint {
++							remote-endpoint = <&gmsl_out0>;
++						};
+ 					};
+-				};
+-			};
+ 
+-			ov106xx@2 {
+-				compatible = "ovti,ov106xx";
+-				reg = <0x62>;
++					port@1 {
++						reg = <1>;
++						max9286_in1: endpoint {
++							remote-endpoint = <&gmsl_out1>;
++						};
++					};
+ 
+-				port@0 {
+-					ov106xx_in2: endpoint {
+-						clock-lanes = <0>;
+-						data-lanes = <1 2 3 4>;
+-						remote-endpoint = <&vin2ep0>;
++					port@2 {
++						reg = <2>;
++						max9286_in2: endpoint {
++							remote-endpoint = <&gmsl_out2>;
++						};
+ 					};
+-				};
+-				port@1 {
+-					ov106xx_max9286_des0ep2: endpoint@0 {
+-						remote-endpoint = <&max9286_des0ep2>;
++
++					port@3 {
++						reg = <3>;
++						max9286_in3: endpoint {
++							remote-endpoint = <&gmsl_out3>;
++						};
+ 					};
+-					ov106xx_ti9x4_des0ep2: endpoint@1 {
+-						remote-endpoint = <&ti9x4_des0ep2>;
++
++					port@4 {
++						reg = <4>;
++						max9286_out0: endpoint {
++							clock-lanes = <0>;
++							data-lanes = <1 2 3 4>;
++							remote-endpoint = <&csi40_in>;
++						};
+ 					};
+ 				};
+-			};
+ 
+-			ov106xx@3 {
+-				compatible = "ovti,ov106xx";
+-				reg = <0x63>;
++				i2c@0 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <0>;
+ 
+-				port@0 {
+-					ov106xx_in3: endpoint {
+-						clock-lanes = <0>;
+-						data-lanes = <1 2 3 4>;
+-						remote-endpoint = <&vin3ep0>;
+-					};
+-				};
+-				port@1 {
+-					ov106xx_max9286_des0ep3: endpoint@0 {
+-						remote-endpoint = <&max9286_des0ep3>;
+-					};
+-					ov106xx_ti9x4_des0ep3: endpoint@1 {
+-						remote-endpoint = <&ti9x4_des0ep3>;
++					camera@60 {
++						compatible = "gmsl,camera";
++						reg = <0x60 0x50>;
++
++						port {
++							gmsl_out0: endpoint {
++								remote-endpoint = <&max9286_in0>;
++							};
++						};
+ 					};
+ 				};
+-			};
+ 
+-			/* DS90UB9x4 @ 0x3a */
+-			ti9x4@0 {
+-				compatible = "ti,ti9x4";
+-				reg = <0x3a>;
+-				ti,links = <4>;
+-				ti,lanes = <4>;
+-				ti,forwarding-mode = "round-robin";
+-				ti,cable-mode = "coax";
+ 
+-				POC0-gpios = <&gpio_exp_a_5c 8 GPIO_ACTIVE_HIGH>;
+-				POC1-gpios = <&gpio_exp_a_5c 9 GPIO_ACTIVE_HIGH>;
+-				POC2-gpios = <&gpio_exp_a_5c 10 GPIO_ACTIVE_HIGH>;
+-				POC3-gpios = <&gpio_exp_a_5c 11 GPIO_ACTIVE_HIGH>;
++				i2c@1 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <1>;
+ 
+-				port@0 {
+-					ti9x4_des0ep0: endpoint@0 {
+-						ti9x3-addr = <0x0c>;
+-						dvp-order = <0>;
+-						remote-endpoint = <&ov106xx_in0>;
+-					};
+-					ti9x4_des0ep1: endpoint@1 {
+-						ti9x3-addr = <0x0d>;
+-						dvp-order = <0>;
+-						remote-endpoint = <&ov106xx_in1>;
+-					};
+-					ti9x4_des0ep2: endpoint@2 {
+-						ti9x3-addr = <0x0e>;
+-						dvp-order = <0>;
+-						remote-endpoint = <&ov106xx_in2>;
+-					};
+-					ti9x4_des0ep3: endpoint@3 {
+-						ti9x3-addr = <0x0f>;
+-						dvp-order = <0>;
+-						remote-endpoint = <&ov106xx_in3>;
+-					};
+-				};
+-				port@1 {
+-					ti9x4_csi0ep0: endpoint {
+-						csi-rate = <1450>;
+-						remote-endpoint = <&csi40_ep>;
++					camera@61 {
++						compatible = "gmsl,camera";
++						reg = <0x61 0x51>;
++
++						port {
++							gmsl_out1: endpoint {
++								remote-endpoint = <&max9286_in1>;
++							};
++						};
+ 					};
+ 				};
+-			};
+ 
+-			/* MAX9286 @ 0x2c */
+-			max9286@0 {
+-				compatible = "maxim,max9286";
+-				reg = <0x2c>;
+-				maxim,links = <4>;
+-				maxim,lanes = <4>;
+-				maxim,resetb-gpio = <1>;
+-				maxim,fsync-mode = "automatic";
+-				maxim,timeout = <100>;
++				i2c@2 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <2>;
+ 
+-				POC0-gpios = <&gpio_exp_a_5c 9 GPIO_ACTIVE_HIGH>;
+-				POC1-gpios = <&gpio_exp_a_5c 8 GPIO_ACTIVE_HIGH>;
+-				POC2-gpios = <&gpio_exp_a_5c 11 GPIO_ACTIVE_HIGH>;
+-				POC3-gpios = <&gpio_exp_a_5c 10 GPIO_ACTIVE_HIGH>;
++					camera@62 {
++						compatible = "gmsl,camera";
++						reg = <0x62 0x52>;
+ 
+-				port@0 {
+-					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
+-						dvp-order = <1>;
+-						remote-endpoint = <&ov106xx_in0>;
+-					};
+-					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
+-						dvp-order = <1>;
+-						remote-endpoint = <&ov106xx_in1>;
+-					};
+-					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
+-						dvp-order = <1>;
+-						remote-endpoint = <&ov106xx_in2>;
+-					};
+-					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
+-						dvp-order = <1>;
+-						remote-endpoint = <&ov106xx_in3>;
++						port {
++							gmsl_out2: endpoint {
++								remote-endpoint = <&max9286_in2>;
++							};
++						};
+ 					};
+ 				};
+-				port@1 {
+-					max9286_csi0ep0: endpoint {
+-						csi-rate = <700>;
+-						remote-endpoint = <&csi40_ep>;
++
++				i2c@3 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <3>;
++
++					camera@63 {
++						compatible = "gmsl,camera";
++						reg = <0x63 0x53>;
++
++						port {
++							gmsl_out3: endpoint {
++								remote-endpoint = <&max9286_in3>;
++							};
++						};
+ 					};
+ 				};
+ 			};
+@@ -883,7 +821,7 @@
+ 			reg = <3>;
+ 			/* MOST node(s) */
+ 		};
+-
++/*
+ 		i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -902,7 +840,7 @@
+ 				};
+ 			};
+ 		};
+-
++*/
+ 		i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -1260,130 +1198,23 @@
+ 
+ &vin0 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin0ep0: endpoint {
+-				csi,select = "csi40";
+-				virtual,channel = <0>;
+-				data-lanes = <1 2 3 4>;
+-				remote-endpoint = <&ov106xx_in0>;
+-			};
+-		};
+-		port@1 {
+-			csi0ep0: endpoint {
+-				remote-endpoint = <&csi40_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin0_max9286_des0ep0: endpoint@0 {
+-				remote-endpoint = <&max9286_des0ep0>;
+-			};
+-			vin0_ti9x4_des0ep0: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des0ep0>;
+-			};
+-		};
+-	};
+ };
+ 
+ &vin1 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin1ep0: endpoint {
+-				csi,select = "csi40";
+-				virtual,channel = <1>;
+-				data-lanes = <1 2 3 4>;
+-				remote-endpoint = <&ov106xx_in1>;
+-			};
+-		};
+-		port@1 {
+-			csi0ep1: endpoint {
+-				remote-endpoint = <&csi40_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin1_max9286_des0ep1: endpoint@0 {
+-				remote-endpoint = <&max9286_des0ep1>;
+-			};
+-			vin1_ti9x4_des0ep1: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des0ep1>;
+-			};
+-		};
+-	};
+ };
+ 
+ &vin2 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin2ep0: endpoint {
+-				csi,select = "csi40";
+-				virtual,channel = <2>;
+-				data-lanes = <1 2 3 4>;
+-				remote-endpoint = <&ov106xx_in2>;
+-			};
+-		};
+-		port@1 {
+-			csi0ep2: endpoint {
+-				remote-endpoint = <&csi40_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin2_max9286_des0ep2: endpoint@0 {
+-				remote-endpoint = <&max9286_des0ep2>;
+-			};
+-			vin2_ti9x4_des0ep2: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des0ep2>;
+-			};
+-		};
+-	};
+ };
+ 
+ &vin3 {
+ 	status = "okay";
+-
+-	ports {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		port@0 {
+-			vin3ep0: endpoint {
+-				csi,select = "csi40";
+-				virtual,channel = <3>;
+-				data-lanes = <1 2 3 4>;
+-				remote-endpoint = <&ov106xx_in3>;
+-			};
+-		};
+-		port@1 {
+-			csi0ep3: endpoint {
+-				remote-endpoint = <&csi40_ep>;
+-			};
+-		};
+-		port@2 {
+-			vin3_max9286_des0ep3: endpoint@0 {
+-				remote-endpoint = <&max9286_des0ep3>;
+-			};
+-			vin3_ti9x4_des0ep3: endpoint@1 {
+-				remote-endpoint = <&ti9x4_des0ep3>;
+-			};
+-		};
+-	};
+ };
+ 
++/*
+ &vin4 {
+-	status = "okay";
++	status = "disabled";
+ 
+ 	ports {
+ 		#address-cells = <1>;
+@@ -1404,6 +1235,7 @@
+ 		};
+ 	};
+ };
++*/
+ 
+ &vin5 {
+ 	pinctrl-0 = <&vin5_pins>;
+-- 
+2.7.4
+

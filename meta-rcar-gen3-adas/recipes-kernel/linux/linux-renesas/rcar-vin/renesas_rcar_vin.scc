@@ -8,5 +8,8 @@ patch 0007-media-v4l2-fwnode-parse-data-enable-active-prop.patch
 patch 0008-media-rcar-vin-Handle-data-enable-polarity.patch
 patch 0009-arm64-renesas-Revert-legacy-vin-csi-dts.patch
 patch 0010-media-i2c-ov5642-change-mbus-to-match-rcar-vin-drive.patch
-patch 0011-drivers-media-rcar-vin-disable-media-controller-for-.patch
 patch 0012-arm64-dts-ulcb-kf-add-data-enable-polarity.patch
+patch 0013-arch-arm64-dts-ulcb-kf-enable-gmsl-cameras.patch
+patch 0014-media-i2c-add-gmsl-drivers.patch
+patch 0015-media-i2c-add-ov5642-sensor-driver.patch
+patch 0016-media-platform-rcar-vin-fix-parallel-notifier-fail.patch
