@@ -123,7 +123,7 @@ index 2377cd2..32a6746 100644
  		case RCAR_PRODUCT_M3N:
  			bl2_realtime_cpg_init_m3n();
  			break;
-+		case RCAR_PRODUCT_v3m:
++		case RCAR_PRODUCT_V3M:
 +			bl2_realtime_cpg_init_v3m();
 +			break;
  		default:
