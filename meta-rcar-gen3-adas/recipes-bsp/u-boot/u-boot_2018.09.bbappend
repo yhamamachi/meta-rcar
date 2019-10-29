@@ -24,4 +24,5 @@ SRC_URI_append = " \
     file://0021-arm-renesas-v3hsk-Add-CPLD-support.patch \
     file://0022-arm-renesas-Enable-RPC-HF-MTD-support-for-all-Salvat.patch \
     file://0023-arm-renesas-Enable-RPC-HF-MTD-support-for-all-ULCB-b.patch \
+    file://0024-mmc-mmc-Set-clock-when-reverting-to-safe-bus-mode.patch \
 "
