@@ -357,3 +357,4 @@ patch 0418-arm64-dts-renesas-ulcb-vb2-fix-USB30-and-HUB.patch
 patch 0419-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
 patch 0420-media-i2c-ov2311-fix-otp-id-read.patch
 patch 0421-media-i2c-imx390-add-user-defined-size-for-register-.patch
+patch 0422-mmc-core-mmc-Try-other-timings-if-the-higher-one-fai.patch
