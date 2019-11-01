@@ -358,3 +358,4 @@ patch 0419-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
 patch 0420-media-i2c-ov2311-fix-otp-id-read.patch
 patch 0421-media-i2c-imx390-add-user-defined-size-for-register-.patch
 patch 0422-mmc-core-mmc-Try-other-timings-if-the-higher-one-fai.patch
+patch 0423-media-i2c-ap0101_ar014x-add-AP0102-chip.patch
