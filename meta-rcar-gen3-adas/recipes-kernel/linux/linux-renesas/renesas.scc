@@ -360,3 +360,5 @@ patch 0421-media-i2c-imx390-add-user-defined-size-for-register-.patch
 patch 0422-mmc-core-mmc-Try-other-timings-if-the-higher-one-fai.patch
 patch 0423-media-i2c-ap0101_ar014x-add-AP0102-chip.patch
 patch 0424-arm64-dts-renesas-uvlb-vb-Fix-lvds0-port-routing.patch
+patch 0425-arm64-dts-r8a7798-v3hsk-vb-4-8ch-change-i2c-rate-to-.patch
+patch 0426-media-i2c-ov106xx-change-order.patch
