@@ -347,3 +347,5 @@ patch 0408-arm64-dts-renesas-v3hsk-Add-GEther-PHY-GPIO-reset-pi.patch
 patch 0409-arm64-dts-renesas-condor-Add-GEther-PHY-GPIO-reset-p.patch
 patch 0410-arm64-dts-renesas-eagle-Add-RAVB-PHY-GPIO-reset-pin-.patch
 patch 0422-mmc-core-mmc-Try-other-timings-if-the-higher-one-fai.patch
+patch 0428-arch64-dts-renesas-r8a77970-Fix-IPMMU-probe-order.patch
+patch 0429-arch64-dts-renesas-r8a77980-Fix-IPMMU-probe-order.patch
