@@ -363,3 +363,5 @@ patch 0424-arm64-dts-renesas-ulcb-vb-Fix-lvds0-port-routing.patch
 patch 0425-arm64-dts-r8a7798-v3hsk-vb-4-8ch-change-i2c-rate-to-.patch
 patch 0426-media-i2c-ov106xx-change-order.patch
 patch 0427-media-i2c-gw5200-fix-imager-hang.patch
+patch 0428-arch64-dts-renesas-r8a77970-Fix-IPMMU-probe-order.patch
+patch 0429-arch64-dts-renesas-r8a77980-Fix-IPMMU-probe-order.patch
