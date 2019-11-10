@@ -1,7 +1,7 @@
 From 291865bff36306d70c6975e73eb299d977abbc2c Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 5 Nov 2019 19:40:06 +0300
-Subject: [PATCH] arm64: dts: renesas: uvlb-vb: Fix lvds0 port routing
+Subject: [PATCH] arm64: dts: renesas: ulcb-vb: Fix lvds0 port routing
 
 This fixes LVDS port routing on all H3ULCB VideoBox
 boards which is needed for the FDPLink output.
