@@ -365,3 +365,4 @@ patch 0426-media-i2c-ov106xx-change-order.patch
 patch 0427-media-i2c-gw5200-fix-imager-hang.patch
 patch 0428-arch64-dts-renesas-r8a77970-Fix-IPMMU-probe-order.patch
 patch 0429-arch64-dts-renesas-r8a77980-Fix-IPMMU-probe-order.patch
+patch 0430-media-i2c-ar0140-update-driver-to-use-rGPIO-and-dyna.patch
