@@ -409,3 +409,5 @@ patch 0411-arm64-dts-r8a7798-v3hsk-vb-4-8ch-change-i2c-rate-to-.patch
 patch 0412-media-i2c-ov2311-fix-otp-id-read.patch
 patch 0413-media-i2c-ap0101_ar014x-add-AP0102-chip.patch
 patch 0414-media-i2c-ov106xx-change-order.patch
+patch 0415-media-i2c-gw5200-fix-imager-hang.patch
+patch 0416-media-i2c-ar0140-update-driver-to-use-rGPIO-and-dyna.patch
