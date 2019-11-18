@@ -414,3 +414,4 @@ patch 0416-media-i2c-ar0140-update-driver-to-use-rGPIO-and-dyna.patch
 patch 0417-arch64-dts-renesas-r8a77970-Fix-IPMMU-probe-order.patch
 patch 0418-arch64-dts-renesas-r8a77980-Fix-IPMMU-probe-order.patch
 patch 0419-media-i2c-ti9x4-update-remote-gpio-function.patch
+patch 0420-media-i2c-soc_camera-add-AR0220.patch
