@@ -417,3 +417,10 @@ patch 0419-media-i2c-ti9x4-update-remote-gpio-function.patch
 patch 0420-media-i2c-soc_camera-add-AR0220.patch
 patch 0421-media-i2c-ar0220-add-rev2-rev3.patch
 patch 0422-media-i2c-max9286-parse-crossbard-from-cmdline.patch
+patch 0423-sh_eth-rename-sh_eth_cpu_data-hw_checksum.patch
+patch 0424-sh_eth-RX-checksum-offload-support.patch
+patch 0425-sh_eth-offload-RX-checksum-on-R7S72100.patch
+patch 0426-sh_eth-offload-RX-checksum-on-R8A7740.patch
+patch 0427-sh_eth-offload-RX-checksum-on-R8A77980.patch
+patch 0428-sh_eth-offload-RX-checksum-on-SH7734.patch
+patch 0429-sh_eth-offload-RX-checksum-on-SH7763.patch
