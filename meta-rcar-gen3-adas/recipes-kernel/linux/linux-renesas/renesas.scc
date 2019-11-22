@@ -374,3 +374,11 @@ patch 0435-clk-renesas-r8a7795-cpg-mssr-Add-RPC-clocks.patch
 patch 0436-clk-renesas-r8a7796-cpg-mssr-Add-RPC-clocks.patch
 patch 0437-clk-renesas-r8a77965-cpg-mssr-Add-RPC-clocks.patch
 patch 0438-clk-renesas-rcar-gen3-cpg-Allow-to-set-RPCD2-clock-p.patch
+patch 0439-mtd-Consolidate-Renesas-RPC-drivers.patch
+patch 0440-arm64-dts-renesas-r8a77970-Update-RPC-device-nodes.patch
+patch 0441-arm64-dts-renesas-r8a77980-Update-RPC-device-nodes.patch
+patch 0442-arm64-dts-renesas-r8a7795-Add-RPC-device-node.patch
+patch 0443-arm64-dts-renesas-r8a7796-Add-RPC-device-node.patch
+patch 0444-arm64-dts-renesas-r8a77965-Add-RPC-device-node.patch
+patch 0445-arm64-dts-renesas-ulcb-Add-RPC-HyperFlash-device-nod.patch
+patch 0446-arm64-dts-renesas-salvator-common-Add-RPC-HyperFlash.patch
