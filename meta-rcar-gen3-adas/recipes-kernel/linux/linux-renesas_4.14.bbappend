@@ -7,7 +7,7 @@ COMPATIBLE_MACHINE_v3mzf = "v3mzf"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 
 SRC_URI_append = " \
-    ${@bb.utils.contains('MACHINE_FEATURES', 'h3ulcb-had', ' file://hyperflash.cfg', '', d)} \
+    ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://hyperflash.cfg", d)} \
     ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
     file://nvme.cfg \
     file://imr.cfg \
@@ -34,7 +34,7 @@ SRC_URI_append_v3hsk = " file://v3hsk.cfg"
 
 SRC_URI_append_rcar-gen3-v3x = " \
     file://cma.cfg \
-    file://qspi.cfg \
+    ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://qspi.cfg", d)} \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
