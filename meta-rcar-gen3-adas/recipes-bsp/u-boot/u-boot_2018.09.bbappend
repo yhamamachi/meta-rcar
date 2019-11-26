@@ -1,5 +1,15 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+RPC_ENABLED = " \
+    file://0022-arm-renesas-Enable-RPC-HF-MTD-support-for-all-Salvat.patch \
+    file://0023-arm-renesas-Enable-RPC-HF-MTD-support-for-all-ULCB-b.patch \
+"
+
+RPC_DISABLED = " \
+    file://0022-arm-dts-r8a77970-Disable-RPC-on-all-R-Car-V3M-boards.patch \
+    file://0023-arm-dts-r8a77980-Disable-RPC-on-all-R-Car-V3H-boards.patch \
+"
+
 SRC_URI_append = " \
     file://0001-uboot-ravb-remove-APSR-quirk.patch \
     file://0002-net-ravb-fix-unsafe-phy-access.patch \
@@ -22,7 +32,6 @@ SRC_URI_append = " \
     file://0019-ARM-rmobile-Add-R8A7795-H3ULCB-HAD-board-support.patch \
     file://0020-arm-renesas-v3msk-Add-CPLD-support.patch \
     file://0021-arm-renesas-v3hsk-Add-CPLD-support.patch \
-    file://0022-arm-renesas-Enable-RPC-HF-MTD-support-for-all-Salvat.patch \
-    file://0023-arm-renesas-Enable-RPC-HF-MTD-support-for-all-ULCB-b.patch \
+    ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "${RPC_DISABLED}", "${RPC_ENABLED}", d)} \
     file://0024-mmc-mmc-Set-clock-when-reverting-to-safe-bus-mode.patch \
 "
