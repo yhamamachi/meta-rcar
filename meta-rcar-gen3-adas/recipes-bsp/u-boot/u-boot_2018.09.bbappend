@@ -34,4 +34,6 @@ SRC_URI_append = " \
     file://0021-arm-renesas-v3hsk-Add-CPLD-support.patch \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "${RPC_DISABLED}", "${RPC_ENABLED}", d)} \
     file://0024-mmc-mmc-Set-clock-when-reverting-to-safe-bus-mode.patch \
+    file://0025-net-Add-an-accessor-to-know-if-waiting-for-ARP.patch \
+    file://0026-net-Don-t-overwrite-waiting-packets-with-asynchronou.patch \
 "
