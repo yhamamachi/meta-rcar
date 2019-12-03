@@ -36,4 +36,8 @@ SRC_URI_append = " \
     file://0024-mmc-mmc-Set-clock-when-reverting-to-safe-bus-mode.patch \
     file://0025-net-Add-an-accessor-to-know-if-waiting-for-ARP.patch \
     file://0026-net-Don-t-overwrite-waiting-packets-with-asynchronou.patch \
+    file://0027-net-sh_eth-Keep-phy-running.patch \
+    file://0028-net-sh_eth-Fix-compilation-warnings.patch \
+    file://0029-net-sh_eth-Workaround-cache-issues.patch \
+    file://0030-net-sh_eth-Fix-RX-error-handling.patch \
 "
