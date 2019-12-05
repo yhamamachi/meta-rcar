@@ -349,3 +349,5 @@ patch 0410-arm64-dts-renesas-eagle-Add-RAVB-PHY-GPIO-reset-pin-.patch
 patch 0422-mmc-core-mmc-Try-other-timings-if-the-higher-one-fai.patch
 patch 0428-arch64-dts-renesas-r8a77970-Fix-IPMMU-probe-order.patch
 patch 0429-arch64-dts-renesas-r8a77980-Fix-IPMMU-probe-order.patch
+patch 0430-arm64-dts-r8a77970-v3msk-Enable-csi40-device.patch
+patch 0431-arm64-dts-r8a77980-v3hsk-Enable-csi40-and-csi41-devi.patch
