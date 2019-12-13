@@ -425,3 +425,4 @@ patch 0427-sh_eth-offload-RX-checksum-on-R8A77980.patch
 patch 0428-sh_eth-offload-RX-checksum-on-SH7734.patch
 patch 0429-sh_eth-offload-RX-checksum-on-SH7763.patch
 patch 0430-media-soc_camera-rcar_vin-Fix-crash-when-the-module-.patch
+patch 0431-media-i2c-ar0xxx-append-embedded-data-stats-into-frame.patch
