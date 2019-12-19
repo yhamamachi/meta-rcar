@@ -384,3 +384,4 @@ patch 0445-arm64-dts-renesas-ulcb-Add-RPC-HyperFlash-device-nod.patch
 patch 0446-arm64-dts-renesas-salvator-common-Add-RPC-HyperFlash.patch
 patch 0447-media-soc_camera-rcar_vin-Fix-crash-when-the-module-.patch
 patch 0448-media-i2c-ar0xxx-append-embedded-data-stats-into-frame.patch
+patch 0449-media-i2c-soc_camera-ov495_ov2775-Remove-early_param.patch
