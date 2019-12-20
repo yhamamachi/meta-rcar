@@ -387,3 +387,5 @@ patch 0448-media-i2c-ar0xxx-append-embedded-data-stats-into-frame.patch
 patch 0449-media-i2c-soc_camera-ov495_ov2775-Remove-early_param.patch
 patch 0450-arm64-dts-renesas-ulcb-Add-tee-MTD-RPC-HyperFlash-pa.patch
 patch 0451-arm64-dts-renesas-salvator-common-Add-tee-MTD-RPC-Hy.patch
+patch 0452-arm64-dts-renesas-ulcb-Increase-U-Boot-partition-siz.patch
+patch 0453-arm64-dts-renesas-salvator-common-Increase-U-Boot-pa.patch
