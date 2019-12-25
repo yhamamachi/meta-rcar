@@ -389,3 +389,5 @@ patch 0450-arm64-dts-renesas-ulcb-Add-tee-MTD-RPC-HyperFlash-pa.patch
 patch 0451-arm64-dts-renesas-salvator-common-Add-tee-MTD-RPC-Hy.patch
 patch 0452-arm64-dts-renesas-ulcb-Increase-U-Boot-partition-siz.patch
 patch 0453-arm64-dts-renesas-salvator-common-Increase-U-Boot-pa.patch
+patch 0454-media-i2c-imx390-fix-refclk.patch
+patch 0455-media-i2c-ox01d10-add-imager-support.patch
