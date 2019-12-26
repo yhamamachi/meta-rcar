@@ -391,3 +391,5 @@ patch 0452-arm64-dts-renesas-ulcb-Increase-U-Boot-partition-siz.patch
 patch 0453-arm64-dts-renesas-salvator-common-Increase-U-Boot-pa.patch
 patch 0454-media-i2c-imx390-fix-refclk.patch
 patch 0455-media-i2c-ox01d10-add-imager-support.patch
+patch 0456-media-i2c-max9286-fix-resetb-handling.patch
+patch 0457-media-i2c-ov10640-fix-dvp-order-and-soft-reset.patch
