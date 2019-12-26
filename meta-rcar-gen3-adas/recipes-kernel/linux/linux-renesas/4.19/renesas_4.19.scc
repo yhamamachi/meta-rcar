@@ -426,4 +426,9 @@ patch 0428-sh_eth-offload-RX-checksum-on-SH7734.patch
 patch 0429-sh_eth-offload-RX-checksum-on-SH7763.patch
 patch 0430-media-soc_camera-rcar_vin-Fix-crash-when-the-module-.patch
 patch 0431-media-i2c-ar0xxx-append-embedded-data-stats-into-frame.patch
-patch 0432-arm64-dts-renesas-Add-V3x-VideoBox-GMSL-8ch-support.patch
+patch 0449-media-i2c-soc_camera-ov495_ov2775-Remove-early_param.patch
+patch 0454-media-i2c-imx390-fix-refclk.patch
+patch 0455-media-i2c-ox01d10-add-imager-support.patch
+patch 0456-media-i2c-max9286-fix-resetb-handling.patch
+patch 0457-media-i2c-ov10640-fix-dvp-order-and-soft-reset.patch
+patch 0458-arm64-dts-renesas-Add-V3x-VideoBox-GMSL-8ch-support.patch

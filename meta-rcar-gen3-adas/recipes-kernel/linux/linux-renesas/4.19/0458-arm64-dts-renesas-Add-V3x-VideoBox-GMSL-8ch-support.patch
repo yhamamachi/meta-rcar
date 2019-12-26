@@ -14,14 +14,13 @@ diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/
 index 05b164e09f0a..4b2f4fb73bed 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -41,6 +41,7 @@ dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vbm.dtb
+@@ -41,5 +41,6 @@ dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vbm.dtb
  dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vbm-v2.dtb
  dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vbm-v3.dtb
  dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vb-8ch.dtb r8a77980-v3hsk-vb-4ch.dtb
 +dtb-$(CONFIG_ARCH_R8A77980) += r8a77980-v3hsk-vb-gmsl-8ch.dtb
  
  always		:= $(dtb-y)
- clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts
 new file mode 100644
 index 000000000000..f90951d0e230
