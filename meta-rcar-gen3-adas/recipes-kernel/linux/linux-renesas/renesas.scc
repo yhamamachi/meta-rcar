@@ -394,3 +394,4 @@ patch 0455-media-i2c-ox01d10-add-imager-support.patch
 patch 0456-media-i2c-max9286-fix-resetb-handling.patch
 patch 0457-media-i2c-ov10640-fix-dvp-order-and-soft-reset.patch
 patch 0458-arm64-dts-renesas-Add-V3x-VideoBox-GMSL-8ch-support.patch
+patch 0459-media-i2c-ov10640-support-different-revisions.patch
