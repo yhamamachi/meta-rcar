@@ -111,6 +111,8 @@ KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk-vb-4ch.dtb \
     renesas/r8a77980-v3hsk-vb-8ch.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl-8ch.dtb \
+    renesas/r8a77980-v3hsk-vb-4ch-hdmi.dtb \
+    renesas/r8a77980-v3hsk-vb-8ch-hdmi.dtb \
 "
 
 # Prefer V4L2 rcar_imr driver over UIO uio_imr
