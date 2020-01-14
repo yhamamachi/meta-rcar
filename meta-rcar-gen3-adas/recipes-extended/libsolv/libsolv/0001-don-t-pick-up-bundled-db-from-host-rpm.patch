@@ -1,0 +1,43 @@
+From d5ff23ec64bc8b79d5335a2e0cd4b481b63fd95f Mon Sep 17 00:00:00 2001
+From: Max Krummenacher <max.krummenacher@toradex.com>
+Date: Sun, 7 May 2017 20:28:11 +0100
+Subject: [PATCH] don't pick up bundled db from host rpm
+
+For libsolv-native with rpm v4 in openembedded but on a host with
+existing /usr/include/rpm/db.h the build is configured to have
+HAVE_RPM_DB_H because of the existing header file from the host,
+but linking against the librpm.so in recipe-sysroot-native fails.
+
+Skip the check for rpm/db.h and assume that rpm is provided without
+a bundled berkley db.
+
+Fixes the following link errors:
+| ../ext/libsolvext.so.0: undefined reference to `db_create_rpmdb'
+| ../ext/libsolvext.so.0: undefined reference to `db_env_create_rpmdb'
+
+Observed on a openSUSE Leap 42.1 build host with rpm-devel installed.
+
+Upstream-Status: Inappropriate [oe build specific]
+
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+---
+ CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bcdeee6..1ca7b41 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -220,8 +220,7 @@ IF (ENABLE_RPMDB)
+     ENDIF (RPMMISC_LIBRARY)
+   ENDIF (RPM5)
+ 
+-  # check if rpm contains a bundled berkeley db
+-  CHECK_INCLUDE_FILE(rpm/db.h HAVE_RPM_DB_H)
++  set(HAVE_RPM_DB_H 0)
+   IF (NOT HAVE_RPM_DB_H)
+     FIND_LIBRARY (DB_LIBRARY NAMES db)
+     IF (DB_LIBRARY)
+-- 
+2.9.3
+
