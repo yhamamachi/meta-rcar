@@ -262,7 +262,7 @@ index ff25470..2cce294 100644
 -		if ((fmtinfo->alpha) &&
 +		dev_dbg(vsp1->dev, "rpf#%d: alpha=%x, fourcc=%x\n", rpf->entity.index, fmtinfo->alpha, fmtinfo->fourcc);
 +
-+		if (0 && (fmtinfo->alpha) &&
++		if (fmtinfo->alpha &&
  			(fmtinfo->fourcc != V4L2_PIX_FMT_ARGB555)) {
  			/* When the input contains an alpha channel enable the
  			 * alpha multiplier. If the input is premultiplied we
