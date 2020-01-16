@@ -436,3 +436,4 @@ patch 0459-media-i2c-ov10640-support-different-revisions.patch
 patch 0460-v3hsk-Add-separate-dts-for-dummy-camera-1920x1080.patch
 patch 0461-media-ar0xxx-add-embedded-line-into-frame.patch
 patch 0462-media-i2c-ov10640-add-embedded-data-fix-crop.patch
+patch 0463-serial-sh-sci-Fix-possible-race-condition-at-shutdow.patch
