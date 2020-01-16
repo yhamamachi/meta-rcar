@@ -1,0 +1,62 @@
+From 07a562d5d76b93ec02581b674a41830fa5e96228 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 16 Jan 2020 19:44:20 +0300
+Subject: [PATCH] serial: sh-sci: Fix possible race condition at shutdown
+
+Always initialize Tx workqueue when the DMA is requested,
+and cancel it synchronously when the DMA is freed.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/tty/serial/sh-sci.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index 80cd468..1e16bcd 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1521,9 +1521,11 @@ static void sci_request_dma(struct uart_port *port)
+ 	 * Don't request a dma channel if no channel was specified
+ 	 * in the device tree.
+ 	 */
+-	if (!of_find_property(port->dev->of_node, "dmas", NULL))
++	if (!s->use_dma)
+ 		return;
+ 
++	INIT_WORK(&s->work_tx, work_fn_tx);
++
+ 	chan = sci_request_dma_chan(port, DMA_MEM_TO_DEV);
+ 	dev_dbg(port->dev, "%s: TX: got channel %p\n", __func__, chan);
+ 	if (chan) {
+@@ -1542,8 +1544,6 @@ static void sci_request_dma(struct uart_port *port)
+ 				__func__, UART_XMIT_SIZE,
+ 				port->state->xmit.buf, &s->tx_dma_addr);
+ 		}
+-
+-		INIT_WORK(&s->work_tx, work_fn_tx);
+ 	}
+ 
+ 	chan = sci_request_dma_chan(port, DMA_DEV_TO_MEM);
+@@ -1589,6 +1589,9 @@ static void sci_free_dma(struct uart_port *port)
+ {
+ 	struct sci_port *s = to_sci_port(port);
+ 
++	if (s->use_dma)
++		cancel_work_sync(&s->work_tx);
++
+ 	if (s->chan_tx)
+ 		sci_tx_dma_release(s, false);
+ 	if (s->chan_rx)
+@@ -2048,8 +2051,7 @@ static int sci_startup(struct uart_port *port)
+ 
+ 	dev_dbg(port->dev, "%s(%d)\n", __func__, port->line);
+ 
+-	if (s->use_dma)
+-		sci_request_dma(port);
++	sci_request_dma(port);
+ 
+ 	ret = sci_request_irq(s);
+ 	if (unlikely(ret < 0)) {
+-- 
+2.7.4
+
