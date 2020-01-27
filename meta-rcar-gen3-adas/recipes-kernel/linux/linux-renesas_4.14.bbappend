@@ -14,6 +14,7 @@ SRC_URI_append = " \
     file://nvme.cfg \
     file://imr.cfg \
     file://disable-unused.cfg \
+    file://enable.cfg \
     file://renesas.scc \
     file://0355-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
