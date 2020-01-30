@@ -437,3 +437,7 @@ patch 0460-v3hsk-Add-separate-dts-for-dummy-camera-1920x1080.patch
 patch 0461-media-ar0xxx-add-embedded-line-into-frame.patch
 patch 0462-media-i2c-ov10640-add-embedded-data-fix-crop.patch
 patch 0463-imx390-Read-1-byte-registers-by-default.patch
+patch 0464-arm64-dts-renesas-ulcb-v2-use-CANFD-instead-CAN.patch
+patch 0465-arm64-dts-renesas-add-cn12-support-on-VB2-1.patch
+patch 0466-media-i2c-max9286-parse-crossbar-from-dt.patch
+patch 0467-media-i2c-isx016-add-fixed-sensor.patch
