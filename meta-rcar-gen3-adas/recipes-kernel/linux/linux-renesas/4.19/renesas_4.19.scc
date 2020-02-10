@@ -444,3 +444,4 @@ patch 0467-media-i2c-isx016-add-fixed-sensor.patch
 patch 0470-media-i2c-add-fps-setup.patch
 patch 0471-media-i2c-ov10640-add-fps-setup.patch
 patch 0472-media-i2c-soc_camera-fix-compilation-warnings.patch
+patch 0473-media-i2c-ov10640-add-different-imager-addresses.patch
