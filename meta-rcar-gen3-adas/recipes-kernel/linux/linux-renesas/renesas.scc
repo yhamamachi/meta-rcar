@@ -84,3 +84,4 @@ patch 0138-arm64-dts-renesas-ulcb-vb2-fix-USB30-and-HUB.patch
 patch 0139-GPIO-pca953x-do-not-ignore-i2c-errors.patch
 patch 0140-usb-host-xhci-rcar-Add-XHCI_TRUST_TX_LENGTH-quirk.patch
 patch 0141-net-can-rcar_can-fix-possible-IRQ-storm-on-high-load.patch
+patch 0142-rcar_canfd-fix-one-more-interrupt-storm-window.patch
