@@ -406,3 +406,5 @@ patch 0467-media-i2c-isx016-add-fixed-sensor.patch
 patch 0468-imx390-Read-1-byte-registers-by-default.patch
 patch 0469-rcar_canfd-fix-one-more-interrupt-storm-window.patch
 patch 0470-media-i2c-add-fps-setup.patch
+patch 0471-media-i2c-ov10640-add-fps-setup.patch
+patch 0472-media-i2c-soc_camera-fix-compilation-warnings.patch
