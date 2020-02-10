@@ -442,3 +442,5 @@ patch 0465-arm64-dts-renesas-add-cn12-support-on-VB2-1.patch
 patch 0466-media-i2c-max9286-parse-crossbar-from-dt.patch
 patch 0467-media-i2c-isx016-add-fixed-sensor.patch
 patch 0470-media-i2c-add-fps-setup.patch
+patch 0471-media-i2c-ov10640-add-fps-setup.patch
+patch 0472-media-i2c-soc_camera-fix-compilation-warnings.patch
