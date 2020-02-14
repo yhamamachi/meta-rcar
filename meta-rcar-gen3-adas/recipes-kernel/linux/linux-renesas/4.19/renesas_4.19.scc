@@ -449,3 +449,4 @@ patch 0473-media-i2c-ov10640-add-different-imager-addresses.patch
 patch 0474-media-i2c-soc_camera-add-V4L2_CID_MIN_BUFFERS_FOR_CA.patch
 patch 0475-media-i2c-ar0233-add-fps-setup.patch
 patch 0476-media-i2c-imx390-add-fps-setup.patch
+patch 0477-media-i2c-ar0231-fix-FSIN-pin-input.patch
