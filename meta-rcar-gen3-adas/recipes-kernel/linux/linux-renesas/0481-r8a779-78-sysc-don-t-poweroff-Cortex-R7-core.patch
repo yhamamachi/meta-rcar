@@ -16,11 +16,10 @@ diff --git a/drivers/soc/renesas/r8a77970-sysc.c b/drivers/soc/renesas/r8a77970-
 index 5725ad09e4da..6d08a3c81262 100644
 --- a/drivers/soc/renesas/r8a77970-sysc.c
 +++ b/drivers/soc/renesas/r8a77970-sysc.c
-@@ -23,7 +23,7 @@ static const struct rcar_sysc_area r8a77970_areas[] __initconst = {
+@@ -23,6 +23,7 @@ static const struct rcar_sysc_area r8a77970_areas[] __initconst = {
  	  PD_CPU_NOCR },
  	{ "ca53-cpu1",	0x200, 1, R8A77970_PD_CA53_CPU1, R8A77970_PD_CA53_SCU,
  	  PD_CPU_NOCR },
--	{ "cr7",	0x240, 0, R8A77970_PD_CR7,	R8A77970_PD_ALWAYS_ON },
 +	{ "cr7",	0x240, 0, R8A77970_PD_CR7,	R8A77970_PD_ALWAYS_ON, PD_CPU },
  	{ "a3ir",	0x180, 0, R8A77970_PD_A3IR,	R8A77970_PD_ALWAYS_ON },
  	{ "a2ir0",	0x400, 0, R8A77970_PD_A2IR0,	R8A77970_PD_A3IR },
