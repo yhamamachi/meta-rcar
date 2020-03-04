@@ -453,3 +453,4 @@ patch 0477-media-i2c-ar0231-fix-FSIN-pin-input.patch
 patch 0478-media-i2c-ti9x4-fix-framesync.patch
 patch 0479-media-soc_camera-rcar_csi2-add-interrupts.patch
 patch 0480-media-i2c-soc_camera-ov10640-fix-emb-lines-number.patch
+patch 0481-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch
