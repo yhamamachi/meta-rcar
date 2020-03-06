@@ -1,4 +1,5 @@
 
 RRECOMMENDS_${PN} += " \
-	gcc-sanitizers \
-    "
+    gcc-sanitizers \
+    mc \
+"

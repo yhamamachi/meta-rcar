@@ -1,6 +1,8 @@
 
 RRECOMMENDS_${PN} += " \
-	cpuburn-arm \
-	sysstat \
-	sysstat-contrib \
-    "
+    cpuburn-arm \
+    rsync \
+    htop \
+    sysstat \
+    sysstat-contrib \
+"
