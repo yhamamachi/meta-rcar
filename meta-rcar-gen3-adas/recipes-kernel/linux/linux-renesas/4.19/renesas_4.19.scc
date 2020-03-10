@@ -457,3 +457,4 @@ patch 0481-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch
 patch 0482-media-i2c-max9286-ti9x4-power-down-POCs-on-reboot.patch
 patch 0483-media-i2c-ov10640-enable-soft-reset.patch
 patch 0484-media-platform-soc_camera-disable-mutex-locking-for-.patch
+patch 0485-media-i2c-ov10640-compensate-disabled-mutex.patch
