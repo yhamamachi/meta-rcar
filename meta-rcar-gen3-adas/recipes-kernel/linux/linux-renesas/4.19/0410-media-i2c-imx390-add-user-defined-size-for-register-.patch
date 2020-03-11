@@ -108,7 +108,7 @@ index 2875b3c..b53ac27 100644
 +			"write fail: chip 0x%x register 0x%x-0x%x: %d\n",
 +			client->addr, reg, reg + n, ret);
 +	} else {
-+#ifndef WRITE_VERIFY
++#ifdef WRITE_VERIFY
 +		u8 val2[n];
 +		ret = reg16_read_n(client, reg, val2, n);
 +		if (ret < 0)
