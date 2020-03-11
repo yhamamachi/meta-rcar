@@ -455,7 +455,6 @@ patch 0479-media-soc_camera-rcar_csi2-add-interrupts.patch
 patch 0480-media-i2c-soc_camera-ov10640-fix-emb-lines-number.patch
 patch 0481-r8a779-78-sysc-don-t-poweroff-Cortex-R7-core.patch
 patch 0482-media-i2c-max9286-ti9x4-power-down-POCs-on-reboot.patch
-patch 0483-media-i2c-ov10640-enable-soft-reset.patch
 patch 0484-media-platform-soc_camera-disable-mutex-locking-for-.patch
 patch 0485-media-i2c-ov10640-compensate-disabled-mutex.patch
 patch 0486-i2c-i2c-rcar-use-threaded-interrupts.patch
