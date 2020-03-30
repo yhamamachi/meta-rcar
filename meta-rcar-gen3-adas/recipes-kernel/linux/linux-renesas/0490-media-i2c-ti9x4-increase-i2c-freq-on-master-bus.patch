@@ -29,8 +29,8 @@ index 627612a..ca86f1fc 100644
  		switch (priv->ser_id) {
  		case TI913_ID:
  			reg8_write(client, 0x0d, 0x55);				/* Enable remote GPIO0/1 */
-+			reg8_write(client, 0x11, 0x08);				/* I2C high pulse width */
-+			reg8_write(client, 0x12, 0x08);				/* I2C low pulse width */
++			reg8_write(client, 0x11, 0x10);				/* I2C high pulse width */
++			reg8_write(client, 0x12, 0x10);				/* I2C low pulse width */
  			break;
  		case TI953_ID:
  			reg8_write(client, 0x0d, (priv->gpio[0] & 0x1) << 0 |
@@ -38,8 +38,8 @@ index 627612a..ca86f1fc 100644
  						 (!!priv->gpio[1] << 5) |
  						 (!!priv->gpio[2] << 6) |
  						 (!!priv->gpio[3] << 7));	/* Enable serializer GPIOs only for output */
-+			reg8_write(client, 0x0b, 0x08);				/* I2C high pulse width */
-+			reg8_write(client, 0x0c, 0x08);				/* I2C low pulse width */
++			reg8_write(client, 0x0b, 0x10);				/* I2C high pulse width */
++			reg8_write(client, 0x0c, 0x10);				/* I2C low pulse width */
  			break;
  		}
  		client->addr = priv->des_addr;
