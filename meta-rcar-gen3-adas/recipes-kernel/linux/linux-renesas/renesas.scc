@@ -422,6 +422,5 @@ patch 0484-media-platform-soc_camera-disable-mutex-locking-for-.patch
 patch 0485-media-i2c-ov10640-compensate-disabled-mutex.patch
 patch 0487-i2c-busses-i2c-rcar-block-pm_runtime.patch
 patch 0488-arm64-dts-renesas-block-i2c-pm-runtime.patch
-patch 0489-media-i2c-max9286-increase-i2c-freq-inside-GMSL-cahn.patch
 patch 0490-media-i2c-ti9x4-increase-i2c-freq-on-master-bus.patch
 patch 0491-media-i2c-soc_camera-switch-to-u64-adv_debug-access.patch
