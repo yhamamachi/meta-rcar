@@ -434,3 +434,7 @@ patch 0498-media-platform-soc_camera-rcar_vin-add-max96712-max9.patch
 patch 0499-regulator-add-MAX2008X-camera-protector.patch
 patch 0500-arm64-dts-renesas-add-V3H-GMSL2-Videoboxes.patch
 patch 0501-media-i2c-ap0101-fix-fsin-on-AP0102.patch
+patch 0502-media-i2c-max96712-add-MIPI-GMSL2-support.patch
+patch 0503-media-i2c-ov2311-add-GMSL2-support.patch
+patch 0504-media-i2c-max9296-add-MIPI-GMSL2-support.patch
+patch 0505-media-i2c-gmsl-parse-gmsl_mode-from-deserializer.patch
