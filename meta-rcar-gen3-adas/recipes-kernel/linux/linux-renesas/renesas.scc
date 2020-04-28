@@ -424,3 +424,13 @@ patch 0487-i2c-busses-i2c-rcar-block-pm_runtime.patch
 patch 0488-arm64-dts-renesas-block-i2c-pm-runtime.patch
 patch 0490-media-i2c-ti9x4-increase-i2c-freq-on-master-bus.patch
 patch 0491-media-i2c-soc_camera-switch-to-u64-adv_debug-access.patch
+patch 0492-media-i2c-move-gmsl-fpdlink-drivers-to-separate-fold.patch
+patch 0493-media-i2c-add-max96712-and-max9296.patch
+patch 0494-media-i2c-max9286-max9288-use-common.h-file.patch
+patch 0495-media-i2c-ti9x4-fix-rebot_notify-and-gpiod_request.patch
+patch 0496-media-i2c-add-interim-LVDS-imager-drivers.patch
+patch 0497-media-i2c-soc_camera-rcar_csi2-adjust-debugging.patch
+patch 0498-media-platform-soc_camera-rcar_vin-add-max96712-max9.patch
+patch 0499-regulator-add-MAX2008X-camera-protector.patch
+patch 0500-arm64-dts-renesas-add-V3H-GMSL2-Videoboxes.patch
+patch 0501-media-i2c-ap0101-fix-fsin-on-AP0102.patch

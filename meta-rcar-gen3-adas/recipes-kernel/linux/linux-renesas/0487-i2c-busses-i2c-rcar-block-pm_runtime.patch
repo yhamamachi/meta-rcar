@@ -24,8 +24,8 @@ index ddd3b39..4a3ea72 100644
 +	if (!(priv->flags & ID_P_PM_BLOCKED))
 +		pm_runtime_get_sync(dev);
  
- 	if (priv->quirks & RCAR_I2C_GEN3 && priv->rstc)
- 		rcar_i2c_reset(priv);
+ 	/* Check bus state before init otherwise bus busy info will be lost */
+ 	ret = rcar_i2c_bus_barrier(priv);
 @@ -826,7 +827,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
  		ret = num - priv->msgs_left; /* The number of transfer */
  	}
