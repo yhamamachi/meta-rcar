@@ -438,3 +438,8 @@ patch 0502-media-i2c-max96712-add-MIPI-GMSL2-support.patch
 patch 0503-media-i2c-ov2311-add-GMSL2-support.patch
 patch 0504-media-i2c-max9296-add-MIPI-GMSL2-support.patch
 patch 0505-media-i2c-gmsl-parse-gmsl_mode-from-deserializer.patch
+patch 0506-media-i2c-imagers-add-AR0231-for-new-LVDS-support.patch
+patch 0507-media-i2c-ap0101-ap0201-fix-vendor-name-fsin-fix-on-.patch
+patch 0508-media-i2c-fix-indentation.patch
+patch 0509-media-i2c-fix-broken-old-LVDS-imagers.patch
+patch 0510-arm64-dts-renesas-add-camera-dtsi-file.patch
