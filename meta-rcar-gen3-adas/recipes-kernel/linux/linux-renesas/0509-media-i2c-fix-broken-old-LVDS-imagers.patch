@@ -21,8 +21,8 @@ index 5e08254..8640bac 100644
  obj-$(CONFIG_SOC_CAMERA_TW9910)		+= tw9910.o
 -obj-$(CONFIG_SOC_CAMERA_OV106XX)	+= ov106xx.o
  obj-$(CONFIG_SOC_CAMERA_IMX219)		+= imx219.o
- obj-$(CONFIG_SOC_CAMERA_AR0147)		+= ar0147.o
  
+ obj-$(CONFIG_SOC_CAMERA_AR0147)		+= ar0147.o
  obj-y += imagers/
  obj-y += gmsl/
  obj-y += fpdlink/
