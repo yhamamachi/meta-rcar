@@ -438,4 +438,3 @@ patch 0502-media-i2c-max96712-add-MIPI-GMSL2-support.patch
 patch 0503-media-i2c-ov2311-add-GMSL2-support.patch
 patch 0504-media-i2c-max9296-add-MIPI-GMSL2-support.patch
 patch 0505-media-i2c-gmsl-parse-gmsl_mode-from-deserializer.patch
-patch 0506-Revert-media-i2c-ti9x4-increase-i2c-freq-on-master-b.patch
