@@ -58,6 +58,8 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-h3ulcb-4x2g-vb2.dtb \
     renesas/r8a7795-h3ulcb-4x2g-vb2.1.dtb \
     renesas/r8a7795-h3ulcb-4x2g-vbm.dtb \
+    renesas/r8a7795-h3ulcb-vb2.1-gmsl2.dtb \
+    renesas/r8a7795-h3ulcb-4x2g-vb2.1-gmsl2.dtb \
 "
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
