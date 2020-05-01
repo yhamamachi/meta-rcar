@@ -445,3 +445,4 @@ patch 0509-media-i2c-fix-broken-old-LVDS-imagers.patch
 patch 0510-arm64-dts-renesas-add-camera-dtsi-file.patch
 patch 0511-media-i2c-ap0201-detect-AP0200-AP0202.patch
 patch 0512-arm64-dts-renesas-add-H3-GMSL2-Videobox.patch
+patch 0513-MTD-renesas-rpc-fix-dummy-cycles.patch
