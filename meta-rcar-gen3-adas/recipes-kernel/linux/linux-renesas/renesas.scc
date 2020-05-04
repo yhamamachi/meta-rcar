@@ -446,3 +446,7 @@ patch 0510-arm64-dts-renesas-add-camera-dtsi-file.patch
 patch 0511-media-i2c-ap0201-detect-AP0200-AP0202.patch
 patch 0512-arm64-dts-renesas-add-H3-GMSL2-Videobox.patch
 patch 0513-MTD-renesas-rpc-fix-dummy-cycles.patch
+patch 0514-media-i2c-gmsl2-add-fsync-support.patch
+patch 0515-media-i2c-ap020x-add-fsync-support.patch
+patch 0516-media-i2c-ar0231-fix-translator.patch
+patch 0517-media-i2c-gmsl2-fix-fsync-in-manual-mode.patch
