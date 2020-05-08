@@ -1,0 +1,316 @@
+From 298f3cb795befe2ea8adee31dc37612e3f64aeb7 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 7 May 2020 20:16:16 +0300
+Subject: [PATCH] arm64: dts: r8a779x: add VIN gnenric-uio
+
+This allows to use VIN as generic-uio
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts | 16 ++++++
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi      | 16 +++---
+ arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts | 32 ++++++++++++
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi      | 68 +++++++++++++-------------
+ 4 files changed, 90 insertions(+), 42 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+index 3c1bbc4..825bea0 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+@@ -151,6 +151,22 @@
+ 	status = "okay";
+ };
+ 
++&vin0 {
++	status = "okay";
++};
++
++&vin1 {
++	status = "okay";
++};
++
++&vin2 {
++	status = "okay";
++};
++
++&vin3 {
++	status = "okay";
++};
++
+ &du {
+ 	clocks = <&cpg CPG_MOD 724>,
+ 		 <&osc5_clk>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index ee44cf7..a5ae9bb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -846,8 +846,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: video@e6ef0000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin0: vin0@e6ef0000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 811>;
+@@ -857,8 +857,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin1: video@e6ef1000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin1: vin1@e6ef1000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 810>;
+@@ -868,8 +868,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin2: video@e6ef2000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin2: vin2@e6ef2000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 809>;
+@@ -879,8 +879,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin3: video@e6ef3000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin3: vin3@e6ef3000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 808>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+index 0b8358e..6687fe4 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+@@ -138,6 +138,38 @@
+ 	status = "okay";
+ };
+ 
++&vin0 {
++	status = "okay";
++};
++
++&vin1 {
++	status = "okay";
++};
++
++&vin2 {
++	status = "okay";
++};
++
++&vin3 {
++	status = "okay";
++};
++
++&vin4 {
++	status = "okay";
++};
++
++&vin5 {
++	status = "okay";
++};
++
++&vin6 {
++	status = "okay";
++};
++
++&vin7 {
++	status = "okay";
++};
++
+ &du {
+ 	clocks = <&cpg CPG_MOD 724>,
+ 		 <&osc1_clk>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index e622d86..7e3c958 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -892,8 +892,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: video@e6ef0000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin0: vin0@e6ef0000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 811>;
+@@ -903,8 +903,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin1: video@e6ef1000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin1: vin1@e6ef1000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 810>;
+@@ -914,8 +914,8 @@
+ 			resets = <&cpg 810>;
+ 		};
+ 
+-		vin2: video@e6ef2000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin2: vin2@e6ef2000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 809>;
+@@ -925,8 +925,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin3: video@e6ef3000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin3: vin3@e6ef3000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 808>;
+@@ -936,8 +936,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin4: video@e6ef4000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin4: vin4@e6ef4000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef4000 0 0x1000>;
+ 			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 807>;
+@@ -947,8 +947,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin5: video@e6ef5000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin5: vin5@e6ef5000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef5000 0 0x1000>;
+ 			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 806>;
+@@ -958,8 +958,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin6: video@e6ef6000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin6: vin6@e6ef6000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef6000 0 0x1000>;
+ 			interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 805>;
+@@ -969,8 +969,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin7: video@e6ef7000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin7: vin7@e6ef7000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef7000 0 0x1000>;
+ 			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 804>;
+@@ -980,8 +980,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin8: video@e6ef8000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin8: vin8@e6ef8000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef8000 0 0x1000>;
+ 			interrupts = <GIC_SPI 268 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 628>;
+@@ -991,8 +991,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin9: video@e6ef9000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin9: vin9@e6ef9000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef9000 0 0x1000>;
+ 			interrupts = <GIC_SPI 269 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 627>;
+@@ -1002,8 +1002,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin10: video@e6efa000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin10: vin10@e6efa000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efa000 0 0x1000>;
+ 			interrupts = <GIC_SPI 289 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 625>;
+@@ -1013,8 +1013,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin11: video@e6efb000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin11: vin11@e6efb000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efb000 0 0x1000>;
+ 			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 618>;
+@@ -1024,8 +1024,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin12: video@e6efc000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin12: vin12@e6efc000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efc000 0 0x1000>;
+ 			interrupts = <GIC_SPI 298 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 612>;
+@@ -1035,8 +1035,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin13: video@e6efd000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin13: vin13@e6efd000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efd000 0 0x1000>;
+ 			interrupts = <GIC_SPI 299 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 608>;
+@@ -1046,8 +1046,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin14: video@e6efe000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin14: vin14@e6efe000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efe000 0 0x1000>;
+ 			interrupts = <GIC_SPI 301 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 605>;
+@@ -1057,8 +1057,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin15: video@e6eff000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin15: vin15@e6eff000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6eff000 0 0x1000>;
+ 			interrupts = <GIC_SPI 302 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 604>;
+-- 
+2.7.4
+

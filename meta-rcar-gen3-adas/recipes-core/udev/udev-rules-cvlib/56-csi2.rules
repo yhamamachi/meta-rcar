@@ -1,1 +1,1 @@
-SUBSYSTEM=="uio", ATTR{name}=="*csi2*", SYMLINK+="$attr{name}", MODE="0666"
+SUBSYSTEM=="uio", ATTR{name}=="*csi*", SYMLINK+="$attr{name}", MODE="0666"

@@ -1,0 +1,364 @@
+From 339d702b461e536fbc42e279b7bd34286d9ad8d9 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 7 May 2020 18:53:31 +0300
+Subject: [PATCH] uio: add ioctl i/f for reset, clk, pwr control to generic-uio
+
+This add IOCTL interface for power management
+
+Signed-off-by: <source@renesas.com>
+---
+ drivers/uio/uio.c                   |  15 +++
+ drivers/uio/uio_pdrv_genirq.c       | 200 +++++++++++++++++++++++++++++++++++-
+ include/linux/uio_driver.h          |   2 +
+ include/uapi/linux/renesas_uioctl.h |  23 +++++
+ 4 files changed, 238 insertions(+), 2 deletions(-)
+ create mode 100644 include/uapi/linux/renesas_uioctl.h
+
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index 4178479..5aa8462 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -585,6 +585,20 @@ static ssize_t uio_write(struct file *filep, const char __user *buf,
+ 	return retval ? retval : sizeof(s32);
+ }
+ 
++static long uio_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
++{
++	struct uio_listener *listener = filep->private_data;
++	struct uio_device *idev = listener->dev;
++
++	if (!idev->info)
++		return -EIO;
++
++	if (!idev->info->ioctl)
++		return -ENOTTY;
++
++	return idev->info->ioctl(idev->info, cmd, arg);
++}
++
+ static int uio_find_mem_index(struct vm_area_struct *vma)
+ {
+ 	struct uio_device *idev = vma->vm_private_data;
+@@ -721,6 +735,7 @@ static const struct file_operations uio_fops = {
+ 	.write		= uio_write,
+ 	.mmap		= uio_mmap,
+ 	.poll		= uio_poll,
++	.unlocked_ioctl	= uio_ioctl,
+ 	.fasync		= uio_fasync,
+ 	.llseek		= noop_llseek,
+ };
+diff --git a/drivers/uio/uio_pdrv_genirq.c b/drivers/uio/uio_pdrv_genirq.c
+index f598ecd..67d2c0c 100644
+--- a/drivers/uio/uio_pdrv_genirq.c
++++ b/drivers/uio/uio_pdrv_genirq.c
+@@ -22,11 +22,15 @@
+ #include <linux/interrupt.h>
+ #include <linux/stringify.h>
+ #include <linux/pm_runtime.h>
++#include <linux/clk.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ 
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_address.h>
++#include <linux/uaccess.h>
++#include <uapi/linux/renesas_uioctl.h>
+ 
+ #define DRIVER_NAME "uio_pdrv_genirq"
+ 
+@@ -35,6 +39,10 @@ struct uio_pdrv_genirq_platdata {
+ 	spinlock_t lock;
+ 	unsigned long flags;
+ 	struct platform_device *pdev;
++	struct clk *clk;
++	struct reset_control *rst;
++	int pwr_cnt;
++	int clk_cnt;
+ };
+ 
+ /* Bits in uio_pdrv_genirq_platdata.flags */
+@@ -42,12 +50,57 @@ enum {
+ 	UIO_IRQ_DISABLED = 0,
+ };
+ 
++int local_pm_runtime_get_sync(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->pwr_cnt == 0) {
++		priv->pwr_cnt++;
++		priv->clk_cnt++;
++		return pm_runtime_get_sync(&priv->pdev->dev);
++	}
++
++	return 0;
++}
++
++int local_pm_runtime_put_sync(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->pwr_cnt > 0) {
++		priv->pwr_cnt--;
++		priv->clk_cnt--;
++		if ((priv->clk != NULL) && (priv->clk_cnt < 0)) { // call to pwr manager will decrease further!!!
++			clk_enable(priv->clk);
++			priv->clk_cnt = 0;
++		}
++
++		return pm_runtime_put_sync(&priv->pdev->dev);
++	}
++
++	return 0;
++}
++
++int local_clk_enable(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->clk_cnt == 0) {
++		clk_enable(priv->clk);
++		priv->clk_cnt++;
++	}
++
++	return 0;
++}
++
++void local_clk_disable(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->clk_cnt > 0) {
++		clk_disable(priv->clk);
++		priv->clk_cnt--;
++	}
++}
++
+ static int uio_pdrv_genirq_open(struct uio_info *info, struct inode *inode)
+ {
+ 	struct uio_pdrv_genirq_platdata *priv = info->priv;
+ 
+ 	/* Wait until the Runtime PM code has woken up the device */
+-	pm_runtime_get_sync(&priv->pdev->dev);
++	local_pm_runtime_get_sync(priv);
+ 	return 0;
+ }
+ 
+@@ -56,7 +109,7 @@ static int uio_pdrv_genirq_release(struct uio_info *info, struct inode *inode)
+ 	struct uio_pdrv_genirq_platdata *priv = info->priv;
+ 
+ 	/* Tell the Runtime PM code that the device has become idle */
+-	pm_runtime_put_sync(&priv->pdev->dev);
++	local_pm_runtime_put_sync(priv);
+ 	return 0;
+ }
+ 
+@@ -76,6 +129,141 @@ static irqreturn_t uio_pdrv_genirq_handler(int irq, struct uio_info *dev_info)
+ 	return IRQ_HANDLED;
+ }
+ 
++/**
++ * Changes the drivers power state
++ * if value == 0, calls pm_runtime_get_sync
++ * if value == 1, calls pm_runtime_put_sync
++ */
++static void priv_set_pwr(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	if (((value == 0) && priv->pwr_cnt > 0) || ((value != 0) && priv->pwr_cnt == 0)) { // change pwr state
++		if (value == 0)
++			local_pm_runtime_put_sync(priv);
++		else
++			local_pm_runtime_get_sync(priv);
++	}
++
++	printk(KERN_INFO "Set power state - value = 0x%x pwr_cnt=%d, clk_cnt=%d\n",
++			 value, priv->pwr_cnt, priv->clk_cnt);
++}
++
++/**
++ * Gets the power status of the driver, priv->pwr_cnt is returned
++ */
++static int priv_get_pwr(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	printk(KERN_INFO "Get power state  pwr_cnt=%d, clk_cnt=%d\n",
++			 priv->pwr_cnt, priv->clk_cnt);
++
++	return priv->pwr_cnt;
++}
++
++/**
++ * Changes the drivers clock state
++ * if value == 0, calls local_clk_disable
++ * if value == 1, calls local_clk_enable
++ */
++static void priv_set_clk(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	if (value == 0)
++		local_clk_disable(priv);
++	else
++		local_clk_enable(priv);
++
++	printk(KERN_INFO "Set clock state - value = 0x%x clk_cnt=%d\n",
++			 value, priv->clk_cnt);
++}
++
++/**
++ * Gets the clock status of the driver
++ * Returns priv->clk_cnt
++ */
++static int priv_get_clk(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	printk(KERN_INFO "Get clock state - clk_cnt=%d\n", priv->clk_cnt);
++
++	return priv->clk_cnt;
++}
++
++static void priv_set_rst(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++	int status;
++
++	status = reset_control_status(priv->rst);
++
++	switch (value) {
++	case 0 :
++		if (status > 0)
++			reset_control_deassert(priv->rst);
++		break;
++	case 1 :
++		reset_control_reset(priv->rst);
++		break;
++	default :
++		if (status == 0)
++			reset_control_assert(priv->rst);
++		break;
++	}
++
++	printk(KERN_INFO "Set reset state - value = 0x%x\n", value);
++}
++
++static int priv_get_rst(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++	int status;
++
++	status = reset_control_status(priv->rst);
++	printk(KERN_INFO "Get reset state 0x%x\n", status);
++
++	return status;
++}
++
++static int uio_pdrv_genirq_ioctl(struct uio_info *info, unsigned int cmd, unsigned long arg)
++{
++	int value;
++
++	switch(cmd) {
++	case UIO_PDRV_SET_PWR:
++		copy_from_user(&value ,(int*) arg, sizeof(value));
++		priv_set_pwr(info, value);
++		break;
++	case UIO_PDRV_GET_PWR:
++		value = priv_get_pwr(info);
++		copy_to_user((int*) arg, &value, sizeof(value));
++		arg = value;
++		break;
++	case UIO_PDRV_SET_CLK:
++		copy_from_user(&value ,(int*) arg, sizeof(value));
++		priv_set_clk(info, value);
++		break;
++	case UIO_PDRV_GET_CLK:
++		value = priv_get_clk(info);
++		copy_to_user((int*) arg, &value, sizeof(value));
++		arg = value;
++		break;
++	case UIO_PDRV_SET_RESET:
++		copy_from_user(&value ,(int*) arg, sizeof(value));
++		priv_set_rst(info, value);
++		break;
++	case UIO_PDRV_GET_RESET:
++		value = priv_get_rst(info);
++		copy_to_user((int*) arg, &value, sizeof(value));
++		break;
++	}
++
++	return 0;
++}
++
+ static int uio_pdrv_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
+ {
+ 	struct uio_pdrv_genirq_platdata *priv = dev_info->priv;
+@@ -144,6 +332,13 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->lock);
+ 	priv->flags = 0; /* interrupt is enabled to begin with */
+ 	priv->pdev = pdev;
++	
++	priv->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(priv->clk))
++		priv->clk = NULL;
++
++	priv->clk_cnt = 0;
++	priv->pwr_cnt = 0;
+ 
+ 	if (!uioinfo->irq) {
+ 		ret = platform_get_irq(pdev, 0);
+@@ -196,6 +391,7 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
+ 	uioinfo->irqcontrol = uio_pdrv_genirq_irqcontrol;
+ 	uioinfo->open = uio_pdrv_genirq_open;
+ 	uioinfo->release = uio_pdrv_genirq_release;
++	uioinfo->ioctl = uio_pdrv_genirq_ioctl;
+ 	uioinfo->priv = priv;
+ 
+ 	/* Enable Runtime PM for this device:
+diff --git a/include/linux/uio_driver.h b/include/linux/uio_driver.h
+index 3c85c81..98e3b25 100644
+--- a/include/linux/uio_driver.h
++++ b/include/linux/uio_driver.h
+@@ -92,6 +92,7 @@ struct uio_device {
+  * @mmap:		mmap operation for this uio device
+  * @open:		open operation for this uio device
+  * @release:		release operation for this uio device
++ * @ioctl:		ioctl handler
+  * @irqcontrol:		disable/enable irqs when 0/1 is written to /dev/uioX
+  */
+ struct uio_info {
+@@ -108,6 +109,7 @@ struct uio_info {
+ 	int (*open)(struct uio_info *info, struct inode *inode);
+ 	int (*release)(struct uio_info *info, struct inode *inode);
+ 	int (*irqcontrol)(struct uio_info *info, s32 irq_on);
++	int (*ioctl)(struct uio_info *info, unsigned int cmd, unsigned long arg);
+ };
+ 
+ extern int __must_check
+diff --git a/include/uapi/linux/renesas_uioctl.h b/include/uapi/linux/renesas_uioctl.h
+new file mode 100644
+index 0000000..38728f3
+--- /dev/null
++++ b/include/uapi/linux/renesas_uioctl.h
+@@ -0,0 +1,23 @@
++/*
++ * Renesas IOCTL defines for user io drivers;
++ * used to control power, clock and reset
++ *
++ * $Id: $
++ *
++ * Copyright (C) 2020 by Renesas Electronics
++ *
++ * Redistribution of this file is permitted under
++ * the terms of the GNU Public License (GPL)
++ */
++#ifndef _RENESAS_UIOCTL_H_
++#define _RENESAS_UIOCTL_H_
++
++#define UIO_PDRV_IOCCTL_BASE	'I'
++#define UIO_PDRV_SET_PWR	_IOW(UIO_PDRV_IOCCTL_BASE, 0, int)
++#define UIO_PDRV_GET_PWR	_IOR(UIO_PDRV_IOCCTL_BASE, 1, int)
++#define UIO_PDRV_SET_CLK	_IOW(UIO_PDRV_IOCCTL_BASE, 2, int)
++#define UIO_PDRV_GET_CLK	_IOR(UIO_PDRV_IOCCTL_BASE, 3, int)
++#define UIO_PDRV_SET_RESET	_IOW(UIO_PDRV_IOCCTL_BASE, 4, int)
++#define UIO_PDRV_GET_RESET	_IOR(UIO_PDRV_IOCCTL_BASE, 5, int)
++
++#endif /* _RENESAS_UIOCTL_H_ */
+-- 
+2.7.4
+

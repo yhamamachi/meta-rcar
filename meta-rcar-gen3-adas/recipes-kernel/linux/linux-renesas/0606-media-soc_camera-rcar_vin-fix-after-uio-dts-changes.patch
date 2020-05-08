@@ -1,0 +1,66 @@
+From 6b2b13b0ff0a60ca6096f827c7f273e2a2302db7 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 7 May 2020 23:11:12 +0300
+Subject: [PATCH] media: soc_camera: rcar_vin: fix after uio dts changes
+
+This fixes the parsing dts that changed due to mogration
+to UIO
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/platform/soc_camera/rcar_vin.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
+index 9161837..2455a83 100644
+--- a/drivers/media/platform/soc_camera/rcar_vin.c
++++ b/drivers/media/platform/soc_camera/rcar_vin.c
+@@ -3098,7 +3098,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		dev_dbg(&pdev->dev, "node name:%s\n",
+ 			of_node_full_name(ren->parent));
+ 
+-		if (strcmp(ren->parent->name, "csi2") == 0) {
++		if (strncmp(ren->parent->name, "csi", 3) == 0) {
+ 			csi2_ren = ren;
+ 			csi_use = true;
+ 		}
+@@ -3202,28 +3202,28 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		num = VNCSI_IFMD_SEL_NUMBER;
+ 
+ 		if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef0000.video") == 0)
++						"e6ef0000.vin0") == 0)
+ 			priv->index = RCAR_VIDEO_0;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef1000.video") == 0)
++						"e6ef1000.vin1") == 0)
+ 			priv->index = RCAR_VIDEO_1;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef2000.video") == 0)
++						"e6ef2000.vin2") == 0)
+ 			priv->index = RCAR_VIDEO_2;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef3000.video") == 0)
++						"e6ef3000.vin3") == 0)
+ 			priv->index = RCAR_VIDEO_3;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef4000.video") == 0)
++						"e6ef4000.vin4") == 0)
+ 			priv->index = RCAR_VIDEO_4;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef5000.video") == 0)
++						"e6ef5000.vin5") == 0)
+ 			priv->index = RCAR_VIDEO_5;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef6000.video") == 0)
++						"e6ef6000.vin6") == 0)
+ 			priv->index = RCAR_VIDEO_6;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef7000.video") == 0)
++						"e6ef7000.vin7") == 0)
+ 			priv->index = RCAR_VIDEO_7;
+ 		else
+ 			priv->index = RCAR_VIN_CH_NONE;
+-- 
+2.7.4
+

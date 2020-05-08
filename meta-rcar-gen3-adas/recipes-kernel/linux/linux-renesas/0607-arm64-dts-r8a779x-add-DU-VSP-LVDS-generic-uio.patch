@@ -1,0 +1,78 @@
+From 49f5ca2ad1d555f15e91a6d48d18fa518b97e1a1 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 8 May 2020 12:23:59 +0300
+Subject: [PATCH] arm64: dts: r8a779x: add DU,VSP,LVDS generic-uio
+
+This allows to use display output as generic-uio
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 6 +++---
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 8304156..b1a00b7 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -1190,7 +1190,7 @@
+ 		};
+ 
+ 		vspd0: vsp@fea20000 {
+-			compatible = "renesas,vsp2";
++			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 623>;
+@@ -1218,7 +1218,7 @@
+ 		};
+ 
+ 		du: display@feb00000 {
+-			compatible = "renesas,du-r8a77970";
++			compatible = "renesas,du-r8a77970", "generic-uio";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 724>;
+@@ -1248,7 +1248,7 @@
+ 		};
+ 
+ 		lvds0: lvds-encoder@feb90000 {
+-			compatible = "renesas,r8a77970-lvds";
++			compatible = "renesas,r8a77970-lvds", "generic-uio";
+ 			reg = <0 0xfeb90000 0 0x14>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 7e3c958..e3c3102 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1765,7 +1765,7 @@
+ 		};
+ 
+ 		vspd0: vsp@fea20000 {
+-			compatible = "renesas,vsp2";
++			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 623>;
+@@ -1803,7 +1803,7 @@
+ 		};
+ 
+ 		du: display@feb00000 {
+-			compatible = "renesas,du-r8a77980",
++			compatible = "renesas,du-r8a77980", "generic-uio",
+ 				     "renesas,du-r8a77970";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1834,7 +1834,7 @@
+ 		};
+ 
+ 		lvds0: lvds-encoder@feb90000 {
+-			compatible = "renesas,r8a77980-lvds";
++			compatible = "renesas,r8a77980-lvds", "generic-uio";
+ 			reg = <0 0xfeb90000 0 0x14>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-- 
+2.7.4
+

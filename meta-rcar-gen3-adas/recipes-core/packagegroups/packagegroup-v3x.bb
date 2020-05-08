@@ -13,9 +13,6 @@ PACKAGES = " \
 RDEPENDS_packagegroup-v3x = " \
     kernel-module-cmemdrv \
     kernel-module-iccom \
-    kernel-module-uio-imp \
-    kernel-module-uio-isp \
-    kernel-module-uio-csi2 \
     libiccom \
     udev-rules-cvlib \
 "
