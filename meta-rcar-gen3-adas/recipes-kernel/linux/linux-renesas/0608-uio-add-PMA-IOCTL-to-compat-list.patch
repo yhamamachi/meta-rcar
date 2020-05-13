@@ -1,0 +1,90 @@
+From a3e2de2098606c4391f7c6f24d9e10e652948bd5 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 13 May 2020 22:41:42 +0300
+Subject: [PATCH] uio: add PMA IOCTL to compat list
+
+This adds UIO PMA IOCTL to compat list to be able to use them.
+Also fix compilation warning
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/uio/uio_pdrv_genirq.c | 18 ++++++++++++------
+ fs/compat_ioctl.c             |  8 ++++++++
+ 2 files changed, 20 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/uio/uio_pdrv_genirq.c b/drivers/uio/uio_pdrv_genirq.c
+index 67d2c0c..a5a466d 100644
+--- a/drivers/uio/uio_pdrv_genirq.c
++++ b/drivers/uio/uio_pdrv_genirq.c
+@@ -234,30 +234,36 @@ static int uio_pdrv_genirq_ioctl(struct uio_info *info, unsigned int cmd, unsign
+ 
+ 	switch(cmd) {
+ 	case UIO_PDRV_SET_PWR:
+-		copy_from_user(&value ,(int*) arg, sizeof(value));
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
+ 		priv_set_pwr(info, value);
+ 		break;
+ 	case UIO_PDRV_GET_PWR:
+ 		value = priv_get_pwr(info);
+-		copy_to_user((int*) arg, &value, sizeof(value));
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
+ 		arg = value;
+ 		break;
+ 	case UIO_PDRV_SET_CLK:
+-		copy_from_user(&value ,(int*) arg, sizeof(value));
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
+ 		priv_set_clk(info, value);
+ 		break;
+ 	case UIO_PDRV_GET_CLK:
+ 		value = priv_get_clk(info);
+-		copy_to_user((int*) arg, &value, sizeof(value));
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
+ 		arg = value;
+ 		break;
+ 	case UIO_PDRV_SET_RESET:
+-		copy_from_user(&value ,(int*) arg, sizeof(value));
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
+ 		priv_set_rst(info, value);
+ 		break;
+ 	case UIO_PDRV_GET_RESET:
+ 		value = priv_get_rst(info);
+-		copy_to_user((int*) arg, &value, sizeof(value));
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
+ 		break;
+ 	}
+ 
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index bd5d91e..7382911 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -119,6 +119,8 @@
+ #include <asm/fbio.h>
+ #endif
+ 
++#include <linux/renesas_uioctl.h>
++
+ #define convert_in_user(srcptr, dstptr)			\
+ ({							\
+ 	typeof(*srcptr) val;				\
+@@ -1429,6 +1431,12 @@ IGNORE_IOCTL(FBIOGETCMAP32)
+ IGNORE_IOCTL(FBIOSCURSOR32)
+ IGNORE_IOCTL(FBIOGCURSOR32)
+ #endif
++COMPATIBLE_IOCTL(UIO_PDRV_SET_PWR)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_PWR)
++COMPATIBLE_IOCTL(UIO_PDRV_SET_CLK)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_CLK)
++COMPATIBLE_IOCTL(UIO_PDRV_SET_RESET)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_RESET)
+ };
+ 
+ /*
+-- 
+2.7.4
+

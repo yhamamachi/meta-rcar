@@ -459,3 +459,4 @@ patch 0604-uio-add-ioctl-i-f-for-reset-clk-pwr-control-to-gener.patch
 patch 0605-arm64-dts-r8a779x-add-VIN-gnenric-uio.patch
 patch 0606-media-soc_camera-rcar_vin-fix-after-uio-dts-changes.patch
 patch 0607-arm64-dts-r8a779x-add-DU-VSP-LVDS-generic-uio.patch
+patch 0608-uio-add-PMA-IOCTL-to-compat-list.patch
