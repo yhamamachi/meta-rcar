@@ -451,3 +451,4 @@ patch 0515-media-i2c-ap020x-add-fsync-support.patch
 patch 0516-media-i2c-ar0231-fix-translator.patch
 patch 0517-media-i2c-gmsl2-fix-fsync-in-manual-mode.patch
 patch 0518-media-i2c-imagers-ar0231-fix-GMSL2.patch
+patch 0519-media-i2c-imagers-add-IMX390-for-new-LVDS-support.patch
