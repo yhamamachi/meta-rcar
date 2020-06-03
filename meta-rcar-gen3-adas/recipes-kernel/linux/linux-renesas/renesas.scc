@@ -453,3 +453,5 @@ patch 0517-media-i2c-gmsl2-fix-fsync-in-manual-mode.patch
 patch 0518-media-i2c-imagers-ar0231-fix-GMSL2.patch
 patch 0519-media-i2c-imagers-add-IMX390-for-new-LVDS-support.patch
 patch 0520-media-i2c-soc_camera-add-dummy-lvds-sensor.patch
+patch 0521-arm64-dts-renesas-add-V3H-GMSL2-8ch-Videobox.patch
+patch 0522-arm64-dts-renesas-vb-gmsl2-fix-typos.patch
