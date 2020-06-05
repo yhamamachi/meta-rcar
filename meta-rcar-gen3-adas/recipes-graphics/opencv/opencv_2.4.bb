@@ -44,7 +44,9 @@ PACKAGECONFIG[gstreamer] = "-DWITH_GSTREAMER=ON,-DWITH_GSTREAMER=OFF,gstreamer1.
 PACKAGECONFIG[opengl] = "-DWITH_OPENGL=ON,-DWITH_OPENGL=OFF,,"
 PACKAGECONFIG[qt5] = "-DWITH_QT=ON,-DWITH_QT=OFF,qtbase,"
 
-inherit distutils-base pkgconfig cmake ${@bb.utils.contains( 'DISTRO_FEATURES', 'qt5', 'cmake_qt5','', d)}
+inherit pkgconfig cmake ${@bb.utils.contains( 'DISTRO_FEATURES', 'qt5', 'cmake_qt5','', d)}
+inherit ${@bb.utils.contains('PACKAGECONFIG', 'python3', 'distutils3-base', '', d)}
+inherit ${@bb.utils.contains('PACKAGECONFIG', 'python2', 'distutils-base', '', d)}
 
 export BUILD_SYS
 export HOST_SYS
