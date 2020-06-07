@@ -15,6 +15,7 @@ SRC_URI_append = " \
     file://imr.cfg \
     file://disable-unused.cfg \
     file://renesas.scc \
+    file://0355-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \

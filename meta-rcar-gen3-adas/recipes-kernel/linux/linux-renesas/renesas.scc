@@ -291,7 +291,6 @@ patch 0351-arm64-dts-renesas-r8a77980-VB-4ch-and-8ch-Add-PCIE-p.patch
 patch 0352-gpu-drm-rcar_du-Fix-physical-address-of-the-CMA-back.patch
 patch 0353-media-soc_camera-rcar_csi2-add-dump-module-param.patch
 patch 0354-media-rcar_csi2-Disable-data-type-matching.patch
-patch 0355-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
 patch 0356-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 0357-gpu-drm-rcar-du-rcar_du_vsp-Check-if-gem-buffer-has-.patch
 patch 0358-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
