@@ -4,11 +4,11 @@ Date: Thu, 12 May 2016 21:24:38 +0300
 Subject: [PATCH] fix
 
 ---
- pkgconfig/Makefile.am | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ pkgconfig/Makefile.am | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/pkgconfig/Makefile.am b/pkgconfig/Makefile.am
-index 99e6332..b86e759 100644
+index 8e74a8e..f641285 100644
 --- a/pkgconfig/Makefile.am
 +++ b/pkgconfig/Makefile.am
 @@ -1,6 +1,7 @@
@@ -19,8 +19,8 @@ index 99e6332..b86e759 100644
  	gstreamer-plugins-bad-@GST_API_VERSION@.pc \
  	gstreamer-codecparsers-@GST_API_VERSION@.pc \
  	gstreamer-insertbin-@GST_API_VERSION@.pc \
-@@ -12,6 +13,7 @@ pcverfiles =  \
- 	gstreamer-bad-allocators-@GST_API_VERSION@.pc
+@@ -11,6 +12,7 @@ pcverfiles =  \
+ 	gstreamer-bad-audio-@GST_API_VERSION@.pc
  
  pcverfiles_uninstalled = \
 +	gstreamer-wayland-@GST_API_VERSION@-uninstalled.pc \

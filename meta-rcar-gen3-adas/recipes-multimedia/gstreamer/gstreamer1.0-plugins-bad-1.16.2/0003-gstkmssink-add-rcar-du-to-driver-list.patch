@@ -8,18 +8,18 @@ Subject: [PATCH] gstkmssink: add rcar-du to driver list
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/sys/kms/gstkmssink.c b/sys/kms/gstkmssink.c
-index d19e19e..cc55d19 100644
+index cdecbf6..0b11233 100644
 --- a/sys/kms/gstkmssink.c
 +++ b/sys/kms/gstkmssink.c
-@@ -85,7 +85,7 @@ static int
- kms_open (gchar ** driver)
+@@ -177,7 +177,7 @@ kms_open (gchar ** driver)
  {
    static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
--    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
-+    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm", "rcar-du"
+     "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+-    "xlnx", "vc4", "meson", "sun4i-drm", "mxsfb-drm",
++    "xlnx", "vc4", "meson", "sun4i-drm", "mxsfb-drm", "rcar-du",
+     "xilinx_drm",               /* DEPRECATED. Replaced by xlnx */
    };
    int i, fd = -1;
- 
 -- 
 2.7.4
 
