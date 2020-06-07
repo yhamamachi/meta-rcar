@@ -9,10 +9,10 @@ Subject: [PATCH] Add call for setting fullscreen with IVI
  2 files changed, 9 insertions(+)
 
 diff --git a/clients/toytoolkit.h b/clients/toytoolkit.h
-index d0e73ab..1759a52 100644
+index 45d322a..481bfe1 100644
 --- a/clients/toytoolkit.h
 +++ b/clients/toytoolkit.h
-@@ -384,6 +384,9 @@ window_set_fullscreen(struct window *window, int fullscreen);
+@@ -442,6 +442,9 @@ window_set_fullscreen(struct window *window, int fullscreen);
  void
  window_set_fullscreen_at_output(struct window *window, int fullscreen, struct output *output);
  
@@ -23,11 +23,11 @@ index d0e73ab..1759a52 100644
  window_is_maximized(struct window *window);
  
 diff --git a/clients/window.c b/clients/window.c
-index 820cd78..638e2ff 100644
+index c0b25e8..0ba9307 100644
 --- a/clients/window.c
 +++ b/clients/window.c
-@@ -4391,6 +4391,12 @@ window_set_fullscreen_at_output(struct window *window, int fullscreen, struct ou
- 		xdg_surface_unset_fullscreen(window->xdg_surface);
+@@ -4699,6 +4699,12 @@ window_set_fullscreen_at_output(struct window *window, int fullscreen, struct ou
+ 		xdg_toplevel_unset_fullscreen(window->xdg_toplevel);
  }
  
 +void

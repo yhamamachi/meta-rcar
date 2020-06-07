@@ -9,10 +9,10 @@ Subject: [PATCH 4/4] Add wl ivi shell sirface creating support
  2 files changed, 21 insertions(+)
 
 diff --git a/ivi-shell/ivi-layout-export.h b/ivi-shell/ivi-layout-export.h
-index 33aa820..78dab61 100644
+index 740e1ac..bd97d4a 100644
 --- a/ivi-shell/ivi-layout-export.h
 +++ b/ivi-shell/ivi-layout-export.h
-@@ -149,6 +149,25 @@ struct ivi_layout_interface {
+@@ -156,6 +156,25 @@ struct ivi_layout_interface {
  	 */
  	int32_t (*commit_changes)(void);
  
@@ -39,10 +39,10 @@ index 33aa820..78dab61 100644
  	 * surface controller interface
  	 */
 diff --git a/ivi-shell/ivi-layout.c b/ivi-shell/ivi-layout.c
-index 7fa8b33..161694d 100644
+index 7cec79d..615c026 100644
 --- a/ivi-shell/ivi-layout.c
 +++ b/ivi-shell/ivi-layout.c
-@@ -1985,6 +1985,8 @@ static struct ivi_layout_interface ivi_layout_interface = {
+@@ -2054,6 +2054,8 @@ static struct ivi_layout_interface ivi_layout_interface = {
  	 * commit all changes
  	 */
  	.commit_changes = ivi_layout_commit_changes,
