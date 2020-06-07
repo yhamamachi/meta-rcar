@@ -1,8 +1,18 @@
+From 1d64f24383749038ccc8c5f273a279698b2a9662 Mon Sep 17 00:00:00 2001
+From: Grigory Kletsko <grigory.kletsko@cogentembedded.com>
+Date: Tue, 13 Jun 2017 23:51:22 +0300
+Subject: [PATCH 3/4] Add display_poll function
+
+---
+ clients/toytoolkit.h |  3 +++
+ clients/window.c     | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
+
 diff --git a/clients/toytoolkit.h b/clients/toytoolkit.h
-index 402836d..767a84e 100644
+index b99b6f1..67c2720 100644
 --- a/clients/toytoolkit.h
 +++ b/clients/toytoolkit.h
-@@ -173,6 +173,9 @@ display_unwatch_fd(struct display *display, int fd);
+@@ -161,6 +161,9 @@ display_unwatch_fd(struct display *display, int fd);
  void
  display_run(struct display *d);
  
@@ -13,10 +23,10 @@ index 402836d..767a84e 100644
  display_exit(struct display *d);
  
 diff --git a/clients/window.c b/clients/window.c
-index 2d38796..8540553 100644
+index 34645b2..3b7def3 100644
 --- a/clients/window.c
 +++ b/clients/window.c
-@@ -6011,6 +6011,58 @@ display_run(struct display *display)
+@@ -6559,6 +6559,58 @@ display_run(struct display *display)
  	}
  }
  
@@ -75,3 +85,6 @@ index 2d38796..8540553 100644
  void
  display_exit(struct display *display)
  {
+-- 
+2.7.4
+

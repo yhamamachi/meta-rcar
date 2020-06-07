@@ -8,10 +8,10 @@ Subject: [PATCH] Allow to boot without input device
  1 file changed, 1 deletion(-)
 
 diff --git a/libweston/libinput-seat.c b/libweston/libinput-seat.c
-index c9f9ed2..20fcaa6 100644
+index 9801551..190acfd 100644
 --- a/libweston/libinput-seat.c
 +++ b/libweston/libinput-seat.c
-@@ -258,7 +258,6 @@ udev_input_enable(struct udev_input *input)
+@@ -305,7 +305,6 @@ udev_input_enable(struct udev_input *input)
  			"\t- seats misconfigured "
  			"(Weston backend option 'seat', "
  			"udev device property ID_SEAT)\n");
