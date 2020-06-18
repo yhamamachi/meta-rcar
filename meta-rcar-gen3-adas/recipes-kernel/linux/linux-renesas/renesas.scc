@@ -455,3 +455,4 @@ patch 0519-media-i2c-imagers-add-IMX390-for-new-LVDS-support.patch
 patch 0520-media-i2c-soc_camera-add-dummy-lvds-sensor.patch
 patch 0521-arm64-dts-renesas-add-V3H-GMSL2-8ch-Videobox.patch
 patch 0522-arm64-dts-renesas-vb-gmsl2-fix-typos.patch
+patch 0523-media-i2c-isx019-do-not-disable-embedded-line.patch
