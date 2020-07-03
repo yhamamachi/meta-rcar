@@ -12,8 +12,6 @@ PACKAGES = " \
 # V3x common packages: IMP UIO, CMEM, CV lib, ICCOM
 RDEPENDS_packagegroup-v3x = " \
     kernel-module-cmemdrv \
-    kernel-module-iccom \
-    libiccom \
     udev-rules-cvlib \
 "
 
