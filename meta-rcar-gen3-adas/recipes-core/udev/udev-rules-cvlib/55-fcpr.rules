@@ -1,1 +1,0 @@
-SUBSYSTEM=="uio", ATTR{name}=="*fcpr*", SYMLINK+="$attr{name}", MODE="0666"
