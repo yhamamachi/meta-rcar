@@ -13,6 +13,7 @@ PACKAGES = " \
 RDEPENDS_packagegroup-v3x = " \
     kernel-module-cmemdrv \
     udev-rules-cvlib \
+    bsp-config \
 "
 
 # V3x test and benchmark packages
