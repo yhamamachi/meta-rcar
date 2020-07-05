@@ -1,0 +1,25 @@
+From bd7c1fb4390df698cf51035cf01fe9df60ff4f56 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Fri, 3 Jul 2020 19:36:21 +0300
+Subject: [PATCH] media: soc_camera: rcar_csi2: Cleanup sysfs on driver remove
+
+---
+ drivers/media/platform/soc_camera/rcar_csi2.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
+index 1f1beb8..a9551ec 100644
+--- a/drivers/media/platform/soc_camera/rcar_csi2.c
++++ b/drivers/media/platform/soc_camera/rcar_csi2.c
+@@ -900,6 +900,8 @@ static int rcar_csi2_remove(struct platform_device *pdev)
+ 		v4l2_async_unregister_subdev(&priv->subdev[i]);
+ 	pm_runtime_disable(&pdev->dev);
+ 
++	device_remove_file(&pdev->dev, &dev_attr_dump);
++
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+
