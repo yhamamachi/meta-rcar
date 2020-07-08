@@ -6,6 +6,8 @@ COMPATIBLE_MACHINE_condor = "condor"
 COMPATIBLE_MACHINE_v3mzf = "v3mzf"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 
+KF_ENABLE_M3V3SK8GB := "${@bb.utils.contains("KERNEL_DEVICETREE", "renesas/r8a7796-m3ulcb-2x4g.dtb", "1", "", d)}"
+
 SRC_URI_append = " \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://hyperflash.cfg", d)} \
     ${@oe.utils.conditional("SDHI_SEQ", "1", " file://sdhi_seq.cfg", "", d)} \
@@ -20,6 +22,7 @@ SRC_URI_append = " \
     ${@oe.utils.conditional("KF_PANEL_MODEL", "AA104XD12", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA104XD12-1.patch", "", d)} \
     ${@oe.utils.conditional("KF_PANEL_MODEL", "AA121TD01", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA121TD01-1.patch", "", d)} \
     ${@oe.utils.conditional("VB_ENABLE_FDPLINK", "1", " file://0391-arm64-dts-renesas-Enable-FDPLink-output-on-V3x-Video.patch", "", d)} \
+    ${@oe.utils.conditional("KF_ENABLE_M3V3SK8GB", "1", " file://0525-arm64-dts-renesas-Add-r8a7796-m3ulcb-2x4g-kf.dts.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -65,6 +68,7 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
 KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-view.dtb \
     renesas/r8a7796-m3ulcb-kf.dtb \
+    ${@oe.utils.conditional("KF_ENABLE_M3V3SK8GB", "1", " renesas/r8a7796-m3ulcb-2x4g-kf.dtb", "", d)} \
 "
 
 KERNEL_DEVICETREE_append_m3nulcb = " \
