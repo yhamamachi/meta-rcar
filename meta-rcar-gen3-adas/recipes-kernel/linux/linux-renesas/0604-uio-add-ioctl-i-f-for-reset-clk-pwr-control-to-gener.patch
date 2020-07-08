@@ -1,4 +1,4 @@
-From 339d702b461e536fbc42e279b7bd34286d9ad8d9 Mon Sep 17 00:00:00 2001
+From a2f20efde09a9ed6e005075aa2473f9fde1b9421 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 7 May 2020 18:53:31 +0300
 Subject: [PATCH] uio: add ioctl i/f for reset, clk, pwr control to generic-uio
@@ -15,7 +15,7 @@ Signed-off-by: <source@renesas.com>
  create mode 100644 include/uapi/linux/renesas_uioctl.h
 
 diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
-index 4178479..5aa8462 100644
+index 4178479..64e2216 100644
 --- a/drivers/uio/uio.c
 +++ b/drivers/uio/uio.c
 @@ -585,6 +585,20 @@ static ssize_t uio_write(struct file *filep, const char __user *buf,
@@ -48,7 +48,7 @@ index 4178479..5aa8462 100644
  	.llseek		= noop_llseek,
  };
 diff --git a/drivers/uio/uio_pdrv_genirq.c b/drivers/uio/uio_pdrv_genirq.c
-index f598ecd..67d2c0c 100644
+index f598ecd..83df0cc 100644
 --- a/drivers/uio/uio_pdrv_genirq.c
 +++ b/drivers/uio/uio_pdrv_genirq.c
 @@ -22,11 +22,15 @@
@@ -166,7 +166,7 @@ index f598ecd..67d2c0c 100644
 +			local_pm_runtime_get_sync(priv);
 +	}
 +
-+	printk(KERN_INFO "Set power state - value = 0x%x pwr_cnt=%d, clk_cnt=%d\n",
++	dev_dbg(&priv->pdev->dev, "Set power state - value = 0x%x pwr_cnt=%d, clk_cnt=%d\n",
 +			 value, priv->pwr_cnt, priv->clk_cnt);
 +}
 +
@@ -177,7 +177,7 @@ index f598ecd..67d2c0c 100644
 +{
 +	struct uio_pdrv_genirq_platdata *priv = info->priv;
 +
-+	printk(KERN_INFO "Get power state  pwr_cnt=%d, clk_cnt=%d\n",
++	dev_dbg(&priv->pdev->dev, "Get power state  pwr_cnt=%d, clk_cnt=%d\n",
 +			 priv->pwr_cnt, priv->clk_cnt);
 +
 +	return priv->pwr_cnt;
@@ -197,7 +197,7 @@ index f598ecd..67d2c0c 100644
 +	else
 +		local_clk_enable(priv);
 +
-+	printk(KERN_INFO "Set clock state - value = 0x%x clk_cnt=%d\n",
++	dev_dbg(&priv->pdev->dev, "Set clock state - value = 0x%x clk_cnt=%d\n",
 +			 value, priv->clk_cnt);
 +}
 +
@@ -209,7 +209,7 @@ index f598ecd..67d2c0c 100644
 +{
 +	struct uio_pdrv_genirq_platdata *priv = info->priv;
 +
-+	printk(KERN_INFO "Get clock state - clk_cnt=%d\n", priv->clk_cnt);
++	dev_dbg(&priv->pdev->dev, "Get clock state - clk_cnt=%d\n", priv->clk_cnt);
 +
 +	return priv->clk_cnt;
 +}
@@ -235,7 +235,7 @@ index f598ecd..67d2c0c 100644
 +		break;
 +	}
 +
-+	printk(KERN_INFO "Set reset state - value = 0x%x\n", value);
++	dev_dbg(&priv->pdev->dev, "Set reset state - value = 0x%x\n", value);
 +}
 +
 +static int priv_get_rst(struct uio_info *info)
@@ -244,7 +244,7 @@ index f598ecd..67d2c0c 100644
 +	int status;
 +
 +	status = reset_control_status(priv->rst);
-+	printk(KERN_INFO "Get reset state 0x%x\n", status);
++	dev_dbg(&priv->pdev->dev, "Get reset state 0x%x\n", status);
 +
 +	return status;
 +}
