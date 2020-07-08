@@ -55,6 +55,7 @@ RDEPENDS_packagegroup-bsp-custom = " \
     capture \
     e2fsprogs \
     e2fsprogs-tune2fs \
+    e2fsprogs-resize2fs \
     eglibc-utils \
     ethtool \
     iio-utils \
