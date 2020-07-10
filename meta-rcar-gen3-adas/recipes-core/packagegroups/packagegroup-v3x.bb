@@ -20,6 +20,7 @@ RDEPENDS_packagegroup-v3x = " \
 RDEPENDS_packagegroup-v3x-test = " \
     br-test \
     dbench \
+    tbench \
     dhrystone \
     ${@bb.utils.contains("LICENSE_FLAGS_WHITELIST", "non-commercial", "netperf", "", d)} \
     whetstone \
