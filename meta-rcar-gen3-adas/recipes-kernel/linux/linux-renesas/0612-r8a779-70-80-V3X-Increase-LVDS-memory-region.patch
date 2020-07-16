@@ -1,0 +1,40 @@
+From 49aaac9b4afd0c2b32f8d4d26c97d9e901c3548f Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Thu, 16 Jul 2020 22:40:35 +0300
+Subject: [PATCH] r8a779[70|80] V3X: Increase LVDS memory region
+
+... so that generic UIO driver can mmap it
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 2 +-
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 333231f..d2b0219 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -1249,7 +1249,7 @@
+ 
+ 		lvds0: lvds-encoder@feb90000 {
+ 			compatible = "renesas,r8a77970-lvds", "generic-uio";
+-			reg = <0 0xfeb90000 0 0x14>;
++			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 727>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index bcd3ca3..e470b09 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1835,7 +1835,7 @@
+ 
+ 		lvds0: lvds-encoder@feb90000 {
+ 			compatible = "renesas,r8a77980-lvds", "generic-uio";
+-			reg = <0 0xfeb90000 0 0x14>;
++			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 727>;
+-- 
+2.7.4
+

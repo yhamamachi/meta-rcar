@@ -463,3 +463,4 @@ patch 0608-uio-add-PMA-IOCTL-to-compat-list.patch
 patch 0609-r8a779-78-dtsi-Add-h264-nodes.patch
 patch 0610-media-soc_camera-rcar_csi2-Cleanup-sysfs-on-driver-r.patch
 patch 0611-V3x-Add-RTT-UIO-support.patch
+patch 0612-r8a779-70-80-V3X-Increase-LVDS-memory-region.patch
