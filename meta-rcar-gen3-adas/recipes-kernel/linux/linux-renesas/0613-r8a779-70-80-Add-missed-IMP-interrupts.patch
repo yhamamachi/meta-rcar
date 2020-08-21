@@ -1364,7 +1364,7 @@ index e470b09..e73dfb4 100644
  		};
  
 -		iccom_error4 {
-+		irq_iccom00_12 { /* iccom error 4 */
++		irq_iccom_00_12 { /* iccom error 4 */
  			compatible = "generic-uio";
  			interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
  			reg = <0x0 0xe6260000 0x0 0x1000>;
