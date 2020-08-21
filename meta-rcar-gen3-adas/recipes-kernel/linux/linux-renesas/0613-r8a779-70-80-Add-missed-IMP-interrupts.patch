@@ -1,0 +1,1697 @@
+From 693b7afc4777f9f2361dd3df8d6ec864e49a8208 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Fri, 21 Aug 2020 17:05:54 +0300
+Subject: [PATCH 1/2] r8a779[70|80]: Add missed IMP interrupts
+
+...and adjust naming for UIO devices to meet OSAL requirements
+---
+ arch/arm64/boot/dts/renesas/r8a77970-es1.dtsi |  22 +-
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi     | 112 +++++------
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi     | 276 ++++++++++++++------------
+ drivers/media/platform/soc_camera/rcar_vin.c  |  16 +-
+ 4 files changed, 229 insertions(+), 197 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a77970-es1.dtsi
+index 74a9243..002f9f3 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-es1.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970-es1.dtsi
+@@ -12,7 +12,7 @@
+ 
+ / {
+ 	soc {
+-		imp_distributer: impdes0 {
++		imp_distributer: imp_ctrl_00 {
+ 			compatible = "renesas,impx4-distributer";
+ 			reg = <0 0xffa00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
+@@ -22,7 +22,7 @@
+ 			#interrupt-cells = <1>;
+ 		};
+ 
+-		imp0 {
++		imp_imp_00 {
+ 			compatible = "renesas,impx4-legacy";
+ 			reg = <0 0xff900000 0 0x20000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -31,7 +31,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
+ 		};
+ 
+-		imp1 {
++		imp_imp_01 {
+ 			compatible = "renesas,impx4-legacy";
+ 			reg = <0 0xff920000 0 0x20000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -40,7 +40,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
+ 		};
+ 
+-		imp2 {
++		imp_imp_02 {
+ 			compatible = "renesas,impx4-legacy";
+ 			reg = <0 0xff940000 0 0x20000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -49,7 +49,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 		};
+ 
+-		imp3 {
++		imp_imp_03 {
+ 			compatible = "renesas,impx4-legacy";
+ 			reg = <0 0xff960000 0 0x20000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -58,7 +58,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2CN>;
+ 		};
+ 
+-		impsc0 {
++		imp_ocv_00 {
+ 			compatible = "renesas,impx4-shader";
+ 			reg = <0 0xff980000 0 0x10000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -67,7 +67,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2SC0>;
+ 		};
+ 
+-		impsc1 {
++		imp_ocv_01 {
+ 			compatible = "renesas,impx4-shader";
+ 			reg = <0 0xff990000 0 0x10000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -76,7 +76,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A2SC1>;
+ 		};
+ 
+-		impdm0 {
++		imp_dma_00 {
+ 			compatible = "renesas,impx5-dmac";
+ 			reg = <0 0xffa10000 0 0x1000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -85,7 +85,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A3IR>;
+ 		};
+ 
+-		impdm1 {
++		imp_dma_01 {
+ 			compatible = "renesas,impx5-dmac";
+ 			reg = <0 0xffa10000 0 0x1000>,
+ 			      <0 0xffa10800 0 0x0800>;
+@@ -95,7 +95,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A3IR>;
+ 		};
+ 
+-		imppsc0 {
++		imp_psc_00 {
+ 			compatible = "renesas,impx5+-psc";
+ 			reg = <0 0xffa20000 0 0x4000>;
+ 			interrupt-parent = <&imp_distributer>;
+@@ -106,7 +106,7 @@
+ 
+ 		/delete-node/impcnn0;
+ 
+-		impc0 {
++		imp_mem_00 {
+ 			compatible = "renesas,impx4-memory";
+ 			reg = <0 0xed000000 0 0xe0000>;
+ 			clocks = <&cpg CPG_MOD 830>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index d2b0219..d70b0e2 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -846,7 +846,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: vin0@e6ef0000 {
++		vin0: vin_00@e6ef0000 {
+ 			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+@@ -857,7 +857,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin1: vin1@e6ef1000 {
++		vin1: vin_01@e6ef1000 {
+ 			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+@@ -868,7 +868,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin2: vin2@e6ef2000 {
++		vin2: vin_02@e6ef2000 {
+ 			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+@@ -879,7 +879,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin3: vin3@e6ef3000 {
++		vin3: vin_03@e6ef3000 {
+ 			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+@@ -890,7 +890,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		imp_distributer: impdes0 {
++		imp_distributer: imp_ctrl_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
+@@ -900,77 +900,77 @@
+ 			#interrupt-cells = <1>;
+ 		};
+ 
+-		imp0 {
++		imp_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff900000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
+ 		};
+ 
+-		imp1 {
++		imp_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff920000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
+ 		};
+ 
+-		imp2 {
++		imp_imp_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff940000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
+ 		};
+ 
+-		imp3 {
++		imp_imp_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff960000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
+ 		};
+ 
+-		impsc0 {
++		imp_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff980000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC0>;
+ 		};
+ 
+-		impsc1 {
++		imp_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff990000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC1>;
+ 		};
+ 
+-		impdm0 {
++		imp_dma_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa10000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 		};
+ 
+-		impdm1 {
++		imp_dma_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa11000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 		};
+ 
+-		imppsc0 {
++		imp_psc_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa20000 0 0x4000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 		};
+ 
+-		impcnn0 {
++		imp_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff9e0000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+ 			power-domains = <&sysc R8A77970_PD_A2CN>;
+ 		};
+ 
+-		impc0 {
++		imp_mem_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xed000000 0 0xe0000>;
+ 			clocks = <&cpg CPG_MOD 830>;
+@@ -981,7 +981,7 @@
+ 			dma-coherent;
+ 		};
+ 
+-		imrlx4_ch0: imr0@fe860000 {
++		imrlx4_ch0: imr_00@fe860000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe860000 0 0x10000>;
+@@ -992,7 +992,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch1: imr1@fe870000 {
++		imrlx4_ch1: imr_01@fe870000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe870000 0 0x10000>;
+@@ -1003,7 +1003,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch2: imr2@fe880000 {
++		imrlx4_ch2: imr_02@fe880000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe880000 0 0x10000>;
+@@ -1014,7 +1014,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch3: imr3@fe890000 {
++		imrlx4_ch3: imr_03@fe890000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe890000 0 0x10000>;
+@@ -1035,7 +1035,7 @@
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		tisp0: tisp0 {
++		tisp0: tisp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfed00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1043,7 +1043,7 @@
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		cisp0: cisp0 {
++		cisp0: cisp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfec00000 0 0x20000>;
+ 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1189,7 +1189,7 @@
+ 			resets = <&cpg 408>;
+ 		};
+ 
+-		vspd0: vsp@fea20000 {
++		vspd0: vsp_00@fea20000 {
+ 			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1207,7 +1207,7 @@
+ 			resets = <&cpg 603>;
+ 		};
+ 
+-		csi40: csi0@feaa0000 {
++		csi40: csi_00@feaa0000 {
+ 			compatible = "renesas,r8a77970-csi2", "generic-uio";
+ 			reg = <0 0xfeaa0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 246 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1217,7 +1217,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		du: display@feb00000 {
++		du: du_00@feb00000 {
+ 			compatible = "renesas,du-r8a77970", "generic-uio";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1247,7 +1247,7 @@
+ 			};
+ 		};
+ 
+-		lvds0: lvds-encoder@feb90000 {
++		lvds0: lvds_00@feb90000 {
+ 			compatible = "renesas,r8a77970-lvds", "generic-uio";
+ 			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+@@ -1279,7 +1279,7 @@
+ 			reg = <0 0xfff00044 0 4>;
+ 		};
+ 
+-		iccom0 {
++		iccom_00 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 224 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1289,7 +1289,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom1 {
++		irq_iccom_00_01 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 225 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1299,7 +1299,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom2 {
++		irq_iccom_00_02 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 226 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1309,7 +1309,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom3 {
++		irq_iccom_00_03 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 227 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1319,7 +1319,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom4 {
++		irq_iccom_00_04 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 228 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1329,7 +1329,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom5 {
++		irq_iccom_00_05 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 229 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1339,7 +1339,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom6 {
++		irq_iccom_00_06 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 230 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1349,7 +1349,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom7 {
++		irq_iccom_00_07 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 231 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1359,84 +1359,84 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom_error0 {
++		irq_iccom_00_08 { /* iccom error 0 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 337 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error1 {
++		irq_iccom_00_09 { /* iccom error 1 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 338 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error2 {
++		irq_iccom_00_10 { /* iccom error 2 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error3 {
++		irq_iccom_00_11 { /* iccom error 3 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error4 {
++		irq_iccom_00_12 { /* iccom error 4 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error5 {
++		irq_iccom_00_13 { /* iccom error 5 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error6 {
++		irq_iccom_00_14 { /* iccom error 6 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 343 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error7 {
++		irq_iccom_00_15 { /* iccom error 7 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 344 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error8 {
++		irq_iccom_00_16 { /* iccom error 8 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error9 {
++		irq_iccom_00_17 { /* iccom error 9 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 347 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error10 {
++		irq_iccom_00_18 { /* iccom error 10 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error11 {
++		irq_iccom_00_19 { /* iccom error 11 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1448,7 +1448,7 @@
+ 			reg = <0 0xe67e0000 0 0x10090>;
+ 		};
+ 
+-		h264_ch0 {
++		ivcp1e_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfea00000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 127>;
+@@ -1456,7 +1456,7 @@
+ 			interrupts = <GIC_SPI 300 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		h264_ch1 {
++		irq_ivcp1e_00_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfea00000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 127>;
+@@ -1492,56 +1492,56 @@
+ 			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		rtt_ims01 {
++		imr_rtt_ims_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff80000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 823>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_ims23 {
++		imr_rtt_ims_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 821>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_imp01 {
++		imp_rtt_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
+ 		};
+ 
+-		rtt_imp23 {
++		imp_rtt_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff50000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
+ 		};
+ 
+-		rtt_ocv0 {
++		imp_rtt_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffa0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC0>;
+ 		};
+ 
+-		rtt_ocv1 {
++		imp_rtt_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffb0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC1>;
+ 		};
+ 
+-		rtt_imp_dp0 {
++		imp_rtt_dp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff60000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 		};
+ 
+-		rtt_cnn {
++		imp_rtt_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff70000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index e470b09..e73dfb4 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -892,7 +892,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: vin0@e6ef0000 {
++		vin0: vin_00@e6ef0000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+@@ -903,7 +903,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin1: vin1@e6ef1000 {
++		vin1: vin_01@e6ef1000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+@@ -914,7 +914,7 @@
+ 			resets = <&cpg 810>;
+ 		};
+ 
+-		vin2: vin2@e6ef2000 {
++		vin2: vin_02@e6ef2000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+@@ -925,7 +925,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin3: vin3@e6ef3000 {
++		vin3: vin_03@e6ef3000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+@@ -936,7 +936,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin4: vin4@e6ef4000 {
++		vin4: vin_04@e6ef4000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef4000 0 0x1000>;
+ 			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
+@@ -947,7 +947,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin5: vin5@e6ef5000 {
++		vin5: vin_05@e6ef5000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef5000 0 0x1000>;
+ 			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH>;
+@@ -958,7 +958,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin6: vin6@e6ef6000 {
++		vin6: vin_06@e6ef6000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef6000 0 0x1000>;
+ 			interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
+@@ -969,7 +969,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin7: vin7@e6ef7000 {
++		vin7: vin_07@e6ef7000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef7000 0 0x1000>;
+ 			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+@@ -980,7 +980,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin8: vin8@e6ef8000 {
++		vin8: vin_08@e6ef8000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef8000 0 0x1000>;
+ 			interrupts = <GIC_SPI 268 IRQ_TYPE_LEVEL_HIGH>;
+@@ -991,7 +991,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin9: vin9@e6ef9000 {
++		vin9: vin_09@e6ef9000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef9000 0 0x1000>;
+ 			interrupts = <GIC_SPI 269 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1002,7 +1002,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin10: vin10@e6efa000 {
++		vin10: vin_10@e6efa000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efa000 0 0x1000>;
+ 			interrupts = <GIC_SPI 289 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1013,7 +1013,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin11: vin11@e6efb000 {
++		vin11: vin_11@e6efb000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efb000 0 0x1000>;
+ 			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1024,7 +1024,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin12: vin12@e6efc000 {
++		vin12: vin_12@e6efc000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efc000 0 0x1000>;
+ 			interrupts = <GIC_SPI 298 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1035,7 +1035,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin13: vin13@e6efd000 {
++		vin13: vin_13@e6efd000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efd000 0 0x1000>;
+ 			interrupts = <GIC_SPI 299 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1046,7 +1046,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin14: vin14@e6efe000 {
++		vin14: vin_14@e6efe000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efe000 0 0x1000>;
+ 			interrupts = <GIC_SPI 301 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1057,7 +1057,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin15: vin15@e6eff000 {
++		vin15: vin_15@e6eff000 {
+ 			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6eff000 0 0x1000>;
+ 			interrupts = <GIC_SPI 302 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1068,7 +1068,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		imp_distributer: impdes0 {
++		imp_distributer: imp_ctrl_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1078,133 +1078,165 @@
+ 			#interrupt-cells = <1>;
+ 		};
+ 
+-		imp0 {
++		irq_imp_ctrl_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 282 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_02 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 283 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_03 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 284 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_04 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 285 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		imp_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff900000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR0>;
+ 		};
+ 
+-		imp1 {
++		imp_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff920000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR1>;
+ 		};
+ 
+-		imp2 {
++		imp_imp_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff940000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR2>;
+ 		};
+ 
+-		imp3 {
++		imp_imp_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff960000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR3>;
+ 		};
+ 
+-		imp4 {
++		imp_imp_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa80000 0 0x20000>;
+ 			clocks = <&cpg CPG_MOD 521>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR4>;
+ 		};
+ 
+-		impslc0 {
++		imp_slim_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff9c0000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 500>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR5>;
+ 		};
+ 
+-		impsc0 {
++		imp_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff980000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC0>;
+ 		};
+ 
+-		impsc1 {
++		imp_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff990000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC1>;
+ 		};
+ 
+-		impsc2 {
++		imp_ocv_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff9a0000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 531>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC2>;
+ 		};
+ 
+-		impsc3 {
++		imp_ocv_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff9b0000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 529>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC3>;
+ 		};
+ 
+-		impsc4 {
++		imp_ocv_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa40000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 528>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC4>;
+ 		};
+ 
+-		impdm0 {
++		imp_dma_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa10000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 527>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
+ 		};
+ 
+-		impdm1 {
++		imp_dma_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa11000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 527>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
+ 		};
+ 
+-		impdm2 {
++		imp_dma_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa14000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 526>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
+ 		};
+ 
+-		impdm3 {
++		imp_dma_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa15000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 526>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
+ 		};
+ 
+-		imppsc0 {
++		imp_psc_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa20000 0 0x4000>;
+ 			clocks = <&cpg CPG_MOD 525>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
+ 		};
+ 
+-		imppsc1 {
++		imp_psc_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffa24000 0 0x4000>;
+ 			clocks = <&cpg CPG_MOD 524>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
+ 		};
+ 
+-		impcnn0 {
++		imp_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff9e0000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 831>;
+ 			power-domains = <&sysc R8A77980_PD_A2CN>;
+ 		};
+ 
+-		impc0 {
++		imp_mem_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xed000000 0 0x200000>;
+ 			clocks = <&cpg CPG_MOD 830>;
+@@ -1215,7 +1247,7 @@
+ 			dma-coherent;
+ 		};
+ 
+-		imrlx4_ch0: imr0@fe860000 {
++		imrlx4_ch0: imr_00@fe860000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe860000 0 0x10000>;
+@@ -1226,7 +1258,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch1: imr1@fe870000 {
++		imrlx4_ch1: imr_01@fe870000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe870000 0 0x10000>;
+@@ -1237,7 +1269,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch2: imr2@fe880000 {
++		imrlx4_ch2: imr_02@fe880000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe880000 0 0x10000>;
+@@ -1248,7 +1280,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch3: imr3@fe890000 {
++		imrlx4_ch3: imr_03@fe890000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe890000 0 0x10000>;
+@@ -1259,7 +1291,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch4: imr4@fe8a0000 {
++		imrlx4_ch4: imr_04@fe8a0000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe8a0000 0 0x10000>;
+@@ -1270,7 +1302,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		imrlx4_ch5: imr5@fe8b0000 {
++		imrlx4_ch5: imr_05@fe8b0000 {
+ 			compatible = "generic-uio",
+ 				     "renesas,imr-lx4";
+ 			reg = <0 0xfe8b0000 0 0x10000>;
+@@ -1281,7 +1313,7 @@
+ 			alloc-dev = <&imr_v4l2_alloc>;
+ 		};
+ 
+-		vip_disp_status {
++		stv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 238 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1289,7 +1321,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP0>;
+ 		};
+ 
+-		vip_disp_error {
++		irq_stv_00_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1297,7 +1329,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP0>;
+ 		};
+ 
+-		vip_umf_status {
++		dof_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a10000 0 0x10000>;
+ 			interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1305,7 +1337,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP1>;
+ 		};
+ 
+-		vip_umf_error {
++		irq_dof_00_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a10000 0 0x10000>;
+ 			interrupts = <GIC_SPI 243 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1361,7 +1393,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP1>;
+ 		};
+ 
+-		vip_cle0_status {
++		acf_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a50000 0 0x10000>;
+ 			interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1369,7 +1401,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle0_error {
++		irq_acf_00_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a50000 0 0x10000>;
+ 			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1377,7 +1409,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle1_status {
++		acf_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a60000 0 0x10000>;
+ 			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1385,7 +1417,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle1_error {
++		irq_acf_01_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a60000 0 0x10000>;
+ 			interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1393,7 +1425,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle2_status {
++		acf_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a70000 0 0x10000>;
+ 			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1401,7 +1433,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle2_error {
++		irq_acf_02_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a70000 0 0x10000>;
+ 			interrupts = <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1409,7 +1441,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle3_status {
++		acf_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a80000 0 0x10000>;
+ 			interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1417,7 +1449,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle3_error {
++		irq_acf_03_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a80000 0 0x10000>;
+ 			interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1425,7 +1457,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle4_status {
++		acf_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a90000 0 0x10000>;
+ 			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1433,7 +1465,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		vip_cle4_error {
++		irq_acf_04_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7a90000 0 0x10000>;
+ 			interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1441,48 +1473,48 @@
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		fcpr_vip {
++		fcpr_vip_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7aa0000 0 0x20000>;
+ 		};
+ 
+-		fcpr_ir {
++		fcpr_ir_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d8000 0 0x10000>;
+ 		};
+ 
+-		fcpr_vio0 {
++		fcpr_vio_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfe9c0000 0 0x10000>;
+ 		};
+ 
+-		fcpr_vio1 {
++		fcpr_vio_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfea90000 0 0x10000>;
+ 		};
+ 
+-		fcpr_rt {
++		fcpr_rt_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xffc70000 0 0x10000>;
+ 		};
+ 
+-		fcpr_peri {
++		fcpr_peri_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7320000 0 0x10000>;
+ 		};
+ 
+-		fcpra_peri {
++		fcpra_peri_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7410000 0 0x10000>;
+ 		};
+ 
+ 
+-		fcpr_c53 {
++		fcpr_c53_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xf12a0000 0 0x10000>;
+ 		};
+ 
+-		fcpra_c53 {
++		fcpra_c53_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xf12f0000 0 0x10000>;
+ 		};
+@@ -1508,7 +1540,7 @@
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		tisp0: tisp0 {
++		tisp0: tisp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfed00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1517,7 +1549,7 @@
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		cisp0: cisp0 {
++		cisp0: cisp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfec00000 0 0x20000>;
+ 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1526,7 +1558,7 @@
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		tisp1: tisp1 {
++		tisp1: tisp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfed20000 0 0x10000>;
+ 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1535,7 +1567,7 @@
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		cisp1: cisp1 {
++		cisp1: cisp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfee00000 0 0x20000>;
+ 			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1764,7 +1796,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vspd0: vsp@fea20000 {
++		vspd0: vsp_00@fea20000 {
+ 			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1782,7 +1814,7 @@
+ 			resets = <&cpg 603>;
+ 		};
+ 
+-		csi40: csi0@feaa0000 {
++		csi40: csi_00@feaa0000 {
+ 			compatible = "renesas,r8a77980-csi2", "generic-uio";
+ 			reg = <0 0xfeaa0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 246 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1792,7 +1824,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		csi41: csi1@feab0000 {
++		csi41: csi_01@feab0000 {
+ 			compatible = "renesas,r8a77980-csi2", "generic-uio";
+ 			reg = <0 0xfeab0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 241 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1802,7 +1834,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		du: display@feb00000 {
++		du: du_00@feb00000 {
+ 			compatible = "renesas,du-r8a77980", "generic-uio",
+ 				     "renesas,du-r8a77970";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+@@ -1833,7 +1865,7 @@
+ 			};
+ 		};
+ 
+-		lvds0: lvds-encoder@feb90000 {
++		lvds0: lvds_00@feb90000 {
+ 			compatible = "renesas,r8a77980-lvds", "generic-uio";
+ 			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+@@ -1866,7 +1898,7 @@
+ 			reg = <0 0xfff00044 0 4>;
+ 		};
+ 
+-		iccom0 {
++		iccom_00 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 224 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1876,7 +1908,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom1 {
++		irq_iccom_00_01 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 225 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1886,7 +1918,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom2 {
++		irq_iccom_00_02 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 226 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1896,7 +1928,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom3 {
++		irq_iccom_00_03 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 227 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1906,7 +1938,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom4 {
++		irq_iccom_00_04 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 228 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1916,7 +1948,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom5 {
++		irq_iccom_00_05 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 229 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1926,7 +1958,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom6 {
++		irq_iccom_00_06 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 230 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1936,7 +1968,7 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom7 {
++		irq_iccom_00_07 {
+ 			compatible = "renesas,iccom-rcar", "generic-uio";
+ 			interrupts = <0 231 4>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -1946,98 +1978,98 @@
+ 			iccom,trg-timeout = <100>;
+ 		};
+ 
+-		iccom_error0 {
++		irq_iccom_00_08 { /* iccom error 0 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 337 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error1 {
++		irq_iccom_00_09 { /* iccom error 1 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 338 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error2 {
++		irq_iccom_00_10 { /* iccom error 2 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error3 {
++		irq_iccom_00_11 { /* iccom error 3 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error4 {
++		irq_iccom00_12 { /* iccom error 4 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error5 {
++		irq_iccom_00_13 { /* iccom error 5 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error6 {
++		irq_iccom_00_14 { /* iccom error 6 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 343 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error7 {
++		irq_iccom_00_15 { /* iccom error 7 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 344 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error8 {
++		irq_iccom_00_16 { /* iccom error 8 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error9 {
++		irq_iccom_00_17 { /* iccom error 9 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 347 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error10 {
++		irq_iccom_00_18 { /* iccom error 10 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error11 {
++		irq_iccom_00_19 { /* iccom error 11 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error12 {
++		irq_iccom_00_20 { /* iccom error 12 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 352 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		iccom_error13 {
++		irq_iccom_00_21 { /* iccom error 13 */
+ 			compatible = "generic-uio";
+ 			interrupts = <GIC_SPI 376 IRQ_TYPE_LEVEL_HIGH>;
+ 			reg = <0x0 0xe6260000 0x0 0x1000>;
+@@ -2049,7 +2081,7 @@
+ 			reg = <0 0xe67e0000 0 0x10090>;
+ 		};
+ 
+-		h264_ch0 {
++		ivcp1e_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfea00000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 127>;
+@@ -2057,7 +2089,7 @@
+ 			interrupts = <GIC_SPI 300 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		h264_ch1 {
++		irq_ivcp1e_00_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfea00000 0 0x10000>;
+ 			clocks = <&cpg CPG_MOD 127>;
+@@ -2100,168 +2132,168 @@
+ 			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		rtt_imr0 {
++		imr_rtt_imr_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff80000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 707>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_imr1 {
++		imr_rtt_imr_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff81000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 706>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_ims0 {
++		imr_rtt_ims_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 823>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_ims1 {
++		imr_rtt_ims_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff91000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 822>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_ims2 {
++		imr_rtt_ims_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff92000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 821>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_ims3 {
++		imr_rtt_ims_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff93000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 820>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 		};
+ 
+-		rtt_dof {
++		viprtt_dof_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7930000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 102>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP1>;
+ 		};
+ 
+-		rtt_stv {
++		viprtt_stv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7950000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 101>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP0>;
+ 		};
+ 
+-		rtt_acf0 {
++		viprtt_acf_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7940000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 1004>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		rtt_acf1 {
++		viprtt_acf_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7941000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 1002>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 		};
+ 
+-		rtt_imp0 {
++		imp_rtt_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR0>;
+ 		};
+ 
+-		rtt_imp1 {
++		imp_rtt_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff50000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR1>;
+ 		};
+ 
+-		rtt_imp2 {
++		imp_rtt_imp_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff60000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR2>;
+ 		};
+ 
+-		rtt_imp3 {
++		imp_rtt_imp_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff70000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR3>;
+ 		};
+ 
+-		rtt_imp4 {
++		imp_rtt_imp_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d1000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 521>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR4>;
+ 		};
+ 
+-		rtt_ocv0 {
++		imp_rtt_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffa0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC0>;
+ 		};
+ 
+-		rtt_ocv1 {
++		imp_rtt_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffb0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC1>;
+ 		};
+ 
+-		rtt_ocv2 {
++		imp_rtt_ocv_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d2000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 531>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC2>;
+ 		};
+ 
+-		rtt_ocv3 {
++		imp_rtt_ocv_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d3000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 529>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC3>;
+ 		};
+ 
+-		rtt_ocv4 {
++		imp_rtt_ocv_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d4000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 528>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC4>;
+ 		};
+ 
+-		rtt_imp_dp0 {
++		imp_rtt_dp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d5000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 525>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
+ 		};
+ 
+-		rtt_imp_dp1 {
++		imp_rtt_dp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d6000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 524>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
+ 		};
+ 
+-		rtt_cnn {
++		imp_rtt_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d7000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 831>;
+ 			power-domains = <&sysc R8A77980_PD_A2CN>;
+ 		};
+ 
+-		rtt_imp_slim {
++		imp_rtt_slim_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8dc000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 500>;
+diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
+index 2455a83..2f67efb 100644
+--- a/drivers/media/platform/soc_camera/rcar_vin.c
++++ b/drivers/media/platform/soc_camera/rcar_vin.c
+@@ -3202,28 +3202,28 @@ static int rcar_vin_probe(struct platform_device *pdev)
+ 		num = VNCSI_IFMD_SEL_NUMBER;
+ 
+ 		if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef0000.vin0") == 0)
++						"e6ef0000.vin_00") == 0)
+ 			priv->index = RCAR_VIDEO_0;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef1000.vin1") == 0)
++						"e6ef1000.vin_01") == 0)
+ 			priv->index = RCAR_VIDEO_1;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef2000.vin2") == 0)
++						"e6ef2000.vin_02") == 0)
+ 			priv->index = RCAR_VIDEO_2;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef3000.vin3") == 0)
++						"e6ef3000.vin_03") == 0)
+ 			priv->index = RCAR_VIDEO_3;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef4000.vin4") == 0)
++						"e6ef4000.vin_04") == 0)
+ 			priv->index = RCAR_VIDEO_4;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef5000.vin5") == 0)
++						"e6ef5000.vin_05") == 0)
+ 			priv->index = RCAR_VIDEO_5;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef6000.vin6") == 0)
++						"e6ef6000.vin_06") == 0)
+ 			priv->index = RCAR_VIDEO_6;
+ 		else if (strcmp(dev_name(priv->ici.v4l2_dev.dev),
+-						"e6ef7000.vin7") == 0)
++						"e6ef7000.vin_07") == 0)
+ 			priv->index = RCAR_VIDEO_7;
+ 		else
+ 			priv->index = RCAR_VIN_CH_NONE;
+-- 
+2.7.4
+

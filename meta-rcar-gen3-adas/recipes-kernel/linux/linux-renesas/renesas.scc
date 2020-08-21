@@ -464,3 +464,6 @@ patch 0609-r8a779-78-dtsi-Add-h264-nodes.patch
 patch 0610-media-soc_camera-rcar_csi2-Cleanup-sysfs-on-driver-r.patch
 patch 0611-V3x-Add-RTT-UIO-support.patch
 patch 0612-r8a779-70-80-V3X-Increase-LVDS-memory-region.patch
+patch 0613-r8a779-70-80-Add-missed-IMP-interrupts.patch
+patch 0614-r8a77980-Remove-unused-bad-IMP-and-VIP-devices.patch
+patch 0615-r8a779-70-80-Adjust-IMR-memory-region.patch
