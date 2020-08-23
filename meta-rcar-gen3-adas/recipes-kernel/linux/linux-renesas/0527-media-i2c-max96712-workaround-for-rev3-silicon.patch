@@ -1,0 +1,45 @@
+From af29ef65a05d5ee2940d12c3def2af7ec8882fdb Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 23 Aug 2020 15:48:51 +0300
+Subject: [PATCH] media: i2c: max96712: workaround for rev3 silicon
+
+This is a workaround for old (rev3 or less) silicon that can't
+properly operate the MIPI output in GMSL2 mode
+
+This code have been originally added by Andrey Gusakov but later removed as deprecated
+since developemnt was done on rev4 silicon.
+
+Later this have been found by and fixed by:
+    Sagar Vaidya <sagar.vaidya.ry@gr.renesas.com>
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/gmsl/max96712.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max96712.c b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+index 80e26d0..5ee83bb 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max96712.c
++++ b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+@@ -1061,11 +1061,16 @@ static int max96712_s_power(struct v4l2_subdev *sd, int on)
+ 
+ 	if (on) {
+ 		des_update_bits(MAX96712_VIDEO_PIPE_EN, pipes_mask, pipes_mask); /* enable link pipes */
+-		if (atomic_inc_return(&priv->use_count) == 1)
++		if (atomic_inc_return(&priv->use_count) == 1) {
+ 			des_update_bits(MAX_BACKTOP12(0), 0x02, 0x02); /* CSI output enable */
++			/* Workaround for rev3 silicon: */
++			des_update_bits(MAX_MIPI_PHY0, 0x80, 0x80); /* Force all MIPI clocks running */
++		}
+ 	} else {
+-		if (atomic_dec_return(&priv->use_count) == 0)
++		if (atomic_dec_return(&priv->use_count) == 0) {
++			des_update_bits(MAX_MIPI_PHY0, 0x80, 0x00); /* Disable all MIPI clocks running force */
+ 			des_update_bits(MAX_BACKTOP12(0), 0x02, 0); /* CSI output disable */
++		}
+ 		des_update_bits(MAX96712_VIDEO_PIPE_EN, pipes_mask, 0); /* disable link pipes */
+ 	}
+ 
+-- 
+2.7.4
+
