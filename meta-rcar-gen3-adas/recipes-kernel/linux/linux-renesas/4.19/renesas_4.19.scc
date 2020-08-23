@@ -496,3 +496,4 @@ patch 0523-media-i2c-isx019-do-not-disable-embedded-line.patch
 patch 0524-media-i2c-dummy-fix-DT-parse.patch
 patch 0525-media-i2c-isx019-add-extra-helper.patch
 patch 0526-media-i2c-max9286-enable-VS-HS-remap.patch
+patch 0527-media-i2c-max96712-workaround-for-rev3-silicon.patch
