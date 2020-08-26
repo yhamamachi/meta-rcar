@@ -1,0 +1,28 @@
+From b01fcab7c46c6c855f8ef312fc585d53ec360967 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 26 Aug 2020 14:50:21 +0300
+Subject: [PATCH] media: i2c: dummy: add rgb888 mbus
+
+This adds RGB888 media bus format
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/dummy.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/media/i2c/soc_camera/dummy.c b/drivers/media/i2c/soc_camera/dummy.c
+index 3be2728..3e0d3d8 100644
+--- a/drivers/media/i2c/soc_camera/dummy.c
++++ b/drivers/media/i2c/soc_camera/dummy.c
+@@ -360,6 +360,8 @@ static int dummy_initialize(struct i2c_client *client)
+ 		priv->mbus_format = MEDIA_BUS_FMT_SBGGR16_1X16;
+ 	else if (strcmp(priv->media_bus_format, "grbg16") == 0)
+ 		priv->mbus_format = MEDIA_BUS_FMT_SGRBG16_1X16;
++	else if (strcmp(priv->media_bus_format, "rgb888") == 0)
++		priv->mbus_format = MEDIA_BUS_FMT_RGB888_1X24;
+ 	else {
+ 		v4l_err(client, "failed to parse mbus format (%s)\n", priv->media_bus_format);
+ 		return -EINVAL;
+-- 
+2.7.4
+
