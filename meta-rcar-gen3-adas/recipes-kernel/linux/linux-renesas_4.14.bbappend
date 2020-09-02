@@ -23,6 +23,7 @@ SRC_URI_append = " \
     ${@oe.utils.conditional("KF_PANEL_MODEL", "AA121TD01", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA121TD01-1.patch", "", d)} \
     ${@oe.utils.conditional("VB_ENABLE_FDPLINK", "1", " file://0391-arm64-dts-renesas-Enable-FDPLink-output-on-V3x-Video.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_M3V3SK8GB", "1", " file://0525-arm64-dts-renesas-Add-r8a7796-m3ulcb-2x4g-kf.dts.patch", "", d)} \
+    ${@oe.utils.conditional("KF_ENABLE_CN11", "1", " file://0529-arm64-dts-renesas-ulcb-kf-enable-CN11.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
