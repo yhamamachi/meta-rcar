@@ -17,6 +17,7 @@ SRC_URI_append = " \
     ${@oe.utils.conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
     ${@oe.utils.conditional("KF_ENABLE_IMX219", "1", " file://0115-arm64-dts-renesas-ulcb-kf-enable-enable-IMX219.patch", "", d)} \
     ${@oe.utils.conditional("VB_ENABLE_FDPLINK", "1", " file://4.19/0369-arm64-dts-renesas-Enable-FDPLink-output-on-V3x-Video.patch", "", d)} \
+    ${@oe.utils.conditional("KF_ENABLE_CN11", "1", " file://4.19/0529-arm64-dts-renesas-ulcb-kf-enable-CN11.patch", "", d)} \
     file://renesas.scc \
     file://4.19/renesas_4.19.scc \
 "

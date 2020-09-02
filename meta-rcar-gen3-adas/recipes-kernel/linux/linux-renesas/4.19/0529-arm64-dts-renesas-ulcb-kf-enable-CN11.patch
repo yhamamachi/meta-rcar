@@ -1,0 +1,27 @@
+From 9e622e9513b2ea2d26c8e17ef575416db3b61558 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 2 Sep 2020 11:29:54 +0300
+Subject: [PATCH] arm64: dts: renesas: ulcb-kf: enable CN11
+
+This enables CN11 instead CMOS and Raspberry cameras
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index b678cd6..d76f9fe 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -1435,3 +1435,7 @@
+ 
+ 
+ 
++#include "ulcb-kf-cn11.dtsi"
++
++
++
+-- 
+2.7.4
+
