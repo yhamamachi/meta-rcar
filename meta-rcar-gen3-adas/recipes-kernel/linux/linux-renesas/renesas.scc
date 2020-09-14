@@ -467,3 +467,4 @@ patch 0612-r8a779-70-80-V3X-Increase-LVDS-memory-region.patch
 patch 0613-r8a779-70-80-Add-missed-IMP-interrupts.patch
 patch 0614-r8a77980-Remove-unused-bad-IMP-and-VIP-devices.patch
 patch 0615-r8a779-70-80-Adjust-IMR-memory-region.patch
+patch 0616-V3x-Add-IPMMU-domain-info-for-UIO-devices.patch
