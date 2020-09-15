@@ -11,7 +11,7 @@ SRC_URI = "git://github.com/CogentEmbedded/libiccom.git;branch=master"
 SRCREV = "89478ad5de0b351f8622db3e384c65021e3b2370"
 S = "${WORKDIR}/git"
 
-COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3mzf|v3hsk"
+COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3hsk"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 

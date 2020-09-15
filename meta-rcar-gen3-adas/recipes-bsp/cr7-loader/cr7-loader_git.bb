@@ -17,7 +17,7 @@ SRCREV = "f665a20984fbfcf6321f459f40dc0d419e310da2"
 
 PV = "v1.0+renesas+git"
 
-COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3mzf|v3hsk"
+COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3hsk"
 PLATFORM = "rcar"
 
 EXTRA_OEMAKE_r8a77970 = "LSI=V3M RCAR_DRAM_SPLIT=0 RCAR_KICK_MAIN_CPU=2 RCAR_SECURE_BOOT=0"
