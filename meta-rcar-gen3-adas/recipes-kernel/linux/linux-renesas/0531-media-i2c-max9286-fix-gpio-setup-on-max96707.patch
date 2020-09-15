@@ -1,0 +1,31 @@
+From 344010be2956f4e48a30d15ac32e84080547e655 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 15 Sep 2020 19:36:47 +0300
+Subject: [PATCH] media: i2c: max9286: fix gpio setup on max96707
+
+The redundant setup of resetb pin is not applicable to max96707
+because there are not free gpios on this serializer. Hence the
+redundand setup may affect the data bus.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/gmsl/max9286.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max9286.c b/drivers/media/i2c/soc_camera/gmsl/max9286.c
+index 8d9e72d..904f7c39 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max9286.c
++++ b/drivers/media/i2c/soc_camera/gmsl/max9286.c
+@@ -221,6 +221,9 @@ static void max9286_sensor_reset(struct i2c_client *client, int addr, int reset_
+ {
+ 	struct max9286_priv *priv = i2c_get_clientdata(client);
+ 
++	if (priv->ser_id == MAX96707_ID)
++		return;
++
+ 	if (priv->gpio_resetb < 1 || priv->gpio_resetb > 5)
+ 		return;
+ 
+-- 
+2.7.4
+
