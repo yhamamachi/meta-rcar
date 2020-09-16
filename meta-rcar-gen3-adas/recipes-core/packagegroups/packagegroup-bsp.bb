@@ -12,7 +12,7 @@ PACKAGES = " \
 "
 
 PACKAGES_append_rcar-gen3-v3x = " \
-    packagegroup-bsp-python2 \
+    packagegroup-bsp-python3 \
 "
 
 # Packages mandatory for BSP (but often not needed)
@@ -44,7 +44,6 @@ RDEPENDS_packagegroup-bsp-devdbg = " \
     perf \
     procps \
     strace \
-    trace-cmd \
     vim \
     wget \
 "
@@ -78,14 +77,24 @@ RDEPENDS_packagegroup-bsp-custom = " \
 "
 
 # Python2 packages requested by Renesas
-RDEPENDS_packagegroup-bsp-python2 = " \
-    python-dbus \
-    python-nose \
-    python-numpy \
-    python-pygobject \
-    python-pyyaml \
-    python-setuptools \
+#RDEPENDS_packagegroup-bsp-python2 = " \
+#    python-dbus \
+#    python-nose \
+#    python-numpy \
+#    python-pygobject \
+#    python-pyyaml \
+#    python-setuptools \
+#"
+# Python3 packages requested by Renesas
+RDEPENDS_packagegroup-bsp-python3 = " \
+    python3-dbus \
+    python3-nose \
+    python3-numpy \
+    python3-pygobject \
+    python3-pyyaml \
+    python3-setuptools \
 "
+
 
 # Utest (IMR, IMP, etc demos) related packages
 RDEPENDS_packagegroup-bsp-utest = " \

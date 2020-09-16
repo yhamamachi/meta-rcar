@@ -1,3 +1,9 @@
+COMPATIBLE_MACHINE_eagle = "eagle"
+COMPATIBLE_MACHINE_v3msk = "v3msk"
+COMPATIBLE_MACHINE_condor = "condor"
+COMPATIBLE_MACHINE_v3mzf = "v3mzf"
+COMPATIBLE_MACHINE_v3hsk = "v3hsk"
+
 IMAGE_INSTALL_append = " \
     packagegroup-bsp \
     packagegroup-bsp-custom \
@@ -8,7 +14,7 @@ IMAGE_INSTALL_append = " \
 "
 
 IMAGE_INSTALL_append_rcar-gen3-v3x = " \
-    packagegroup-bsp-python2 \
+    packagegroup-bsp-python3 \
     packagegroup-v3x \
     packagegroup-v3x-test \
 "
