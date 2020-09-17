@@ -2,18 +2,19 @@ SUMMARY = "Tools for building cr7 loader"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 
-PV = "5.1-2015.08"
+PV = "9.2-2019.12"
 
-EABI = "arm-eabi"
-TOOLS = "gcc-linaro-${PV}-${BUILD_ARCH}_${EABI}"
+EABI = "arm-none-eabi"
+TOOLS = "gcc-arm-${PV}-${BUILD_ARCH}-${EABI}"
 
 inherit native
 
 SRC_URI = " \
-    https://releases.linaro.org/components/toolchain/binaries/${PV}/${EABI}/${TOOLS}.tar.xz \
+    https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/${TOOLS}.tar.xz \
 "
-SRC_URI[md5sum] = "a58cbee5848f6d2361c76a425c24890f"
-SRC_URI[sha256sum] = "440f301e5d776a0d61ccc63954e7297c327d3d52dcdd7641b38a98043bcb7704"
+
+SRC_URI[md5sum] = "f7cc38b807c9b9815e5b0fb8440e3657"
+SRC_URI[sha256sum] = "ac952d89ae0fc3543e81099e7d34917efc621f5def112eee843fd1ce755eca8c"
 
 do_unpack[noexec] = "1"
 do_configure[noexec] = "1"
