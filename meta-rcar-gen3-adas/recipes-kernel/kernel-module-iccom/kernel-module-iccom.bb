@@ -6,12 +6,14 @@ LIC_FILES_CHKSUM = "file://GPL-COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 require include/rcar-gen3-modules-common.inc
 inherit module
 
+COMPATIBLE_MACHINE = "eagle|condor|v3msk|v3hsk"
+
 DEPENDS = "linux-renesas"
 PN = "kernel-module-iccom"
 PR = "r0"
 
 SRC_URI = "git://github.com/CogentEmbedded/kernel-module-iccom.git;branch=master"
-SRCREV = "b83573ab7cdfd2e03340f7417b6a08284058dc2f"
+SRCREV = "a8c50ea65865ca72c7f53e8fcf893b6b512c3db2"
 S = "${WORKDIR}/git"
 
 do_compile() {
