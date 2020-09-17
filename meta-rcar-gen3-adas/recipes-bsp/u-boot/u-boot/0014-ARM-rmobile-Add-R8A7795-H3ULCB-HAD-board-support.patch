@@ -1,22 +1,35 @@
-From f0ccf1378f3e52ccc80b0987ccba749450a60f25 Mon Sep 17 00:00:00 2001
+From 18a8333203716ecfbc4feeac85b9073cf9ef7de7 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 25 Apr 2019 00:59:01 +0300
-Subject: [PATCH 19/23] ARM: rmobile: Add R8A7795 H3ULCB HAD board support
+Subject: [PATCH 14/21] ARM: rmobile: Add R8A7795 H3ULCB HAD board support
 
 This adds R-Car H3ULCB HAD board support.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
+ arch/arm/dts/Makefile                      |   1 +
  arch/arm/dts/r8a7795-h3ulcb-had-u-boot.dts |  45 +++
  arch/arm/dts/r8a7795-h3ulcb-had.dts        |  51 ++++
  arch/arm/dts/ulcb-had.dtsi                 | 445 +++++++++++++++++++++++++++++
  configs/r8a7795_ulcb_had_defconfig         |  69 +++++
- 4 files changed, 610 insertions(+)
+ 5 files changed, 611 insertions(+)
  create mode 100644 arch/arm/dts/r8a7795-h3ulcb-had-u-boot.dts
  create mode 100644 arch/arm/dts/r8a7795-h3ulcb-had.dts
  create mode 100644 arch/arm/dts/ulcb-had.dtsi
  create mode 100644 configs/r8a7795_ulcb_had_defconfig
 
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 5b2c5c0..e2ba72a 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -687,6 +687,7 @@ dtb-$(CONFIG_RCAR_GEN2) += \
+ dtb-$(CONFIG_RCAR_GEN3) += \
+ 	r8a7795-h3ulcb-u-boot.dtb \
+ 	r8a7795-h3ulcb-4x2g-u-boot.dtb \
++	r8a7795-h3ulcb-had-u-boot.dtb \
+ 	r8a7795-salvator-x-u-boot.dtb \
+ 	r8a7795-salvator-xs-u-boot.dtb \
+ 	r8a7795-salvator-xs-2x2g-u-boot.dtb \
 diff --git a/arch/arm/dts/r8a7795-h3ulcb-had-u-boot.dts b/arch/arm/dts/r8a7795-h3ulcb-had-u-boot.dts
 new file mode 100644
 index 0000000..f450bd3
@@ -70,7 +83,7 @@ index 0000000..f450bd3
 +};
 diff --git a/arch/arm/dts/r8a7795-h3ulcb-had.dts b/arch/arm/dts/r8a7795-h3ulcb-had.dts
 new file mode 100644
-index 0000000..aee00ff
+index 0000000..9e956a3
 --- /dev/null
 +++ b/arch/arm/dts/r8a7795-h3ulcb-had.dts
 @@ -0,0 +1,51 @@
@@ -87,7 +100,7 @@ index 0000000..aee00ff
 +#include "ulcb-had.dtsi"
 +
 +/ {
-+	model = "Renesas H3ULCB.HAD board based on r8a7795 ES2.0+"
++	model = "Renesas H3ULCB.HAD board based on r8a7795 ES2.0+";
 +	compatible = "renesas,h3ulcb", "renesas,r8a7795";
 +
 +	memory@48000000 {
@@ -578,19 +591,22 @@ index 0000000..316fce2
 +};
 diff --git a/configs/r8a7795_ulcb_had_defconfig b/configs/r8a7795_ulcb_had_defconfig
 new file mode 100644
-index 0000000..a874972
+index 0000000..5e71aed
 --- /dev/null
 +++ b/configs/r8a7795_ulcb_had_defconfig
 @@ -0,0 +1,69 @@
 +CONFIG_ARM=y
++CONFIG_ARCH_CPU_INIT=y
 +CONFIG_ARCH_RMOBILE=y
 +CONFIG_SYS_TEXT_BASE=0x50000000
 +CONFIG_SYS_MALLOC_F_LEN=0x2000
 +CONFIG_RCAR_GEN3=y
 +CONFIG_TARGET_ULCB=y
++CONFIG_ENV_SIZE=0x20000
++CONFIG_ENV_OFFSET=0xFFFE0000
 +CONFIG_SMBIOS_PRODUCT_NAME=""
++CONFIG_SPL_TEXT_BASE=0xe6338000
 +CONFIG_FIT=y
-+# CONFIG_ARCH_FIXUP_FDT_MEMORY is not set
 +CONFIG_USE_BOOTARGS=y
 +CONFIG_BOOTARGS="root=/dev/nfs rw nfsroot=192.168.0.1:/export/rfs ip=192.168.0.20"
 +CONFIG_SUPPORT_RAW_INITRD=y
@@ -600,14 +616,12 @@ index 0000000..a874972
 +CONFIG_CMD_BOOTZ=y
 +CONFIG_CMD_ASKENV=y
 +CONFIG_CMD_GPIO=y
-+CONFIG_CMD_GPT=y
 +CONFIG_CMD_I2C=y
 +CONFIG_CMD_MMC=y
 +CONFIG_CMD_USB=y
 +CONFIG_CMD_DHCP=y
 +CONFIG_CMD_MII=y
 +CONFIG_CMD_PING=y
-+CONFIG_CMD_CACHE=y
 +CONFIG_CMD_EXT2=y
 +CONFIG_CMD_EXT4=y
 +CONFIG_CMD_EXT4_WRITE=y
@@ -616,8 +630,10 @@ index 0000000..a874972
 +CONFIG_OF_CONTROL=y
 +CONFIG_DEFAULT_DEVICE_TREE="r8a7795-h3ulcb-had-u-boot"
 +CONFIG_OF_LIST="r8a7795-h3ulcb-had-u-boot"
-+CONFIG_MULTI_DTB_FIT=y
++CONFIG_MULTI_DTB_FIT_LZO=y
++CONFIG_MULTI_DTB_FIT_USER_DEFINED_AREA=y
 +CONFIG_ENV_IS_IN_MMC=y
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 +CONFIG_REGMAP=y
 +CONFIG_SYSCON=y
 +CONFIG_CLK=y
@@ -635,9 +651,6 @@ index 0000000..a874972
 +CONFIG_DM_ETH=y
 +CONFIG_PHY_GIGE=y
 +CONFIG_RENESAS_RAVB=y
-+CONFIG_PINCTRL=y
-+CONFIG_PINCONF=y
-+CONFIG_PINCTRL_PFC=y
 +CONFIG_DM_REGULATOR=y
 +CONFIG_DM_REGULATOR_FIXED=y
 +CONFIG_DM_REGULATOR_GPIO=y

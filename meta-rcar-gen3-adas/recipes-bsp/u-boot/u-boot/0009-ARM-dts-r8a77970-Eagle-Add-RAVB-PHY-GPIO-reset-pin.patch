@@ -1,7 +1,7 @@
-From 0a3b0d0773d422f39902eda157afec076efb0d48 Mon Sep 17 00:00:00 2001
+From 95020de54ed752c7bc23c056a58a76ad73c9d217 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 13 Aug 2019 01:49:06 +0300
-Subject: [PATCH 14/23] ARM: dts: r8a77970: Eagle: Add RAVB PHY GPIO reset pin
+Subject: [PATCH 09/21] ARM: dts: r8a77970: Eagle: Add RAVB PHY GPIO reset pin
 
 This adds RAVB PHY GPIO reset pin to the Eagle device tree.
 

@@ -1,7 +1,7 @@
-From cb5cf51008de5f321b9e4cb5fce1c34cd33b2200 Mon Sep 17 00:00:00 2001
+From 058497e4a65623045e603ae8678764e6f49b62f6 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 22 Nov 2018 00:17:56 +0300
-Subject: [PATCH 22/23] arm: renesas: Enable RPC HF MTD support for all
+Subject: [PATCH 17/21] arm: renesas: Enable RPC HF MTD support for all
  Salvator-X boards
 
 This enables RPC HyperFlash MTD support
@@ -9,260 +9,306 @@ for all R-Car Gen3 Salvator-X boards.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- arch/arm/dts/r8a7795-salvator-x-u-boot.dts       |  4 ++++
- arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts |  4 ++++
- arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts |  4 ++++
- arch/arm/dts/r8a7795-salvator-xs-u-boot.dts      |  4 ++++
- arch/arm/dts/r8a7796-salvator-x-u-boot.dts       |  4 ++++
- arch/arm/dts/r8a7796-salvator-xs-u-boot.dts      |  4 ++++
- arch/arm/dts/r8a77965-salvator-x-u-boot.dts      |  4 ++++
- arch/arm/dts/r8a77965-salvator-xs-u-boot.dts     |  4 ++++
- configs/r8a7795_salvator-x_defconfig             |  5 +++++
- configs/r8a7795_salvator-xs-2x2g_defconfig       |  5 +++++
- configs/r8a7795_salvator-xs-4x2g_defconfig       |  5 +++++
- configs/r8a7795_salvator-xs_defconfig            |  5 +++++
- configs/r8a77965_salvator-x_defconfig            |  5 +++++
- configs/r8a77965_salvator-xs_defconfig           |  5 +++++
- configs/r8a7796_salvator-x_defconfig             |  5 +++++
- configs/r8a7796_salvator-xs_defconfig            |  5 +++++
- include/configs/salvator-x.h                     | 11 +++++++++++
- 17 files changed, 83 insertions(+)
+ arch/arm/dts/r8a7795-salvator-x-u-boot.dts       | 4 ++++
+ arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts | 4 ++++
+ arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts | 4 ++++
+ arch/arm/dts/r8a7795-salvator-xs-u-boot.dts      | 4 ++++
+ arch/arm/dts/r8a7796-salvator-x-u-boot.dts       | 4 ++++
+ arch/arm/dts/r8a7796-salvator-xs-2x4g-u-boot.dts | 4 ++++
+ arch/arm/dts/r8a7796-salvator-xs-u-boot.dts      | 4 ++++
+ arch/arm/dts/r8a77965-salvator-x-u-boot.dts      | 4 ++++
+ arch/arm/dts/r8a77965-salvator-xs-u-boot.dts     | 4 ++++
+ configs/r8a7795_salvator-x_defconfig             | 7 +++++++
+ configs/r8a7795_salvator-xs-2x2g_defconfig       | 7 +++++++
+ configs/r8a7795_salvator-xs-4x2g_defconfig       | 7 +++++++
+ configs/r8a7795_salvator-xs_defconfig            | 7 +++++++
+ configs/r8a77965_salvator-x_defconfig            | 7 +++++++
+ configs/r8a77965_salvator-xs_defconfig           | 7 +++++++
+ configs/r8a7796_salvator-x_defconfig             | 7 +++++++
+ configs/r8a7796_salvator-xs-2x4g_defconfig       | 7 +++++++
+ configs/r8a7796_salvator-xs_defconfig            | 7 +++++++
+ include/configs/salvator-x.h                     | 9 +++++++++
+ 19 files changed, 108 insertions(+)
 
 diff --git a/arch/arm/dts/r8a7795-salvator-x-u-boot.dts b/arch/arm/dts/r8a7795-salvator-x-u-boot.dts
-index a22028b..08246c2 100644
+index e93afe3..b9a4d71 100644
 --- a/arch/arm/dts/r8a7795-salvator-x-u-boot.dts
 +++ b/arch/arm/dts/r8a7795-salvator-x-u-boot.dts
-@@ -43,3 +43,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -34,3 +34,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts b/arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts
-index 064c643..9383f36 100644
+index ee03ab3..aab08b3 100644
 --- a/arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts
 +++ b/arch/arm/dts/r8a7795-salvator-xs-2x2g-u-boot.dts
-@@ -44,3 +44,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -35,3 +35,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts b/arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts
-index b2bb54c..6da588c 100644
+index a8bf246..256c3b8 100644
 --- a/arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts
 +++ b/arch/arm/dts/r8a7795-salvator-xs-4x2g-u-boot.dts
-@@ -44,3 +44,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -35,3 +35,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a7795-salvator-xs-u-boot.dts b/arch/arm/dts/r8a7795-salvator-xs-u-boot.dts
-index bb0d3af..a983b24 100644
+index 62ce9fa..cbe9e13 100644
 --- a/arch/arm/dts/r8a7795-salvator-xs-u-boot.dts
 +++ b/arch/arm/dts/r8a7795-salvator-xs-u-boot.dts
-@@ -43,3 +43,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -34,3 +34,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a7796-salvator-x-u-boot.dts b/arch/arm/dts/r8a7796-salvator-x-u-boot.dts
-index c730b90..f6d8ef3 100644
+index 2a7b149..473fd98 100644
 --- a/arch/arm/dts/r8a7796-salvator-x-u-boot.dts
 +++ b/arch/arm/dts/r8a7796-salvator-x-u-boot.dts
-@@ -43,3 +43,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -34,3 +34,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
+ };
++
++&rpc {
++	status = "okay";
++};
+diff --git a/arch/arm/dts/r8a7796-salvator-xs-2x4g-u-boot.dts b/arch/arm/dts/r8a7796-salvator-xs-2x4g-u-boot.dts
+index 91965f5..658a351 100644
+--- a/arch/arm/dts/r8a7796-salvator-xs-2x4g-u-boot.dts
++++ b/arch/arm/dts/r8a7796-salvator-xs-2x4g-u-boot.dts
+@@ -34,3 +34,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a7796-salvator-xs-u-boot.dts b/arch/arm/dts/r8a7796-salvator-xs-u-boot.dts
-index 707c5ce..c3839bb 100644
+index ac4988d..61a3229 100644
 --- a/arch/arm/dts/r8a7796-salvator-xs-u-boot.dts
 +++ b/arch/arm/dts/r8a7796-salvator-xs-u-boot.dts
-@@ -43,3 +43,7 @@
- 	sd-uhs-sdr104;
- 	max-frequency = <208000000>;
+@@ -34,3 +34,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a77965-salvator-x-u-boot.dts b/arch/arm/dts/r8a77965-salvator-x-u-boot.dts
-index cfc0f74..b0b6e1f 100644
+index e4bd2d3..39d4ed7 100644
 --- a/arch/arm/dts/r8a77965-salvator-x-u-boot.dts
 +++ b/arch/arm/dts/r8a77965-salvator-x-u-boot.dts
-@@ -46,3 +46,7 @@
- 	max-frequency = <208000000>;
- 	status = "okay";
+@@ -37,3 +37,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/arch/arm/dts/r8a77965-salvator-xs-u-boot.dts b/arch/arm/dts/r8a77965-salvator-xs-u-boot.dts
-index 7c38fc5..c0de7bf 100644
+index 4634c6e..d6cd3e4 100644
 --- a/arch/arm/dts/r8a77965-salvator-xs-u-boot.dts
 +++ b/arch/arm/dts/r8a77965-salvator-xs-u-boot.dts
-@@ -46,3 +46,7 @@
- 	max-frequency = <208000000>;
- 	status = "okay";
+@@ -37,3 +37,7 @@
+ &vcc_sdhi3 {
+ 	u-boot,off-on-delay-us = <20000>;
  };
 +
 +&rpc {
 +	status = "okay";
 +};
 diff --git a/configs/r8a7795_salvator-x_defconfig b/configs/r8a7795_salvator-x_defconfig
-index 92b1644..5629127 100644
+index 2ced2cf..c25372e 100644
 --- a/configs/r8a7795_salvator-x_defconfig
 +++ b/configs/r8a7795_salvator-x_defconfig
-@@ -47,6 +47,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a7795_salvator-xs-2x2g_defconfig b/configs/r8a7795_salvator-xs-2x2g_defconfig
-index e8aabd8..e097e86 100644
+index 315d446..ca7b947 100644
 --- a/configs/r8a7795_salvator-xs-2x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-2x2g_defconfig
-@@ -47,6 +47,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a7795_salvator-xs-4x2g_defconfig b/configs/r8a7795_salvator-xs-4x2g_defconfig
-index 589fa57..94bde7a 100644
+index 82177ac..0923ce6 100644
 --- a/configs/r8a7795_salvator-xs-4x2g_defconfig
 +++ b/configs/r8a7795_salvator-xs-4x2g_defconfig
-@@ -47,6 +47,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a7795_salvator-xs_defconfig b/configs/r8a7795_salvator-xs_defconfig
-index 0b1411c..86d58e9 100644
+index b05deab..1dfc51f 100644
 --- a/configs/r8a7795_salvator-xs_defconfig
 +++ b/configs/r8a7795_salvator-xs_defconfig
-@@ -47,6 +47,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a77965_salvator-x_defconfig b/configs/r8a77965_salvator-x_defconfig
-index 201a5c3..a0c86ed 100644
+index 24804e2..167265f 100644
 --- a/configs/r8a77965_salvator-x_defconfig
 +++ b/configs/r8a77965_salvator-x_defconfig
-@@ -48,6 +48,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a77965_salvator-xs_defconfig b/configs/r8a77965_salvator-xs_defconfig
-index dd494b6..4d2259c 100644
+index d94003a..8dec8ea 100644
 --- a/configs/r8a77965_salvator-xs_defconfig
 +++ b/configs/r8a77965_salvator-xs_defconfig
-@@ -46,6 +46,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a7796_salvator-x_defconfig b/configs/r8a7796_salvator-x_defconfig
-index 931e431..3993804 100644
+index 0a2299f..226bac7 100644
 --- a/configs/r8a7796_salvator-x_defconfig
 +++ b/configs/r8a7796_salvator-x_defconfig
-@@ -48,6 +48,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
++CONFIG_RENESAS_RPC_HF=y
+ CONFIG_PHY_MICREL=y
+ CONFIG_PHY_MICREL_KSZ90X1=y
+ CONFIG_DM_ETH=y
+diff --git a/configs/r8a7796_salvator-xs-2x4g_defconfig b/configs/r8a7796_salvator-xs-2x4g_defconfig
+index 2d5e7a0..36d23e0 100644
+--- a/configs/r8a7796_salvator-xs-2x4g_defconfig
++++ b/configs/r8a7796_salvator-xs-2x4g_defconfig
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
+ CONFIG_MMC_UHS_SUPPORT=y
+ CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_RENESAS_SDHI=y
++CONFIG_MTD=y
++CONFIG_DM_MTD=y
++CONFIG_MTD_NOR_FLASH=y
++CONFIG_FLASH_CFI_DRIVER=y
++CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/configs/r8a7796_salvator-xs_defconfig b/configs/r8a7796_salvator-xs_defconfig
-index 9614951..a0102c0 100644
+index d38dab4..90e8aeb 100644
 --- a/configs/r8a7796_salvator-xs_defconfig
 +++ b/configs/r8a7796_salvator-xs_defconfig
-@@ -48,6 +48,11 @@ CONFIG_MMC_IO_VOLTAGE=y
+@@ -50,6 +50,13 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
  CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
++CONFIG_DM_MTD=y
 +CONFIG_MTD_NOR_FLASH=y
-+CONFIG_MTD_DEVICE=y
++CONFIG_FLASH_CFI_DRIVER=y
 +CONFIG_CFI_FLASH=y
++CONFIG_FLASH_CFI_MTD=y
 +CONFIG_RENESAS_RPC_HF=y
  CONFIG_PHY_MICREL=y
  CONFIG_PHY_MICREL_KSZ90X1=y
  CONFIG_DM_ETH=y
 diff --git a/include/configs/salvator-x.h b/include/configs/salvator-x.h
-index 1bf2234..fd71102 100644
+index 669602e..2e00308 100644
 --- a/include/configs/salvator-x.h
 +++ b/include/configs/salvator-x.h
-@@ -23,4 +23,15 @@
+@@ -22,4 +22,13 @@
  #define CONFIG_SYS_MMC_ENV_DEV		1
  #define CONFIG_SYS_MMC_ENV_PART		2
  
 +#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
-+#define CONFIG_FLASH_CFI_DRIVER
-+#define CONFIG_FLASH_CFI_MTD
 +#define CONFIG_FLASH_SHOW_PROGRESS	45
 +#define CONFIG_SYS_FLASH_BANKS_LIST	{ 0x08000000 }
 +#define CONFIG_SYS_FLASH_CFI

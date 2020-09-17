@@ -1,7 +1,7 @@
-From 1c233d5be8b0a1c6cdf5aa1ec3e888d636dea36e Mon Sep 17 00:00:00 2001
+From 24f55521e75320dbd475c50005f96ae280a01151 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 23:35:33 +0300
-Subject: [PATCH 09/23] clk: renesas: r8a77970-cpg-mssr: Fix SD clock
+Subject: [PATCH 06/21] clk: renesas: r8a77970-cpg-mssr: Fix SD clock
 
 This fixes SD0 clock parent, and uses custom divisor
 ratio table and mask value because V3M SD-IF0 register

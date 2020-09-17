@@ -1,7 +1,7 @@
-From 5c5226c5500d070cd431e2f64731f1c2072fd8e8 Mon Sep 17 00:00:00 2001
+From a700b4e17530f7aed249a1caff2df0ac5f4b3a53 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 23 Sep 2016 18:26:53 +0300
-Subject: [PATCH 02/23] net: ravb: fix unsafe phy access
+Subject: [PATCH 01/21] net: ravb: fix unsafe phy access
 
 This fixes the ravb driver crash for phy/phyless glue
 that do not have writeext field
@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ravb.c b/drivers/net/ravb.c
-index f1f6eca..ce378c4 100644
+index 0b6ac8c..740a0c2 100644
 --- a/drivers/net/ravb.c
 +++ b/drivers/net/ravb.c
-@@ -422,7 +422,8 @@ static int ravb_config(struct udevice *dev)
+@@ -434,7 +434,8 @@ static int ravb_config(struct udevice *dev)
  
  	writel(mask, eth->iobase + RAVB_REG_ECMR);
  

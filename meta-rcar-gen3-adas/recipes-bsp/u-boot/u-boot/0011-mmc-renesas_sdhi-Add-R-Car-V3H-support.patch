@@ -1,7 +1,7 @@
-From 74ddbf612d3be33b87372b49720a69bf74e375df Mon Sep 17 00:00:00 2001
+From 783601387383ec7d18744d4eea2cae5e3f16638a Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 23:45:40 +0300
-Subject: [PATCH 15/23] mmc: renesas_sdhi: Add R-Car V3H support
+Subject: [PATCH 11/21] mmc: renesas_sdhi: Add R-Car V3H support
 
 This adds R8A77980 SoC support to the renesas_sdhi driver.
 
@@ -11,10 +11,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/mmc/renesas-sdhi.c b/drivers/mmc/renesas-sdhi.c
-index eda190d..07f0cff 100644
+index 6aa657e..ebf0a3d 100644
 --- a/drivers/mmc/renesas-sdhi.c
 +++ b/drivers/mmc/renesas-sdhi.c
-@@ -433,6 +433,7 @@ static const struct udevice_id renesas_sdhi_match[] = {
+@@ -738,6 +738,7 @@ static const struct udevice_id renesas_sdhi_match[] = {
  	{ .compatible = "renesas,sdhi-r8a7796", .data = RENESAS_GEN3_QUIRKS },
  	{ .compatible = "renesas,sdhi-r8a77965", .data = RENESAS_GEN3_QUIRKS },
  	{ .compatible = "renesas,sdhi-r8a77970", .data = RENESAS_GEN3_QUIRKS },

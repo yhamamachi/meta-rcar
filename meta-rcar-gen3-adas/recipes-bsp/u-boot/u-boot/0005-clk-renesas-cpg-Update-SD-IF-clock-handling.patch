@@ -1,7 +1,7 @@
-From f9a95f0866f6d1d694392c5598330980105e14c9 Mon Sep 17 00:00:00 2001
+From 807ddb8264e1a7dfac4ec1617c5efd06535c18d8 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 22:44:03 +0300
-Subject: [PATCH 08/23] clk: renesas: cpg: Update SD-IF clock handling
+Subject: [PATCH 05/21] clk: renesas: cpg: Update SD-IF clock handling
 
 Make SD-IF clock division rate table configurable
 in the cpg_mssr_info structure. This is needed
@@ -20,7 +20,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  2 files changed, 82 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 0529fc8..0ddd907 100644
+index a2011dd..80cc932 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
 @@ -51,11 +51,6 @@
@@ -197,7 +197,7 @@ index 0529fc8..0ddd907 100644
  	if (rst_base == FDT_ADDR_T_NONE)
  		return -EINVAL;
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.h b/drivers/clk/renesas/renesas-cpg-mssr.h
-index bad3938..36072a6 100644
+index 5b7012d..c0165f3 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.h
 +++ b/drivers/clk/renesas/renesas-cpg-mssr.h
 @@ -13,6 +13,11 @@

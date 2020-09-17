@@ -1,7 +1,7 @@
-From 869da2f4ee518558382f4a929ca302d1b2f91274 Mon Sep 17 00:00:00 2001
+From 6f21e2d9201e7b8650875f256b52adedc3b13ae2 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 2 Dec 2019 01:13:19 +0300
-Subject: [PATCH 3/4] net: sh_eth: Workaround cache issues
+Subject: [PATCH 20/21] net: sh_eth: Workaround cache issues
 
 U-Boot writes to RX packets when constructing replies.
 This can cause stale cached data to be written to RX
@@ -21,10 +21,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/sh_eth.c b/drivers/net/sh_eth.c
-index fbae6ce..5df078d 100644
+index 091239d..de2b75a 100644
 --- a/drivers/net/sh_eth.c
 +++ b/drivers/net/sh_eth.c
-@@ -138,6 +138,8 @@ static void sh_eth_recv_finish(struct sh_eth_dev *eth)
+@@ -140,6 +140,8 @@ static void sh_eth_recv_finish(struct sh_eth_dev *eth)
  {
  	struct sh_eth_info *port_info = &eth->port_info[eth->port];
  
@@ -33,7 +33,7 @@ index fbae6ce..5df078d 100644
  	/* Make current descriptor available again */
  	if (port_info->rx_desc_cur->rd0 & RD_RDLE)
  		port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
-@@ -206,8 +208,6 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
+@@ -208,8 +210,6 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
  		goto err;
  	}
  
@@ -42,7 +42,7 @@ index fbae6ce..5df078d 100644
  	/* Make sure we use a P2 address (non-cacheable) */
  	port_info->tx_desc_base =
  		(struct tx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->tx_desc_alloc);
-@@ -225,6 +225,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
+@@ -227,6 +227,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
  	cur_tx_desc--;
  	cur_tx_desc->td0 |= TD_TDLE;
  
@@ -50,7 +50,7 @@ index fbae6ce..5df078d 100644
  	/*
  	 * Point the controller to the tx descriptor list. Must use physical
  	 * addresses
-@@ -260,8 +261,6 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
+@@ -262,8 +263,6 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
  		goto err;
  	}
  
@@ -59,7 +59,7 @@ index fbae6ce..5df078d 100644
  	/* Make sure we use a P2 address (non-cacheable) */
  	port_info->rx_desc_base =
  		(struct rx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_alloc);
-@@ -295,6 +294,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
+@@ -297,6 +296,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
  	cur_rx_desc--;
  	cur_rx_desc->rd0 |= RD_RDLE;
  

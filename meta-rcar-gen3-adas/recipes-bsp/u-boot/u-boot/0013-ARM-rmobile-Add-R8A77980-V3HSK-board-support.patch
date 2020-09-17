@@ -1,7 +1,7 @@
-From 071b9f4120d39d4b5277bf1e48b888fa984135bd Mon Sep 17 00:00:00 2001
+From 5d5f3ea93ab1e921e3b791febf9832718ce60a2b Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:44:57 +0300
-Subject: [PATCH 18/23] ARM: rmobile: Add R8A77980 V3HSK board support
+Subject: [PATCH 13/21] ARM: rmobile: Add R8A77980 V3HSK board support
 
 This adds V3HSK board support based on the Condor board.
 
@@ -12,11 +12,11 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  arch/arm/dts/r8a77980-v3hsk.dts        | 131 +++++++++++++++++++++++++++++++++
  arch/arm/mach-rmobile/Kconfig.64       |   6 ++
  board/renesas/v3hsk/Kconfig            |  15 ++++
- board/renesas/v3hsk/Makefile           |  10 +++
- board/renesas/v3hsk/v3hsk.c            | 107 +++++++++++++++++++++++++++
- configs/r8a77980_v3hsk_defconfig       |  77 +++++++++++++++++++
- include/configs/v3hsk.h                |  40 ++++++++++
- 9 files changed, 421 insertions(+)
+ board/renesas/v3hsk/Makefile           |  14 ++++
+ board/renesas/v3hsk/v3hsk.c            |  92 +++++++++++++++++++++++
+ configs/r8a77980_v3hsk_defconfig       |  72 ++++++++++++++++++
+ include/configs/v3hsk.h                |  34 +++++++++
+ 9 files changed, 399 insertions(+)
  create mode 100644 arch/arm/dts/r8a77980-v3hsk-u-boot.dts
  create mode 100644 arch/arm/dts/r8a77980-v3hsk.dts
  create mode 100644 board/renesas/v3hsk/Kconfig
@@ -26,10 +26,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 include/configs/v3hsk.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index b6a5ef2..a3554e7 100644
+index c36948c..5b2c5c0 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -468,6 +468,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
+@@ -702,6 +702,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
  	r8a77970-eagle-u-boot.dtb \
  	r8a77970-v3msk-u-boot.dtb \
  	r8a77980-condor-u-boot.dtb \
@@ -215,10 +215,10 @@ index 0000000..9042483
 +	clock-frequency = <14745600>;
 +};
 diff --git a/arch/arm/mach-rmobile/Kconfig.64 b/arch/arm/mach-rmobile/Kconfig.64
-index 00e74f8..c8889bd 100644
+index f6e8d39..e2f81a0 100644
 --- a/arch/arm/mach-rmobile/Kconfig.64
 +++ b/arch/arm/mach-rmobile/Kconfig.64
-@@ -47,6 +47,11 @@ config TARGET_CONDOR
+@@ -49,6 +49,11 @@ config TARGET_CONDOR
  	help
            Support for Renesas R-Car Gen3 Condor platform
  
@@ -227,17 +227,17 @@ index 00e74f8..c8889bd 100644
 +	help
 +          Support for Renesas R-Car Gen3 V3HSK platform
 +
- config TARGET_EBISU
- 	bool "Ebisu board"
- 	help
-@@ -71,6 +76,7 @@ source "board/renesas/draak/Kconfig"
- source "board/renesas/eagle/Kconfig"
- source "board/renesas/v3msk/Kconfig"
+ config TARGET_DRAAK
+ 	bool "Draak board"
+ 	imply R8A77995
+@@ -103,6 +108,7 @@ config SYS_SOC
+ 	default "rmobile"
+ 
  source "board/renesas/condor/Kconfig"
 +source "board/renesas/v3hsk/Kconfig"
- source "board/renesas/ebisu/Kconfig"
- source "board/renesas/salvator-x/Kconfig"
- source "board/renesas/ulcb/Kconfig"
+ source "board/renesas/draak/Kconfig"
+ source "board/renesas/eagle/Kconfig"
+ source "board/renesas/v3msk/Kconfig"
 diff --git a/board/renesas/v3hsk/Kconfig b/board/renesas/v3hsk/Kconfig
 new file mode 100644
 index 0000000..531ceb7
@@ -261,10 +261,10 @@ index 0000000..531ceb7
 +endif
 diff --git a/board/renesas/v3hsk/Makefile b/board/renesas/v3hsk/Makefile
 new file mode 100644
-index 0000000..f41c7ab
+index 0000000..24224ee
 --- /dev/null
 +++ b/board/renesas/v3hsk/Makefile
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,14 @@
 +#
 +# board/renesas/v3hsk/Makefile
 +#
@@ -274,13 +274,17 @@ index 0000000..f41c7ab
 +# SPDX-License-Identifier: GPL-2.0+
 +#
 +
-+obj-y	:= v3hsk.o
++ifdef CONFIG_SPL_BUILD
++obj-y	:= ../rcar-common/gen3-spl.o
++else
++obj-y	:= v3hsk.o ../rcar-common/common.o
++endif
 diff --git a/board/renesas/v3hsk/v3hsk.c b/board/renesas/v3hsk/v3hsk.c
 new file mode 100644
-index 0000000..05c62d2
+index 0000000..05fd648
 --- /dev/null
 +++ b/board/renesas/v3hsk/v3hsk.c
-@@ -0,0 +1,107 @@
+@@ -0,0 +1,92 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * board/renesas/v3hsk/v3hsk.c
@@ -352,21 +356,6 @@ index 0000000..05c62d2
 +	return 0;
 +}
 +
-+int dram_init(void)
-+{
-+	if (fdtdec_setup_mem_size_base() != 0)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+int dram_init_banksize(void)
-+{
-+	fdtdec_setup_memory_banksize();
-+
-+	return 0;
-+}
-+
 +#define RST_BASE	0xE6160000
 +#define RST_CA57RESCNT	(RST_BASE + 0x40)
 +#define RST_CA53RESCNT	(RST_BASE + 0x44)
@@ -390,10 +379,10 @@ index 0000000..05c62d2
 +}
 diff --git a/configs/r8a77980_v3hsk_defconfig b/configs/r8a77980_v3hsk_defconfig
 new file mode 100644
-index 0000000..f52f813
+index 0000000..e644d28
 --- /dev/null
 +++ b/configs/r8a77980_v3hsk_defconfig
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,72 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_RMOBILE=y
 +CONFIG_SYS_TEXT_BASE=0x50000000
@@ -401,6 +390,9 @@ index 0000000..f52f813
 +CONFIG_RCAR_GEN3=y
 +CONFIG_R8A77980=y
 +CONFIG_TARGET_V3HSK=y
++CONFIG_ENV_SIZE=0x40000
++CONFIG_ENV_OFFSET=0x700000
++CONFIG_ENV_SECT_SIZE=0x40000
 +CONFIG_SMBIOS_PRODUCT_NAME=""
 +CONFIG_FIT=y
 +# CONFIG_ARCH_FIXUP_FDT_MEMORY is not set
@@ -413,16 +405,13 @@ index 0000000..f52f813
 +CONFIG_CMD_BOOTZ=y
 +CONFIG_CMD_ASKENV=y
 +CONFIG_CMD_GPIO=y
-+CONFIG_CMD_GPT=y
 +CONFIG_CMD_I2C=y
 +CONFIG_CMD_MMC=y
-+CONFIG_CMD_SF=y
 +CONFIG_CMD_SPI=y
 +CONFIG_CMD_USB=y
 +CONFIG_CMD_DHCP=y
 +CONFIG_CMD_MII=y
 +CONFIG_CMD_PING=y
-+CONFIG_CMD_CACHE=y
 +CONFIG_CMD_EXT2=y
 +CONFIG_CMD_EXT4=y
 +CONFIG_CMD_EXT4_WRITE=y
@@ -445,17 +434,12 @@ index 0000000..f52f813
 +CONFIG_MMC_HS200_SUPPORT=y
 +CONFIG_RENESAS_SDHI=y
 +CONFIG_DM_SPI_FLASH=y
-+CONFIG_SPI_FLASH=y
-+CONFIG_SPI_FLASH_BAR=y
 +CONFIG_SPI_FLASH_SPANSION=y
 +# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
 +CONFIG_PHY_MICREL=y
 +CONFIG_PHY_MICREL_KSZ90X1=y
 +CONFIG_DM_ETH=y
 +CONFIG_SH_ETHER=y
-+CONFIG_PINCTRL=y
-+CONFIG_PINCONF=y
-+CONFIG_PINCTRL_PFC=y
 +CONFIG_DM_REGULATOR=y
 +CONFIG_DM_REGULATOR_FIXED=y
 +CONFIG_DM_REGULATOR_GPIO=y
@@ -473,10 +457,10 @@ index 0000000..f52f813
 +CONFIG_SMBIOS_MANUFACTURER=""
 diff --git a/include/configs/v3hsk.h b/include/configs/v3hsk.h
 new file mode 100644
-index 0000000..e5a981e
+index 0000000..4231e48
 --- /dev/null
 +++ b/include/configs/v3hsk.h
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,34 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * include/configs/v3hsk.h
@@ -502,12 +486,6 @@ index 0000000..e5a981e
 +#endif
 +#define CONFIG_BITBANGMII
 +#define CONFIG_BITBANGMII_MULTI
-+
-+/* Environment compatibility */
-+#undef CONFIG_ENV_SIZE_REDUND
-+#undef CONFIG_ENV_SECT_SIZE
-+#define CONFIG_ENV_SECT_SIZE	(256 * 1024)
-+#define CONFIG_ENV_OFFSET	0x700000
 +
 +/* Board Clock */
 +/* XTAL_CLK : 33.33MHz */
