@@ -66,17 +66,7 @@ KERNEL_DEVICETREE_append_eagle = " \
 
 KERNEL_DEVICETREE_append_v3msk = " \
     renesas/r8a77970-es1-v3msk.dtb \
-    renesas/r8a77970-es1-v3msk-kf.dtb \
-    renesas/r8a77970-es1-v3msk-vbm.dtb \
-    renesas/r8a77970-es1-v3msk-vbm-v2.dtb \
-    renesas/r8a77970-es1-v3msk-vbm-v3.dtb \
-    renesas/r8a77970-es1-v3msk-view.dtb \
     renesas/r8a77970-v3msk.dtb \
-    renesas/r8a77970-v3msk-kf.dtb \
-    renesas/r8a77970-v3msk-vbm.dtb \
-    renesas/r8a77970-v3msk-vbm-v2.dtb \
-    renesas/r8a77970-v3msk-vbm-v3.dtb \
-    renesas/r8a77970-v3msk-view.dtb \
 "
 
 KERNEL_DEVICETREE_append_condor = " \
@@ -85,15 +75,6 @@ KERNEL_DEVICETREE_append_condor = " \
 
 KERNEL_DEVICETREE_append_v3hsk = " \
     renesas/r8a77980-v3hsk.dtb \
-    renesas/r8a77980-v3hsk-vbm.dtb \
-    renesas/r8a77980-v3hsk-vbm-v2.dtb \
-    renesas/r8a77980-v3hsk-vbm-v3.dtb \
-    renesas/r8a77980-v3hsk-vb-4ch.dtb \
-    renesas/r8a77980-v3hsk-vb-8ch.dtb \
-    renesas/r8a77980-v3hsk-vb-gmsl-8ch.dtb \
-    renesas/r8a77980-v3hsk-vb-gmsl2-2x2.dtb \
-    renesas/r8a77980-v3hsk-vb-gmsl2-4.dtb \
-    renesas/r8a77980-v3hsk-vb-gmsl2-8.dtb \
 "
 # Prefer V4L2 rcar_imr driver over UIO uio_imr
 KERNEL_MODULE_AUTOLOAD_append = " rcar_imr"
