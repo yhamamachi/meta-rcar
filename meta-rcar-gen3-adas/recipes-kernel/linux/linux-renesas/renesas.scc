@@ -21,3 +21,4 @@ patch 0020-media-i2c-add-gmsl-drivers.patch
 patch 0021-arm64-dts-renesas-ulcb-kf-update-for-Yocto4.1.0.patch
 patch 0022-arm64-dts-renesas-ulcb-kf-deselect-GP5_9-interrupt.patch
 patch 0023-media-platform-rcar-vin-do-not-reset-IFMD-VIN.patch
+patch 0024-kbuild-add-support-for-building-dtbo-targets.patch
