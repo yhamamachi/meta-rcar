@@ -1560,7 +1560,7 @@ index 0000000..144feed
 +		return MAX96706_ID;
 +	if (!strcmp(mux_priv->muxc->dev->driver->name, "max96712"))
 +		return MAX96712_ID;
-+	if (!strcmp(mux_priv->muxc->dev->driver->name, "ti9x4"))
++	if (!strcmp(mux_priv->muxc->dev->driver->name, "ub9x4"))
 +		return UB960_ID;
 +
 +	return -EINVAL;
