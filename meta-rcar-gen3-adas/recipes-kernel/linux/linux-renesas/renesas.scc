@@ -17,7 +17,7 @@ patch 0016-clk-cs2000-add-support-for-cs2300.patch
 patch 0017-gpio-pca953x-do-not-ignore-i2c-errors.patch
 patch 0018-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
 patch 0019-media-i2c-add-ov5642-sensor-driver.patch
-patch 0020-media-i2c-add-gmsl-drivers.patch
+patch 0020-media-i2c-add-camera-lvds-support.patch
 patch 0021-arm64-dts-renesas-ulcb-kf-update-for-Yocto4.1.0.patch
 patch 0022-arm64-dts-renesas-ulcb-kf-deselect-GP5_9-interrupt.patch
 patch 0023-media-platform-rcar-vin-do-not-reset-IFMD-VIN.patch

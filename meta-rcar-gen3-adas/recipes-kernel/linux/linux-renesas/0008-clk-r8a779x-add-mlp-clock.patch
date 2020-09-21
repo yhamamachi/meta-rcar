@@ -1,7 +1,7 @@
 From c5392f85bb29f4569d257d252fe204a579d6f904 Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Fri, 7 Jul 2017 16:23:44 +0300
-Subject: [PATCH 10/33] clk: r8a779x: add mlp clock
+Subject: [PATCH] clk: r8a779x: add mlp clock
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---

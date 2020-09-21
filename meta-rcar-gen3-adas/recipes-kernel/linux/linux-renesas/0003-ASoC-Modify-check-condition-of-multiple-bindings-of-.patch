@@ -1,7 +1,7 @@
 From 996c2c3f752654acf40814c48cbe65bdbc04212a Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 18 May 2020 15:08:30 +0300
-Subject: [PATCH 03/33] ASoC: Modify check condition of multiple bindings of
+Subject: [PATCH] ASoC: Modify check condition of multiple bindings of
  components
 
 https://patchwork.kernel.org/patch/7385501/

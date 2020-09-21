@@ -1,7 +1,7 @@
 From d0f90a604815b3e320c508048cc2cc20e36d3b54 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Tue, 30 May 2017 17:41:21 +0300
-Subject: [PATCH 06/33] drm: adv7511: Enable HPD interrupts to support hotplug
+Subject: [PATCH] drm: adv7511: Enable HPD interrupts to support hotplug
 
 This patch enables HPD (hot plug detect) interrupt support
 

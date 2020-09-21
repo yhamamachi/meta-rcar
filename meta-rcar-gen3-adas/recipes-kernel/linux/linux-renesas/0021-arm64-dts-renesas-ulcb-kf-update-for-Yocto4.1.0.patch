@@ -1,13 +1,13 @@
-From 91a32cc57138104f43368d2aea48eab0b818bc7e Mon Sep 17 00:00:00 2001
+From 08213406cc7c27bff85588a4b4fe1aae9825cee6 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
-Date: Fri, 18 Sep 2020 11:36:09 +0300
+Date: Mon, 21 Sep 2020 23:22:05 +0300
 Subject: [PATCH] arm64: dts: renesas: ulcb-kf: update for Yocto4.1.0
 
 This updates Kingfisher board DT for Yocto4.1.0
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   7 +-
+ arch/arm64/boot/dts/renesas/Makefile               |   8 +-
  arch/arm64/boot/dts/renesas/camera.dtsi            |  19 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     |  25 +
  .../boot/dts/renesas/r8a7795-h3ulcb-4x2g-kf.dts    |  44 ++
@@ -16,12 +16,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  .../arm64/boot/dts/renesas/r8a77965-m3nulcb-kf.dts |  22 +
  arch/arm64/boot/dts/renesas/ulcb-kf-cn10-pca.dtso  |  74 ++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11-pca.dtso  |  74 ++
- arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso      | 282 +++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso      | 281 +++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtso      |  30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi     |  38 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso       |  48 ++
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 852 ++++++++++++++++++++-
- 14 files changed, 1557 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 851 ++++++++++++++++++++-
+ 14 files changed, 1556 insertions(+), 9 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/camera.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-4x2g-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn10-pca.dtso
@@ -32,7 +32,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index fdc3574..c9a563b 100644
+index fdc3574..d9b8392 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -3,7 +3,7 @@ dtb-$(CONFIG_ARCH_R8A774A1) += r8a774a1-hihope-rzg2m.dtb
@@ -44,7 +44,7 @@ index fdc3574..c9a563b 100644
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs-4x2g.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs-2x2g.dtb
-@@ -19,8 +19,13 @@ dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb r8a77965-salvator-xs.dtb
+@@ -19,8 +19,14 @@ dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb r8a77965-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-m3nulcb.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-m3nulcb-kf.dtb
  dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-eagle.dtb r8a77970-v3msk.dtb
@@ -56,11 +56,12 @@ index fdc3574..c9a563b 100644
  dtb-$(CONFIG_ARCH_R8A77995) += r8a77995-draak.dtb
 +
 +# overlays
++DTC_FLAGS += -@
 +dtb-$(CONFIG_ARCH_R8A7795) += ulcb-kf-cn11.dtbo ulcb-kf-most.dtbo ulcb-kf-sd3.dtbo
 +dtb-$(CONFIG_ARCH_R8A7795) += ulcb-kf-cn10-pca.dtbo ulcb-kf-cn11-pca.dtbo
 diff --git a/arch/arm64/boot/dts/renesas/camera.dtsi b/arch/arm64/boot/dts/renesas/camera.dtsi
 new file mode 100644
-index 0000000..b8ad564
+index 0000000..c83c642
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/camera.dtsi
 @@ -0,0 +1,19 @@
@@ -74,7 +75,7 @@ index 0000000..b8ad564
 + * kind, whether express or implied.
 + */
 +
-+#define COMPATIBLE_CAMERAS	\
++#define LVDS_CAMERA		\
 +	"onnn,ap0101",		\
 +	"ovti,ov10635",		\
 +	"ovti,ov2311",		\
@@ -425,10 +426,10 @@ index 0000000..429a152
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso
 new file mode 100644
-index 0000000..b2d3bed
+index 0000000..0ae8aa9
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso
-@@ -0,0 +1,282 @@
+@@ -0,0 +1,281 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Overlay for the H3ULCB Kingfisher board:
@@ -502,7 +503,7 @@ index 0000000..b2d3bed
 +			csi41_in: endpoint {
 +				clock-lanes = <0>;
 +				data-lanes = <1 2 3 4>;
-+				remote-endpoint = <&max9286_out1>;
++				remote-endpoint = <&deser_out1>;
 +			};
 +		};
 +	};
@@ -512,20 +513,19 @@ index 0000000..b2d3bed
 +	#address-cells = <1>;
 +	#size-cells = <0>;
 +
++	/* Slot B (CN11) */
 +	i2c@2 {
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +		reg = <2>;
-+		/* Slot B (CN11) */
 +
-+		max9286_b@2c {
-+			compatible = "maxim,max9286";
++		deser_b@2c {
++			compatible = "maxim,max9286", "ti,ub9x4";
 +			#address-cells = <1>;
 +			#size-cells = <0>;
-+			reg = <0x2c 0x0c 0x0d 0x0e 0x0f>;
-+			maxim,resetb_gpio = <1>;
-+			maxim,fsync-mode = "automatic";
-+			maxim,timeout = <100>;
++			reg = <0x2c 0x3a>;
++			reg-names = "max9286", "ub9x4";
++			regs = <0x0c 0x0d 0x0e 0x0f>;
 +
 +			poc0-supply = <&vdd_cam_b_0>;
 +			poc1-supply = <&vdd_cam_b_1>;
@@ -538,35 +538,35 @@ index 0000000..b2d3bed
 +
 +				port@0 {
 +					reg = <0>;
-+					max9286_in4: endpoint {
++					deser_in4: endpoint {
 +						remote-endpoint = <&camera_out4>;
 +					};
 +				};
 +
 +				port@1 {
 +					reg = <1>;
-+					max9286_in5: endpoint {
++					deser_in5: endpoint {
 +						remote-endpoint = <&camera_out5>;
 +					};
 +				};
 +
 +				port@2 {
 +					reg = <2>;
-+					max9286_in6: endpoint {
++					deser_in6: endpoint {
 +						remote-endpoint = <&camera_out6>;
 +					};
 +				};
 +
 +				port@3 {
 +					reg = <3>;
-+					max9286_in7: endpoint {
++					deser_in7: endpoint {
 +						remote-endpoint = <&camera_out7>;
 +					};
 +				};
 +
 +				port@4 {
 +					reg = <4>;
-+					max9286_out1: endpoint {
++					deser_out1: endpoint {
 +						clock-lanes = <0>;
 +						data-lanes = <1 2 3 4>;
 +						remote-endpoint = <&csi41_in>;
@@ -580,12 +580,12 @@ index 0000000..b2d3bed
 +				reg = <0>;
 +
 +				camera@60 {
-+					compatible = "COMPATIBLE_CAMERAS";
++					compatible = LVDS_CAMERA;
 +					reg = <0x60 0x0c>;
 +
 +					port {
 +						camera_out4: endpoint {
-+							remote-endpoint = <&max9286_in4>;
++							remote-endpoint = <&deser_in4>;
 +						};
 +					};
 +				};
@@ -597,12 +597,12 @@ index 0000000..b2d3bed
 +				reg = <1>;
 +
 +				camera@61 {
-+					compatible = "COMPATIBLE_CAMERAS";
++					compatible = LVDS_CAMERA;
 +					reg = <0x61 0x0d>;
 +
 +					port {
 +						camera_out5: endpoint {
-+							remote-endpoint = <&max9286_in5>;
++							remote-endpoint = <&deser_in5>;
 +						};
 +					};
 +				};
@@ -614,12 +614,12 @@ index 0000000..b2d3bed
 +				reg = <2>;
 +
 +				camera@62 {
-+					compatible = "COMPATIBLE_CAMERAS";
++					compatible = LVDS_CAMERA;
 +					reg = <0x62 0x0e>;
 +
 +					port {
 +						camera_out6: endpoint {
-+							remote-endpoint = <&max9286_in6>;
++							remote-endpoint = <&deser_in6>;
 +						};
 +					};
 +				};
@@ -631,12 +631,12 @@ index 0000000..b2d3bed
 +				reg = <3>;
 +
 +				camera@63 {
-+					compatible = "COMPATIBLE_CAMERAS";
++					compatible = LVDS_CAMERA;
 +					reg = <0x63 0x0f>;
 +
 +					port {
 +						camera_out7: endpoint {
-+							remote-endpoint = <&max9286_in7>;
++							remote-endpoint = <&deser_in7>;
 +						};
 +					};
 +				};
@@ -846,7 +846,7 @@ index 0000000..0d1e088
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 2021777..6836eb3 100644
+index 2021777..e945b3a 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 @@ -2,8 +2,8 @@
@@ -1075,7 +1075,7 @@ index 2021777..6836eb3 100644
 +			csi40_in: endpoint {
 +				clock-lanes = <0>;
 +				data-lanes = <1 2 3 4>;
-+				remote-endpoint = <&max9286_out0>;
++				remote-endpoint = <&deser_out0>;
 +			};
 +		};
 +	};
@@ -1301,7 +1301,7 @@ index 2021777..6836eb3 100644
  	};
  };
  
-@@ -212,6 +578,243 @@
+@@ -212,6 +578,242 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios = <&gpio3 15 GPIO_ACTIVE_LOW>;
@@ -1319,14 +1319,13 @@ index 2021777..6836eb3 100644
 +			#size-cells = <0>;
 +			reg = <1>;
 +
-+			max9286@2c {
-+				compatible = "maxim,max9286";
++			deser@2c {
++				compatible = "maxim,max9286", "ti,ub9x4";
 +				#address-cells = <1>;
 +				#size-cells = <0>;
-+				reg = <0x2c 0x0c 0x0d 0x0e 0x0f>;
-+				maxim,resetb_gpio = <1>;
-+				maxim,fsync-mode = "automatic";
-+				maxim,timeout = <100>;
++				reg = <0x2c 0x3a>;
++				reg-names = "max9286", "ub9x4";
++				regs = <0x0c 0x0d 0x0e 0x0f>;
 +
 +				poc0-supply = <&vdd_cam_a_0>;
 +				poc1-supply = <&vdd_cam_a_1>;
@@ -1339,35 +1338,35 @@ index 2021777..6836eb3 100644
 +
 +					port@0 {
 +						reg = <0>;
-+						max9286_in0: endpoint {
++						deser_in0: endpoint {
 +							remote-endpoint = <&camera_out0>;
 +						};
 +					};
 +
 +					port@1 {
 +						reg = <1>;
-+						max9286_in1: endpoint {
++						deser_in1: endpoint {
 +							remote-endpoint = <&camera_out1>;
 +						};
 +					};
 +
 +					port@2 {
 +						reg = <2>;
-+						max9286_in2: endpoint {
++						deser_in2: endpoint {
 +							remote-endpoint = <&camera_out2>;
 +						};
 +					};
 +
 +					port@3 {
 +						reg = <3>;
-+						max9286_in3: endpoint {
++						deser_in3: endpoint {
 +							remote-endpoint = <&camera_out3>;
 +						};
 +					};
 +
 +					port@4 {
 +						reg = <4>;
-+						max9286_out0: endpoint {
++						deser_out0: endpoint {
 +							clock-lanes = <0>;
 +							data-lanes = <1 2 3 4>;
 +							remote-endpoint = <&csi40_in>;
@@ -1381,12 +1380,12 @@ index 2021777..6836eb3 100644
 +					reg = <0>;
 +
 +					camera@60 {
-+						compatible = COMPATIBLE_CAMERAS;
++						compatible = LVDS_CAMERA;
 +						reg = <0x60 0x0c>;
 +
 +						port {
 +							camera_out0: endpoint {
-+								remote-endpoint = <&max9286_in0>;
++								remote-endpoint = <&deser_in0>;
 +							};
 +						};
 +					};
@@ -1399,12 +1398,12 @@ index 2021777..6836eb3 100644
 +					reg = <1>;
 +
 +					camera@61 {
-+						compatible = COMPATIBLE_CAMERAS;
++						compatible = LVDS_CAMERA;
 +						reg = <0x61 0x0d>;
 +
 +						port {
 +							camera_out1: endpoint {
-+								remote-endpoint = <&max9286_in1>;
++								remote-endpoint = <&deser_in1>;
 +							};
 +						};
 +					};
@@ -1416,12 +1415,12 @@ index 2021777..6836eb3 100644
 +					reg = <2>;
 +
 +					camera@62 {
-+						compatible = COMPATIBLE_CAMERAS;
++						compatible = LVDS_CAMERA;
 +						reg = <0x62 0x0e>;
 +
 +						port {
 +							camera_out2: endpoint {
-+								remote-endpoint = <&max9286_in2>;
++								remote-endpoint = <&deser_in2>;
 +							};
 +						};
 +					};
@@ -1433,12 +1432,12 @@ index 2021777..6836eb3 100644
 +					reg = <3>;
 +
 +					camera@63 {
-+						compatible = COMPATIBLE_CAMERAS;
++						compatible = LVDS_CAMERA;
 +						reg = <0x63 0x0f>;
 +
 +						port {
 +							camera_out3: endpoint {
-+								remote-endpoint = <&max9286_in3>;
++								remote-endpoint = <&deser_in3>;
 +							};
 +						};
 +					};
@@ -1545,7 +1544,7 @@ index 2021777..6836eb3 100644
  	};
  
  	gpio_exp_76: gpio@76 {
-@@ -222,6 +825,76 @@
+@@ -222,6 +824,76 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio7>;
  		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
@@ -1622,7 +1621,7 @@ index 2021777..6836eb3 100644
  	};
  
  	gpio_exp_77: gpio@77 {
-@@ -232,9 +905,38 @@
+@@ -232,9 +904,38 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio5>;
  		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
@@ -1661,7 +1660,7 @@ index 2021777..6836eb3 100644
  &ohci0 {
  	dr_mode = "otg";
  	status = "okay";
-@@ -242,6 +944,7 @@
+@@ -242,6 +943,7 @@
  
  &pcie_bus_clk {
  	clock-frequency = <100000000>;
@@ -1669,7 +1668,7 @@ index 2021777..6836eb3 100644
  };
  
  &pciec0 {
-@@ -250,6 +953,9 @@
+@@ -250,6 +952,9 @@
  
  &pciec1 {
  	status = "okay";
@@ -1679,7 +1678,7 @@ index 2021777..6836eb3 100644
  };
  
  &pfc {
-@@ -263,13 +969,33 @@
+@@ -263,13 +968,33 @@
  		function = "can1";
  	};
  
@@ -1714,7 +1713,7 @@ index 2021777..6836eb3 100644
  		function = "scif1";
  	};
  
-@@ -280,7 +1006,9 @@
+@@ -280,7 +1005,9 @@
  	};
  
  	sound_pcm_pins: sound-pcm {
@@ -1725,7 +1724,7 @@ index 2021777..6836eb3 100644
  		function = "ssi";
  	};
  
-@@ -288,6 +1016,11 @@
+@@ -288,6 +1015,11 @@
  		groups = "usb0";
  		function = "usb0";
  	};
@@ -1737,7 +1736,7 @@ index 2021777..6836eb3 100644
  };
  
  &rcar_sound {
-@@ -295,8 +1028,11 @@
+@@ -295,8 +1027,11 @@
  		     &sound_clk_pins
  		     &sound_pcm_pins>;
  
@@ -1750,7 +1749,7 @@ index 2021777..6836eb3 100644
  		rsnd_port2: port@2 {
  			reg = <2>;
  			rsnd_for_pcm3168a_play: endpoint {
-@@ -323,13 +1059,37 @@
+@@ -323,13 +1058,37 @@
  				capture  = <&ssi4>;
  			};
  		};
@@ -1789,7 +1788,7 @@ index 2021777..6836eb3 100644
  
  	status = "okay";
  };
-@@ -340,12 +1100,13 @@
+@@ -340,12 +1099,13 @@
  
  	vmmc-supply = <&wlan_en>;
  	vqmmc-supply = <&wlan_en>;
@@ -1804,7 +1803,7 @@ index 2021777..6836eb3 100644
  	status = "okay";
  
  	#address-cells = <1>;
-@@ -363,6 +1124,8 @@
+@@ -363,6 +1123,8 @@
  		&rsnd_port1	/* HDMI0  */
  		&rsnd_port2	/* pcm3168a playback */
  		&rsnd_port3	/* pcm3168a capture  */
@@ -1813,7 +1812,7 @@ index 2021777..6836eb3 100644
  		>;
  };
  
-@@ -370,6 +1133,10 @@
+@@ -370,6 +1132,10 @@
  	shared-pin;
  };
  
@@ -1824,7 +1823,7 @@ index 2021777..6836eb3 100644
  &usb2_phy0 {
  	pinctrl-0 = <&usb0_pins>;
  	pinctrl-names = "default";
-@@ -377,6 +1144,75 @@
+@@ -377,6 +1143,75 @@
  	status = "okay";
  };
  

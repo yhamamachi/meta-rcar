@@ -1,7 +1,7 @@
 From 78133fa8dd2f1c58d716f52bd0bb21f8b3f65bbd Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 22 May 2020 19:29:05 +0300
-Subject: [PATCH 12/33] IIO: lsm9ds0: add IMU driver
+Subject: [PATCH] IIO: lsm9ds0: add IMU driver
 
 Taken from:
 https://github.com/mpod/kernel-playground

@@ -1,7 +1,7 @@
 From f18b8fdc6261022aefe86b4894ea3cd3ca081273 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Fri, 22 May 2020 19:26:15 +0300
-Subject: [PATCH 04/33] ASoC: add dummy Si468x driver
+Subject: [PATCH] ASoC: add dummy Si468x driver
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
