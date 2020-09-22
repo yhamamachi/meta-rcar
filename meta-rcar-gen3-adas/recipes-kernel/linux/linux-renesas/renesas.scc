@@ -22,3 +22,4 @@ patch 0021-arm64-dts-renesas-ulcb-kf-update-for-Yocto4.1.0.patch
 patch 0022-arm64-dts-renesas-ulcb-kf-deselect-GP5_9-interrupt.patch
 patch 0023-media-platform-rcar-vin-do-not-reset-IFMD-VIN.patch
 patch 0024-kbuild-add-support-for-building-dtbo-targets.patch
+patch 0025-media-i2c-add-AP0101-ISX016-ISX019-OV2311-OV495.patch
