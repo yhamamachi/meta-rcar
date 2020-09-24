@@ -23,3 +23,4 @@ patch 0022-arm64-dts-renesas-ulcb-kf-deselect-GP5_9-interrupt.patch
 patch 0023-media-platform-rcar-vin-do-not-reset-IFMD-VIN.patch
 patch 0024-kbuild-add-support-for-building-dtbo-targets.patch
 patch 0025-regulator-add-MAX2008X-camera-protector.patch
+patch 0026-arm64-dts-renesas-r8a77980-add-max9286.patch
