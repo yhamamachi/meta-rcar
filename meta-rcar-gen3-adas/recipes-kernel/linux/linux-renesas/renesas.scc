@@ -46,3 +46,4 @@ patch 0045-clk-renesas-r8a77980-cpg-mssr-Add-ISP-clocks.patch
 patch 0046-clk-renesas-r8a77980-cpg-mssr-Add-IMP-clocks.patch
 patch 0047-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
 patch 0048-clk-renesas-r8a77970-cpg-mssr-Add-IMP-clocks.patch
+patch 0049-arm64-dts-renesas-Add-r8a7796-m3ulcb-2x4g-kf.dts.patch
