@@ -1,0 +1,2448 @@
+From 2f7b12bd49542c326eba2578d6b0a88e8ef7d864 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 25 Sep 2020 18:54:32 +0300
+Subject: [PATCH] uio stuff for BSP7
+
+This is uio related changed for BSP7 (Yocto4.1.0)
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi      |  505 +++++++++++-
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi      | 1014 ++++++++++++++++++++++--
+ drivers/clk/renesas/r8a77970-cpg-mssr.c        |    4 +-
+ drivers/clk/renesas/r8a77980-cpg-mssr.c        |    6 +-
+ drivers/uio/uio.c                              |   15 +
+ drivers/uio/uio_pdrv_genirq.c                  |  206 ++++-
+ fs/compat_ioctl.c                              |    8 +
+ include/dt-bindings/clock/r8a77970-cpg-mssr.h  |    2 +
+ include/dt-bindings/clock/r8a77980-cpg-mssr.h  |    3 +
+ include/dt-bindings/ipmmu/rcar-ipmmu-domains.h |    1 +
+ include/dt-bindings/ipmmu/rcar-ipmmu.h         |    6 +
+ include/linux/uio_driver.h                     |    2 +
+ include/uapi/linux/rcar-ipmmu-domains.h        |   33 +
+ include/uapi/linux/renesas_uioctl.h            |   23 +
+ 14 files changed, 1746 insertions(+), 82 deletions(-)
+ create mode 120000 include/dt-bindings/ipmmu/rcar-ipmmu-domains.h
+ create mode 100644 include/dt-bindings/ipmmu/rcar-ipmmu.h
+ create mode 100644 include/uapi/linux/rcar-ipmmu-domains.h
+ create mode 100644 include/uapi/linux/renesas_uioctl.h
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 0cd3b37..936aed6 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -10,6 +10,7 @@
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/power/r8a77970-sysc.h>
++#include <dt-bindings/ipmmu/rcar-ipmmu.h>
+ 
+ / {
+ 	compatible = "renesas,r8a77970";
+@@ -22,6 +23,9 @@
+ 		i2c2 = &i2c2;
+ 		i2c3 = &i2c3;
+ 		i2c4 = &i2c4;
++		isp0 = &isp0;
++		tisp0 = &tisp0;
++		cisp0 = &cisp0;
+ 	};
+ 
+ 	/* External CAN clock - to be overridden by boards that provide it */
+@@ -817,15 +821,16 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: video@e6ef0000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin0: vin_00@e6ef0000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 811>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 811>;
+ 			renesas,id = <0>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -845,15 +850,16 @@
+ 			};
+ 		};
+ 
+-		vin1: video@e6ef1000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin1: vin_01@e6ef1000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 810>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 810>;
+ 			renesas,id = <1>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -873,15 +879,16 @@
+ 			};
+ 		};
+ 
+-		vin2: video@e6ef2000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin2: vin_02@e6ef2000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 809>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 809>;
+ 			renesas,id = <2>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -901,15 +908,16 @@
+ 			};
+ 		};
+ 
+-		vin3: video@e6ef3000 {
+-			compatible = "renesas,vin-r8a77970";
++		vin3: vin_03@e6ef3000 {
++			compatible = "renesas,vin-r8a77970", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 808>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 808>;
+ 			renesas,id = <3>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -929,6 +937,187 @@
+ 			};
+ 		};
+ 
++		imp_distributer: imp_ctrl_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77970_PD_A3IR>;
++			interrupt-controller;
++			#interrupt-cells = <1>;
++		};
++
++		imp_imp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff900000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A77970_PD_A2IR0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xff920000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A77970_PD_A2IR0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_02 {
++			compatible = "generic-uio";
++			reg = <0 0xff940000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A77970_PD_A2IR1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_03 {
++			compatible = "generic-uio";
++			reg = <0 0xff960000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A77970_PD_A2IR1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff980000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 829>;
++			power-domains = <&sysc R8A77970_PD_A2SC0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_01 {
++			compatible = "generic-uio";
++			reg = <0 0xff990000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 828>;
++			power-domains = <&sysc R8A77970_PD_A2SC1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_dma_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa10000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A77970_PD_A2DP>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_psc_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa20000 0 0x4000>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A77970_PD_A2DP>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_cnn_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff9e0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A77970_PD_A2CN>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_mem_00 {
++			compatible = "generic-uio";
++			reg = <0 0xed000000 0 0xe0000>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77970_PD_A3IR>;
++		};
++
++		imr_v4l2_alloc: imr_alloc {
++			dma-coherent;
++		};
++
++		imrlx4_ch0: imr_00@fe860000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe860000 0 0x2000>;
++			interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 823>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			resets = <&cpg 823>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		imrlx4_ch1: imr_01@fe870000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe870000 0 0x2000>;
++			interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 822>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			resets = <&cpg 822>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		imrlx4_ch2: imr_02@fe880000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe880000 0 0x2000>;
++			interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 821>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			resets = <&cpg 821>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		imrlx4_ch3: imr_03@fe890000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe890000 0 0x2000>;
++			interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 820>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			resets = <&cpg 820>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		isp0: isp@fec00000 {
++			compatible = "renesas,isp-r8a77970";
++			reg = <0 0xfec00000 0 0x20000>,
++			      <0 0xfed00000 0 0x10000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		tisp0: tisp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfed00000 0 0x10000>;
++			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		cisp0: cisp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfec00000 0 0x20000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		sadc0: adc@ffce0000 {
++			compatible = "renesas,sadc-r8a77970";
++			reg = <0 0xffce0000 0 0x10000>;
++			interrupts = <GIC_SPI 295 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_S2D4>,
++				 <&cpg CPG_CORE R8A77970_CLK_S2D2>,
++				 <&cpg CPG_MOD 503>;				/* RMSTPCR5/bit3:ADC */
++			clock-names = "phy_clk", "ip_clk", "adc";
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		dmac1: dma-controller@e7300000 {
+ 			compatible = "renesas,dmac-r8a77970",
+ 				     "renesas,rcar-dmac";
+@@ -1055,8 +1244,8 @@
+ 			resets = <&cpg 408>;
+ 		};
+ 
+-		vspd0: vsp@fea20000 {
+-			compatible = "renesas,vsp2";
++		vspd0: vsp_00@fea20000 {
++			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 623>;
+@@ -1073,14 +1262,14 @@
+ 			resets = <&cpg 603>;
+ 		};
+ 
+-		csi40: csi2@feaa0000 {
+-			compatible = "renesas,r8a77970-csi2";
++		csi40: csi_00@feaa0000 {
++			compatible = "renesas,r8a77970-csi2", "generic-uio";
+ 			reg = <0 0xfeaa0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 246 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 716>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 716>;
+-			status = "disabled";
++			status = "enabled";
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1112,8 +1301,8 @@
+ 			};
+ 		};
+ 
+-		du: display@feb00000 {
+-			compatible = "renesas,du-r8a77970";
++		du: du_00@feb00000 {
++			compatible = "renesas,du-r8a77970", "generic-uio";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 724>;
+@@ -1121,7 +1310,7 @@
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 724>;
+ 			vsps = <&vspd0>;
+-			status = "disabled";
++			status = "enabled";
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1142,9 +1331,9 @@
+ 			};
+ 		};
+ 
+-		lvds0: lvds-encoder@feb90000 {
+-			compatible = "renesas,r8a77970-lvds";
+-			reg = <0 0xfeb90000 0 0x14>;
++		lvds0: lvds_00@feb90000 {
++			compatible = "renesas,r8a77970-lvds", "generic-uio";
++			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			resets = <&cpg 727>;
+@@ -1173,6 +1362,276 @@
+ 			compatible = "renesas,prr";
+ 			reg = <0 0xfff00044 0 4>;
+ 		};
++
++		iccom_00 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 224 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x400 0x404 0x440 0x460>;
++			iccom,cta-memory = <0x0 0x47fc7000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_01 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 225 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x408 0x40c 0x444 0x464>;
++			iccom,cta-memory = <0x0 0x47fc9000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_02 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 226 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x410 0x414 0x448 0x468>;
++			iccom,cta-memory = <0x0 0x47fcb000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_03 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 227 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x418 0x41c 0x44c 0x46c>;
++			iccom,cta-memory = <0x0 0x47fcd000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_04 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 228 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x420 0x424 0x450 0x470>;
++			iccom,cta-memory = <0x0 0x47fcf000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_05 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 229 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x428 0x42c 0x454 0x474>;
++			iccom,cta-memory = <0x0 0x47fd1000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_06 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 230 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x430 0x434 0x458 0x478>;
++			iccom,cta-memory = <0x0 0x47fd3000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_07 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 231 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x438 0x43c 0x45c 0x47c>;
++			iccom,cta-memory = <0x0 0x47fd5000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_08 { /* iccom error 0 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 337 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_09 { /* iccom error 1 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 338 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_10 { /* iccom error 2 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_11 { /* iccom error 3 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_12 { /* iccom error 4 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_13 { /* iccom error 5 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_14 { /* iccom error 6 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 343 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_15 { /* iccom error 7 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 344 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_16 { /* iccom error 8 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_17 { /* iccom error 9 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 347 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_18 { /* iccom error 10 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_19 { /* iccom error 11 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		qos@e67e0000 {
++			compatible = "renesas,qos";
++			reg = <0 0xe67e0000 0 0x10090>;
++		};
++
++		ivcp1e_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfea00000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 127>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 300 IRQ_TYPE_LEVEL_HIGH>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		irq_ivcp1e_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfea00000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 127>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		rtt_fbc_post {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		rtt_fbc_post2 {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST2>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		rtt_fbc_finish {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		rtt_fbc_pre {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		imr_rtt_ims_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfff80000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 823>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_ims_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfff90000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 821>;
++			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++		};
++
++		imp_rtt_imp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A77970_PD_A2IR0>;
++		};
++
++		imp_rtt_imp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfff50000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A77970_PD_A2IR1>;
++		};
++
++		imp_rtt_ocv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfffa0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 829>;
++			power-domains = <&sysc R8A77970_PD_A2SC0>;
++		};
++
++		imp_rtt_ocv_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfffb0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 828>;
++			power-domains = <&sysc R8A77970_PD_A2SC1>;
++		};
++
++		imp_rtt_dp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfff60000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A77970_PD_A2DP>;
++		};
++
++		imp_rtt_cnn_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfff70000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A77970_PD_A2CN>;
++		};
+ 	};
+ 
+ 	thermal-zones {
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 461a47e..107e5a5 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -10,6 +10,7 @@
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/power/r8a77980-sysc.h>
++#include <dt-bindings/ipmmu/rcar-ipmmu.h>
+ 
+ / {
+ 	compatible = "renesas,r8a77980";
+@@ -23,6 +24,12 @@
+ 		i2c3 = &i2c3;
+ 		i2c4 = &i2c4;
+ 		i2c5 = &i2c5;
++		isp0 = &isp0;
++		isp1 = &isp1;
++		tisp0 = &tisp0;
++		tisp1 = &tisp1;
++		cisp0 = &cisp0;
++		cisp1 = &cisp1;
+ 	};
+ 
+ 	/* External CAN clock - to be overridden by boards that provide it */
+@@ -858,15 +865,16 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vin0: video@e6ef0000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin0: vin_00@e6ef0000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef0000 0 0x1000>;
+ 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 811>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 811>;
+ 			renesas,id = <0>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -886,15 +894,16 @@
+ 			};
+ 		};
+ 
+-		vin1: video@e6ef1000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin1: vin_01@e6ef1000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef1000 0 0x1000>;
+ 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 810>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-			status = "disabled";
++			status = "enabled";
+ 			renesas,id = <1>;
+ 			resets = <&cpg 810>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -914,15 +923,16 @@
+ 			};
+ 		};
+ 
+-		vin2: video@e6ef2000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin2: vin_02@e6ef2000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef2000 0 0x1000>;
+ 			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 809>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 809>;
+ 			renesas,id = <2>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -942,15 +952,16 @@
+ 			};
+ 		};
+ 
+-		vin3: video@e6ef3000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin3: vin_03@e6ef3000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef3000 0 0x1000>;
+ 			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 808>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 808>;
+ 			renesas,id = <3>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -970,15 +981,16 @@
+ 			};
+ 		};
+ 
+-		vin4: video@e6ef4000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin4: vin_04@e6ef4000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef4000 0 0x1000>;
+ 			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 807>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 807>;
+ 			renesas,id = <4>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -998,15 +1010,16 @@
+ 			};
+ 		};
+ 
+-		vin5: video@e6ef5000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin5: vin_05@e6ef5000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef5000 0 0x1000>;
+ 			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 806>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 806>;
+ 			renesas,id = <5>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1026,15 +1039,16 @@
+ 			};
+ 		};
+ 
+-		vin6: video@e6ef6000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin6: vin_06@e6ef6000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef6000 0 0x1000>;
+ 			interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 805>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 805>;
+ 			renesas,id = <6>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1054,15 +1068,16 @@
+ 			};
+ 		};
+ 
+-		vin7: video@e6ef7000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin7: vin_07@e6ef7000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef7000 0 0x1000>;
+ 			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 804>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 804>;
+ 			renesas,id = <7>;
+-			status = "disabled";
++			status = "enabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1082,8 +1097,8 @@
+ 			};
+ 		};
+ 
+-		vin8: video@e6ef8000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin8: vin_08@e6ef8000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef8000 0 0x1000>;
+ 			interrupts = <GIC_SPI 268 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 628>;
+@@ -1091,10 +1106,11 @@
+ 			resets = <&cpg 628>;
+ 			renesas,id = <8>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin9: video@e6ef9000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin9: vin_09@e6ef9000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6ef9000 0 0x1000>;
+ 			interrupts = <GIC_SPI 269 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 627>;
+@@ -1102,10 +1118,11 @@
+ 			resets = <&cpg 627>;
+ 			renesas,id = <9>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin10: video@e6efa000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin10: vin_10@e6efa000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efa000 0 0x1000>;
+ 			interrupts = <GIC_SPI 289 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 625>;
+@@ -1113,10 +1130,11 @@
+ 			resets = <&cpg 625>;
+ 			renesas,id = <10>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin11: video@e6efb000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin11: vin_11@e6efb000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efb000 0 0x1000>;
+ 			interrupts = <GIC_SPI 296 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 618>;
+@@ -1124,10 +1142,11 @@
+ 			resets = <&cpg 618>;
+ 			renesas,id = <11>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin12: video@e6efc000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin12: vin_12@e6efc000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efc000 0 0x1000>;
+ 			interrupts = <GIC_SPI 298 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 612>;
+@@ -1135,10 +1154,11 @@
+ 			resets = <&cpg 612>;
+ 			renesas,id = <12>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin13: video@e6efd000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin13: vin_13@e6efd000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efd000 0 0x1000>;
+ 			interrupts = <GIC_SPI 299 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 608>;
+@@ -1146,10 +1166,11 @@
+ 			resets = <&cpg 608>;
+ 			renesas,id = <13>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin14: video@e6efe000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin14: vin_14@e6efe000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6efe000 0 0x1000>;
+ 			interrupts = <GIC_SPI 301 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 605>;
+@@ -1157,10 +1178,11 @@
+ 			resets = <&cpg 605>;
+ 			renesas,id = <14>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+-		vin15: video@e6eff000 {
+-			compatible = "renesas,vin-r8a77980";
++		vin15: vin_15@e6eff000 {
++			compatible = "renesas,vin-r8a77980", "generic-uio";
+ 			reg = <0 0xe6eff000 0 0x1000>;
+ 			interrupts = <GIC_SPI 302 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 604>;
+@@ -1168,6 +1190,485 @@
+ 			resets = <&cpg 604>;
+ 			renesas,id = <15>;
+ 			status = "disabled";
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		imp_distributer: imp_ctrl_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++			interrupt-controller;
++			#interrupt-cells = <1>;
++		};
++
++		irq_imp_ctrl_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 282 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_02 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 283 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_03 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 284 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		irq_imp_ctrl_00_04 {
++			compatible = "generic-uio";
++			reg = <0 0xffa00000 0 0x10000>;
++			interrupts = <GIC_SPI 285 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		imp_imp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff900000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A77980_PD_A2IR0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xff920000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A77980_PD_A2IR1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_02 {
++			compatible = "generic-uio";
++			reg = <0 0xff940000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A77980_PD_A2IR2>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_03 {
++			compatible = "generic-uio";
++			reg = <0 0xff960000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A77980_PD_A2IR3>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_imp_04 {
++			compatible = "generic-uio";
++			reg = <0 0xffa80000 0 0x20000>;
++			clocks = <&cpg CPG_MOD 521>;
++			power-domains = <&sysc R8A77980_PD_A2IR4>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_slim_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff9c0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 500>;
++			power-domains = <&sysc R8A77980_PD_A2IR5>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff980000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 829>;
++			power-domains = <&sysc R8A77980_PD_A2SC0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_01 {
++			compatible = "generic-uio";
++			reg = <0 0xff990000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 828>;
++			power-domains = <&sysc R8A77980_PD_A2SC1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_02 {
++			compatible = "generic-uio";
++			reg = <0 0xff9a0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 531>;
++			power-domains = <&sysc R8A77980_PD_A2SC2>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_03 {
++			compatible = "generic-uio";
++			reg = <0 0xff9b0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 529>;
++			power-domains = <&sysc R8A77980_PD_A2SC3>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_ocv_04 {
++			compatible = "generic-uio";
++			reg = <0 0xffa40000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 528>;
++			power-domains = <&sysc R8A77980_PD_A2SC4>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_dma_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa10000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 527>;
++			power-domains = <&sysc R8A77980_PD_A2DP0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_dma_01 {
++			compatible = "generic-uio";
++			reg = <0 0xffa14000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 526>;
++			power-domains = <&sysc R8A77980_PD_A2DP1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_psc_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffa20000 0 0x4000>;
++			clocks = <&cpg CPG_MOD 525>;
++			power-domains = <&sysc R8A77980_PD_A2DP0>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_psc_01 {
++			compatible = "generic-uio";
++			reg = <0 0xffa24000 0 0x4000>;
++			clocks = <&cpg CPG_MOD 524>;
++			power-domains = <&sysc R8A77980_PD_A2DP1>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_cnn_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff9e0000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 831>;
++			power-domains = <&sysc R8A77980_PD_A2CN>;
++			ipmmu-id = <RCAR_IPMMU_IR>;
++		};
++
++		imp_mem_00 {
++			compatible = "generic-uio";
++			reg = <0 0xed000000 0 0x200000>;
++			clocks = <&cpg CPG_MOD 830>;
++			power-domains = <&sysc R8A77980_PD_A3IR>;
++		};
++
++		imr_v4l2_alloc: imr_alloc {
++			dma-coherent;
++		};
++
++		imrlx4_ch0: imr_00@fe860000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe860000 0 0x2000>;
++			interrupts = <GIC_SPI 192 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 823>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			resets = <&cpg 823>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		imrlx4_ch1: imr_01@fe870000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe870000 0 0x2000>;
++			interrupts = <GIC_SPI 193 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 822>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			resets = <&cpg 822>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		imrlx4_ch2: imr_02@fe880000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe880000 0 0x2000>;
++			interrupts = <GIC_SPI 194 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 821>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			resets = <&cpg 821>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		imrlx4_ch3: imr_03@fe890000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe890000 0 0x2000>;
++			interrupts = <GIC_SPI 195 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 820>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			resets = <&cpg 820>;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		imrlx4_ch4: imr_04@fe8a0000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe8a0000 0 0x2000>;
++			interrupts = <GIC_SPI 254 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 707>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			rse;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		imrlx4_ch5: imr_05@fe8b0000 {
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
++			reg = <0 0xfe8b0000 0 0x2000>;
++			interrupts = <GIC_SPI 255 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 706>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			rse;
++			alloc-dev = <&imr_v4l2_alloc>;
++			ipmmu-id = <RCAR_IPMMU_VC0>;
++		};
++
++		stv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a00000 0 0x10000>;
++			interrupts = <GIC_SPI 238 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 101>;
++			power-domains = <&sysc R8A77980_PD_A3VIP0>;
++			ipmmu-id = <RCAR_IPMMU_VIP0>;
++		};
++
++		irq_stv_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a00000 0 0x10000>;
++			interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 101>;
++			power-domains = <&sysc R8A77980_PD_A3VIP0>;
++		};
++
++		dof_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a10000 0 0x10000>;
++			interrupts = <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 102>;
++			power-domains = <&sysc R8A77980_PD_A3VIP1>;
++			ipmmu-id = <RCAR_IPMMU_VIP0>;
++		};
++
++		irq_dof_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a10000 0 0x10000>;
++			interrupts = <GIC_SPI 243 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 102>;
++			power-domains = <&sysc R8A77980_PD_A3VIP1>;
++		};
++
++		acf_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a50000 0 0x10000>;
++			interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1004>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1>;
++		};
++
++		irq_acf_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a50000 0 0x10000>;
++			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1004>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		acf_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a60000 0 0x10000>;
++			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1003>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1>;
++		};
++
++		irq_acf_01_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a60000 0 0x10000>;
++			interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1003>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		acf_02 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a70000 0 0x10000>;
++			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1002>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1>;
++		};
++
++		irq_acf_02_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a70000 0 0x10000>;
++			interrupts = <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1002>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		acf_03 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a80000 0 0x10000>;
++			interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1001>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1>;
++		};
++
++		irq_acf_03_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a80000 0 0x10000>;
++			interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1001>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		acf_04 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a90000 0 0x10000>;
++			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1000>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1>;
++		};
++
++		irq_acf_04_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7a90000 0 0x10000>;
++			interrupts = <GIC_SPI 108 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 1000>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		fcpr_vip_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7aa0000 0 0x20000>;
++		};
++
++		fcpr_ir_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d8000 0 0x10000>;
++		};
++
++		fcpr_vio_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfe9c0000 0 0x10000>;
++		};
++
++		fcpr_vio_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfea90000 0 0x10000>;
++		};
++
++		fcpr_rt_00 {
++			compatible = "generic-uio";
++			reg = <0 0xffc70000 0 0x10000>;
++		};
++
++		fcpr_peri_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7320000 0 0x10000>;
++		};
++
++		fcpra_peri_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7410000 0 0x10000>;
++		};
++
++		fcpr_c53_00 {
++			compatible = "generic-uio";
++			reg = <0 0xf12a0000 0 0x10000>;
++		};
++
++		fcpra_c53_00 {
++			compatible = "generic-uio";
++			reg = <0 0xf12f0000 0 0x10000>;
++		};
++
++
++		isp0: isp@fec00000 {
++			compatible = "renesas,isp-r8a77980";
++			reg = <0 0xfec00000 0 0x20000>,
++			      <0 0xfed00000 0 0x10000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		isp1: isp@fee00000 {
++			compatible = "renesas,isp-r8a77980";
++			reg = <0 0xfee00000 0 0x20000>,
++			      <0 0xfed20000 0 0x10000>;
++			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 814>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		tisp0: tisp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfed00000 0 0x10000>;
++			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			resets = <&cpg 817>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		cisp0: cisp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfec00000 0 0x20000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 817>;
++			resets = <&cpg 817>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		tisp1: tisp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfed20000 0 0x10000>;
++			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 814>;
++			resets = <&cpg 814>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		cisp1: cisp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfee00000 0 0x20000>;
++			interrupts = <GIC_SPI 109 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 814>;
++			resets = <&cpg 814>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
+ 		};
+ 
+ 		dmac1: dma-controller@e7300000 {
+@@ -1299,9 +1800,9 @@
+ 			#iommu-cells = <1>;
+ 		};
+ 
+-		ipmmu_vc0: mmu@fe990000 {
++		ipmmu_vc0: mmu@fe6b0000 {
+ 			compatible = "renesas,ipmmu-r8a77980";
+-			reg = <0 0xfe990000 0 0x1000>;
++			reg = <0 0xfe6b0000 0 0x1000>;
+ 			renesas,ipmmu-main = <&ipmmu_mm 12>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			#iommu-cells = <1>;
+@@ -1390,8 +1891,8 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vspd0: vsp@fea20000 {
+-			compatible = "renesas,vsp2";
++		vspd0: vsp_00@fea20000 {
++			compatible = "renesas,vsp2", "generic-uio";
+ 			reg = <0 0xfea20000 0 0x5000>;
+ 			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 623>;
+@@ -1408,14 +1909,14 @@
+ 			resets = <&cpg 603>;
+ 		};
+ 
+-		csi40: csi2@feaa0000 {
+-			compatible = "renesas,r8a77980-csi2";
++		csi40: csi_00@feaa0000 {
++			compatible = "renesas,r8a77980-csi2", "generic-uio";
+ 			reg = <0 0xfeaa0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 246 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 716>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 716>;
+-			status = "disabled";
++			status = "enabled";
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1447,14 +1948,14 @@
+ 			};
+ 		};
+ 
+-		csi41: csi2@feab0000 {
+-			compatible = "renesas,r8a77980-csi2";
++		csi41: csi_01@feab0000 {
++			compatible = "renesas,r8a77980-csi2", "generic-uio";
+ 			reg = <0 0xfeab0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 241 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 715>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 715>;
+-			status = "disabled";
++			status = "enabled";
+ 
+ 			ports {
+ 				#address-cells = <1>;
+@@ -1486,8 +1987,8 @@
+ 			};
+ 		};
+ 
+-		du: display@feb00000 {
+-			compatible = "renesas,du-r8a77980",
++		du: du_00@feb00000 {
++			compatible = "renesas,du-r8a77980", "generic-uio",
+ 				     "renesas,du-r8a77970";
+ 			reg = <0 0xfeb00000 0 0x80000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1517,9 +2018,9 @@
+ 			};
+ 		};
+ 
+-		lvds0: lvds-encoder@feb90000 {
+-			compatible = "renesas,r8a77980-lvds";
+-			reg = <0 0xfeb90000 0 0x14>;
++		lvds0: lvds_00@feb90000 {
++			compatible = "renesas,r8a77980-lvds", "generic-uio";
++			reg = <0 0xfeb90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 727>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			resets = <&cpg 727>;
+@@ -1549,6 +2050,409 @@
+ 			compatible = "renesas,prr";
+ 			reg = <0 0xfff00044 0 4>;
+ 		};
++
++		iccom_00 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 224 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x400 0x404 0x440 0x460>;
++			iccom,cta-memory = <0x0 0x47fc7000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_01 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 225 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x408 0x40c 0x444 0x464>;
++			iccom,cta-memory = <0x0 0x47fc9000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_02 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 226 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x410 0x414 0x448 0x468>;
++			iccom,cta-memory = <0x0 0x47fcb000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_03 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 227 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x418 0x41c 0x44c 0x46c>;
++			iccom,cta-memory = <0x0 0x47fcd000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_04 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 228 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x420 0x424 0x450 0x470>;
++			iccom,cta-memory = <0x0 0x47fcf000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_05 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 229 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x428 0x42c 0x454 0x474>;
++			iccom,cta-memory = <0x0 0x47fd1000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_06 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 230 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x430 0x434 0x458 0x478>;
++			iccom,cta-memory = <0x0 0x47fd3000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_07 {
++			compatible = "renesas,iccom-rcar", "generic-uio";
++			interrupts = <0 231 4>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			iccom,reg-offset = <0x438 0x43c 0x45c 0x47c>;
++			iccom,cta-memory = <0x0 0x47fd5000 0x0 0x2000>;
++			iccom,ack-timeout = <100>;
++			iccom,trg-timeout = <100>;
++		};
++
++		irq_iccom_00_08 { /* iccom error 0 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 337 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_09 { /* iccom error 1 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 338 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_10 { /* iccom error 2 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_11 { /* iccom error 3 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_12 { /* iccom error 4 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_13 { /* iccom error 5 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_14 { /* iccom error 6 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 343 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_15 { /* iccom error 7 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 344 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_16 { /* iccom error 8 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_17 { /* iccom error 9 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 347 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_18 { /* iccom error 10 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_19 { /* iccom error 11 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_20 { /* iccom error 12 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 352 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		irq_iccom_00_21 { /* iccom error 13 */
++			compatible = "generic-uio";
++			interrupts = <GIC_SPI 376 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x0 0xe6260000 0x0 0x1000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		qos@e67e0000 {
++			compatible = "renesas,qos";
++			reg = <0 0xe67e0000 0 0x10090>;
++		};
++
++		ivcp1e_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfea00000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 127>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 300 IRQ_TYPE_LEVEL_HIGH>;
++			ipmmu-id = <RCAR_IPMMU_VI0>;
++		};
++
++		irq_ivcp1e_00_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfea00000 0 0x10000>;
++			clocks = <&cpg CPG_MOD 127>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		rtt_fbc_post {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		rtt_fbc_post2 {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST2>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		rtt_fbc_post4 {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		rtt_fbc_finish {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		rtt_fbc_pre {
++			compatible = "generic-uio";
++			reg = <0 0xff830000 0 0x10000>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++		imr_rtt_imr_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfff80000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 707>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_imr_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfff81000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 706>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_ims_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfff90000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 823>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_ims_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfff91000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 822>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_ims_02 {
++			compatible = "generic-uio";
++			reg = <0 0xfff92000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 821>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		imr_rtt_ims_03 {
++			compatible = "generic-uio";
++			reg = <0 0xfff93000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 820>;
++			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++		};
++
++		viprtt_dof_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7930000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 102>;
++			power-domains = <&sysc R8A77980_PD_A3VIP1>;
++		};
++
++		viprtt_stv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7950000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 101>;
++			power-domains = <&sysc R8A77980_PD_A3VIP0>;
++		};
++
++		viprtt_acf_00 {
++			compatible = "generic-uio";
++			reg = <0 0xe7940000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 1004>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		viprtt_acf_01 {
++			compatible = "generic-uio";
++			reg = <0 0xe7941000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 1002>;
++			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++		};
++
++		imp_rtt_imp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A77980_PD_A2IR0>;
++		};
++
++		imp_rtt_imp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfff50000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A77980_PD_A2IR1>;
++		};
++
++		imp_rtt_imp_02 {
++			compatible = "generic-uio";
++			reg = <0 0xfff60000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A77980_PD_A2IR2>;
++		};
++
++		imp_rtt_imp_03 {
++			compatible = "generic-uio";
++			reg = <0 0xfff70000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A77980_PD_A2IR3>;
++		};
++
++		imp_rtt_imp_04 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d1000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 521>;
++			power-domains = <&sysc R8A77980_PD_A2IR4>;
++		};
++
++		imp_rtt_ocv_00 {
++			compatible = "generic-uio";
++			reg = <0 0xfffa0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 829>;
++			power-domains = <&sysc R8A77980_PD_A2SC0>;
++		};
++
++		imp_rtt_ocv_01 {
++			compatible = "generic-uio";
++			reg = <0 0xfffb0000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 828>;
++			power-domains = <&sysc R8A77980_PD_A2SC1>;
++		};
++
++		imp_rtt_ocv_02 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d2000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 531>;
++			power-domains = <&sysc R8A77980_PD_A2SC2>;
++		};
++
++		imp_rtt_ocv_03 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d3000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 529>;
++			power-domains = <&sysc R8A77980_PD_A2SC3>;
++		};
++
++		imp_rtt_ocv_04 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d4000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 528>;
++			power-domains = <&sysc R8A77980_PD_A2SC4>;
++		};
++
++		imp_rtt_dp_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d5000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 525>;
++			power-domains = <&sysc R8A77980_PD_A2DP0>;
++		};
++
++		imp_rtt_dp_01 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d6000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 524>;
++			power-domains = <&sysc R8A77980_PD_A2DP1>;
++		};
++
++		imp_rtt_cnn_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8d7000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 831>;
++			power-domains = <&sysc R8A77980_PD_A2CN>;
++		};
++
++		imp_rtt_slim_00 {
++			compatible = "generic-uio";
++			reg = <0 0xff8dc000 0 0x1000>;
++			clocks = <&cpg CPG_MOD 500>;
++			power-domains = <&sysc R8A77980_PD_A2IR5>;
++		};
+ 	};
+ 
+ 	thermal-zones {
+diff --git a/drivers/clk/renesas/r8a77970-cpg-mssr.c b/drivers/clk/renesas/r8a77970-cpg-mssr.c
+index cbed376..e54eb6d 100644
+--- a/drivers/clk/renesas/r8a77970-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77970-cpg-mssr.c
+@@ -29,7 +29,7 @@ enum r8a77970_clk_types {
+ 
+ enum clk_ids {
+ 	/* Core Clock Outputs exported to DT */
+-	LAST_DT_CORE_CLK = R8A77970_CLK_OSC,
++	LAST_DT_CORE_CLK = R8A77970_CLK_POST2,
+ 
+ 	/* External Input Clocks */
+ 	CLK_EXTAL,
+@@ -101,6 +101,8 @@ static const struct cpg_core_clk r8a77970_core_clks[] __initconst = {
+ 	DEF_DIV6P1("canfd",	R8A77970_CLK_CANFD, CLK_PLL1_DIV4, 0x244),
+ 	DEF_DIV6P1("mso",	R8A77970_CLK_MSO,   CLK_PLL1_DIV4, 0x014),
+ 	DEF_DIV6P1("csi0",	R8A77970_CLK_CSI0,  CLK_PLL1_DIV4, 0x00c),
++	DEF_DIV6P1("post",	R8A77970_CLK_POST,  CLK_PLL1_DIV4, 0x08c),
++	DEF_DIV6P1("post2",	R8A77970_CLK_POST2, CLK_PLL1_DIV4, 0x09c),
+ 
+ 	DEF_FIXED("osc",	R8A77970_CLK_OSC,   CLK_PLL1_DIV2, 12*1024, 1),
+ 	DEF_FIXED("r",		R8A77970_CLK_R,	    CLK_EXTALR,	   1, 1),
+diff --git a/drivers/clk/renesas/r8a77980-cpg-mssr.c b/drivers/clk/renesas/r8a77980-cpg-mssr.c
+index 7227f67..e40454c 100644
+--- a/drivers/clk/renesas/r8a77980-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77980-cpg-mssr.c
+@@ -23,7 +23,7 @@
+ 
+ enum clk_ids {
+ 	/* Core Clock Outputs exported to DT */
+-	LAST_DT_CORE_CLK = R8A77980_CLK_OSC,
++	LAST_DT_CORE_CLK = R8A77980_CLK_POST4,
+ 
+ 	/* External Input Clocks */
+ 	CLK_EXTAL,
+@@ -105,6 +105,9 @@ static const struct cpg_core_clk r8a77980_core_clks[] __initconst = {
+ 	DEF_DIV6P1("canfd",	R8A77980_CLK_CANFD, CLK_PLL1_DIV4, 0x244),
+ 	DEF_DIV6P1("csi0",	R8A77980_CLK_CSI0,  CLK_PLL1_DIV4, 0x00c),
+ 	DEF_DIV6P1("mso",	R8A77980_CLK_MSO,   CLK_PLL1_DIV4, 0x014),
++	DEF_DIV6P1("post",	R8A77980_CLK_POST,  CLK_PLL1_DIV4, 0x08c),
++	DEF_DIV6P1("post2",	R8A77980_CLK_POST2, CLK_PLL1_DIV4, 0x09c),
++	DEF_DIV6P1("post4",	R8A77980_CLK_POST4, CLK_PLL1_DIV4, 0x260),
+ 
+ 	DEF_GEN3_OSC("osc",	R8A77980_CLK_OSC,   CLK_EXTAL,     8),
+ 	DEF_GEN3_MDSEL("r",	R8A77980_CLK_R, 29, CLK_EXTALR, 1, CLK_OCO, 1),
+@@ -116,6 +119,7 @@ static const struct mssr_mod_clk r8a77980_mod_clks[] __initconst = {
+ 	DEF_MOD("tmu2",			 123,	R8A77980_CLK_S0D6),
+ 	DEF_MOD("tmu1",			 124,	R8A77980_CLK_S0D6),
+ 	DEF_MOD("tmu0",			 125,	R8A77980_CLK_CP),
++	DEF_MOD("ivcp1e",		 127,	R8A77980_CLK_S2D1),
+ 	DEF_MOD("scif4",		 203,	R8A77980_CLK_S3D4),
+ 	DEF_MOD("scif3",		 204,	R8A77980_CLK_S3D4),
+ 	DEF_MOD("scif1",		 206,	R8A77980_CLK_S3D4),
+diff --git a/drivers/uio/uio.c b/drivers/uio/uio.c
+index a576989..258cc55 100644
+--- a/drivers/uio/uio.c
++++ b/drivers/uio/uio.c
+@@ -652,6 +652,20 @@ static ssize_t uio_write(struct file *filep, const char __user *buf,
+ 	return retval ? retval : sizeof(s32);
+ }
+ 
++static long uio_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
++{
++	struct uio_listener *listener = filep->private_data;
++	struct uio_device *idev = listener->dev;
++
++	if (!idev->info)
++		return -EIO;
++
++	if (!idev->info->ioctl)
++		return -ENOTTY;
++
++	return idev->info->ioctl(idev->info, cmd, arg);
++}
++
+ static int uio_find_mem_index(struct vm_area_struct *vma)
+ {
+ 	struct uio_device *idev = vma->vm_private_data;
+@@ -821,6 +835,7 @@ static const struct file_operations uio_fops = {
+ 	.write		= uio_write,
+ 	.mmap		= uio_mmap,
+ 	.poll		= uio_poll,
++	.unlocked_ioctl	= uio_ioctl,
+ 	.fasync		= uio_fasync,
+ 	.llseek		= noop_llseek,
+ };
+diff --git a/drivers/uio/uio_pdrv_genirq.c b/drivers/uio/uio_pdrv_genirq.c
+index 1303b165..9130adf 100644
+--- a/drivers/uio/uio_pdrv_genirq.c
++++ b/drivers/uio/uio_pdrv_genirq.c
+@@ -19,11 +19,15 @@
+ #include <linux/interrupt.h>
+ #include <linux/stringify.h>
+ #include <linux/pm_runtime.h>
++#include <linux/clk.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ 
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_address.h>
++#include <linux/uaccess.h>
++#include <uapi/linux/renesas_uioctl.h>
+ 
+ #define DRIVER_NAME "uio_pdrv_genirq"
+ 
+@@ -32,6 +36,10 @@ struct uio_pdrv_genirq_platdata {
+ 	spinlock_t lock;
+ 	unsigned long flags;
+ 	struct platform_device *pdev;
++	struct clk *clk;
++	struct reset_control *rst;
++	int pwr_cnt;
++	int clk_cnt;
+ };
+ 
+ /* Bits in uio_pdrv_genirq_platdata.flags */
+@@ -39,12 +47,57 @@ enum {
+ 	UIO_IRQ_DISABLED = 0,
+ };
+ 
++int local_pm_runtime_get_sync(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->pwr_cnt == 0) {
++		priv->pwr_cnt++;
++		priv->clk_cnt++;
++		return pm_runtime_get_sync(&priv->pdev->dev);
++	}
++
++	return 0;
++}
++
++int local_pm_runtime_put_sync(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->pwr_cnt > 0) {
++		priv->pwr_cnt--;
++		priv->clk_cnt--;
++		if ((priv->clk != NULL) && (priv->clk_cnt < 0)) { // call to pwr manager will decrease further!!!
++			clk_enable(priv->clk);
++			priv->clk_cnt = 0;
++		}
++
++		return pm_runtime_put_sync(&priv->pdev->dev);
++	}
++
++	return 0;
++}
++
++int local_clk_enable(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->clk_cnt == 0) {
++		clk_enable(priv->clk);
++		priv->clk_cnt++;
++	}
++
++	return 0;
++}
++
++void local_clk_disable(struct uio_pdrv_genirq_platdata *priv)
++{
++	if (priv->clk_cnt > 0) {
++		clk_disable(priv->clk);
++		priv->clk_cnt--;
++	}
++}
++
+ static int uio_pdrv_genirq_open(struct uio_info *info, struct inode *inode)
+ {
+ 	struct uio_pdrv_genirq_platdata *priv = info->priv;
+ 
+ 	/* Wait until the Runtime PM code has woken up the device */
+-	pm_runtime_get_sync(&priv->pdev->dev);
++	local_pm_runtime_get_sync(priv);
+ 	return 0;
+ }
+ 
+@@ -53,7 +106,7 @@ static int uio_pdrv_genirq_release(struct uio_info *info, struct inode *inode)
+ 	struct uio_pdrv_genirq_platdata *priv = info->priv;
+ 
+ 	/* Tell the Runtime PM code that the device has become idle */
+-	pm_runtime_put_sync(&priv->pdev->dev);
++	local_pm_runtime_put_sync(priv);
+ 	return 0;
+ }
+ 
+@@ -73,6 +126,147 @@ static irqreturn_t uio_pdrv_genirq_handler(int irq, struct uio_info *dev_info)
+ 	return IRQ_HANDLED;
+ }
+ 
++/**
++ * Changes the drivers power state
++ * if value == 0, calls pm_runtime_get_sync
++ * if value == 1, calls pm_runtime_put_sync
++ */
++static void priv_set_pwr(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	if (((value == 0) && priv->pwr_cnt > 0) || ((value != 0) && priv->pwr_cnt == 0)) { // change pwr state
++		if (value == 0)
++			local_pm_runtime_put_sync(priv);
++		else
++			local_pm_runtime_get_sync(priv);
++	}
++
++	dev_dbg(&priv->pdev->dev, "Set power state - value = 0x%x pwr_cnt=%d, clk_cnt=%d\n",
++			 value, priv->pwr_cnt, priv->clk_cnt);
++}
++
++/**
++ * Gets the power status of the driver, priv->pwr_cnt is returned
++ */
++static int priv_get_pwr(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	dev_dbg(&priv->pdev->dev, "Get power state  pwr_cnt=%d, clk_cnt=%d\n",
++			 priv->pwr_cnt, priv->clk_cnt);
++
++	return priv->pwr_cnt;
++}
++
++/**
++ * Changes the drivers clock state
++ * if value == 0, calls local_clk_disable
++ * if value == 1, calls local_clk_enable
++ */
++static void priv_set_clk(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	if (value == 0)
++		local_clk_disable(priv);
++	else
++		local_clk_enable(priv);
++
++	dev_dbg(&priv->pdev->dev, "Set clock state - value = 0x%x clk_cnt=%d\n",
++			 value, priv->clk_cnt);
++}
++
++/**
++ * Gets the clock status of the driver
++ * Returns priv->clk_cnt
++ */
++static int priv_get_clk(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++
++	dev_dbg(&priv->pdev->dev, "Get clock state - clk_cnt=%d\n", priv->clk_cnt);
++
++	return priv->clk_cnt;
++}
++
++static void priv_set_rst(struct uio_info *info, int value)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++	int status;
++
++	status = reset_control_status(priv->rst);
++
++	switch (value) {
++	case 0 :
++		if (status > 0)
++			reset_control_deassert(priv->rst);
++		break;
++	case 1 :
++		reset_control_reset(priv->rst);
++		break;
++	default :
++		if (status == 0)
++			reset_control_assert(priv->rst);
++		break;
++	}
++
++	dev_dbg(&priv->pdev->dev, "Set reset state - value = 0x%x\n", value);
++}
++
++static int priv_get_rst(struct uio_info *info)
++{
++	struct uio_pdrv_genirq_platdata *priv = info->priv;
++	int status;
++
++	status = reset_control_status(priv->rst);
++	dev_dbg(&priv->pdev->dev, "Get reset state 0x%x\n", status);
++
++	return status;
++}
++
++static int uio_pdrv_genirq_ioctl(struct uio_info *info, unsigned int cmd, unsigned long arg)
++{
++	int value;
++
++	switch(cmd) {
++	case UIO_PDRV_SET_PWR:
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
++		priv_set_pwr(info, value);
++		break;
++	case UIO_PDRV_GET_PWR:
++		value = priv_get_pwr(info);
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
++		arg = value;
++		break;
++	case UIO_PDRV_SET_CLK:
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
++		priv_set_clk(info, value);
++		break;
++	case UIO_PDRV_GET_CLK:
++		value = priv_get_clk(info);
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
++		arg = value;
++		break;
++	case UIO_PDRV_SET_RESET:
++		if (copy_from_user(&value ,(int*) arg, sizeof(value)))
++			return -EFAULT;
++		priv_set_rst(info, value);
++		break;
++	case UIO_PDRV_GET_RESET:
++		value = priv_get_rst(info);
++		if (copy_to_user((int*) arg, &value, sizeof(value)))
++			return -EFAULT;
++		break;
++	}
++
++	return 0;
++}
++
+ static int uio_pdrv_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
+ {
+ 	struct uio_pdrv_genirq_platdata *priv = dev_info->priv;
+@@ -150,6 +344,13 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->lock);
+ 	priv->flags = 0; /* interrupt is enabled to begin with */
+ 	priv->pdev = pdev;
++	
++	priv->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(priv->clk))
++		priv->clk = NULL;
++
++	priv->clk_cnt = 0;
++	priv->pwr_cnt = 0;
+ 
+ 	if (!uioinfo->irq) {
+ 		ret = platform_get_irq(pdev, 0);
+@@ -202,6 +403,7 @@ static int uio_pdrv_genirq_probe(struct platform_device *pdev)
+ 	uioinfo->irqcontrol = uio_pdrv_genirq_irqcontrol;
+ 	uioinfo->open = uio_pdrv_genirq_open;
+ 	uioinfo->release = uio_pdrv_genirq_release;
++	uioinfo->ioctl = uio_pdrv_genirq_ioctl;
+ 	uioinfo->priv = priv;
+ 
+ 	/* Enable Runtime PM for this device:
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index a7ec2d3..fa67e22 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -72,6 +72,8 @@
+ #include <asm/fbio.h>
+ #endif
+ 
++#include <linux/renesas_uioctl.h>
++
+ #define convert_in_user(srcptr, dstptr)			\
+ ({							\
+ 	typeof(*srcptr) val;				\
+@@ -915,6 +917,12 @@ IGNORE_IOCTL(FBIOGETCMAP32)
+ IGNORE_IOCTL(FBIOSCURSOR32)
+ IGNORE_IOCTL(FBIOGCURSOR32)
+ #endif
++COMPATIBLE_IOCTL(UIO_PDRV_SET_PWR)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_PWR)
++COMPATIBLE_IOCTL(UIO_PDRV_SET_CLK)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_CLK)
++COMPATIBLE_IOCTL(UIO_PDRV_SET_RESET)
++COMPATIBLE_IOCTL(UIO_PDRV_GET_RESET)
+ };
+ 
+ /*
+diff --git a/include/dt-bindings/clock/r8a77970-cpg-mssr.h b/include/dt-bindings/clock/r8a77970-cpg-mssr.h
+index 6145ebe..2d2b01b 100644
+--- a/include/dt-bindings/clock/r8a77970-cpg-mssr.h
++++ b/include/dt-bindings/clock/r8a77970-cpg-mssr.h
+@@ -40,5 +40,7 @@
+ #define R8A77970_CLK_CPEX		28
+ #define R8A77970_CLK_R			29
+ #define R8A77970_CLK_OSC		30
++#define R8A77970_CLK_POST		31
++#define R8A77970_CLK_POST2		32
+ 
+ #endif /* __DT_BINDINGS_CLOCK_R8A77970_CPG_MSSR_H__ */
+diff --git a/include/dt-bindings/clock/r8a77980-cpg-mssr.h b/include/dt-bindings/clock/r8a77980-cpg-mssr.h
+index a4c0d76..bb17430 100644
+--- a/include/dt-bindings/clock/r8a77980-cpg-mssr.h
++++ b/include/dt-bindings/clock/r8a77980-cpg-mssr.h
+@@ -47,5 +47,8 @@
+ #define R8A77980_CLK_CPEX		35
+ #define R8A77980_CLK_R			36
+ #define R8A77980_CLK_OSC		37
++#define R8A77980_CLK_POST		38
++#define R8A77980_CLK_POST2		39
++#define R8A77980_CLK_POST4		40
+ 
+ #endif /* __DT_BINDINGS_CLOCK_R8A77980_CPG_MSSR_H__ */
+diff --git a/include/dt-bindings/ipmmu/rcar-ipmmu-domains.h b/include/dt-bindings/ipmmu/rcar-ipmmu-domains.h
+new file mode 120000
+index 0000000..9bce1eb
+--- /dev/null
++++ b/include/dt-bindings/ipmmu/rcar-ipmmu-domains.h
+@@ -0,0 +1 @@
++../../uapi/linux/rcar-ipmmu-domains.h
+\ No newline at end of file
+diff --git a/include/dt-bindings/ipmmu/rcar-ipmmu.h b/include/dt-bindings/ipmmu/rcar-ipmmu.h
+new file mode 100644
+index 0000000..ff99996
+--- /dev/null
++++ b/include/dt-bindings/ipmmu/rcar-ipmmu.h
+@@ -0,0 +1,6 @@
++#ifndef _DT_BINDINGS_RCAR_IPMMU_H
++#define _DT_BINDINGS_RCAR_IPMMU_H
++
++#include "rcar-ipmmu-domains.h"
++
++#endif /* _DT_BINDINGS_RCAR_IPMMU_H */
+diff --git a/include/linux/uio_driver.h b/include/linux/uio_driver.h
+index 01081c4..bcdd000 100644
+--- a/include/linux/uio_driver.h
++++ b/include/linux/uio_driver.h
+@@ -93,6 +93,7 @@ struct uio_device {
+  * @mmap:		mmap operation for this uio device
+  * @open:		open operation for this uio device
+  * @release:		release operation for this uio device
++ * @ioctl:		ioctl handler
+  * @irqcontrol:		disable/enable irqs when 0/1 is written to /dev/uioX
+  */
+ struct uio_info {
+@@ -109,6 +110,7 @@ struct uio_info {
+ 	int (*open)(struct uio_info *info, struct inode *inode);
+ 	int (*release)(struct uio_info *info, struct inode *inode);
+ 	int (*irqcontrol)(struct uio_info *info, s32 irq_on);
++	int (*ioctl)(struct uio_info *info, unsigned int cmd, unsigned long arg);
+ };
+ 
+ extern int __must_check
+diff --git a/include/uapi/linux/rcar-ipmmu-domains.h b/include/uapi/linux/rcar-ipmmu-domains.h
+new file mode 100644
+index 0000000..8e297d5
+--- /dev/null
++++ b/include/uapi/linux/rcar-ipmmu-domains.h
+@@ -0,0 +1,33 @@
++/*
++ * Copyright (C) 2020 Cogent Embedded Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++#ifndef __LINUX_RCAR_IPMMU_DOMAINS_H__
++#define __LINUX_RCAR_IPMMU_DOMAINS_H__
++
++#define RCAR_IPMMU_INVALID	0
++#define RCAR_IPMMU_MM		1
++#define RCAR_IPMMU_VI0		2
++#define RCAR_IPMMU_VI1		3
++#define RCAR_IPMMU_VP0		4
++#define RCAR_IPMMU_VP1		5
++#define RCAR_IPMMU_VC0		6
++#define RCAR_IPMMU_VC1		7
++#define RCAR_IPMMU_PV0		8
++#define RCAR_IPMMU_PV1		9
++#define RCAR_IPMMU_PV2		10
++#define RCAR_IPMMU_PV3		11
++#define RCAR_IPMMU_IR		12
++#define RCAR_IPMMU_HC		13
++#define RCAR_IPMMU_RT		14
++#define RCAR_IPMMU_MP		15
++#define RCAR_IPMMU_DS0		16
++#define RCAR_IPMMU_DS1		17
++#define RCAR_IPMMU_VIP0		18
++#define RCAR_IPMMU_VIP1		19
++
++#endif /* __LINUX_RCAR_IPMMU_DOMAINS_H__ */
++
+diff --git a/include/uapi/linux/renesas_uioctl.h b/include/uapi/linux/renesas_uioctl.h
+new file mode 100644
+index 0000000..38728f3
+--- /dev/null
++++ b/include/uapi/linux/renesas_uioctl.h
+@@ -0,0 +1,23 @@
++/*
++ * Renesas IOCTL defines for user io drivers;
++ * used to control power, clock and reset
++ *
++ * $Id: $
++ *
++ * Copyright (C) 2020 by Renesas Electronics
++ *
++ * Redistribution of this file is permitted under
++ * the terms of the GNU Public License (GPL)
++ */
++#ifndef _RENESAS_UIOCTL_H_
++#define _RENESAS_UIOCTL_H_
++
++#define UIO_PDRV_IOCCTL_BASE	'I'
++#define UIO_PDRV_SET_PWR	_IOW(UIO_PDRV_IOCCTL_BASE, 0, int)
++#define UIO_PDRV_GET_PWR	_IOR(UIO_PDRV_IOCCTL_BASE, 1, int)
++#define UIO_PDRV_SET_CLK	_IOW(UIO_PDRV_IOCCTL_BASE, 2, int)
++#define UIO_PDRV_GET_CLK	_IOR(UIO_PDRV_IOCCTL_BASE, 3, int)
++#define UIO_PDRV_SET_RESET	_IOW(UIO_PDRV_IOCCTL_BASE, 4, int)
++#define UIO_PDRV_GET_RESET	_IOR(UIO_PDRV_IOCCTL_BASE, 5, int)
++
++#endif /* _RENESAS_UIOCTL_H_ */
+-- 
+2.7.4
+
