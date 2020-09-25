@@ -66,16 +66,23 @@ KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
     renesas/r8a77980-v3hsk.dtb \
 "
 
-# Prefer V4L2 rcar_imr driver over UIO uio_imr
-KERNEL_MODULE_AUTOLOAD_append = " rcar_imr"
+# Prefer generic-uio driver over kernel drivers
 KERNEL_MODULE_PROBECONF_append = " rcar_imr"
-KERNEL_MODULE_PROBECONF_append = " uio_imr"
-module_conf_uio_imr = 'blacklist uio_imr'
+KERNEL_MODULE_PROBECONF_append = " rcar_csi2"
+KERNEL_MODULE_PROBECONF_append = " rcar_vin"
+KERNEL_MODULE_PROBECONF_append = " vsp1"
+KERNEL_MODULE_PROBECONF_append = " rcar-du-drm"
+KERNEL_MODULE_PROBECONF_append = " rcar_lvds"
+module_conf_rcar_imr = "blacklist rcar_imr"
+module_conf_rcar_csi2 = "blacklist rcar_csi2"
+module_conf_rcar_vin = "blacklist rcar_vin"
+module_conf_vsp1 = "blacklist vsp1"
+module_conf_rcar-du-drm = "blacklist rcar-du-drm"
+module_conf_rcar_lvds = "blacklist rcar_lvds"
 
-# V3H VIP devices
-KERNEL_MODULE_AUTOLOAD_append_r8a77980 = " uio_pdrv_genirq"
-KERNEL_MODULE_PROBECONF_append_r8a77980 = " uio_pdrv_genirq"
-module_conf_uio_pdrv_genirq_r8a77980 = 'options uio_pdrv_genirq of_id="generic-uio"'
+KERNEL_MODULE_AUTOLOAD_append = " uio_pdrv_genirq"
+KERNEL_MODULE_PROBECONF_append = " uio_pdrv_genirq"
+module_conf_uio_pdrv_genirq_append = 'options uio_pdrv_genirq of_id="generic-uio"'
 
 # Install RCAR Gen3 specific UAPI headers
 do_install_append_rcar-gen3() {
