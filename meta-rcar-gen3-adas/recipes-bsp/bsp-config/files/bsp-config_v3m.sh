@@ -7,14 +7,14 @@ SYSFS_CSI_DRIVER="/sys/bus/platform/drivers/rcar_csi2/"
 SYSFS_VIN_DRIVER="/sys/bus/platform/drivers/rcar_vin/"
 SYSFS_LVDS_DRIVER="/sys/bus/platform/drivers/rcar-lvds/"
 
-VSPD_DEVICE="fea20000.vsp"
-DU_DEVICE="feb00000.display"
-CSI_DEVICE="feaa0000.csi0"
-VIN0_DEVICE="e6ef0000.vin0"
-VIN1_DEVICE="e6ef1000.vin1"
-VIN2_DEVICE="e6ef2000.vin2"
-VIN3_DEVICE="e6ef3000.vin3"
-LVDS_DEVICE="feb90000.lvds-encoder"
+VSPD_DEVICE="fea20000.vsp_00"
+DU_DEVICE="feb00000.du_00"
+CSI_DEVICE="feaa0000.csi_00"
+VIN0_DEVICE="e6ef0000.vin_00"
+VIN1_DEVICE="e6ef1000.vin_01"
+VIN2_DEVICE="e6ef2000.vin_02"
+VIN3_DEVICE="e6ef3000.vin_03"
+LVDS_DEVICE="feb90000.lvds_00"
 
 if [ "x$1" = "xdefault" ]
 then
