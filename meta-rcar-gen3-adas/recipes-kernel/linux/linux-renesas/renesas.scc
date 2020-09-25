@@ -47,3 +47,4 @@ patch 0046-clk-renesas-r8a77980-cpg-mssr-Add-IMP-clocks.patch
 patch 0047-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
 patch 0048-clk-renesas-r8a77970-cpg-mssr-Add-IMP-clocks.patch
 patch 1000-uio-stuff-for-BSP7.patch
+patch 1001-arm64-dts-renesas-Add-MMNGR-nodes-for-V3X-boards.patch
