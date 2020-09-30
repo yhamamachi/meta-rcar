@@ -12,13 +12,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  2 files changed, 160 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 17d9ce0..a3581f3 100755
+index 17d9ce0..d03da26 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -3826,6 +3826,104 @@
+@@ -3824,6 +3824,104 @@
+ 			compatible = "renesas,prr";
+ 			reg = <0 0xfff00044 0 4>;
  		};
- 	};
- 
++
 +		imp_distributer: impdes0 {
 +			compatible = "renesas,impx4-distributer";
 +			reg = <0 0xffa00000 0 0x4000>;
@@ -116,10 +117,9 @@ index 17d9ce0..a3581f3 100755
 +			clocks = <&cpg CPG_MOD 824>;
 +			power-domains = <&sysc R8A7795_PD_A3IR>;
 +		};
-+
+ 	};
+ 
  	thermal-zones {
- 		emergency {
- 			polling-delay = <1000>;
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 index a33e1bc..99fffa4 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
