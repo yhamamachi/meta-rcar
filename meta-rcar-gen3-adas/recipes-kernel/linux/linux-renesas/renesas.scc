@@ -48,3 +48,11 @@ patch 0047-clk-renesas-r8a77980-cpg-mssr-Add-VIP-clocks.patch
 patch 0048-clk-renesas-r8a77970-cpg-mssr-Add-IMP-clocks.patch
 patch 1000-uio-stuff-for-BSP7.patch
 patch 1001-arm64-dts-renesas-Add-MMNGR-nodes-for-V3X-boards.patch
+patch 1002-IMR-driver-interim-patch.patch
+patch 1003-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch
+patch 1004-media-rcar-imr-Add-RSE-support.patch
+patch 1005-media-rcar_imr-Enable-LUCE-for-NV16-format.patch
+patch 1006-media-platform-rcar_imr-Clean-up-to-avoid-compiler-w.patch
+patch 1007-media-rcar-imr-Add-stride-support-to-IMR.patch
+patch 1008-media-rcar_imr-Update-to-v5.4.0.patch
+patch 1009-rcar_imr-v4l2-driver-Fix-module-support.patch
