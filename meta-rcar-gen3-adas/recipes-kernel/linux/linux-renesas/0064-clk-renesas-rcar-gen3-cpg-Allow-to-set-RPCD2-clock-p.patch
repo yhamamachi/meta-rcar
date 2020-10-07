@@ -1,0 +1,30 @@
+From aac71b762d3228f16b39b48c1066728b00b06bff Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 4 Nov 2019 02:28:48 +0300
+Subject: [PATCH 15/23] clk: renesas: rcar-gen3-cpg: Allow to set RPCD2 clock
+ parent's rate
+
+This makes RPC clocks adjustable by allowing
+the RPCD2 clock parent's rate changes.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/clk/renesas/rcar-gen3-cpg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/clk/renesas/rcar-gen3-cpg.c b/drivers/clk/renesas/rcar-gen3-cpg.c
+index 91464d1..51f142f 100644
+--- a/drivers/clk/renesas/rcar-gen3-cpg.c
++++ b/drivers/clk/renesas/rcar-gen3-cpg.c
+@@ -797,7 +797,7 @@ static struct clk * __init cpg_rpcd2_clk_register(const char *name,
+ 
+ 	clk = clk_register_composite(NULL, name, &parent_name, 1, NULL, NULL,
+ 				     &rpcd2->fixed.hw, &clk_fixed_factor_ops,
+-				     &rpcd2->gate.hw, &clk_gate_ops, 0);
++				     &rpcd2->gate.hw, &clk_gate_ops, CLK_SET_RATE_PARENT);
+ 	if (IS_ERR(clk))
+ 		kfree(rpcd2);
+ 
+-- 
+2.7.4
+
