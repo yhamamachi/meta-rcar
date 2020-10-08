@@ -7,11 +7,12 @@ Taken from:
 https://github.com/mpod/kernel-playground
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/iio/imu/Kconfig   |  11 +
  drivers/iio/imu/Makefile  |   2 +
- drivers/iio/imu/lsm9ds0.c | 895 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 908 insertions(+)
+ drivers/iio/imu/lsm9ds0.c | 902 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 915 insertions(+)
  create mode 100644 drivers/iio/imu/lsm9ds0.c
 
 diff --git a/drivers/iio/imu/Kconfig b/drivers/iio/imu/Kconfig
@@ -51,10 +52,10 @@ index 4a69588..5db241a 100644
  
 diff --git a/drivers/iio/imu/lsm9ds0.c b/drivers/iio/imu/lsm9ds0.c
 new file mode 100644
-index 0000000..b4f3078
+index 0000000..0fe1186
 --- /dev/null
 +++ b/drivers/iio/imu/lsm9ds0.c
-@@ -0,0 +1,895 @@
+@@ -0,0 +1,902 @@
 +/*
 + * lsm9ds0_gyro.c
 + *
@@ -930,6 +931,12 @@ index 0000000..b4f3078
 +	return 0;
 +}
 +
++static const struct of_device_id lsm9ds0_dt_ids[] = {
++	{ .compatible = "st,lsm9ds0" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, lsm9ds0_dt_ids);
++
 +static const struct i2c_device_id lsm9ds0_id[] = {
 +	{ "lsm9ds0_gyro", 0 },
 +	{ "lsm9ds0_accel_magn", 0 },
@@ -940,6 +947,7 @@ index 0000000..b4f3078
 +static struct i2c_driver lsm9ds0_driver = {
 +	.driver = {
 +		.name = "lsm9ds0",
++		.of_match_table = of_match_ptr(lsm9ds0_dt_ids),
 +	},
 +	.probe = lsm9ds0_probe,
 +	.remove = lsm9ds0_remove,

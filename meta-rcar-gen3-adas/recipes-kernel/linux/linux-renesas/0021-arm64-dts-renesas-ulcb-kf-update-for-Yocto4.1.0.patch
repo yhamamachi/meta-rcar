@@ -1393,7 +1393,7 @@ index 0000000..0d1e088
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 2021777..d282b6e 100644
+index 2021777..961f18c 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 @@ -2,8 +2,8 @@
@@ -1802,12 +1802,12 @@ index 2021777..d282b6e 100644
  			};
 +
 +			lsm9ds0_acc_mag@1d {
-+				compatible = "st,lsm9ds0_accel_magn";
++				compatible = "st,lsm9ds0";
 +				reg = <0x1d>;
 +			};
 +
 +			lsm9ds0_gyr@6b {
-+				compatible = "st,lsm9ds0_gyro";
++				compatible = "st,lsm9ds0";
 +				reg = <0x6b>;
 +			};
 +
