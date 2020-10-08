@@ -56,3 +56,7 @@ patch 1006-media-platform-rcar_imr-Clean-up-to-avoid-compiler-w.patch
 patch 1007-media-rcar-imr-Add-stride-support-to-IMR.patch
 patch 1008-media-rcar_imr-Update-to-v5.4.0.patch
 patch 1009-rcar_imr-v4l2-driver-Fix-module-support.patch
+patch 1010-gpu-drm-rcar-du-rcar_du_vsp-Check-if-gem-buffer-has-.patch
+patch 1011-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
+patch 1012-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
+patch 1013-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
