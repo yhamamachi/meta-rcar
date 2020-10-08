@@ -59,5 +59,25 @@ LIC_FILES_CHKSUM = "\
     \
     file://LICENSE.amdgpu;md5=3fe8a3430700a518990c3b3d75297209 \
     file://LICENSE.radeon;md5=69612f4f7b141a97659cb1d609a1bde2 \
-    file://WHENCE;md5=39dbb62d53262685b8bd977329dc4c10 \
 "
+
+do_install() {
+	install -d  ${D}${nonarch_base_libdir}/firmware/
+	cp -r * ${D}${nonarch_base_libdir}/firmware/
+
+	# Avoid Makefile to be deployed
+	rm ${D}${nonarch_base_libdir}/firmware/Makefile
+
+	# Remove unbuild firmware which needs cmake and bash
+	rm ${D}${nonarch_base_libdir}/firmware/carl9170fw -rf
+
+	# Remove pointless bash script
+	rm ${D}${nonarch_base_libdir}/firmware/configure
+
+	# Libertas sd8686
+	ln -sf libertas/sd8686_v9.bin ${D}${nonarch_base_libdir}/firmware/sd8686.bin
+	ln -sf libertas/sd8686_v9_helper.bin ${D}${nonarch_base_libdir}/firmware/sd8686_helper.bin
+
+	# fixup wl12xx location, after 2.6.37 the kernel searches a different location for it
+	( cd ${D}${nonarch_base_libdir}/firmware ; ln -sf ti-connectivity/* . )
+}

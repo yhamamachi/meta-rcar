@@ -9,4 +9,4 @@ IMAGE_INSTALL_append = " \
     ${@bb.utils.contains('DISTRO_FEATURES', "surroundview", "packagegroup-surroundview", "", d)} \
 "
 
-CONFLICT_DISTRO_FEATURES = "x11"
+# CONFLICT_DISTRO_FEATURES = "x11"
