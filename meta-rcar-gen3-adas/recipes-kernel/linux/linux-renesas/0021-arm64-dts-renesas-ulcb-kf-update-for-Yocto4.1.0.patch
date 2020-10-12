@@ -1,4 +1,4 @@
-From b2845c8e852c61c9d4f9ad67da9fe4f76d0d4d10 Mon Sep 17 00:00:00 2001
+From 27a2bc1803c862311449219963ec09a165085945 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 24 Sep 2020 01:18:36 +0300
 Subject: [PATCH] arm64: dts: renesas: ulcb-kf: update for Yocto4.1.0
@@ -7,7 +7,7 @@ This updates Kingfisher board DT for Yocto4.1.0
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |  13 +-
+ arch/arm64/boot/dts/renesas/Makefile               |  16 +-
  arch/arm64/boot/dts/renesas/camera.dtsi            |  20 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     |  25 +
  .../boot/dts/renesas/r8a7795-h3ulcb-4x2g-kf.dts    |  44 ++
@@ -20,10 +20,13 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11-pca.dtso  |  74 ++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso      | 276 +++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtso      |  30 +
+ .../ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso |  60 ++
+ ...lcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtso |  61 ++
+ ...lcb-kf-panel-mitsubishi-aa121td01-1280x800.dtso |  60 ++
  arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi     |  38 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso       |  70 ++
  arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 860 ++++++++++++++++++++-
- 16 files changed, 2112 insertions(+), 16 deletions(-)
+ 19 files changed, 2296 insertions(+), 16 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/camera.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-4x2g-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso
@@ -32,11 +35,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn11-pca.dtso
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-most.dtso
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtso
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtso
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index fdc3574..76c7356 100644
+index fdc3574..fdcbd97 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
 @@ -3,7 +3,7 @@ dtb-$(CONFIG_ARCH_R8A774A1) += r8a774a1-hihope-rzg2m.dtb
@@ -48,7 +54,7 @@ index fdc3574..76c7356 100644
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs-4x2g.dtb
  dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-salvator-xs-2x2g.dtb
-@@ -19,8 +19,19 @@ dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb r8a77965-salvator-xs.dtb
+@@ -19,8 +19,22 @@ dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb r8a77965-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-m3nulcb.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-m3nulcb-kf.dtb
  dtb-$(CONFIG_ARCH_R8A77970) += r8a77970-eagle.dtb r8a77970-v3msk.dtb
@@ -63,7 +69,10 @@ index fdc3574..76c7356 100644
 +DTC_FLAGS += -@
 +ulcb-kf-dtbo := ulcb-kf-cn11.dtbo ulcb-kf-most.dtbo ulcb-kf-sd3.dtbo \
 +		ulcb-kf-cn10-pca.dtbo ulcb-kf-cn11-pca.dtbo \
-+		ulcb-kf-cn10-gmsl2.dtbo ulcb-kf-cn11-gmsl2.dtbo
++		ulcb-kf-cn10-gmsl2.dtbo ulcb-kf-cn11-gmsl2.dtbo \
++		ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtbo \
++		ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtbo \
++		ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtbo
 +
 +dtb-$(CONFIG_ARCH_R8A7795) += $(ulcb-kf-dtbo)
 +dtb-$(CONFIG_ARCH_R8A7796) += $(ulcb-kf-dtbo)
@@ -1295,9 +1304,208 @@ index 0000000..4a605f8
 +
 +	clock-speed = "1024fs";
 +};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso
+new file mode 100644
+index 0000000..722714e
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso
+@@ -0,0 +1,60 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the Kingfisher (ULCB extension) LVDS panel
++ *
++ * Copyright (C) 2018-2020 Renesas Electronics Corp.
++ * Copyright (C) 2018-2020 Cogent Embedded, Inc.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&lvds>;
++
++		__overlay__ {
++			compatible = "panel-lvds";
++
++			width-mm = <291>;
++			height-mm = <109>;
++
++			data-mapping = "jeida-24";
++
++			panel-timing {
++				/* 1280x480 @60Hz KOE TX31D200VM0BAA compatible panel */
++				clock-frequency = <43200000>;
++				hactive = <1280>;
++				vactive = <480>;
++				hsync-len = <20>;
++				hfront-porch = <20>;
++				hback-porch = <40>;
++				vsync-len = <15>;
++				vfront-porch = <15>;
++				vback-porch = <20>;
++			};
++		};
++	};
++
++	fragment@1 {
++		target = <&gpio2>;
++
++		__overlay__ {
++			gpio@2 {
++				gpio-hog;
++				gpios = <2 GPIO_ACTIVE_HIGH>;
++				output-low;
++				line-name = "Scan Direction Normal";
++			};
++
++			gpio@3 {
++				gpio-hog;
++				gpios = <3 GPIO_ACTIVE_HIGH>;
++				output-high;
++				line-name = "BL PWM 100%";
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtso
+new file mode 100644
+index 0000000..02b1c11
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtso
+@@ -0,0 +1,61 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the Kingfisher (ULCB extension) LVDS panel
++ *
++ * Copyright (C) 2018-2020 Renesas Electronics Corp.
++ * Copyright (C) 2018-2020 Cogent Embedded, Inc.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&lvds>;
++
++		__overlay__ {
++			compatible = "panel-lvds";
++
++			width-mm = <210>;
++			height-mm = <158>;
++
++			data-mapping = "jeida-24";
++
++			panel-timing {
++				/* 1024x768 @60Hz Mitsubishi AA104XD12 compatible panel */
++				clock-frequency = <65000000>;
++				hactive = <1024>;
++				vactive = <768>;
++				hsync-len = <136>;
++				hfront-porch = <20>;
++				hback-porch = <160>;
++				vfront-porch = <3>;
++				vback-porch = <29>;
++				vsync-len = <6>;
++			};
++		};
++	};
++
++	fragment@1 {
++		target = <&gpio2>;
++
++		__overlay__ {
++			gpio@2 {
++				gpio-hog;
++				gpios = <2 GPIO_ACTIVE_HIGH>;
++				output-low;
++				line-name = "LVDS ISP 6-Bit Compatibility Mode";
++			};
++
++			gpio@3 {
++				gpio-hog;
++				gpios = <3 GPIO_ACTIVE_HIGH>;
++				output-low;
++				line-name = "LVDS Scan Direction Normal";
++			};
++		};
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtso
+new file mode 100644
+index 0000000..1e328e3
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtso
+@@ -0,0 +1,60 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the Kingfisher (ULCB extension) LVDS panel
++ *
++ * Copyright (C) 2018-2020 Renesas Electronics Corp.
++ * Copyright (C) 2018-2020 Cogent Embedded, Inc.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&lvds>;
++
++		__overlay__ {
++			compatible = "panel-lvds";
++
++			width-mm = <261>;
++			height-mm = <163>;
++
++			data-mapping = "jeida-24";
++
++			panel-timing {
++				/* 1280x800 @60Hz Mitsubishi AA121TD01 compatible panel */
++				clock-frequency = <71000000>;
++				hactive = <1280>;
++				vactive = <800>;
++				hsync-len = <70>;
++				hfront-porch = <20>;
++				hback-porch = <70>;
++				vsync-len = <5>;
++				vfront-porch = <3>;
++				vback-porch = <15>;
++			};
++		};
++	};
++
++	fragment@1 {
++		target = <&gpio2>;
++
++		__overlay__ {
++			gpio@2 {
++				gpio-hog;
++				gpios = <2 GPIO_ACTIVE_HIGH>;
++				output-low;
++				line-name = "LVDS ISP 6-Bit Compatibility Mode";
++			};
++
++			gpio@3 {
++				gpio-hog;
++				gpios = <3 GPIO_ACTIVE_HIGH>;
++				output-low;
++				line-name = "LVDS Scan Direction Normal";
++			};
++		};
++	};
++};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 new file mode 100644
-index 0000000..f0f3244
+index 0000000..cd89158
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi
 @@ -0,0 +1,38 @@
@@ -1332,7 +1540,7 @@ index 0000000..f0f3244
 +};
 +
 +&gpio2 {
-+	bl_pwm {
++	gpio@3 {
 +		gpio-hog;
 +		gpios = <3 GPIO_ACTIVE_HIGH>;
 +		output-high;
