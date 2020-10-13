@@ -365,6 +365,8 @@ static int cmemdrv_create_device(dev_t devt, size_t size)
 	}
 	area->dev = dev;
 
+	dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
+
 #ifdef CONFIG_ARM64
 	{
 		struct device_node *np;
