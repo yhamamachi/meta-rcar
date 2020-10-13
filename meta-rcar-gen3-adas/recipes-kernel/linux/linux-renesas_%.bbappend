@@ -12,11 +12,6 @@ SRC_URI_append = " \
     file://disable-unused.cfg \
     file://enable.cfg \
     file://renesas.scc \
-    ${@oe.utils.conditional("KF_ENABLE_SD3", "1", " file://0047-arm64-dts-renesas-ulcb-kf-enable-sd3.patch", "", d)} \
-    ${@oe.utils.conditional("KF_ENABLE_MOST", "1", " file://0048-arm64-dts-renesas-ulcb-kf-enable-most.patch", "", d)} \
-    ${@oe.utils.conditional("KF_PANEL_MODEL", "TX31D200VM0BAA", " file://0121-arm64-dts-renesas-ulcb-kf-Set-KOE-TX31D200VM0BAA-128.patch", "", d)} \
-    ${@oe.utils.conditional("KF_PANEL_MODEL", "AA104XD12", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA104XD12-1.patch", "", d)} \
-    ${@oe.utils.conditional("KF_PANEL_MODEL", "AA121TD01", " file://0121-arm64-dts-renesas-ulcb-kf-Set-Mitsubishi-AA121TD01-1.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -33,10 +28,10 @@ SRC_URI_append_rcar-gen3-v3x = " \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://qspi.cfg", d)} \
 "
 
-KERNEL_DEVICETREE_append_h3ulcb = " \
-    renesas/r8a7795-es1-h3ulcb-kf.dtb \
-    renesas/r8a7795-h3ulcb-kf.dtb \
-    renesas/r8a7795-h3ulcb-4x2g-kf.dtb \
+ULCB_KF_DTBO = " \
+    renesas/ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtbo \
+    renesas/ulcb-kf-panel-mitsubishi-aa121td01-1280x800.dtbo \
+    renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtbo \
     renesas/ulcb-kf-cn10-gmsl2.dtbo \
     renesas/ulcb-kf-cn10-pca.dtbo \
     renesas/ulcb-kf-cn11.dtbo \
@@ -46,13 +41,22 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/ulcb-kf-sd3.dtbo \
 "
 
+KERNEL_DEVICETREE_append_h3ulcb = " \
+    renesas/r8a7795-es1-h3ulcb-kf.dtb \
+    renesas/r8a7795-h3ulcb-kf.dtb \
+    renesas/r8a7795-h3ulcb-4x2g-kf.dtb \
+    ${ULCB_KF_DTBO} \
+"
+
 KERNEL_DEVICETREE_append_m3ulcb = " \
     renesas/r8a7796-m3ulcb-kf.dtb \
     renesas/r8a7796-m3ulcb-2x4g-kf.dtb \
+    ${ULCB_KF_DTBO} \
 "
 
 KERNEL_DEVICETREE_append_m3nulcb = " \
     renesas/r8a77965-m3nulcb-kf.dtb \
+    ${ULCB_KF_DTBO} \
 "
 
 KERNEL_DEVICETREE_append_eagle = " \
