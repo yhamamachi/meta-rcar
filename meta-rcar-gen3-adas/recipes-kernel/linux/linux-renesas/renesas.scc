@@ -62,3 +62,4 @@ patch 1012-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 1013-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
 patch 1014-arm64-dts-renesas-r8a77970-Add-ES1-and-Eagle-Functio.patch
 patch 1015-media-rcar-vin-Enable-streaming-based-on-total-numbe.patch
+patch 1016-arm64-dts-r8a77970-r8a77980-Enable-TMU-and-CMT.patch

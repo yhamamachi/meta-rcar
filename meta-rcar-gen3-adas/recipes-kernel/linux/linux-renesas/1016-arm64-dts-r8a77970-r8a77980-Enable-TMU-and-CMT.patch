@@ -1,0 +1,192 @@
+From 9b78cad406c0d69a228dd049dc965e41027eafd6 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Tue, 13 Oct 2020 15:52:26 +0300
+Subject: [PATCH] arm64: dts: r8a77970, r8a77980: Enable TMU and CMT
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts  | 36 +++++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts  | 36 +++++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts | 36 +++++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts  | 36 +++++++++++++++++++++++++
+ 4 files changed, 144 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index a4e9a93..21e9fc0 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -415,3 +415,39 @@
+ &vin3 {
+ 	status = "okay";
+ };
++
++&tmu0 {
++	status = "okay";
++};
++
++&tmu1 {
++	status = "okay";
++};
++
++&tmu2 {
++	status = "okay";
++};
++
++&tmu3 {
++	status = "okay";
++};
++
++&tmu4 {
++	status = "okay";
++};
++
++&cmt0 {
++	status = "okay";
++};
++
++&cmt1 {
++	status = "okay";
++};
++
++&cmt2 {
++	status = "okay";
++};
++
++&cmt3 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+index 2a1a95c..ca1b5d1 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
+@@ -255,3 +255,39 @@
+ 
+ 	status = "okay";
+ };
++
++&tmu0 {
++	status = "okay";
++};
++
++&tmu1 {
++	status = "okay";
++};
++
++&tmu2 {
++	status = "okay";
++};
++
++&tmu3 {
++	status = "okay";
++};
++
++&tmu4 {
++	status = "okay";
++};
++
++&cmt0 {
++	status = "okay";
++};
++
++&cmt1 {
++	status = "okay";
++};
++
++&cmt2 {
++	status = "okay";
++};
++
++&cmt3 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index db8e509..2791421 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -646,3 +646,39 @@
+ &vin7 {
+ 	status = "okay";
+ };
++
++&tmu0 {
++	status = "okay";
++};
++
++&tmu1 {
++	status = "okay";
++};
++
++&tmu2 {
++	status = "okay";
++};
++
++&tmu3 {
++	status = "okay";
++};
++
++&tmu4 {
++	status = "okay";
++};
++
++&cmt0 {
++	status = "okay";
++};
++
++&cmt1 {
++	status = "okay";
++};
++
++&cmt2 {
++	status = "okay";
++};
++
++&cmt3 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+index 20eff52..b04c781 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
+@@ -280,3 +280,39 @@
+ &scif_clk {
+ 	clock-frequency = <14745600>;
+ };
++
++&tmu0 {
++	status = "okay";
++};
++
++&tmu1 {
++	status = "okay";
++};
++
++&tmu2 {
++	status = "okay";
++};
++
++&tmu3 {
++	status = "okay";
++};
++
++&tmu4 {
++	status = "okay";
++};
++
++&cmt0 {
++	status = "okay";
++};
++
++&cmt1 {
++	status = "okay";
++};
++
++&cmt2 {
++	status = "okay";
++};
++
++&cmt3 {
++	status = "okay";
++};
+-- 
+2.7.4
+
