@@ -63,3 +63,13 @@ patch 1013-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
 patch 1014-arm64-dts-renesas-r8a77970-Add-ES1-and-Eagle-Functio.patch
 patch 1015-media-rcar-vin-Enable-streaming-based-on-total-numbe.patch
 patch 1016-arm64-dts-r8a77970-r8a77980-Enable-TMU-and-CMT.patch
+patch 1017-arm64-dts-renesas-v3x-Add-QSPI-device-nodes.patch
+patch 1018-mtd-spi-nor-Add-R-Car-Gen3-RPC-QSPI-driver.patch
+patch 1019-mtd-spi-nor-renesas-rpc-Workaround-256-byte-data-siz.patch
+patch 1020-mtd-spi-nor-renesas-rpc-Support-single-mode-write-co.patch
+patch 1021-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch
+patch 1022-mtd-Consolidate-Renesas-RPC-drivers.patch
+patch 1023-MTD-renesas-rpc-fix-dummy-cycles.patch
+patch 1024-mtd-spi-nor-Fix-selection-of-4-byte-addressing-opcod.patch
+patch 1025-mtd-spi-nor-spansion-fix-writes-on-S25FS512S.patch
+patch 1026-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
