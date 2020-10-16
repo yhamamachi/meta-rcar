@@ -23,6 +23,7 @@ SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 SRC_URI_append_rcar-gen3-v3x = " \
     file://v3x.cfg \
     file://cma.cfg \
+    file://ipmmu.cfg \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://qspi.cfg", d)} \
 "
 
