@@ -74,3 +74,6 @@ patch 0073-pci-pcie-rcar-Fix-bus-notifier-for-dma-range-limit.patch
 patch 0074-nvme-Workaround-Samsung-970-Pro-power-state-issues.patch
 patch 0075-media-platform-rcar-vin-fix-parallel-notifier-fail.patch
 patch 0076-serial-sh-sci-Fix-minimal-rx_timeout-value.patch
+patch 0077-arm64-dts-renesas-ulcb-Make-AK4613-sound-device-name.patch
+patch 0078-arm64-boot-dts-renesas-ulcb-kf-Enable-extra-sound-ca.patch
+patch 0079-arm64-boot-dts-renesas-ulcb-kf-Set-radio-and-BT-soun.patch
