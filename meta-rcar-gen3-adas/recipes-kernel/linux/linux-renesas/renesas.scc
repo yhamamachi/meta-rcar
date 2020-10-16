@@ -73,3 +73,4 @@ patch 1023-MTD-renesas-rpc-fix-dummy-cycles.patch
 patch 1024-mtd-spi-nor-Fix-selection-of-4-byte-addressing-opcod.patch
 patch 1025-mtd-spi-nor-spansion-fix-writes-on-S25FS512S.patch
 patch 1026-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
+patch 1028-arm64-dts-r8a77970-r8a77980-Convert-IPMMU-to-UIO.patch
