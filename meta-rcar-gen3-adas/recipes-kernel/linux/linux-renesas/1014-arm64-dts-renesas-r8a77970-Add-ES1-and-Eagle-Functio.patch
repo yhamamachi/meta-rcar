@@ -292,7 +292,7 @@ index 0000000..fff31ee
 +			ipmmu-id = <RCAR_IPMMU_IR>;
 +		};
 +
-+		/delete-node/impcnn0;
++		/delete-node/imp_cnn_00;
 +
 +		imp_mem_00 {
 +			compatible = "generic-uio";
