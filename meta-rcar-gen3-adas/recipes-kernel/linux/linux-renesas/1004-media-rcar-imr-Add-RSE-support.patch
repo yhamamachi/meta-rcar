@@ -7,31 +7,10 @@ This adds RSE support for V3H IMR
 
 Signed-off-by: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a77980.dtsi |   2 +
  drivers/media/platform/rcar_imr.c         | 143 ++++++++++++++++++++++++++++++
  include/uapi/linux/rcar-imr.h             |  22 ++++-
  3 files changed, 165 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
-index 9ac1950..4a0c959 100644
---- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
-@@ -1232,6 +1232,7 @@
- 			interrupts = <GIC_SPI 254 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 707>;
- 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
-+			rse;
- 		};
- 
- 		imrlx4_ch5: imr5@fe8b0000 {
-@@ -1241,6 +1242,7 @@
- 			interrupts = <GIC_SPI 255 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 706>;
- 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
-+			rse;
- 		};
- 
- 		dmac1: dma-controller@e7300000 {
 diff --git a/drivers/media/platform/rcar_imr.c b/drivers/media/platform/rcar_imr.c
 index 9b601da..7b16765 100644
 --- a/drivers/media/platform/rcar_imr.c
