@@ -67,6 +67,18 @@ KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
     renesas/r8a77980-v3hsk.dtb \
     renesas/r8a77980-es2-condor.dtb \
     renesas/r8a77980-es2-v3hsk.dtb \
+    renesas/r8a77980-v3hsk-vb-4ch.dtb \
+    renesas/r8a77980-v3hsk-vb-8ch.dtb \
+    renesas/r8a77980-v3hsk-vb-gmsl-8ch.dtb \
+    renesas/r8a77980-v3hsk-vb-gmsl2-2x2.dtb \
+    renesas/r8a77980-v3hsk-vb-gmsl2-4.dtb \
+    renesas/r8a77980-v3hsk-vb-gmsl2-8.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-4ch.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-8ch.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-gmsl-8ch.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-gmsl2-2x2.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-gmsl2-4.dtb \
+    renesas/r8a77980-es2-v3hsk-vb-gmsl2-8.dtb \
 "
 
 # Prefer generic-uio driver over kernel drivers
