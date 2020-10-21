@@ -3,7 +3,7 @@ From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 24 Sep 2020 01:16:20 +0300
 Subject: [PATCH] media: i2c: add camera lvds support
 
-This adds GMSL1/GMSL2/FPDLink33 video support
+This adds GMSL1/GMSL2/FPDLink3 video support
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
@@ -16,7 +16,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/gmsl/Kconfig            |   47 +
  drivers/media/i2c/gmsl/Makefile           |    5 +
  drivers/media/i2c/gmsl/common.h           |  508 +++++++++
- drivers/media/i2c/gmsl/max9286.c          | 1119 ++++++++++++++++++++
+ drivers/media/i2c/gmsl/max9286.c          | 1120 ++++++++++++++++++++
  drivers/media/i2c/gmsl/max9286_debug.h    |   89 ++
  drivers/media/i2c/gmsl/max9288.c          |  915 ++++++++++++++++
  drivers/media/i2c/gmsl/max9295.h          |   39 +
@@ -46,7 +46,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/imagers/ov490.h         |  101 ++
  drivers/media/i2c/imagers/ov495.c         |  622 +++++++++++
  drivers/media/i2c/imagers/ov495.h         |   23 +
- 39 files changed, 15895 insertions(+)
+ 39 files changed, 15896 insertions(+)
  create mode 100644 drivers/media/i2c/fpdlink/Kconfig
  create mode 100644 drivers/media/i2c/fpdlink/Makefile
  create mode 100644 drivers/media/i2c/fpdlink/ub9x4.c
@@ -871,7 +871,7 @@ index 0000000..6dfdef1
 +		priv->ser_id = UB913_ID;
 +	if (of_property_read_u32(np, "ti,poc-delay", &priv->poc_delay))
 +		priv->poc_delay = 10;
-+	if (of_property_read_u32(np, "csi-rate", &priv->csi_rate))
++	if (of_property_read_u32(np, "ti,csi-rate", &priv->csi_rate))
 +		priv->csi_rate = 1450;
 +	if (of_property_read_u32(np, "ti,vc-map", &priv->vc_map))
 +		priv->vc_map = 0x3210;
@@ -1680,10 +1680,10 @@ index 0000000..8418431
 +}
 diff --git a/drivers/media/i2c/gmsl/max9286.c b/drivers/media/i2c/gmsl/max9286.c
 new file mode 100644
-index 0000000..5434777
+index 0000000..223bedd0
 --- /dev/null
 +++ b/drivers/media/i2c/gmsl/max9286.c
-@@ -0,0 +1,1119 @@
+@@ -0,0 +1,1120 @@
 +/*
 + * MAXIM max9286 GMSL driver
 + *
@@ -1787,7 +1787,7 @@ index 0000000..5434777
 +
 +#include "max9286_debug.h"
 +
-+static char fsync_mode_default[20] = "manual"; /* manual, automatic, semi-automatic, external */
++static char fsync_mode_default[20] = "automatic"; /* manual, automatic, semi-automatic, external */
 +
 +static int conf_link;
 +module_param(conf_link, int, 0644);
@@ -2549,7 +2549,7 @@ index 0000000..5434777
 +	if (!IS_ERR(pwdn_gpio)) {
 +		udelay(5);
 +		gpiod_set_value_cansleep(pwdn_gpio, 0);
-+		usleep_range(3000, 5000);
++		mdelay(10);
 +	}
 +
 +	for (i = 0; i < priv->n_links; i++) {
@@ -2619,6 +2619,7 @@ index 0000000..5434777
 +		priv->him = him;
 +	if (fsync_period) {
 +		priv->fsync_period = fsync_period;
++		strncpy(fsync_mode_default, "manual", 8);
 +		priv->fsync_mode = fsync_mode_default;
 +	}
 +	if (hsync)

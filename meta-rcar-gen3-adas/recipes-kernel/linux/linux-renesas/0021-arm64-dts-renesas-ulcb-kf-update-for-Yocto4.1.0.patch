@@ -14,16 +14,16 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  |  25 +
  arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  |  26 +
  .../arm64/boot/dts/renesas/r8a77965-m3nulcb-kf.dts |  22 +
- .../arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso | 237 ++++++
+ .../arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso | 234 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn10-pca.dtso  |  74 ++
- .../arm64/boot/dts/renesas/ulcb-kf-cn11-gmsl2.dtso | 297 ++++++++
+ .../arm64/boot/dts/renesas/ulcb-kf-cn11-gmsl2.dtso | 297 +++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11-pca.dtso  |  74 ++
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtso      | 276 +++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtso      |  30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-panel.dtsi     |  38 +
- arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso       |  48 ++
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 845 ++++++++++++++++++++-
- 16 files changed, 2081 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso       |  70 ++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 860 ++++++++++++++++++++-
+ 16 files changed, 2108 insertions(+), 16 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/camera.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-4x2g-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso
@@ -272,10 +272,10 @@ index dadad97..07e3c8d 100644
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso
 new file mode 100644
-index 0000000..34235d3
+index 0000000..44f9b78
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn10-gmsl2.dtso
-@@ -0,0 +1,237 @@
+@@ -0,0 +1,234 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Overlay for the H3ULCB Kingfisher board:
@@ -296,10 +296,6 @@ index 0000000..34235d3
 +		target-path = "/";
 +
 +		__overlay__ {
-+			/delete-node/ regulator@14;
-+			/delete-node/ regulator@15;
-+			/delete-node/ regulator@16;
-+			/delete-node/ regulator@17;
 +
 +			cs2300_ref_clk: cs2300_ref_clk {
 +				compatible = "fixed-clock";
@@ -341,8 +337,9 @@ index 0000000..34235d3
 +	#address-cells = <1>;
 +	#size-cells = <0>;
 +
-+	/delete-node/ deser@2c;
-+
++	/* in uboot type:
++	 *  fdt rm /soc/i2c@e66d8000/i2c-switch@71/i2c@1/deser@2c
++	 */
 +	deser@29 {
 +		compatible = "maxim,max96712", "maxim,max9296";
 +		#address-cells = <1>;
@@ -1340,10 +1337,10 @@ index 0000000..f0f3244
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso
 new file mode 100644
-index 0000000..0d1e088
+index 0000000..6bc6b83
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtso
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,70 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Device Tree Overlay for the H3/M3ULCB Kingfisher board:
@@ -1358,31 +1355,53 @@ index 0000000..0d1e088
 +
 +#include <dt-bindings/gpio/gpio.h>
 +
-+&sdio_switch {
-+	regulator-name = "sd_on";
-+	enable-active-high;
++/ {
++	fragment@101 {
++		target-path = "/";
++
++		__overlay__ {
++
++			vcc_sdhi3: regulator-vcc-sdhi3 {
++				compatible = "regulator-fixed";
++
++				regulator-name = "SDHI3 Vcc";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++
++				gpio = <&gpio4 17 GPIO_ACTIVE_HIGH>;
++				enable-active-high;
++			};
++
++			vccq_sdhi3: regulator-vccq-sdhi3 {
++				compatible = "regulator-gpio";
++				regulator-name = "SDHI3 VccQ";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <3300000>;
++
++				gpios = <&gpio3 14 GPIO_ACTIVE_HIGH>;
++				gpios-states = <1>;
++				states = <3300000 1
++					  1800000 0>;
++			};
++		};
++	};
 +};
 +
-+&vccq_sdhi3 {
-+	compatible = "regulator-gpio";
-+
-+	regulator-min-microvolt = <1800000>;
-+
-+	gpios = <&gpio3 14 GPIO_ACTIVE_HIGH>;
-+	gpios-states = <1>;
-+	states = <3300000 1
-+		  1800000 0>;
++&sd_wifi_mux {
++	enable-active-high;	/* Connect SD */
 +};
 +
 +&sdhi3 {
-+	/delete-property/non-removable;
-+	/delete-property/cap-power-off-card;
-+	/delete-property/keep-power-in-suspend;
-+	/delete-property/enable-sdio-wakeup;
-+	/delete-property/max-frequency;
-+	/delete-property/no-1-8-v;
++	/* in uboot type:
++	 *  fdt rm /soc/sd@ee160000 no-1-8-v
++	 *  fdt rm /soc/sd@ee160000 non-removable;
++	 *  fdt rm /soc/sd@ee160000 cap-power-off-card;
++	 *  fdt rm /soc/sd@ee160000 keep-power-in-suspend;
++	 *  fdt rm /soc/sd@ee160000 max-frequency;
++	 */
 +
 +	vmmc-supply = <&vcc_sdhi3>;
++	vqmmc-supply = <&vccq_sdhi3>;
 +	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
 +	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
 +//	sd-uhs-sdr50;
@@ -1393,7 +1412,7 @@ index 0000000..0d1e088
 +	status = "disabled";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index 2021777..39872f6 100644
+index 2021777..9ec53c0 100644
 --- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 @@ -2,8 +2,8 @@
@@ -1421,10 +1440,20 @@ index 2021777..39872f6 100644
  	};
  
  	clksndsel: clksndsel {
-@@ -50,6 +53,169 @@
+@@ -50,6 +53,179 @@
  		startup-delay-us = <70000>;
  		enable-active-high;
  	};
++
++	sd_wifi_mux: regulator@9 {
++		compatible = "regulator-fixed";
++		regulator-name = "SD WiFi mux";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio_exp_74 5 0>;
++		enable-active-low;	/* Connect WL1837 */
++		regulator-always-on;
++	};
 +
 +	radio_switch: regulator@11 {
 +		compatible = "regulator-fixed";
@@ -1591,7 +1620,7 @@ index 2021777..39872f6 100644
  };
  
  &can0 {
-@@ -64,11 +230,82 @@
+@@ -64,11 +240,82 @@
  	status = "okay";
  };
  
@@ -1674,7 +1703,7 @@ index 2021777..39872f6 100644
  &hscif0 {
  	pinctrl-0 = <&hscif0_pins>;
  	pinctrl-names = "default";
-@@ -77,18 +314,121 @@
+@@ -77,18 +324,121 @@
  	status = "okay";
  };
  
@@ -1796,18 +1825,18 @@ index 2021777..39872f6 100644
  
  		/* Audio_SDA, Audio_SCL */
  		i2c@7 {
-@@ -130,6 +470,18 @@
+@@ -130,6 +480,18 @@
  					};
  				};
  			};
 +
 +			lsm9ds0_acc_mag@1d {
-+				compatible = "st,lsm9ds0_accel_magn";
++				compatible = "st,lsm9ds0";
 +				reg = <0x1d>;
 +			};
 +
 +			lsm9ds0_gyr@6b {
-+				compatible = "st,lsm9ds0_gyro";
++				compatible = "st,lsm9ds0";
 +				reg = <0x6b>;
 +			};
 +
@@ -1815,7 +1844,7 @@ index 2021777..39872f6 100644
  		};
  	};
  
-@@ -139,10 +491,11 @@
+@@ -139,10 +501,11 @@
  		reg = <0x74>;
  		gpio-controller;
  		#gpio-cells = <2>;
@@ -1828,7 +1857,21 @@ index 2021777..39872f6 100644
  		audio_out_off {
  			gpio-hog;
  			gpios = <0 GPIO_ACTIVE_HIGH>; /* P00 */
-@@ -202,6 +555,19 @@
+@@ -178,13 +541,6 @@
+ 			line-name = "OTG OFFVBUSn";
+ 		};
+ 
+-		sd-wifi-mux {
+-			gpio-hog;
+-			gpios = <5 GPIO_ACTIVE_HIGH>;
+-			output-low;	/* Connect WL1837 */
+-			line-name = "SD WiFi mux";
+-		};
+-
+ 		snd_rst {
+ 			gpio-hog;
+ 			gpios = <15 GPIO_ACTIVE_HIGH>; /* P17 */
+@@ -202,6 +558,19 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio6>;
  		interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
@@ -1848,7 +1891,7 @@ index 2021777..39872f6 100644
  	};
  };
  
-@@ -212,6 +578,236 @@
+@@ -212,6 +581,236 @@
  		#size-cells = <0>;
  		reg = <0x71>;
  		reset-gpios = <&gpio3 15 GPIO_ACTIVE_LOW>;
@@ -2031,8 +2074,8 @@ index 2021777..39872f6 100644
 +				clock-names = "mclk";
 +
 +				port@0 {
-+					cmos_camera_in: endpoint {
-+						remote-endpoint = <&vin5ep0>;
++					cmos_camera_out: endpoint {
++						remote-endpoint = <&vin5_in>;
 +					};
 +				};
 +			};
@@ -2085,7 +2128,7 @@ index 2021777..39872f6 100644
  	};
  
  	gpio_exp_76: gpio@76 {
-@@ -222,6 +818,76 @@
+@@ -222,6 +821,76 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio7>;
  		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
@@ -2162,7 +2205,7 @@ index 2021777..39872f6 100644
  	};
  
  	gpio_exp_77: gpio@77 {
-@@ -232,9 +898,38 @@
+@@ -232,9 +901,38 @@
  		interrupt-controller;
  		interrupt-parent = <&gpio5>;
  		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
@@ -2201,7 +2244,7 @@ index 2021777..39872f6 100644
  &ohci0 {
  	dr_mode = "otg";
  	status = "okay";
-@@ -242,6 +937,7 @@
+@@ -242,6 +940,7 @@
  
  &pcie_bus_clk {
  	clock-frequency = <100000000>;
@@ -2209,7 +2252,7 @@ index 2021777..39872f6 100644
  };
  
  &pciec0 {
-@@ -250,6 +946,9 @@
+@@ -250,6 +949,9 @@
  
  &pciec1 {
  	status = "okay";
@@ -2219,7 +2262,7 @@ index 2021777..39872f6 100644
  };
  
  &pfc {
-@@ -263,13 +962,33 @@
+@@ -263,13 +965,33 @@
  		function = "can1";
  	};
  
@@ -2254,7 +2297,7 @@ index 2021777..39872f6 100644
  		function = "scif1";
  	};
  
-@@ -280,7 +999,9 @@
+@@ -280,7 +1002,9 @@
  	};
  
  	sound_pcm_pins: sound-pcm {
@@ -2265,7 +2308,7 @@ index 2021777..39872f6 100644
  		function = "ssi";
  	};
  
-@@ -288,6 +1009,11 @@
+@@ -288,6 +1012,11 @@
  		groups = "usb0";
  		function = "usb0";
  	};
@@ -2277,7 +2320,7 @@ index 2021777..39872f6 100644
  };
  
  &rcar_sound {
-@@ -295,8 +1021,11 @@
+@@ -295,8 +1024,11 @@
  		     &sound_clk_pins
  		     &sound_pcm_pins>;
  
@@ -2290,7 +2333,7 @@ index 2021777..39872f6 100644
  		rsnd_port2: port@2 {
  			reg = <2>;
  			rsnd_for_pcm3168a_play: endpoint {
-@@ -323,13 +1052,37 @@
+@@ -323,13 +1055,37 @@
  				capture  = <&ssi4>;
  			};
  		};
@@ -2329,13 +2372,7 @@ index 2021777..39872f6 100644
  
  	status = "okay";
  };
-@@ -340,12 +1093,13 @@
- 
- 	vmmc-supply = <&wlan_en>;
- 	vqmmc-supply = <&wlan_en>;
-+	keep-power-in-suspend;
- 	bus-width = <4>;
- 	no-1-8-v;
+@@ -345,7 +1101,7 @@
  	non-removable;
  	cap-power-off-card;
  	keep-power-in-suspend;
@@ -2344,7 +2381,7 @@ index 2021777..39872f6 100644
  	status = "okay";
  
  	#address-cells = <1>;
-@@ -363,6 +1117,8 @@
+@@ -363,6 +1119,8 @@
  		&rsnd_port1	/* HDMI0  */
  		&rsnd_port2	/* pcm3168a playback */
  		&rsnd_port3	/* pcm3168a capture  */
@@ -2353,7 +2390,7 @@ index 2021777..39872f6 100644
  		>;
  };
  
-@@ -370,6 +1126,10 @@
+@@ -370,6 +1128,10 @@
  	shared-pin;
  };
  
@@ -2364,7 +2401,7 @@ index 2021777..39872f6 100644
  &usb2_phy0 {
  	pinctrl-0 = <&usb0_pins>;
  	pinctrl-names = "default";
-@@ -377,6 +1137,75 @@
+@@ -377,6 +1139,74 @@
  	status = "okay";
  };
  
@@ -2412,20 +2449,19 @@ index 2021777..39872f6 100644
 +&vin5 {
 +	pinctrl-0 = <&vin5_pins>;
 +	pinctrl-names = "default";
-+//	status = "okay";
-+	status = "disabled";
++	status = "okay";
 +
 +	ports {
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +
 +		port@0 {
-+			vin5ep0: endpoint@0 {
++			vin5_in: endpoint@0 {
 +				bus-width = <8>;
 +				vsync-active = <1>;
 +				hsync-active = <0>;
 +				data-enable-active = <0>;
-+				remote-endpoint = <&cmos_camera_in>;
++				remote-endpoint = <&cmos_camera_out>;
 +			};
 +		};
 +	};

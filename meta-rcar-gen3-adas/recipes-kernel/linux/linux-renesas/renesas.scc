@@ -76,3 +76,5 @@ patch 1026-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
 patch 1028-arm64-dts-r8a77970-r8a77980-Convert-IPMMU-to-UIO.patch
 patch 1029-arm64-dts-renesas-r8a77980-Add-ES2-boards.patch
 patch 1030-arm64-dts-r8a77970-r8a77980-Rename-IMR-UIO-devices.patch
+patch 1031-media-rcar-vin-rcar-csi2-fix-r8a77980-SoC-setup.patch
+patch 1032-rm64-dts-renesas-v3x-update-videoboxes-for-Yocto4.1..patch
