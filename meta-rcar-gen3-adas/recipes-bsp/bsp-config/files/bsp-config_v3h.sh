@@ -3,8 +3,8 @@
 SYSFS_UIO_DRIVER="/sys/bus/platform/drivers/uio_pdrv_genirq/"
 SYSFS_VSPD_DRIVER="/sys/bus/platform/drivers/vsp1/"
 SYSFS_DU_DRIVER="/sys/bus/platform/drivers/rcar-du/"
-SYSFS_CSI_DRIVER="/sys/bus/platform/drivers/rcar_csi2/"
-SYSFS_VIN_DRIVER="/sys/bus/platform/drivers/rcar_vin/"
+SYSFS_CSI_DRIVER="/sys/bus/platform/drivers/rcar-csi2/"
+SYSFS_VIN_DRIVER="/sys/bus/platform/drivers/rcar-vin/"
 SYSFS_LVDS_DRIVER="/sys/bus/platform/drivers/rcar-lvds/"
 
 VSPD_DEVICE="fea20000.vsp_00"
@@ -28,6 +28,8 @@ then
 	echo $LVDS_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $VSPD_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $DU_DEVICE   > $SYSFS_UIO_DRIVER/unbind
+	echo $CSI0_DEVICE  > $SYSFS_UIO_DRIVER/unbind
+	echo $CSI1_DEVICE  > $SYSFS_UIO_DRIVER/unbind
 	echo $VIN0_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $VIN1_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $VIN2_DEVICE > $SYSFS_UIO_DRIVER/unbind
@@ -36,12 +38,12 @@ then
 	echo $VIN5_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $VIN6_DEVICE > $SYSFS_UIO_DRIVER/unbind
 	echo $VIN7_DEVICE > $SYSFS_UIO_DRIVER/unbind
-	echo $CSI0_DEVICE  > $SYSFS_UIO_DRIVER/unbind
-	echo $CSI1_DEVICE  > $SYSFS_UIO_DRIVER/unbind
 	# BIND them with Linux drivers
 	echo $LVDS_DEVICE > $SYSFS_LVDS_DRIVER/bind
 	echo $VSPD_DEVICE > $SYSFS_VSPD_DRIVER/bind
 	echo $DU_DEVICE   > $SYSFS_DU_DRIVER/bind
+	echo $CSI0_DEVICE  > $SYSFS_CSI_DRIVER/bind
+	echo $CSI1_DEVICE  > $SYSFS_CSI_DRIVER/bind
 	echo $VIN0_DEVICE > $SYSFS_VIN_DRIVER/bind
 	echo $VIN1_DEVICE > $SYSFS_VIN_DRIVER/bind
 	echo $VIN2_DEVICE > $SYSFS_VIN_DRIVER/bind
@@ -50,8 +52,6 @@ then
 	echo $VIN5_DEVICE > $SYSFS_VIN_DRIVER/bind
 	echo $VIN6_DEVICE > $SYSFS_VIN_DRIVER/bind
 	echo $VIN7_DEVICE > $SYSFS_VIN_DRIVER/bind
-	echo $CSI0_DEVICE  > $SYSFS_CSI_DRIVER/bind
-	echo $CSI1_DEVICE  > $SYSFS_CSI_DRIVER/bind
 fi
 
 if [ "x$1" = "xadas" ]
@@ -61,6 +61,8 @@ then
 	echo $DU_DEVICE   > $SYSFS_DU_DRIVER/unbind
 	echo $VSPD_DEVICE > $SYSFS_VSPD_DRIVER/unbind
 	echo $LVDS_DEVICE > $SYSFS_LVDS_DRIVER/unbind
+	echo $CSI0_DEVICE  > $SYSFS_CSI_DRIVER/unbind
+	echo $CSI1_DEVICE  > $SYSFS_CSI_DRIVER/unbind
 	echo $VIN0_DEVICE > $SYSFS_VIN_DRIVER/unbind
 	echo $VIN1_DEVICE > $SYSFS_VIN_DRIVER/unbind
 	echo $VIN2_DEVICE > $SYSFS_VIN_DRIVER/unbind
@@ -69,12 +71,12 @@ then
 	echo $VIN5_DEVICE > $SYSFS_VIN_DRIVER/unbind
 	echo $VIN6_DEVICE > $SYSFS_VIN_DRIVER/unbind
 	echo $VIN7_DEVICE > $SYSFS_VIN_DRIVER/unbind
-	echo $CSI0_DEVICE  > $SYSFS_CSI_DRIVER/unbind
-	echo $CSI1_DEVICE  > $SYSFS_CSI_DRIVER/unbind
 	# BIND them with UIO driver
 	echo $DU_DEVICE   > $SYSFS_UIO_DRIVER/bind
 	echo $VSPD_DEVICE > $SYSFS_UIO_DRIVER/bind
 	echo $LVDS_DEVICE > $SYSFS_UIO_DRIVER/bind
+	echo $CSI0_DEVICE  > $SYSFS_UIO_DRIVER/bind
+	echo $CSI1_DEVICE  > $SYSFS_UIO_DRIVER/bind
 	echo $VIN0_DEVICE > $SYSFS_UIO_DRIVER/bind
 	echo $VIN1_DEVICE > $SYSFS_UIO_DRIVER/bind
 	echo $VIN2_DEVICE > $SYSFS_UIO_DRIVER/bind
@@ -83,7 +85,5 @@ then
 	echo $VIN5_DEVICE > $SYSFS_UIO_DRIVER/bind
 	echo $VIN6_DEVICE > $SYSFS_UIO_DRIVER/bind
 	echo $VIN7_DEVICE > $SYSFS_UIO_DRIVER/bind
-	echo $CSI0_DEVICE  > $SYSFS_UIO_DRIVER/bind
-	echo $CSI1_DEVICE  > $SYSFS_UIO_DRIVER/bind
 fi
 
