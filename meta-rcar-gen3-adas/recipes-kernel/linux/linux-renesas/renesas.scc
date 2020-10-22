@@ -82,3 +82,4 @@ patch 1033-arm64-dts-renesas-r8a77980-es2-Add-videobox-boards-s.patch
 patch 1034-drm-rcar-du-Fix-connector-leak-during-deinitializati.patch
 patch 1035-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
 patch 1036-media-rcar-csi2-Allocate-v4l2_async_subdev-dynamical.patch
+patch 1037-arm64-dts-r8a77980-fix-vin4-7-binding.patch
