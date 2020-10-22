@@ -79,3 +79,6 @@ patch 1030-arm64-dts-r8a77970-r8a77980-Rename-IMR-UIO-devices.patch
 patch 1031-media-rcar-vin-rcar-csi2-fix-r8a77980-SoC-setup.patch
 patch 1032-rm64-dts-renesas-v3x-update-videoboxes-for-Yocto4.1..patch
 patch 1033-arm64-dts-renesas-r8a77980-es2-Add-videobox-boards-s.patch
+patch 1034-drm-rcar-du-Fix-connector-leak-during-deinitializati.patch
+patch 1035-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
+patch 1036-media-rcar-csi2-Allocate-v4l2_async_subdev-dynamical.patch
