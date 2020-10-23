@@ -83,3 +83,8 @@ patch 1034-drm-rcar-du-Fix-connector-leak-during-deinitializati.patch
 patch 1035-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
 patch 1036-media-rcar-csi2-Allocate-v4l2_async_subdev-dynamical.patch
 patch 1037-arm64-dts-r8a77980-fix-vin4-7-binding.patch
+patch 1038-arm64-dts-renesas-extend-ipmmu-id-with-micro-TLB-ind.patch
+patch 1039-arm64-dts-renesas-Add-missed-ipmmu-id-tags.patch
+patch 1040-arm64-dts-renesas-UIO-device-naming-per-Renesas-requ.patch
+patch 1041-arm64-dts-renesas-Set-FBC-UIO-memory-region-to-minim.patch
+patch 1042-arm64-dts-renesas-Set-TISP-UIO-memory-region-accordi.patch

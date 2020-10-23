@@ -1,0 +1,49 @@
+From 16548f074b4f78587b381f59c0e9d8547169fea7 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Fri, 23 Oct 2020 14:04:37 +0300
+Subject: [PATCH 1042/1042] arm64: dts: renesas: Set TISP UIO memory region
+ according to datasheet
+
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 2 +-
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 5648876..9bc6e38 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -1150,7 +1150,7 @@
+ 
+ 		tisp0: tisp_00 {
+ 			compatible = "generic-uio";
+-			reg = <0 0xfed00000 0 0x10000>;
++			reg = <0 0xfed00000 0 0x100000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 817>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 7735d82..f75bd1d 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1663,7 +1663,7 @@
+ 
+ 		tisp0: tisp_00 {
+ 			compatible = "generic-uio";
+-			reg = <0 0xfed00000 0 0x10000>;
++			reg = <0 0xfed00000 0 0x100000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 817>;
+ 			resets = <&cpg 817>;
+@@ -1683,7 +1683,7 @@
+ 
+ 		tisp1: tisp_01 {
+ 			compatible = "generic-uio";
+-			reg = <0 0xfed20000 0 0x10000>;
++			reg = <0 0xfed20000 0 0x100000>;
+ 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 814>;
+ 			resets = <&cpg 814>;
+-- 
+2.7.4
+

@@ -1,0 +1,311 @@
+From b0e7101ab062829b2980d9e92bcb869ace56c1d9 Mon Sep 17 00:00:00 2001
+From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
+Date: Thu, 22 Oct 2020 23:25:40 +0300
+Subject: [PATCH] arm64: dts: renesas: Add missed ipmmu-id tags
+
+- imp_ctrl, imp_mem devices
+- RTT devices
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 10 ++++++++++
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 26 ++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index cd47c98..a35a1d5 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -971,6 +971,7 @@
+ 			power-domains = <&sysc R8A77970_PD_A3IR>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_imp_00 {
+@@ -1050,6 +1051,7 @@
+ 			reg = <0 0xed000000 0 0xe0000>;
+ 			clocks = <&cpg CPG_MOD 830>;
+ 			power-domains = <&sysc R8A77970_PD_A3IR>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imr_v4l2_alloc: imr_alloc {
+@@ -1652,6 +1654,7 @@
+ 			reg = <0 0xfff80000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 823>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+ 		};
+ 
+ 		imr_rtt_ims_01 {
+@@ -1659,6 +1662,7 @@
+ 			reg = <0 0xfff90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 821>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+ 		};
+ 
+ 		imp_rtt_imp_00 {
+@@ -1666,6 +1670,7 @@
+ 			reg = <0 0xff8d0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_imp_01 {
+@@ -1673,6 +1678,7 @@
+ 			reg = <0 0xfff50000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_00 {
+@@ -1680,6 +1686,7 @@
+ 			reg = <0 0xfffa0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC0>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_01 {
+@@ -1687,6 +1694,7 @@
+ 			reg = <0 0xfffb0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_dp_00 {
+@@ -1694,6 +1702,7 @@
+ 			reg = <0 0xfff60000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_cnn_00 {
+@@ -1701,6 +1710,7 @@
+ 			reg = <0 0xfff70000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+ 			power-domains = <&sysc R8A77970_PD_A2CN>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 	};
+ 
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index 1725aa7..a6ec3d4 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -1229,6 +1229,7 @@
+ 			power-domains = <&sysc R8A77980_PD_A3IR>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		irq_imp_ctrl_00_01 {
+@@ -1396,6 +1397,7 @@
+ 			reg = <0 0xed000000 0 0x200000>;
+ 			clocks = <&cpg CPG_MOD 830>;
+ 			power-domains = <&sysc R8A77980_PD_A3IR>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imr_v4l2_alloc: imr_alloc {
+@@ -2384,6 +2386,7 @@
+ 			reg = <0 0xfff80000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 707>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imr_rtt_imr_01 {
+@@ -2391,6 +2394,7 @@
+ 			reg = <0 0xfff81000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 706>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imr_rtt_ims_00 {
+@@ -2398,6 +2402,7 @@
+ 			reg = <0 0xfff90000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 823>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imr_rtt_ims_01 {
+@@ -2405,6 +2410,7 @@
+ 			reg = <0 0xfff91000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 822>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imr_rtt_ims_02 {
+@@ -2412,6 +2418,7 @@
+ 			reg = <0 0xfff92000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 821>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imr_rtt_ims_03 {
+@@ -2419,6 +2426,7 @@
+ 			reg = <0 0xfff93000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 820>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
++			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		viprtt_dof_00 {
+@@ -2426,6 +2434,7 @@
+ 			reg = <0 0xe7930000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 102>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP1>;
++			ipmmu-id = <RCAR_IPMMU_VIP0 0>;
+ 		};
+ 
+ 		viprtt_stv_00 {
+@@ -2433,6 +2442,7 @@
+ 			reg = <0 0xe7950000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 101>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP0>;
++			ipmmu-id = <RCAR_IPMMU_VIP0 0>;
+ 		};
+ 
+ 		viprtt_acf_00 {
+@@ -2440,6 +2450,7 @@
+ 			reg = <0 0xe7940000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 1004>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1 0>;
+ 		};
+ 
+ 		viprtt_acf_01 {
+@@ -2447,6 +2458,7 @@
+ 			reg = <0 0xe7941000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 1002>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
++			ipmmu-id = <RCAR_IPMMU_VIP1 0>;
+ 		};
+ 
+ 		imp_rtt_imp_00 {
+@@ -2454,6 +2466,7 @@
+ 			reg = <0 0xff8d0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 827>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR0>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_imp_01 {
+@@ -2461,6 +2474,7 @@
+ 			reg = <0 0xfff50000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 826>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_imp_02 {
+@@ -2468,6 +2482,7 @@
+ 			reg = <0 0xfff60000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 825>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR2>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_imp_03 {
+@@ -2475,6 +2490,7 @@
+ 			reg = <0 0xfff70000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 824>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR3>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_imp_04 {
+@@ -2482,6 +2498,7 @@
+ 			reg = <0 0xff8d1000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 521>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR4>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_00 {
+@@ -2489,6 +2506,7 @@
+ 			reg = <0 0xfffa0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 829>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC0>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_01 {
+@@ -2496,6 +2514,7 @@
+ 			reg = <0 0xfffb0000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 828>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_02 {
+@@ -2503,6 +2522,7 @@
+ 			reg = <0 0xff8d2000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 531>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC2>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_03 {
+@@ -2510,6 +2530,7 @@
+ 			reg = <0 0xff8d3000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 529>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC3>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_ocv_04 {
+@@ -2517,6 +2538,7 @@
+ 			reg = <0 0xff8d4000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 528>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC4>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_dp_00 {
+@@ -2524,6 +2546,7 @@
+ 			reg = <0 0xff8d5000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 525>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_dp_01 {
+@@ -2531,6 +2554,7 @@
+ 			reg = <0 0xff8d6000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 524>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_cnn_00 {
+@@ -2538,6 +2562,7 @@
+ 			reg = <0 0xff8d7000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 831>;
+ 			power-domains = <&sysc R8A77980_PD_A2CN>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 
+ 		imp_rtt_slim_00 {
+@@ -2545,6 +2570,7 @@
+ 			reg = <0 0xff8dc000 0 0x1000>;
+ 			clocks = <&cpg CPG_MOD 500>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR5>;
++			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+ 	};
+ 
+-- 
+2.7.4
+
