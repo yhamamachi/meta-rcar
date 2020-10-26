@@ -88,3 +88,4 @@ patch 1039-arm64-dts-renesas-Add-missed-ipmmu-id-tags.patch
 patch 1040-arm64-dts-renesas-UIO-device-naming-per-Renesas-requ.patch
 patch 1041-arm64-dts-renesas-Set-FBC-UIO-memory-region-to-minim.patch
 patch 1042-arm64-dts-renesas-Set-TISP-UIO-memory-region-accordi.patch
+patch 1043-arm64-dts-renesas-r8a77980-Fix-ipmmu_vc0-address.patch
