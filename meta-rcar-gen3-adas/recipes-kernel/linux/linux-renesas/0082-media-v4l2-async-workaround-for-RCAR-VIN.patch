@@ -22,18 +22,17 @@ diff --git a/drivers/media/v4l2-core/v4l2-async.c b/drivers/media/v4l2-core/v4l2
 index 8bde33c..909c910 100644
 --- a/drivers/media/v4l2-core/v4l2-async.c
 +++ b/drivers/media/v4l2-core/v4l2-async.c
-@@ -201,9 +201,11 @@ v4l2_async_notifier_can_complete(struct v4l2_async_notifier *notifier)
- static int
- v4l2_async_notifier_try_complete(struct v4l2_async_notifier *notifier)
+@@ -179,8 +179,10 @@ v4l2_async_notifier_can_complete(struct v4l2_async_notifier *notifier)
  {
+ 	struct v4l2_subdev *sd;
+ 
 +#if 0
- 	/* Quick check whether there are still more sub-devices here. */
  	if (!list_empty(&notifier->waiting))
- 		return 0;
+ 		return false;
 +#endif
  
- 	/* Check the entire notifier tree; find the root notifier first. */
- 	while (notifier->parent)
+ 	list_for_each_entry(sd, &notifier->done, async_list) {
+ 		struct v4l2_async_notifier *subdev_notifier =
 -- 
 2.7.4
 
