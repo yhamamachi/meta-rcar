@@ -91,3 +91,4 @@ patch 1042-arm64-dts-renesas-Set-TISP-UIO-memory-region-accordi.patch
 patch 1043-arm64-dts-renesas-r8a77980-Fix-ipmmu_vc0-address.patch
 patch 1044-media-v4l2-async-workaround-for-RCAR-VIN.patch
 patch 1045-uio_pdrv_genirq-Remove-warning-when-irq-is-not-speci.patch
+patch 1046-r8a77980-cpg-mssr-Add-VIN-8-15-clocks-description.patch
