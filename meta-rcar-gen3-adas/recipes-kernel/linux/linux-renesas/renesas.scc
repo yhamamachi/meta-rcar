@@ -80,3 +80,4 @@ patch 0079-arm64-boot-dts-renesas-ulcb-kf-Set-radio-and-BT-soun.patch
 patch 0080-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch
 patch 0081-arm64-boot-dts-renesas-ulcb-kf-pcm3168a-add-TDM-mode.patch
 patch 0082-media-v4l2-async-workaround-for-RCAR-VIN.patch
+patch 0083-arm64-boot-dts-rcar-gen3-Fix-MLP-IRQ-order.patch
