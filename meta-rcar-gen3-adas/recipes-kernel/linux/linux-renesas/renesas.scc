@@ -463,3 +463,4 @@ patch 0527-media-i2c-max96712-workaround-for-rev3-silicon.patch
 patch 0528-media-i2c-dummy-add-rgb888-mbus.patch
 patch 0530-media-soc_camera-rcar_csi2-add-eof-notifier.patch
 patch 0531-media-i2c-max9286-fix-gpio-setup-on-max96707.patch
+patch 0532-media-i2c-ov2311-add-frame-rate-adjustment.patch
