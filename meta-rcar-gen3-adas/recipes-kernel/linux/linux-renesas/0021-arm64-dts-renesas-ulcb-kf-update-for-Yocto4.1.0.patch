@@ -1302,7 +1302,7 @@ index 0000000..4a605f8
 +	pinctrl-names = "default";
 +	status = "okay";
 +
-+	clock-speed = "1024fs";
++	microchip,clock-speed = "1024fs";
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso b/arch/arm64/boot/dts/renesas/ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtso
 new file mode 100644
