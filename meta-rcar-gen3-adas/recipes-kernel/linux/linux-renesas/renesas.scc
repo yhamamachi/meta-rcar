@@ -81,3 +81,12 @@ patch 0080-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch
 patch 0081-arm64-boot-dts-renesas-ulcb-kf-pcm3168a-add-TDM-mode.patch
 patch 0082-media-v4l2-async-workaround-for-RCAR-VIN.patch
 patch 0083-arm64-boot-dts-rcar-gen3-Fix-MLP-IRQ-order.patch
+patch 0084-media-rcar-vin-Invalidate-pipeline-if-conversion-is-.patch
+patch 0085-media-rcar-vin-Add-support-for-MEDIA_BUS_FMT_SRGGB8_.patch
+patch 0086-media-rcar-csi2-Add-support-for-MEDIA_BUS_FMT_SRGGB8.patch
+patch 0087-media-rcar-csi2-Extend-RAW8-support-to-all-RGB-layou.patch
+patch 0088-media-rcar-vin-Extend-RAW8-support-to-all-RGB-layout.patch
+patch 0089-media-rcar-vin-rcar-dma-Fix-setting-VNIS_REG-for-RAW.patch
+patch 0090-media-i2c-ov2311-add-frame-rate-adjustment.patch
+patch 0091-media-platform-rcar-vin-add-GREY-format.patch
+patch 0092-media-platform-rcar-vin-add-G-S_PARM-ioctl.patch
