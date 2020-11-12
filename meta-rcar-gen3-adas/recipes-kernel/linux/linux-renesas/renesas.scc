@@ -94,3 +94,12 @@ patch 1045-uio_pdrv_genirq-Remove-warning-when-irq-is-not-speci.patch
 patch 1046-r8a77980-cpg-mssr-Add-VIN-8-15-clocks-description.patch
 patch 1047-arm64-dts-renesas-r8a77980-es2-Fix-IMP-PSC-node.patch
 patch 1048-drivers-clk-r8a77980-cpg-mssr-Fix-ISP-parent-clock.patch
+patch 1049-media-rcar-vin-Invalidate-pipeline-if-conversion-is-.patch
+patch 1050-media-rcar-vin-Add-support-for-MEDIA_BUS_FMT_SRGGB8_.patch
+patch 1051-media-rcar-csi2-Add-support-for-MEDIA_BUS_FMT_SRGGB8.patch
+patch 1052-media-rcar-csi2-Extend-RAW8-support-to-all-RGB-layou.patch
+patch 1053-media-rcar-vin-Extend-RAW8-support-to-all-RGB-layout.patch
+patch 1054-media-rcar-vin-rcar-dma-Fix-setting-VNIS_REG-for-RAW.patch
+patch 1055-media-i2c-ov2311-add-frame-rate-adjustment.patch
+patch 1056-media-platform-rcar-vin-add-GREY-format.patch
+patch 1057-media-platform-rcar-vin-add-G-S_PARM-ioctl.patch
