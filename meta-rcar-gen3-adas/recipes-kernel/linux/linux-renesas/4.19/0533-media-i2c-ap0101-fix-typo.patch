@@ -1,0 +1,28 @@
+From 3e22be6e7feb9e44529300bbd85f85cc83e5b7e8 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 16 Nov 2020 17:03:51 +0300
+Subject: [PATCH] media: i2c: ap0101: fix typo
+
+This fixes xontrol typo
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+index 55cff3f..760014f 100644
+--- a/drivers/media/i2c/soc_camera/ap0101_ar014x.c
++++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+@@ -612,7 +612,7 @@ static int ap0101_probe(struct i2c_client *client,
+ 			  V4L2_CID_HFLIP, 0, 1, 1, 1);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
+ 			  V4L2_CID_VFLIP, 0, 1, 1, 1);
+-	ctrl = v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++	ctrl = v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
+ 			  V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, 1, 32, 1, 9);
+ 	if (ctrl)
+ 		ctrl->flags &= ~V4L2_CTRL_FLAG_READ_ONLY;
+-- 
+2.7.4
+
