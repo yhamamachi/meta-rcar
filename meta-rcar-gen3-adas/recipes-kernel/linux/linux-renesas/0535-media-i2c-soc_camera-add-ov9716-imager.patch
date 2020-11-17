@@ -663,7 +663,7 @@ index 0000000..4839012
 +	}
 +
 +	dev_info(&client->dev, "ov9716 PID %x (r%x), res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		 pid, rev, OV9716_DEFAULT_WIDTH, OV9716_DEFAULT_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++		 pid, rev, OV9716_MAX_WIDTH, OV9716_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
 +out:
 +	ov9716_s_port(client, 0);
 +
