@@ -90,3 +90,9 @@ patch 0089-media-rcar-vin-rcar-dma-Fix-setting-VNIS_REG-for-RAW.patch
 patch 0090-media-i2c-ov2311-add-frame-rate-adjustment.patch
 patch 0091-media-platform-rcar-vin-add-GREY-format.patch
 patch 0092-media-platform-rcar-vin-add-G-S_PARM-ioctl.patch
+patch 0093-media-ov5647-Fix-return-codes-from-ov5647_write-ov56.patch
+patch 0094-media-ov5647-Set-subdevice-fwnode.patch
+patch 0095-media-ov5647-Add-2592x1944-8-bit-SBGGR-mode.patch
+patch 0096-media-i2c-ov5647-Add-V4L2_CID_PIXEL_RATE-control.patch
+patch 0097-media-i2c-ov5647-Add-test-pattern-control.patch
+patch 0098-arm64-dts-renesas-ulcb-kf-Add-ov5647-support.patch
