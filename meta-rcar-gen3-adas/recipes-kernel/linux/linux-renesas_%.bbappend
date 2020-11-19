@@ -39,6 +39,7 @@ ULCB_KF_DTBO = " \
     renesas/ulcb-kf-cn11-pca.dtbo \
     renesas/ulcb-kf-most.dtbo \
     renesas/ulcb-kf-sd3.dtbo \
+    renesas/ulcb-kf-imx219.dtbo \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = " \

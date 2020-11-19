@@ -96,3 +96,12 @@ patch 0095-media-ov5647-Add-2592x1944-8-bit-SBGGR-mode.patch
 patch 0096-media-i2c-ov5647-Add-V4L2_CID_PIXEL_RATE-control.patch
 patch 0097-media-i2c-ov5647-Add-test-pattern-control.patch
 patch 0098-arm64-dts-renesas-ulcb-kf-Add-ov5647-support.patch
+patch 0099-media-i2c-Add-driver-for-Sony-IMX219-sensor.patch
+patch 0100-media-i2c-imx219-Fix-power-sequence.patch
+patch 0101-media-i2c-imx219-Add-support-for-RAW8-bit-bayer-form.patch
+patch 0102-media-i2c-imx219-Add-support-for-cropped-640x480-res.patch
+patch 0103-media-i2c-imx219-Implement-get_selection.patch
+patch 0104-media-i2c-imx219-Fix-a-bug-in-imx219_enum_frame_size.patch
+patch 0105-media-i2c-imx219-Set-subdevice-fwnode.patch
+patch 0106-media-i2c-imx219-Set-8-bit-SBGGR-mode-by-default.patch
+patch 0107-arm64-dts-renesas-Add-ulcb-kf-imx219-overlay.patch
