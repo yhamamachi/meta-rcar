@@ -109,3 +109,5 @@ patch 0108-media-rcar-vin-Enable-streaming-based-on-total-numbe.patch
 patch 0109-media-rcar-vin-rcar-csi2-fix-r8a77980-SoC-setup.patch
 patch 0110-media-rcar-csi2-Allocate-v4l2_async_subdev-dynamical.patch
 patch 0111-arm64-dts-r8a77980-fix-vin4-7-binding.patch
+patch 0112-drm-rcar-du-Fix-connector-leak-during-deinitializati.patch
+patch 0113-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
