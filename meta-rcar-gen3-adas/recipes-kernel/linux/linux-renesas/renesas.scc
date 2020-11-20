@@ -114,3 +114,6 @@ patch 0113-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
 patch 0114-arm64-dts-renesas-Add-MMNGR-nodes-for-V3X-boards.patch
 patch 0115-r8a77980-cpg-mssr-Add-VIN-8-15-clocks-description.patch
 patch 0116-drivers-clk-r8a77980-cpg-mssr-Fix-ISP-parent-clock.patch
+patch 0117-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
+patch 0118-mtd-spi-nor-Fix-selection-of-4-byte-addressing-opcod.patch
+patch 0119-mtd-spi-nor-spansion-fix-writes-on-S25FS512S.patch
