@@ -105,3 +105,7 @@ patch 0104-media-i2c-imx219-Fix-a-bug-in-imx219_enum_frame_size.patch
 patch 0105-media-i2c-imx219-Set-subdevice-fwnode.patch
 patch 0106-media-i2c-imx219-Set-8-bit-SBGGR-mode-by-default.patch
 patch 0107-arm64-dts-renesas-Add-ulcb-kf-imx219-overlay.patch
+patch 0108-media-rcar-vin-Enable-streaming-based-on-total-numbe.patch
+patch 0109-media-rcar-vin-rcar-csi2-fix-r8a77980-SoC-setup.patch
+patch 0110-media-rcar-csi2-Allocate-v4l2_async_subdev-dynamical.patch
+patch 0111-arm64-dts-r8a77980-fix-vin4-7-binding.patch
