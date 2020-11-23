@@ -117,3 +117,4 @@ patch 0116-drivers-clk-r8a77980-cpg-mssr-Fix-ISP-parent-clock.patch
 patch 0117-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
 patch 0118-mtd-spi-nor-Fix-selection-of-4-byte-addressing-opcod.patch
 patch 0119-mtd-spi-nor-spansion-fix-writes-on-S25FS512S.patch
+patch 0120-mtd-spi-nor-renesass-rpc-Workaround-V3x-hyperflash-r.patch
