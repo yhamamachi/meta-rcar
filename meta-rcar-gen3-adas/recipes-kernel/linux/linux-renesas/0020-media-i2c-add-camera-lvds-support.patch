@@ -1,4 +1,4 @@
-From 4fab61131e204bcb132a94a692fcda31c773efca Mon Sep 17 00:00:00 2001
+From b8a29b0183e8017d3dd60ac23d3a74cb0b01b19c Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 24 Sep 2020 01:16:20 +0300
 Subject: [PATCH] media: i2c: add camera lvds support
@@ -144,7 +144,7 @@ index 0000000..3a694ed
 +obj-$(CONFIG_VIDEO_UB9X4)	+= ub9x4.o
 diff --git a/drivers/media/i2c/fpdlink/ub9x4.c b/drivers/media/i2c/fpdlink/ub9x4.c
 new file mode 100644
-index 0000000..6dfdef1
+index 0000000..26f69b9
 --- /dev/null
 +++ b/drivers/media/i2c/fpdlink/ub9x4.c
 @@ -0,0 +1,927 @@
@@ -871,7 +871,7 @@ index 0000000..6dfdef1
 +		priv->ser_id = UB913_ID;
 +	if (of_property_read_u32(np, "ti,poc-delay", &priv->poc_delay))
 +		priv->poc_delay = 10;
-+	if (of_property_read_u32(np, "csi-rate", &priv->csi_rate))
++	if (of_property_read_u32(np, "ti,csi-rate", &priv->csi_rate))
 +		priv->csi_rate = 1450;
 +	if (of_property_read_u32(np, "ti,vc-map", &priv->vc_map))
 +		priv->vc_map = 0x3210;
