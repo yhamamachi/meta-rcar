@@ -129,3 +129,8 @@ patch 0128-rcar_imr-v4l2-driver-Fix-module-support.patch
 patch 0129-gpu-drm-rcar-du-rcar_du_vsp-Check-if-gem-buffer-has-.patch
 patch 0131-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 0132-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
+patch 0133-arm64-dts-renesas-r8a77970-Add-ES1-and-Eagle-Functio.patch
+patch 0134-arm64-dts-r8a77970-r8a77980-Enable-TMU-and-CMT.patch
+patch 0135-arm64-dts-renesas-r8a77980-Add-ES2-boards.patch
+patch 0136-rm64-dts-renesas-v3x-update-videoboxes-for-Yocto4.1..patch
+patch 0137-arm64-dts-renesas-r8a77980-es2-Add-videobox-boards-s.patch
