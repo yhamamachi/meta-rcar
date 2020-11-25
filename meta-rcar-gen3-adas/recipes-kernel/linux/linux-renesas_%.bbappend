@@ -94,7 +94,7 @@ module_conf_uio_pdrv_genirq_r8a77980 = 'options uio_pdrv_genirq of_id="generic-u
 # Install RCAR Gen3 specific UAPI headers
 do_install_append_rcar-gen3() {
     install -d ${D}/usr/include/linux/
-#    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-imr.h ${D}/usr/include/linux/
+    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-imr.h ${D}/usr/include/linux/
 }
 
 PACKAGES += "${PN}-uapi"
