@@ -12,6 +12,7 @@ SRC_URI_append = " \
     file://disable-unused.cfg \
     file://enable.cfg \
     file://renesas.scc \
+    file://v3x-bsp/renesas.scc \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
