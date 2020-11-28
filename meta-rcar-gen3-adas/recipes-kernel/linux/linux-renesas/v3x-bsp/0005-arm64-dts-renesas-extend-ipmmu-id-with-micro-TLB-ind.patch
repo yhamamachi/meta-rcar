@@ -98,7 +98,7 @@ index 083770f..e66a09c 100644
  
  		/delete-node/imp_cnn_00;
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
-index 0ddc71a..5444418 100644
+index 56d3f3c..cc07afa 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
 @@ -856,7 +856,7 @@
@@ -310,8 +310,8 @@ index 0ddc71a..5444418 100644
  			compatible = "generic-uio";
  			reg = <0 0xffc80000 0 0x1000>;
  			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
--			ipmmu-id = <RCAR_IPMMU_RT>;
-+			ipmmu-id = <RCAR_IPMMU_RT 0>;
+-			ipmmu-id = <RCAR_IPMMU_RT0>;
++			ipmmu-id = <RCAR_IPMMU_RT0 0>;
  		};
  
  		ipmmu_vi0 {
@@ -346,7 +346,7 @@ index de63668..bdbcc41 100644
  
  		/* TBD: can fd channel 3 */
 diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
-index 10c0e1d..d8844b8 100644
+index f69759a..f099cff 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
 @@ -902,7 +902,7 @@
@@ -790,7 +790,7 @@ index 10c0e1d..d8844b8 100644
  		};
  
  		dmac1: dma-controller@e7300000 {
-@@ -1862,14 +1862,14 @@
+@@ -1864,14 +1864,14 @@
  			compatible = "generic-uio";
  			reg = <0 0xe7740000 0 0x1000>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
@@ -807,7 +807,7 @@ index 10c0e1d..d8844b8 100644
  		};
  
  		ipmmu_mm {
-@@ -1877,7 +1877,7 @@
+@@ -1879,7 +1879,7 @@
  			reg = <0 0xe67b0000 0 0x1000>;
  			interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
@@ -816,7 +816,7 @@ index 10c0e1d..d8844b8 100644
  		};
  
  		irq_ipmmu_mm_01 {
-@@ -1885,42 +1885,42 @@
+@@ -1887,42 +1887,42 @@
  			reg = <0 0xe67b0000 0 0x1000>;
  			interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
@@ -828,8 +828,8 @@ index 10c0e1d..d8844b8 100644
  			compatible = "generic-uio";
  			reg = <0 0xffc80000 0 0x1000>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
--			ipmmu-id = <RCAR_IPMMU_RT>;
-+			ipmmu-id = <RCAR_IPMMU_RT 0>;
+-			ipmmu-id = <RCAR_IPMMU_RT0>;
++			ipmmu-id = <RCAR_IPMMU_RT0 0>;
  		};
  
  		ipmmu_vc0 {
@@ -865,7 +865,7 @@ index 10c0e1d..d8844b8 100644
  		};
  
  		mmc0: mmc@ee140000 {
-@@ -2333,7 +2333,7 @@
+@@ -2335,7 +2335,7 @@
  			clocks = <&cpg CPG_MOD 127>;
  			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
  			interrupts = <GIC_SPI 300 IRQ_TYPE_LEVEL_HIGH>;

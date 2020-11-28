@@ -1,4 +1,3 @@
-patch v3x-bsp/0001-generic-uio-stuff-for-BSP7.patch
 patch v3x-bsp/0002-uio-stuff-for-BSP7.patch
 patch v3x-bsp/0003-arm64-dts-r8a77970-r8a77980-Convert-IPMMU-to-UIO.patch
 patch v3x-bsp/0004-arm64-dts-r8a77970-r8a77980-Rename-IMR-UIO-devices.patch
@@ -8,4 +7,3 @@ patch v3x-bsp/0007-arm64-dts-renesas-UIO-device-naming-per-Renesas-requ.patch
 patch v3x-bsp/0008-arm64-dts-renesas-Set-FBC-UIO-memory-region-to-minim.patch
 patch v3x-bsp/0009-arm64-dts-renesas-Set-TISP-UIO-memory-region-accordi.patch
 patch v3x-bsp/0010-arm64-dts-renesas-r8a77980-Fix-ipmmu_vc0-address.patch
-patch v3x-bsp/0011-uio_pdrv_genirq-Remove-warning-when-irq-is-not-speci.patch
