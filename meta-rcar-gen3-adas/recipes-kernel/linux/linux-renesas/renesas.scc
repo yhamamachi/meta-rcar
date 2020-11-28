@@ -61,7 +61,7 @@ patch 0060-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch
 patch 0061-clk-renesas-r8a7795-cpg-mssr-Add-RPC-clocks.patch
 patch 0062-clk-renesas-r8a7796-cpg-mssr-Add-RPC-clocks.patch
 patch 0063-clk-renesas-r8a77965-cpg-mssr-Add-RPC-clocks.patch
-patch 0064-clk-renesas-rcar-gen3-cpg-Allow-to-set-RPCD2-clock-p.patch
+patch 0064-clk-renesas-rcar-gen3-Allow-changing-the-RPC-D2-cloc.patch
 patch 0065-mtd-Consolidate-Renesas-RPC-drivers.patch
 patch 0066-arm64-dts-renesas-r8a779-78-0-Update-RPC-device-node.patch
 patch 0067-arm64-dts-renesas-r8a7795-Add-RPC-device-node.patch
