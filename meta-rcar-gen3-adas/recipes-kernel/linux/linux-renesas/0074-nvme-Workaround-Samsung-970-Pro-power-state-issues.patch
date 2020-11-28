@@ -17,10 +17,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 869f462..7333e73 100644
+index af0b51d..9a801d4 100644
 --- a/drivers/nvme/host/pci.c
 +++ b/drivers/nvme/host/pci.c
-@@ -3096,6 +3096,10 @@ static const struct pci_device_id nvme_id_table[] = {
+@@ -3126,6 +3126,10 @@ static const struct pci_device_id nvme_id_table[] = {
  		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
  	{ PCI_DEVICE(0x1c5f, 0x0540),	/* Memblaze Pblaze4 adapter */
  		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },

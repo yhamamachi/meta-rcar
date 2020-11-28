@@ -12,10 +12,10 @@ Signed-off-by: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index 3896a08..906cee0 100644
+index ca90422..7d679bf 100644
 --- a/drivers/media/platform/rcar-vin/rcar-dma.c
 +++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -1524,7 +1524,7 @@ static int rvin_start_streaming(struct vb2_queue *vq, unsigned int count)
+@@ -1569,7 +1569,7 @@ static int rvin_start_streaming(struct vb2_queue *vq, unsigned int count)
  	int ret;
  
  	/* Continuous capture requires more buffers then there are HW slots */

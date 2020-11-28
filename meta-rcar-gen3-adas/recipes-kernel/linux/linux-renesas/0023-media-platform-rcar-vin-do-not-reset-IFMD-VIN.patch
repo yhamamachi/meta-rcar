@@ -10,10 +10,10 @@ VIN ip blocks
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index d12966c..993918a 100644
+index 39075fb..6605895 100644
 --- a/drivers/media/platform/rcar-vin/rcar-dma.c
 +++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -1593,8 +1593,10 @@ static void rvin_stop_streaming(struct vb2_queue *vq)
+@@ -1638,8 +1638,10 @@ static void rvin_stop_streaming(struct vb2_queue *vq)
  			usleep_range(10, 15);
  			timeout--;
  		}
@@ -24,7 +24,7 @@ index d12966c..993918a 100644
  	}
  
  	/* Free scratch buffer. */
-@@ -1680,8 +1682,10 @@ void rvin_suspend_stop_streaming(struct rvin_dev *vin)
+@@ -1725,8 +1727,10 @@ void rvin_suspend_stop_streaming(struct rvin_dev *vin)
  			usleep_range(10, 15);
  			timeout--;
  		}

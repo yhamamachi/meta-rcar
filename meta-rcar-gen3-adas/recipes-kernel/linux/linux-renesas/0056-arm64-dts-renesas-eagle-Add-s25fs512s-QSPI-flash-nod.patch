@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 72 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
-index a4e9a93..34b2d83 100644
+index 7ba368e..ac296c9 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
-@@ -382,12 +382,84 @@
+@@ -353,12 +353,84 @@
  		function = "i2c3";
  	};
  

@@ -13,10 +13,10 @@ Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-index dc945e7..cf4aee2 100644
+index 15653b3..31a014a 100644
 --- a/drivers/pci/controller/pcie-rcar.c
 +++ b/drivers/pci/controller/pcie-rcar.c
-@@ -1446,7 +1446,7 @@ static int rcar_pcie_pci_notifier(struct notifier_block *nb,
+@@ -1447,7 +1447,7 @@ static int rcar_pcie_pci_notifier(struct notifier_block *nb,
  	switch (action) {
  	case BUS_NOTIFY_BOUND_DRIVER:
  		/* Force the DMA mask to lower 32-bits */

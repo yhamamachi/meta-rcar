@@ -30,10 +30,10 @@ index 70580bd..a0cf56d 100644
  *.dwo
  *.elf
 diff --git a/Makefile b/Makefile
-index d4d36c6..6f83fd5 100644
+index 8db75cc..1123272 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -1239,8 +1239,10 @@ endif
+@@ -1261,8 +1261,10 @@ endif
  
  ifneq ($(dtstree),)
  
@@ -44,9 +44,9 @@ index d4d36c6..6f83fd5 100644
 +%.dtb %.dtbo: include/config/kernel.release scripts_dtc
 +	$(Q)$(MAKE) $(build)=$(dtbdir) $(dtstree)/$@
  
- PHONY += dtbs dtbs_install dt_binding_check
- dtbs dtbs_check: include/config/kernel.release scripts_dtc
-@@ -1663,6 +1665,7 @@ clean: $(clean-dirs)
+ PHONY += dtbs dtbs_install dtbs_check
+ dtbs: include/config/kernel.release scripts_dtc
+@@ -1742,6 +1744,7 @@ clean: $(clean-dirs)
  		\( -name '*.[aios]' -o -name '*.ko' -o -name '.*.cmd' \
  		-o -name '*.ko.*' \
  		-o -name '*.dtb' -o -name '*.dtb.S' -o -name '*.dt.yaml' \
@@ -55,10 +55,10 @@ index d4d36c6..6f83fd5 100644
  		-o -name '*.su' -o -name '*.mod' -o -name '*.ns_deps' \
  		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
 diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index a9e4795..a614699 100644
+index 24a33c0..cf8aaeb 100644
 --- a/scripts/Makefile.build
 +++ b/scripts/Makefile.build
-@@ -461,6 +461,7 @@ intermediate_targets = $(foreach sfx, $(2), \
+@@ -452,6 +452,7 @@ intermediate_targets = $(foreach sfx, $(2), \
  # %.tab.o <- %.tab.[ch] <- %.y
  targets += $(call intermediate_targets, .asn1.o, .asn1.c .asn1.h) \
  	   $(call intermediate_targets, .dtb.o, .dtb.S .dtb) \
@@ -67,7 +67,7 @@ index a9e4795..a614699 100644
  	   $(call intermediate_targets, .tab.o, .tab.c .tab.h)
  
 diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 179d55a..c72f54a 100644
+index a6d0044..df64ee4 100644
 --- a/scripts/Makefile.lib
 +++ b/scripts/Makefile.lib
 @@ -63,6 +63,8 @@ extra-$(CONFIG_OF_ALL_DTBS)	+= $(dtb-)
@@ -78,8 +78,8 @@ index 179d55a..c72f54a 100644
 +extra-$(CONFIG_OF_ALL_DTBS) += $(patsubst %.dtbo,%.dt.yaml, $(dtb-))
  endif
  
- # Test self-contained headers
-@@ -287,6 +289,9 @@ cmd_dt_S_dtb=						\
+ # Add subdir path
+@@ -273,6 +275,9 @@ cmd_dt_S_dtb=						\
  $(obj)/%.dtb.S: $(obj)/%.dtb FORCE
  	$(call if_changed,dt_S_dtb)
  
@@ -89,7 +89,7 @@ index 179d55a..c72f54a 100644
  quiet_cmd_dtc = DTC     $@
  cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
  	$(HOSTCC) -E $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
-@@ -298,6 +303,9 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
+@@ -284,6 +289,9 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
  $(obj)/%.dtb: $(src)/%.dts $(DTC) FORCE
  	$(call if_changed_dep,dtc,dtb)
  
@@ -99,16 +99,16 @@ index 179d55a..c72f54a 100644
  DT_CHECKER ?= dt-validate
  DT_BINDING_DIR := Documentation/devicetree/bindings
  DT_TMP_SCHEMA := $(objtree)/$(DT_BINDING_DIR)/processed-schema.yaml
-@@ -311,6 +319,9 @@ define rule_dtc_dt_yaml
- endef
- 
+@@ -299,6 +307,9 @@ endef
  $(obj)/%.dt.yaml: $(src)/%.dts $(DTC) $(DT_TMP_SCHEMA) FORCE
-+	$(call if_changed_rule,dtc,yaml)
-+
-+$(obj)/%.dt.yaml: $(src)/%.dtso $(DTC) $(DT_TMP_SCHEMA) FORCE
- 	$(call if_changed_rule,dtc_dt_yaml)
+ 	$(call if_changed_rule,dtc,yaml)
  
++$(obj)/%.dt.yaml: $(src)/%.dtso $(DTC) $(DT_TMP_SCHEMA) FORCE
++	$(call if_changed_rule,dtc_dt_yaml)
++
  dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
+ 
+ # Bzip2
 -- 
 2.7.4
 

@@ -34,7 +34,7 @@ index 5d80b2e..fd26000 100644
  
  	struct list_head list;
 diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 88978a3..12ca72d 100644
+index 9df2076..d82a1aa 100644
 --- a/sound/soc/soc-core.c
 +++ b/sound/soc/soc-core.c
 @@ -1007,7 +1007,8 @@ static int soc_probe_component(struct snd_soc_card *card,
@@ -47,7 +47,7 @@ index 88978a3..12ca72d 100644
  			dev_err(component->dev,
  				"Trying to bind component to card \"%s\" but is already bound to card \"%s\"\n",
  				card->name, component->card->name);
-@@ -2817,6 +2818,9 @@ int snd_soc_add_component(struct device *dev,
+@@ -2855,6 +2856,9 @@ int snd_soc_add_component(struct device *dev,
  	if (ret)
  		goto err_free;
  
@@ -57,7 +57,7 @@ index 88978a3..12ca72d 100644
  	if (component_driver->endianness) {
  		for (i = 0; i < num_dai; i++) {
  			convert_endianness_formats(&dai_drv[i].playback);
-@@ -2871,7 +2875,7 @@ static int __snd_soc_unregister_component(struct device *dev)
+@@ -2909,7 +2913,7 @@ static int __snd_soc_unregister_component(struct device *dev)
  
  	mutex_lock(&client_mutex);
  	for_each_component(component) {

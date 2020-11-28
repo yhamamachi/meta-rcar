@@ -21,10 +21,10 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
  2 files changed, 17 insertions(+)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index 49bdc25..6e12a33 100644
+index a3d6671..6ff5e28 100644
 --- a/drivers/media/platform/rcar-vin/rcar-dma.c
 +++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -734,6 +734,13 @@ static void rvin_crop_scale_comp(struct rvin_dev *vin)
+@@ -751,6 +751,13 @@ static void rvin_crop_scale_comp(struct rvin_dev *vin)
  
  	fmt = rvin_format_from_pixel(vin, vin->format.pixelformat);
  	stride = vin->format.bytesperline / fmt->bpp;
@@ -38,9 +38,9 @@ index 49bdc25..6e12a33 100644
  	rvin_write(vin, stride, VNIS_REG);
  }
  
-@@ -832,6 +839,9 @@ static int rvin_setup(struct rvin_dev *vin)
- 
- 		input_is_yuv = true;
+@@ -854,6 +861,9 @@ static int rvin_setup(struct rvin_dev *vin)
+ 		if (vin->chip_info & RCAR_VIN_R8A779A0_REATURE)
+ 			vnmc |= VNMC_INF_RAWX_RGB565;
  		break;
 +	case MEDIA_BUS_FMT_SRGGB8_1X8:
 +		vnmc |= VNMC_INF_RAW8;
@@ -48,9 +48,9 @@ index 49bdc25..6e12a33 100644
  	default:
  		break;
  	}
-@@ -898,6 +908,9 @@ static int rvin_setup(struct rvin_dev *vin)
- 	case V4L2_PIX_FMT_ABGR32:
- 		dmr = VNDMR_A8BIT(vin->alpha) | VNDMR_EXRGB | VNDMR_DTMD_ARGB;
+@@ -924,6 +934,9 @@ static int rvin_setup(struct rvin_dev *vin)
+ 		if (vin->chip_info & RCAR_VIN_R8A779A0_REATURE)
+ 			dmr = VNDMR_RMODE_RAW10 | VNDMR_YC_THR;
  		break;
 +	case V4L2_PIX_FMT_SRGGB8:
 +		dmr = 0;
@@ -59,10 +59,10 @@ index 49bdc25..6e12a33 100644
  		vin_err(vin, "Invalid pixelformat (0x%x)\n",
  			vin->format.pixelformat);
 diff --git a/drivers/media/platform/rcar-vin/rcar-v4l2.c b/drivers/media/platform/rcar-vin/rcar-v4l2.c
-index f51e087..fb39b38 100644
+index b3db031..5204259 100644
 --- a/drivers/media/platform/rcar-vin/rcar-v4l2.c
 +++ b/drivers/media/platform/rcar-vin/rcar-v4l2.c
-@@ -66,6 +66,10 @@ static const struct rvin_video_format rvin_formats[] = {
+@@ -70,6 +70,10 @@ static const struct rvin_video_format rvin_formats[] = {
  		.fourcc			= V4L2_PIX_FMT_ABGR32,
  		.bpp			= 4,
  	},

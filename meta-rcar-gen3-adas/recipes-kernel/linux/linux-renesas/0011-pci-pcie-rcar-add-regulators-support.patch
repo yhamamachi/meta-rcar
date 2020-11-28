@@ -12,7 +12,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 59 insertions(+)
 
 diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-index 3d615b2..dc945e7 100644
+index 57df043..15653b3 100644
 --- a/drivers/pci/controller/pcie-rcar.c
 +++ b/drivers/pci/controller/pcie-rcar.c
 @@ -14,6 +14,7 @@
@@ -32,7 +32,7 @@ index 3d615b2..dc945e7 100644
  	struct			rcar_msi msi;
  };
  
-@@ -1195,6 +1198,41 @@ static const struct of_device_id rcar_pcie_of_match[] = {
+@@ -1196,6 +1199,41 @@ static const struct of_device_id rcar_pcie_of_match[] = {
  	{},
  };
  
@@ -74,7 +74,7 @@ index 3d615b2..dc945e7 100644
  static int rcar_pcie_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
-@@ -1213,6 +1251,26 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+@@ -1214,6 +1252,26 @@ static int rcar_pcie_probe(struct platform_device *pdev)
  	pcie->dev = dev;
  	platform_set_drvdata(pdev, pcie);
  
@@ -101,7 +101,7 @@ index 3d615b2..dc945e7 100644
  	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
  	if (err)
  		goto err_free_bridge;
-@@ -1299,6 +1357,7 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+@@ -1300,6 +1358,7 @@ static int rcar_pcie_probe(struct platform_device *pdev)
  
  err_free_bridge:
  	pci_free_host_bridge(bridge);

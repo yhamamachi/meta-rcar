@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 72 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-index 2a1a95c..c20f0c2 100644
+index 324edce..2a55a0c 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-@@ -243,12 +243,84 @@
+@@ -214,12 +214,84 @@
  		power-source = <3300>;
  	};
  

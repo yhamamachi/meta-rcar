@@ -23,12 +23,12 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index eb0e059..49bdc25 100644
+index 6605895..a3d6671 100644
 --- a/drivers/media/platform/rcar-vin/rcar-dma.c
 +++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -1361,11 +1361,15 @@ static int rvin_mc_validate_format(struct rvin_dev *vin, struct v4l2_subdev *sd,
- 	case MEDIA_BUS_FMT_UYVY8_2X8:
+@@ -1401,11 +1401,15 @@ static int rvin_mc_validate_format(struct rvin_dev *vin, struct v4l2_subdev *sd,
  	case MEDIA_BUS_FMT_UYVY10_2X10:
+ 	case MEDIA_BUS_FMT_Y10_1X10:
  	case MEDIA_BUS_FMT_RGB888_1X24:
 -		vin->mbus_code = fmt.format.code;
 +		break;

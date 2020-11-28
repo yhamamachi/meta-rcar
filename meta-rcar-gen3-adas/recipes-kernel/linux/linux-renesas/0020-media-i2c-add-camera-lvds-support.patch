@@ -86,10 +86,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/imagers/ov495.h
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 6e5ee08..ed4f74b 100644
+index b6d2e99..809422f 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
-@@ -1179,4 +1179,8 @@ config VIDEO_ST_MIPID02
+@@ -1180,4 +1180,8 @@ config VIDEO_ST_MIPID02
  
  endmenu
  

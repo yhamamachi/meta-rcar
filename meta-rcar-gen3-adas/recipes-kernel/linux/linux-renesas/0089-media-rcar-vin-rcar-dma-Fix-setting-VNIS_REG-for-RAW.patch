@@ -22,10 +22,10 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index b72520a..b01c5fe 100644
+index e06a285..bb826da 100644
 --- a/drivers/media/platform/rcar-vin/rcar-dma.c
 +++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -739,10 +739,10 @@ static void rvin_crop_scale_comp(struct rvin_dev *vin)
+@@ -756,10 +756,10 @@ static void rvin_crop_scale_comp(struct rvin_dev *vin)
  	 * format in 2 pixel unit hence configure VNIS_REG as stride / 2.
  	 */
  	switch (vin->format.pixelformat) {

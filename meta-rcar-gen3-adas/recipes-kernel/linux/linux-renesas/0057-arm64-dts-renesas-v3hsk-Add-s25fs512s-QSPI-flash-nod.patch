@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 72 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
-index 20eff52..8a6b2ea 100644
+index 3295ba3..5df9bba 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk.dts
-@@ -254,6 +254,16 @@
+@@ -226,6 +226,16 @@
  		power-source = <1800>;
  	};
  
@@ -34,7 +34,7 @@ index 20eff52..8a6b2ea 100644
  	scif0_pins: scif0 {
  		groups = "scif0_data";
  		function = "scif0";
-@@ -265,6 +275,68 @@
+@@ -237,6 +247,68 @@
  	};
  };
  

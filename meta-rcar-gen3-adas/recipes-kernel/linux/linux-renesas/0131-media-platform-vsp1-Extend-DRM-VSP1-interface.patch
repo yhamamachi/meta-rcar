@@ -157,10 +157,10 @@ index 14ed5d7..32e8658 100644
  
  	/*
 diff --git a/drivers/media/platform/vsp1/vsp1_pipe.c b/drivers/media/platform/vsp1/vsp1_pipe.c
-index e9444ba..fd41bed 100644
+index 25f5e27..09c25e5 100644
 --- a/drivers/media/platform/vsp1/vsp1_pipe.c
 +++ b/drivers/media/platform/vsp1/vsp1_pipe.c
-@@ -203,6 +203,10 @@ static const struct vsp1_format_info vsp1_video_formats[] = {
+@@ -215,6 +215,10 @@ static const struct vsp1_format_info vsp1_video_formats[] = {
  	  VI6_FMT_Y_U_V_444, VI6_RPF_DSWAP_P_LLS | VI6_RPF_DSWAP_P_LWS |
  	  VI6_RPF_DSWAP_P_WDS | VI6_RPF_DSWAP_P_BTS,
  	  3, { 8, 8, 8 }, false, true, 1, 1, false },
@@ -172,7 +172,7 @@ index e9444ba..fd41bed 100644
  
  /**
 diff --git a/drivers/media/platform/vsp1/vsp1_rpf.c b/drivers/media/platform/vsp1/vsp1_rpf.c
-index 0c28363..3d85b74 100644
+index de05f3d..04edf1b 100644
 --- a/drivers/media/platform/vsp1/vsp1_rpf.c
 +++ b/drivers/media/platform/vsp1/vsp1_rpf.c
 @@ -107,8 +107,10 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
@@ -185,9 +185,9 @@ index 0c28363..3d85b74 100644
 -	vsp1_rpf_write(rpf, dlb, VI6_RPF_DSWAP, fmtinfo->swap);
 +	vsp1_rpf_write(rpf, dlb, VI6_RPF_DSWAP, fmtinfo->swap | 0xF00);
  
- 	/* Output location. */
- 	if (pipe->brx) {
-@@ -129,6 +131,17 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
+ 	/* Setting new pixel format for V3U */
+ 	if (fmtinfo->hwfmt == VI6_FMT_RGB10_RGB10A2_A2RGB10) {
+@@ -159,6 +161,17 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
  		       (left << VI6_RPF_LOC_HCOORD_SHIFT) |
  		       (top << VI6_RPF_LOC_VCOORD_SHIFT));
  
@@ -205,7 +205,7 @@ index 0c28363..3d85b74 100644
  	/*
  	 * On Gen2 use the alpha channel (extended to 8 bits) when available or
  	 * a fixed alpha value set through the V4L2_CID_ALPHA_COMPONENT control
-@@ -184,7 +197,9 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
+@@ -214,7 +227,9 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
  	if (entity->vsp1->info->gen == 3) {
  		u32 mult;
  
@@ -216,7 +216,7 @@ index 0c28363..3d85b74 100644
  		    fmtinfo->fourcc != V4L2_PIX_FMT_ARGB555) {
  			/*
  			 * When the input contains an alpha channel enable the
-@@ -215,6 +230,7 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
+@@ -245,6 +260,7 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
  		rpf->mult_alpha = mult;
  	}
  
@@ -224,7 +224,7 @@ index 0c28363..3d85b74 100644
  	vsp1_rpf_write(rpf, dlb, VI6_RPF_MSK_CTRL, 0);
  
  	if (rpf->colorkey_en) {
-@@ -223,7 +239,10 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
+@@ -253,7 +269,10 @@ static void rpf_configure_stream(struct vsp1_entity *entity,
  		vsp1_rpf_write(rpf, dlb, VI6_RPF_CKEY_CTRL,
  			       VI6_RPF_CKEY_CTRL_SAPE0);
  	} else {
@@ -261,7 +261,7 @@ index 77c310d..1c6d2a5 100644
  
  static inline struct vsp1_rwpf *to_rwpf(struct v4l2_subdev *subdev)
 diff --git a/drivers/media/platform/vsp1/vsp1_wpf.c b/drivers/media/platform/vsp1/vsp1_wpf.c
-index e75f3918..e893424 100644
+index 3ea746f..11d1629 100644
 --- a/drivers/media/platform/vsp1/vsp1_wpf.c
 +++ b/drivers/media/platform/vsp1/vsp1_wpf.c
 @@ -269,6 +269,9 @@ static void wpf_configure_stream(struct vsp1_entity *entity,

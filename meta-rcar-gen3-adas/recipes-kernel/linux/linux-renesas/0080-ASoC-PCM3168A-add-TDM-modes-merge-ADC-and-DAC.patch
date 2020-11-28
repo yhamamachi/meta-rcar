@@ -9,11 +9,11 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  sound/soc/codecs/pcm3168a.c | 424 +++++++++++++++++++++-----------------------
- sound/soc/codecs/pcm3168a.h |   7 +-
- 2 files changed, 207 insertions(+), 224 deletions(-)
+ sound/soc/codecs/pcm3168a.h |   2 +-
+ 2 files changed, 203 insertions(+), 223 deletions(-)
 
 diff --git a/sound/soc/codecs/pcm3168a.c b/sound/soc/codecs/pcm3168a.c
-index 88b7569..31db799 100644
+index b37e5fb..14fa573 100644
 --- a/sound/soc/codecs/pcm3168a.c
 +++ b/sound/soc/codecs/pcm3168a.c
 @@ -19,9 +19,10 @@
@@ -93,7 +93,7 @@ index 88b7569..31db799 100644
  	SOC_ENUM("ADC Volume Control Type", pcm3168a_adc_volume_type),
  	SOC_ENUM("ADC Volume Rate Multiplier", pcm3168a_adc_att_mult),
  	SOC_ENUM("ADC Overflow Flag Polarity", pcm3168a_adc_ov_pol),
-@@ -314,31 +323,43 @@ static int pcm3168a_set_dai_sysclk(struct snd_soc_dai *dai,
+@@ -321,31 +330,43 @@ static int pcm3168a_set_dai_sysclk(struct snd_soc_dai *dai,
  	return 0;
  }
  
@@ -157,7 +157,7 @@ index 88b7569..31db799 100644
  		return -EINVAL;
  	}
  
-@@ -354,6 +375,16 @@ static int pcm3168a_set_dai_fmt(struct snd_soc_dai *dai, unsigned int format)
+@@ -361,6 +382,16 @@ static int pcm3168a_set_dai_fmt(struct snd_soc_dai *dai, unsigned int format)
  		return -EINVAL;
  	}
  
@@ -174,7 +174,7 @@ index 88b7569..31db799 100644
  	switch (format & SND_SOC_DAIFMT_INV_MASK) {
  	case SND_SOC_DAIFMT_NB_NF:
  		break;
-@@ -361,55 +392,36 @@ static int pcm3168a_set_dai_fmt(struct snd_soc_dai *dai, unsigned int format)
+@@ -368,55 +399,36 @@ static int pcm3168a_set_dai_fmt(struct snd_soc_dai *dai, unsigned int format)
  		return -EINVAL;
  	}
  
@@ -243,7 +243,7 @@ index 88b7569..31db799 100644
  }
  
  static int pcm3168a_hw_params(struct snd_pcm_substream *substream,
-@@ -418,175 +430,138 @@ static int pcm3168a_hw_params(struct snd_pcm_substream *substream,
+@@ -425,175 +437,138 @@ static int pcm3168a_hw_params(struct snd_pcm_substream *substream,
  {
  	struct snd_soc_component *component = dai->component;
  	struct pcm3168a_priv *pcm3168a = snd_soc_component_get_drvdata(component);
@@ -278,8 +278,9 @@ index 88b7569..31db799 100644
 -		reg = PCM3168A_ADC_MST_FMT;
 -		mask = PCM3168A_ADC_MSAD_MASK;
 -		shift = PCM3168A_ADC_MSAD_SHIFT;
--	}
--
++		fmt = pcm3168a->adc_fmt;
+ 	}
+ 
 -	master_mode = io_params->master_mode;
 -	fmt = io_params->fmt;
 -
@@ -291,9 +292,8 @@ index 88b7569..31db799 100644
 -	if (i == max_ratio) {
 -		dev_err(component->dev, "unsupported sysclk ratio\n");
 -		return -EINVAL;
-+		fmt = pcm3168a->adc_fmt;
- 	}
- 
+-	}
+-
 -	if (io_params->slot_width)
 -		slot_width = io_params->slot_width;
 -	else
@@ -308,17 +308,17 @@ index 88b7569..31db799 100644
 -	case 16:
 -		if (master_mode || (fmt != PCM3168A_FMT_RIGHT_J)) {
 -			dev_err(component->dev, "16-bit slots are supported only for slave mode using right justified\n");
--			return -EINVAL;
--		}
++		if (i == max_ratio) {
++			dev_err(component->dev, "unsupported sysclk ratio: %d\n", ratio);
+ 			return -EINVAL;
+ 		}
 -		fmt = PCM3168A_FMT_RIGHT_J_16;
 -		break;
 -	case 24:
 -		if (master_mode || (fmt & PCM3168A_FMT_DSP_MASK)) {
 -			dev_err(component->dev, "24-bit slots not supported in master mode, or slave mode using DSP\n");
-+		if (i == max_ratio) {
-+			dev_err(component->dev, "unsupported sysclk ratio: %d\n", ratio);
- 			return -EINVAL;
- 		}
+-			return -EINVAL;
+-		}
 -		break;
 -	case 32:
 -		break;
@@ -457,7 +457,7 @@ index 88b7569..31db799 100644
 -		8, /* DAC */
 -		6  /* ADC */
 -	};
--
+ 
 -	/*
 -	 * Available Data Bits
 -	 *
@@ -486,7 +486,7 @@ index 88b7569..31db799 100644
 -		sample_min  = 24;
 -		channel_max =  2;
 -	}
- 
+-
 -	snd_pcm_hw_constraint_minmax(substream->runtime,
 -				     SNDRV_PCM_HW_PARAM_SAMPLE_BITS,
 -				     sample_min, 32);
@@ -513,7 +513,7 @@ index 88b7569..31db799 100644
  	.set_fmt	= pcm3168a_set_dai_fmt,
  	.set_sysclk	= pcm3168a_set_dai_sysclk,
  	.hw_params	= pcm3168a_hw_params,
-@@ -594,36 +569,29 @@ static const struct snd_soc_dai_ops pcm3168a_dai_ops = {
+@@ -601,36 +576,29 @@ static const struct snd_soc_dai_ops pcm3168a_dai_ops = {
  	.set_tdm_slot	= pcm3168a_set_tdm_slot,
  };
  
@@ -567,7 +567,7 @@ index 88b7569..31db799 100644
  	{ PCM3168A_DAC_OP_FLT, 0x00 },
  	{ PCM3168A_DAC_INV, 0x00 },
  	{ PCM3168A_DAC_MUTE, 0x00 },
-@@ -772,12 +740,24 @@ int pcm3168a_probe(struct device *dev, struct regmap *regmap)
+@@ -779,12 +747,24 @@ int pcm3168a_probe(struct device *dev, struct regmap *regmap)
  		goto err_regulator;
  	}
  
@@ -595,10 +595,10 @@ index 88b7569..31db799 100644
  		dev_err(dev, "failed to register component: %d\n", ret);
  		goto err_regulator;
 diff --git a/sound/soc/codecs/pcm3168a.h b/sound/soc/codecs/pcm3168a.h
-index c4b7140..658507f 100644
+index c4b7140..72303b5 100644
 --- a/sound/soc/codecs/pcm3168a.h
 +++ b/sound/soc/codecs/pcm3168a.h
-@@ -66,7 +69,7 @@ extern void pcm3168a_remove(struct device *dev);
+@@ -66,7 +66,7 @@ extern void pcm3168a_remove(struct device *dev);
  #define PCM3168A_ADC_MSAD_SHIFT			4
  #define PCM3168A_ADC_MSAD_MASK			0x70
  #define PCM3168A_ADC_FMTAD_SHIFT		0

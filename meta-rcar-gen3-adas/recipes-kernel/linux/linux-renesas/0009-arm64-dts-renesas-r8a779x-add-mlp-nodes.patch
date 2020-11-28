@@ -10,10 +10,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  2 files changed, 26 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index d74bdad..f5099f3 100644
+index 386eb83..976f3cb8 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -1951,6 +1951,19 @@
+@@ -1949,6 +1949,19 @@
  			status = "disabled";
  		};
  
@@ -34,7 +34,7 @@ index d74bdad..f5099f3 100644
  			compatible = "renesas,msiof-r8a7795",
  				     "renesas,rcar-gen3-msiof";
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 198979bd..0e161e3 100644
+index c1f01b7..e772699 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 @@ -1876,6 +1876,19 @@

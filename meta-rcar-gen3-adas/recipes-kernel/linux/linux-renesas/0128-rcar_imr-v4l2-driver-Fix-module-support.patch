@@ -10,10 +10,10 @@ Subject: [PATCH 08/12] rcar_imr v4l2 driver: Fix module support.
  3 files changed, 43 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 91f8004..d1ea07f 100755
+index 5ef5e96..6f69e8c 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -3256,6 +3256,10 @@
+@@ -3258,6 +3258,10 @@
  			status = "disabled";
  		};
  
@@ -24,7 +24,7 @@ index 91f8004..d1ea07f 100755
  		imr-lx4@fe860000 {
  			compatible = "renesas,r8a7795-imr-lx4",
  				     "renesas,imr-lx4";
-@@ -3264,6 +3268,7 @@
+@@ -3266,6 +3270,7 @@
  			clocks = <&cpg CPG_MOD 823>;
  			power-domains = <&sysc R8A7795_PD_A3VC>;
  			resets = <&cpg 823>;
@@ -32,7 +32,7 @@ index 91f8004..d1ea07f 100755
  		};
  
  		imr-lx4@fe870000 {
-@@ -3274,6 +3279,7 @@
+@@ -3276,6 +3281,7 @@
  			clocks = <&cpg CPG_MOD 822>;
  			power-domains = <&sysc R8A7795_PD_A3VC>;
  			resets = <&cpg 822>;
@@ -40,7 +40,7 @@ index 91f8004..d1ea07f 100755
  		};
  
  		imr-lx4@fe880000 {
-@@ -3284,6 +3290,7 @@
+@@ -3286,6 +3292,7 @@
  			clocks = <&cpg CPG_MOD 821>;
  			power-domains = <&sysc R8A7795_PD_A3VC>;
  			resets = <&cpg 821>;
@@ -48,7 +48,7 @@ index 91f8004..d1ea07f 100755
  		};
  
  		imr-lx4@fe890000 {
-@@ -3294,6 +3301,7 @@
+@@ -3296,6 +3303,7 @@
  			clocks = <&cpg CPG_MOD 820>;
  			power-domains = <&sysc R8A7795_PD_A3VC>;
  			resets = <&cpg 820>;
@@ -57,10 +57,10 @@ index 91f8004..d1ea07f 100755
  
  		fcpcs: vcp4@fe90f000 {
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 38865d7..df6ac66 100755
+index 8c04ac2..ae9902d3 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -3082,6 +3082,10 @@
+@@ -3084,6 +3084,10 @@
  			status = "disabled";
  		};
  
@@ -71,7 +71,7 @@ index 38865d7..df6ac66 100755
  		imr-lx4@fe860000 {
  			compatible = "renesas,r8a7796-imr-lx4",
  				     "renesas,imr-lx4";
-@@ -3090,6 +3094,7 @@
+@@ -3092,6 +3096,7 @@
  			clocks = <&cpg CPG_MOD 823>;
  			power-domains = <&sysc R8A7796_PD_A3VC>;
  			resets = <&cpg 823>;
@@ -79,7 +79,7 @@ index 38865d7..df6ac66 100755
  		};
  
  		imr-lx4@fe870000 {
-@@ -3100,6 +3105,7 @@
+@@ -3102,6 +3107,7 @@
  			clocks = <&cpg CPG_MOD 822>;
  			power-domains = <&sysc R8A7796_PD_A3VC>;
  			resets = <&cpg 822>;

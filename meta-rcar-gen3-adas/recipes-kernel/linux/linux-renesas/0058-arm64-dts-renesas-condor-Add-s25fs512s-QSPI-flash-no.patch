@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 72 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
-index db8e509..20fd84e 100644
+index db55ff7..d095722 100644
 --- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
 +++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
-@@ -588,6 +588,16 @@
+@@ -560,6 +560,16 @@
  		power-source = <1800>;
  	};
  
@@ -34,7 +34,7 @@ index db8e509..20fd84e 100644
  	scif0_pins: scif0 {
  		groups = "scif0_data";
  		function = "scif0";
-@@ -599,6 +609,68 @@
+@@ -571,6 +581,68 @@
  	};
  };
  

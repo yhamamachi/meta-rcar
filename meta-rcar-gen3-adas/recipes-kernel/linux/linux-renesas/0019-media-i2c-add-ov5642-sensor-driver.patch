@@ -18,7 +18,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/ov5642_720p.h
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index b7c8bdd..377ad9a 100644
+index fcffcc3..b6d2e99 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
 @@ -677,6 +677,16 @@ config VIDEO_OV5640
@@ -39,10 +39,10 @@ index b7c8bdd..377ad9a 100644
  	tristate "OmniVision OV5645 sensor support"
  	depends on OF
 diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index a27d8f3..ec0a00e 100644
+index beb170b..eb04dba 100644
 --- a/drivers/media/i2c/Makefile
 +++ b/drivers/media/i2c/Makefile
-@@ -68,6 +68,7 @@ obj-$(CONFIG_VIDEO_OV2640) += ov2640.o
+@@ -67,6 +67,7 @@ obj-$(CONFIG_VIDEO_OV2640) += ov2640.o
  obj-$(CONFIG_VIDEO_OV2680) += ov2680.o
  obj-$(CONFIG_VIDEO_OV2685) += ov2685.o
  obj-$(CONFIG_VIDEO_OV5640) += ov5640.o

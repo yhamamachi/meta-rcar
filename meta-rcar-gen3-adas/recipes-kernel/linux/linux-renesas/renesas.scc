@@ -61,7 +61,6 @@ patch 0060-mtd-spi-nor-renesas-rpc-Add-DMA-read-support.patch
 patch 0061-clk-renesas-r8a7795-cpg-mssr-Add-RPC-clocks.patch
 patch 0062-clk-renesas-r8a7796-cpg-mssr-Add-RPC-clocks.patch
 patch 0063-clk-renesas-r8a77965-cpg-mssr-Add-RPC-clocks.patch
-patch 0064-clk-renesas-rcar-gen3-Allow-changing-the-RPC-D2-cloc.patch
 patch 0065-mtd-Consolidate-Renesas-RPC-drivers.patch
 patch 0066-arm64-dts-renesas-r8a779-78-0-Update-RPC-device-node.patch
 patch 0067-arm64-dts-renesas-r8a7795-Add-RPC-device-node.patch
@@ -114,9 +113,6 @@ patch 0113-drm-rcar_du-rework-error-handling-in-to-avoid-warnin.patch
 patch 0114-arm64-dts-renesas-Add-MMNGR-nodes-for-V3X-boards.patch
 patch 0115-r8a77980-cpg-mssr-Add-VIN-8-15-clocks-description.patch
 patch 0116-drivers-clk-r8a77980-cpg-mssr-Fix-ISP-parent-clock.patch
-patch 0117-Revert-jffs2-Fix-possible-null-pointer-dereferences-.patch
-patch 0118-mtd-spi-nor-Fix-selection-of-4-byte-addressing-opcod.patch
-patch 0119-mtd-spi-nor-spansion-fix-writes-on-S25FS512S.patch
 patch 0120-mtd-spi-nor-renesass-rpc-Workaround-V3x-hyperflash-r.patch
 patch 0121-IMR-driver-interim-patch.patch
 patch 0122-media-rcar-imr-IMR-driver-updates-for-raw-DL.patch

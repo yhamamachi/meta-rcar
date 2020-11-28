@@ -13,10 +13,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf-imx219.dtso
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index b05c9c9..cbd7a7a 100644
+index 784f8aa..822c8f0 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -33,7 +33,8 @@ ulcb-kf-dtbo := ulcb-kf-cn11.dtbo ulcb-kf-most.dtbo ulcb-kf-sd3.dtbo \
+@@ -34,7 +34,8 @@ ulcb-kf-dtbo := ulcb-kf-cn11.dtbo ulcb-kf-most.dtbo ulcb-kf-sd3.dtbo \
  		ulcb-kf-cn10-gmsl2.dtbo ulcb-kf-cn11-gmsl2.dtbo \
  		ulcb-kf-panel-koe-tx31d200vm0baa-1280x480.dtbo \
  		ulcb-kf-panel-mitsubishi-aa104xd12-1024x768.dtbo \

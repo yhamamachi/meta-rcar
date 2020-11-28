@@ -11,10 +11,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 13 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index fa15a2e..8dd93e5 100755
+index 76d9879..1eec481 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -2026,6 +2026,19 @@
+@@ -2028,6 +2028,19 @@
  			status = "disabled";
  		};
  

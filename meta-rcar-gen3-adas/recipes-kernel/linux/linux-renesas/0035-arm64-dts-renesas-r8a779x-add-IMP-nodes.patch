@@ -12,10 +12,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  2 files changed, 160 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 17d9ce0..d03da26 100755
+index 976f3cb8..76d9879 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -3824,6 +3824,104 @@
+@@ -3826,6 +3826,104 @@
  			compatible = "renesas,prr";
  			reg = <0 0xfff00044 0 4>;
  		};
@@ -121,10 +121,10 @@ index 17d9ce0..d03da26 100755
  
  	thermal-zones {
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index a33e1bc..99fffa4 100755
+index e772699..6ec0a89 100755
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -3089,6 +3089,68 @@
+@@ -3091,6 +3091,68 @@
  			resets = <&cpg 822>;
  		};
  
