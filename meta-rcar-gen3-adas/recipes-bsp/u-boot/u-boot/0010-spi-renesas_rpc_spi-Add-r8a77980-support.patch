@@ -11,7 +11,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/spi/renesas_rpc_spi.c b/drivers/spi/renesas_rpc_spi.c
-index bb2e774..de76d8c 100644
+index c89b85a..83948ac 100644
 --- a/drivers/spi/renesas_rpc_spi.c
 +++ b/drivers/spi/renesas_rpc_spi.c
 @@ -450,6 +450,7 @@ static const struct udevice_id rpc_spi_ids[] = {
@@ -20,8 +20,8 @@ index bb2e774..de76d8c 100644
  	{ .compatible = "renesas,rpc-r8a77970" },
 +	{ .compatible = "renesas,rpc-r8a77980" },
  	{ .compatible = "renesas,rpc-r8a77995" },
+ 	{ .compatible = "renesas,rpc-r8a779a0" },
  	{ .compatible = "renesas,rpc-r7s72100" },
- 	{ }
 -- 
 2.7.4
 

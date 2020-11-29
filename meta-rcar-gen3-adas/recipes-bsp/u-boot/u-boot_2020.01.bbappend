@@ -11,7 +11,6 @@ RPC_DISABLED = " \
 "
 
 SRC_URI_append = " \
-    file://0001-net-ravb-fix-unsafe-phy-access.patch \
     file://0002-configs-rcar-gen3-Enable-askenv-command.patch \
     file://0003-configs-rcar-gen3-common-Increase-CONFIG_SYS_MALLOC_.patch \
     file://0004-net-sh_eth-Toggle-PHY-GPIO-reset-pin.patch \

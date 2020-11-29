@@ -11,7 +11,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/mmc/renesas-sdhi.c b/drivers/mmc/renesas-sdhi.c
-index 6aa657e..ebf0a3d 100644
+index 2854396..d411a98 100644
 --- a/drivers/mmc/renesas-sdhi.c
 +++ b/drivers/mmc/renesas-sdhi.c
 @@ -738,6 +738,7 @@ static const struct udevice_id renesas_sdhi_match[] = {
@@ -21,7 +21,7 @@ index 6aa657e..ebf0a3d 100644
 +	{ .compatible = "renesas,sdhi-r8a77980", .data = RENESAS_GEN3_QUIRKS },
  	{ .compatible = "renesas,sdhi-r8a77990", .data = RENESAS_GEN3_QUIRKS },
  	{ .compatible = "renesas,sdhi-r8a77995", .data = RENESAS_GEN3_QUIRKS },
- 	{ /* sentinel */ }
+ 	{ .compatible = "renesas,sdhi-r8a779a0", .data = RENESAS_GEN3_QUIRKS },
 -- 
 2.7.4
 

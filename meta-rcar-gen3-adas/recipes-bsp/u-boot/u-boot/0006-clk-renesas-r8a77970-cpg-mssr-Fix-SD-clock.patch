@@ -13,7 +13,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/clk/renesas/r8a77970-cpg-mssr.c b/drivers/clk/renesas/r8a77970-cpg-mssr.c
-index 961eb7f..3151761 100644
+index 21f54a0..b8b3bb6 100644
 --- a/drivers/clk/renesas/r8a77970-cpg-mssr.c
 +++ b/drivers/clk/renesas/r8a77970-cpg-mssr.c
 @@ -84,7 +84,7 @@ static const struct cpg_core_clk r8a77970_core_clks[] = {
@@ -26,7 +26,7 @@ index 961eb7f..3151761 100644
  	DEF_GEN3_RPC("rpc",     R8A77970_CLK_RPC,   CLK_RPCSRC,    0x238),
  
 @@ -193,6 +193,11 @@ static const struct mstp_stop_table r8a77970_mstp_table[] = {
- 	{ 0x000000B7, 0x0, 0x000000B7, 0 },
+ 	{ 0x00000000, 0x0, 0x00000000, 0 },
  };
  
 +static const struct cpg_sd_div_table r8a77970_sd_div_table[] = {
