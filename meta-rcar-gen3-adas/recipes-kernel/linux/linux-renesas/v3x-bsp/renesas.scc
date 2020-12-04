@@ -8,3 +8,4 @@ patch v3x-bsp/0008-arm64-dts-renesas-Set-FBC-UIO-memory-region-to-minim.patch
 patch v3x-bsp/0009-arm64-dts-renesas-Set-TISP-UIO-memory-region-accordi.patch
 patch v3x-bsp/0010-arm64-dts-renesas-r8a77980-Fix-ipmmu_vc0-address.patch
 patch v3x-bsp/0011-uio-uio_pdrv_genirq-renesas-Add-clock-divisor-ioctl-.patch
+patch v3x-bsp/0012-arm64-dts-r8a779-78-0-Add-WWDT-generic-UIO-nodes.patch
