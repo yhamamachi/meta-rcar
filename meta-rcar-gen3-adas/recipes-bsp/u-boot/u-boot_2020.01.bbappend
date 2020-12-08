@@ -33,4 +33,5 @@ SRC_URI_append = " \
     file://0021-net-sh_eth-Fix-RX-error-handling.patch \
     file://0022-i2c-rcar_i2c-Fix-rcar_i2c_xfer-callback-transfer-dir.patch \
     file://0023-configs-r8a77970-Condor-Enable-MMC-support-by-defaul.patch \
+    file://0024-clk-renesas-clk-rcar-gen3-Fix-SD-divider-setting.patch \
 "
