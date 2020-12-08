@@ -504,3 +504,4 @@ patch 0532-media-i2c-ov2311-add-frame-rate-adjustment.patch
 patch 0533-media-i2c-ap0101-fix-typo.patch
 patch 0534-media-i2c-max9286-enable-max96705-gpio.patch
 patch 0535-media-i2c-soc_camera-add-ov9716-imager.patch
+patch 0536-media-i2c-ov10640-fix-number-of-embedded-lines.patch
