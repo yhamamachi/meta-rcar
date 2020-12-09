@@ -40,4 +40,5 @@ SRC_URI_append = " \
     file://0028-net-sh_eth-Fix-compilation-warnings.patch \
     file://0029-net-sh_eth-Workaround-cache-issues.patch \
     file://0030-net-sh_eth-Fix-RX-error-handling.patch \
+    file://0031-clk-renesas-clk-rcar-gen3-Fix-SD-divider-setting.patch \
 "
