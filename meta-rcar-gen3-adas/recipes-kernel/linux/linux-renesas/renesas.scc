@@ -469,3 +469,5 @@ patch 0534-media-i2c-max9286-enable-max96705-gpio.patch
 patch 0535-media-i2c-soc_camera-add-ov9716-imager.patch
 patch 0536-media-i2c-ov10640-fix-number-of-embedded-lines.patch
 patch 0537-media-i2c-ov9716-fix-crop.patch
+patch 0538-media-rcar_csi2-control-stream-forwarding.patch
+patch 0539-media-rcar_csi2-fix-race-condition.patch

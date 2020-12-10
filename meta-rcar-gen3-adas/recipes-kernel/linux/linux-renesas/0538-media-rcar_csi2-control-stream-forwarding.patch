@@ -1,0 +1,114 @@
+From 05ad8e3043d82b0d69d30691708ba3f762c88a12 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 10 Dec 2020 19:01:31 +0300
+Subject: [PATCH] media: rcar_csi2: control stream forwarding
+
+Enable stream forwarding only if requested y V4L2 layer
+using STREAMON API
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/platform/soc_camera/rcar_csi2.c | 26 ++++++++++++++++++++++----
+ drivers/media/platform/soc_camera/rcar_vin.c  |  8 --------
+ 2 files changed, 22 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/media/platform/soc_camera/rcar_csi2.c b/drivers/media/platform/soc_camera/rcar_csi2.c
+index 424d154..f2c933a 100644
+--- a/drivers/media/platform/soc_camera/rcar_csi2.c
++++ b/drivers/media/platform/soc_camera/rcar_csi2.c
+@@ -676,6 +676,16 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+ {
+ 	struct rcar_csi2 *priv = v4l2_get_subdevdata(sd);
+ 	int ret = 0;
++	int idx = sd->grp_id;
++
++	if (idx < 2) {
++		priv->vcdt &= ~(RCAR_CSI2_VCDT_VCDTN_EN << (idx * 16));
++		priv->vcdt |= (on ? RCAR_CSI2_VCDT_VCDTN_EN << (idx * 16) : 0);
++	} else {
++		idx -= 2;
++		priv->vcdt2 &= ~(RCAR_CSI2_VCDT_VCDTN_EN << (idx * 16));
++		priv->vcdt2 |= (on ? RCAR_CSI2_VCDT_VCDTN_EN << (idx * 16) : 0);
++	}
+ 
+ 	if (on) {
+ 		if (atomic_inc_return(&priv->use_count) == 1) {
+@@ -692,6 +702,13 @@ static int rcar_csi2_s_power(struct v4l2_subdev *sd, int on)
+ 		}
+ 	}
+ 
++	iowrite32(priv->vcdt, priv->base + RCAR_CSI2_VCDT);
++	iowrite32(priv->vcdt2, priv->base + RCAR_CSI2_VCDT2);
++	dev_dbg(&priv->pdev->dev, "CSI2 VCDT:  0x%x\n",
++			 ioread32(priv->base + RCAR_CSI2_VCDT));
++	dev_dbg(&priv->pdev->dev, "CSI2 VCDT2: 0x%x\n",
++			 ioread32(priv->base + RCAR_CSI2_VCDT2));
++
+ 	return ret;
+ }
+ 
+@@ -789,8 +806,8 @@ static int rcar_csi2_parse_dt(struct device_node *np,
+ 
+ 	vc_np = of_get_child_by_name(np, "virtual,channel");
+ 
+-	config->vcdt = 0x81008000;
+-	config->vcdt2 = 0x83008200;
++	config->vcdt = 0x01000000;
++	config->vcdt2 = 0x03000200;
+ 	for (i = 0; i < VC_MAX_CHANNEL; i++) {
+ 		sprintf(csi_name, "csi2_vc%d", i);
+ 
+@@ -806,14 +823,14 @@ static int rcar_csi2_parse_dt(struct device_node *np,
+ 
+ 		if (i < 2) {
+ 			config->vcdt |= (ch << (8 + (i * 16)));
+-			config->vcdt |= (RCAR_CSI2_VCDT_VCDTN_EN << (i * 16)) |
++			config->vcdt |= (0 << (i * 16)) |
+ 					(RCAR_CSI2_VCDT_SEL_DTN_ON << (i * 16));
+ 		}
+ 		if (i >= 2) {
+ 			int j = (i - 2);
+ 
+ 			config->vcdt2 |= (ch << (8 + (j * 16)));
+-			config->vcdt2 |= (RCAR_CSI2_VCDT_VCDTN_EN << (j * 16)) |
++			config->vcdt2 |= (0 << (j * 16)) |
+ 					(RCAR_CSI2_VCDT_SEL_DTN_ON << (j * 16));
+ 		}
+ 	}
+@@ -885,6 +902,7 @@ static int rcar_csi2_probe(struct platform_device *pdev)
+ 		priv->subdev[i].owner = THIS_MODULE;
+ 		priv->subdev[i].dev = &pdev->dev;
+ 		v4l2_subdev_init(&priv->subdev[i], &rcar_csi2_subdev_ops);
++		priv->subdev[i].grp_id = 3 - i;
+ 		v4l2_set_subdevdata(&priv->subdev[i], priv);
+ 
+ 		snprintf(priv->subdev[i].name, V4L2_SUBDEV_NAME_SIZE, "rcar_csi2.%s",
+diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
+index 564c371..6e47d70 100644
+--- a/drivers/media/platform/soc_camera/rcar_vin.c
++++ b/drivers/media/platform/soc_camera/rcar_vin.c
+@@ -1613,7 +1613,6 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+ 		int ret = 0;
+ 
+ 		if (csi2_sd) {
+-			csi2_sd->grp_id = soc_camera_grp_id(icd);
+ 			v4l2_set_subdev_hostdata(csi2_sd, icd);
+ 
+ 			ret = v4l2_subdev_call(csi2_sd, core, s_power, 1);
+@@ -1637,13 +1636,6 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+ 			if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
+ 				return ret;
+ 		}
+-		/*
+-		 * -ENODEV is special:
+-		 * either csi2_sd == NULL or the CSI-2 driver
+-		 * has not found this soc-camera device among its clients
+-		 */
+-		if (csi2_sd && ret == -ENODEV)
+-			csi2_sd->grp_id = 0;
+ 
+ 		dev_dbg(icd->parent,
+ 			"R-Car VIN/CSI-2 driver attached to camera %d\n",
+-- 
+2.7.4
+
