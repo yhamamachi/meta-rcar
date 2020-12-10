@@ -1,0 +1,94 @@
+From b2f1d01b247500f970c3e93161ed2b931c3c3119 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 10 Dec 2020 03:14:01 +0300
+Subject: [PATCH] media: i2c: ov9716: fix crop
+
+This fixes crop setup settings
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ov9716.c     |  2 +-
+ drivers/media/i2c/soc_camera/ov9716.h     | 15 ++++++++++-----
+ drivers/media/i2c/soc_camera/ov9716_r1e.h | 18 +++++++++---------
+ 3 files changed, 20 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ov9716.c b/drivers/media/i2c/soc_camera/ov9716.c
+index 4839012..7c7e778 100644
+--- a/drivers/media/i2c/soc_camera/ov9716.c
++++ b/drivers/media/i2c/soc_camera/ov9716.c
+@@ -596,7 +596,7 @@ static int ov9716_initialize(struct i2c_client *client)
+ 	}
+ 
+ 	dev_info(&client->dev, "ov9716 PID %x (r%x), res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
+-		 pid, rev, OV9716_DEFAULT_WIDTH, OV9716_DEFAULT_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++		 pid, rev, OV9716_MAX_WIDTH, OV9716_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
+ out:
+ 	ov9716_s_port(client, 0);
+ 
+diff --git a/drivers/media/i2c/soc_camera/ov9716.h b/drivers/media/i2c/soc_camera/ov9716.h
+index b01d91d..bb2cb7e 100644
+--- a/drivers/media/i2c/soc_camera/ov9716.h
++++ b/drivers/media/i2c/soc_camera/ov9716.h
+@@ -21,16 +21,21 @@
+ #define OV9716_DELAY		0xffff
+ 
+ #define OV9716_MAX_WIDTH	1408
+-#define OV9716_MAX_HEIGHT	992
++#define OV9716_MAX_HEIGHT	976
+ #define OV9716_SENSOR_WIDTH	1408
+ #define OV9716_SENSOR_HEIGHT	992
+ 
+ #define OV9716_EXTRA_OFFSET	2 /* Looks max9286 silicon truncates height by 2 lines, hence enlarge */
+ 
+-#define OV9716_X_START		((OV9716_SENSOR_WIDTH - OV9716_DEFAULT_WIDTH) / 2)
+-#define OV9716_Y_START		((OV9716_SENSOR_HEIGHT - OV9716_DEFAULT_HEIGHT) / 2)
+-#define OV9716_X_END		(OV9716_X_START + OV9716_DEFAULT_WIDTH - 1)
+-#define OV9716_Y_END		(OV9716_Y_START + OV9716_DEFAULT_HEIGHT - 1 + OV9716_EXTRA_OFFSET)
++#define OV9716_X_DEF_START	((OV9716_SENSOR_WIDTH - OV9716_DEFAULT_WIDTH) / 2)
++#define OV9716_Y_DEF_START	((OV9716_SENSOR_HEIGHT - OV9716_DEFAULT_HEIGHT) / 2)
++#define OV9716_X_DEF_END	(OV9716_X_START + OV9716_DEFAULT_WIDTH - 1)
++#define OV9716_Y_DEF_END	(OV9716_Y_START + OV9716_DEFAULT_HEIGHT - 1 + OV9716_EXTRA_OFFSET)
++
++#define OV9716_X_START		((OV9716_SENSOR_WIDTH - OV9716_MAX_WIDTH) / 2)
++#define OV9716_Y_START		((OV9716_SENSOR_HEIGHT - OV9716_MAX_HEIGHT) / 2)
++#define OV9716_X_END		(OV9716_X_START + OV9716_MAX_WIDTH - 1)
++#define OV9716_Y_END		(OV9716_Y_START + OV9716_MAX_HEIGHT - 1 + OV9716_EXTRA_OFFSET)
+ 
+ struct ov9716_reg {
+ 	u16	reg;
+diff --git a/drivers/media/i2c/soc_camera/ov9716_r1e.h b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+index e13a3f8..eecb3ff 100644
+--- a/drivers/media/i2c/soc_camera/ov9716_r1e.h
++++ b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+@@ -1746,19 +1746,19 @@ static const struct ov9716_reg ov9716_regs_r1e[] = {
+ //{0x30a9, 0x1},
+ {0x3252, 0x20 | 0x1},
+ /* 1280x960@30 COMB12 */
+-{0x30a0, OV9716_X_START >> 8},
+-{0x30a1, OV9716_X_START & 0xff},
+-{0x30a2, OV9716_Y_START >> 8},
+-{0x30a3, OV9716_Y_START & 0xff},
+-{0x30a4, OV9716_X_END >> 8},
+-{0x30a5, OV9716_X_END & 0xff},
+-{0x30a6, OV9716_Y_END >> 8},
+-{0x30a7, OV9716_Y_END & 0xff},
++{0x30a0, OV9716_X_DEF_START >> 8},
++{0x30a1, OV9716_X_DEF_START & 0xff},
++{0x30a2, OV9716_Y_DEF_START >> 8},
++{0x30a3, OV9716_Y_DEF_START & 0xff},
++{0x30a4, OV9716_X_DEF_END >> 8},
++{0x30a5, OV9716_X_DEF_END & 0xff},
++{0x30a6, OV9716_Y_DEF_END >> 8},
++{0x30a7, OV9716_Y_DEF_END & 0xff},
+ {0x30ac, OV9716_DEFAULT_WIDTH >> 8},
+ {0x30ad, OV9716_DEFAULT_WIDTH & 0xff},
+ {0x30ae, OV9716_DEFAULT_HEIGHT >> 8},
+ {0x30af, OV9716_DEFAULT_HEIGHT & 0xff},
+-{0x30b0, (OV9716_SENSOR_WIDTH + 992) >> 8}, // HTS must large enough
++{0x30b0, (OV9716_SENSOR_WIDTH + 992) >> 8}, // HTS must be large enough
+ {0x30b1, (OV9716_SENSOR_WIDTH + 992) & 0xff},
+ {0x30b2, (OV9716_SENSOR_HEIGHT + 8) >> 8}, // VTS
+ {0x30b3, (OV9716_SENSOR_HEIGHT + 8) & 0xff},
+-- 
+2.7.4
+
