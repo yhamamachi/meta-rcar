@@ -1,0 +1,362 @@
+From 6906818a8c72163b08d95532bdaeac35b447c335 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 10 Dec 2020 17:45:51 +0300
+Subject: [PATCH] arm64: dts: r8a779[78]0: Use POST clocks
+
+This replaces R-Car V3[MH] IMP and VIP
+UIO device clocks with the POST clocks.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77970.dtsi | 30 ++++----------
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 69 +++++++++++--------------------
+ 2 files changed, 32 insertions(+), 67 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970.dtsi b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+index 095a44bc..a7df51a 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77970.dtsi
+@@ -1653,20 +1653,6 @@
+ 			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		rtt_fbc_post {
+-			compatible = "generic-uio";
+-			reg = <0 0xff830000 0 0x10000>;
+-			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+-			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+-		};
+-
+-		rtt_fbc_post2 {
+-			compatible = "generic-uio";
+-			reg = <0 0xff830000 0 0x10000>;
+-			clocks = <&cpg CPG_CORE R8A77970_CLK_POST2>;
+-			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+-		};
+-
+ 		fbc_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff830000 0 0x2000>;
+@@ -1698,7 +1684,7 @@
+ 		fba_ims_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff80000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 823>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+ 		};
+@@ -1706,7 +1692,7 @@
+ 		fba_ims_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff90000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 821>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+ 		};
+@@ -1714,7 +1700,7 @@
+ 		fba_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 827>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR0>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -1722,7 +1708,7 @@
+ 		fba_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff50000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 826>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2IR1>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -1730,7 +1716,7 @@
+ 		fba_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffa0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 829>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC0>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -1738,7 +1724,7 @@
+ 		fba_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffb0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 828>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2SC1>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -1746,7 +1732,7 @@
+ 		fba_dp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff60000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 825>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2DP>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -1754,7 +1740,7 @@
+ 		fba_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff70000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 824>;
++			clocks = <&cpg CPG_CORE R8A77970_CLK_POST>;
+ 			power-domains = <&sysc R8A77970_PD_A2CN>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index bfb8c5c..f6dde34 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -2348,27 +2348,6 @@
+ 			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
+-		rtt_fbc_post {
+-			compatible = "generic-uio";
+-			reg = <0 0xff830000 0 0x10000>;
+-			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+-			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-		};
+-
+-		rtt_fbc_post2 {
+-			compatible = "generic-uio";
+-			reg = <0 0xff830000 0 0x10000>;
+-			clocks = <&cpg CPG_CORE R8A77980_CLK_POST2>;
+-			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-		};
+-
+-		rtt_fbc_post4 {
+-			compatible = "generic-uio";
+-			reg = <0 0xff830000 0 0x10000>;
+-			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
+-			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+-		};
+-
+ 		fbc_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff830000 0 0x2000>;
+@@ -2421,7 +2400,7 @@
+ 		fba_imr_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff80000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 707>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2429,7 +2408,7 @@
+ 		fba_imr_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff81000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 706>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2437,7 +2416,7 @@
+ 		fba_ims_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff90000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 823>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2445,7 +2424,7 @@
+ 		fba_ims_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff91000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 822>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2453,7 +2432,7 @@
+ 		fba_ims_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff92000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 821>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2461,7 +2440,7 @@
+ 		fba_ims_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff93000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 820>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_ALWAYS_ON>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+@@ -2469,7 +2448,7 @@
+ 		fba_dof_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7930000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 102>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP1>;
+ 			ipmmu-id = <RCAR_IPMMU_VIP0 0>;
+ 		};
+@@ -2477,7 +2456,7 @@
+ 		fba_stv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7950000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 101>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP0>;
+ 			ipmmu-id = <RCAR_IPMMU_VIP0 0>;
+ 		};
+@@ -2485,7 +2464,7 @@
+ 		fba_acf_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7940000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 1004>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 			ipmmu-id = <RCAR_IPMMU_VIP1 0>;
+ 		};
+@@ -2493,7 +2472,7 @@
+ 		fba_acf_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xe7941000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 1002>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST4>;
+ 			power-domains = <&sysc R8A77980_PD_A3VIP2>;
+ 			ipmmu-id = <RCAR_IPMMU_VIP1 0>;
+ 		};
+@@ -2501,7 +2480,7 @@
+ 		fba_imp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 827>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR0>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2509,7 +2488,7 @@
+ 		fba_imp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff50000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 826>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR1>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2517,7 +2496,7 @@
+ 		fba_imp_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff60000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 825>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR2>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2525,7 +2504,7 @@
+ 		fba_imp_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfff70000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 824>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR3>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2533,7 +2512,7 @@
+ 		fba_imp_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d1000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 521>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR4>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2541,7 +2520,7 @@
+ 		fba_ocv_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffa0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 829>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC0>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2549,7 +2528,7 @@
+ 		fba_ocv_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfffb0000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 828>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC1>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2557,7 +2536,7 @@
+ 		fba_ocv_02 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d2000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 531>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC2>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2565,7 +2544,7 @@
+ 		fba_ocv_03 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d3000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 529>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC3>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2573,7 +2552,7 @@
+ 		fba_ocv_04 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d4000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 528>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2SC4>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2581,7 +2560,7 @@
+ 		fba_dp_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d5000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 525>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP0>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2589,7 +2568,7 @@
+ 		fba_dp_01 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d6000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 524>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2DP1>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2597,7 +2576,7 @@
+ 		fba_cnn_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8d7000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 831>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2CN>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+@@ -2605,7 +2584,7 @@
+ 		fba_slim_00 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xff8dc000 0 0x1000>;
+-			clocks = <&cpg CPG_MOD 500>;
++			clocks = <&cpg CPG_CORE R8A77980_CLK_POST>;
+ 			power-domains = <&sysc R8A77980_PD_A2IR5>;
+ 			ipmmu-id = <RCAR_IPMMU_IR 0>;
+ 		};
+-- 
+2.7.4
+
