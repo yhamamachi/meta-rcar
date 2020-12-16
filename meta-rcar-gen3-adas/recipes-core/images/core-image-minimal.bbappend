@@ -5,7 +5,7 @@ COMPATIBLE_MACHINE_v3mzf = "v3mzf"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 
 IMAGE_INSTALL_append = " \
-    packagegroup-bsp \
+    ${@bb.utils.contains('DISTRO_FEATURES', "bsp-pkgs", "packagegroup-bsp", "", d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', "opencv-sdk", "packagegroup-opencv-sdk", "", d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', "surroundview", "packagegroup-surroundview-drm", "", d)} \
 "
