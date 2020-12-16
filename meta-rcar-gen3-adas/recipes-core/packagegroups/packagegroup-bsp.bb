@@ -5,18 +5,30 @@ LICENSE = "BSD-3-Clause & GPLv2+ & LGPLv2+"
 inherit packagegroup
 
 PACKAGES = " \
-    packagegroup-bsp \
+    packagegroup-bsp-core \
     packagegroup-bsp-custom \
     packagegroup-bsp-devdbg \
     packagegroup-bsp-utest \
+    packagegroup-bsp \
 "
 
 PACKAGES_append_rcar-gen3-v3x = " \
     packagegroup-bsp-python3 \
 "
 
-# Packages mandatory for BSP (but often not needed)
 RDEPENDS_packagegroup-bsp = " \
+    packagegroup-bsp-core \
+    packagegroup-bsp-custom \
+    packagegroup-bsp-devdbg \
+    packagegroup-bsp-utest \
+"
+
+RDEPENDS_packagegroup-bsp_append_rcar-gen3-v3x = " \
+    packagegroup-bsp-python3 \
+"
+
+# Packages mandatory for BSP (but often not needed)
+RDEPENDS_packagegroup-bsp-core = " \
     cmake \
     g++ \
     gcc \
