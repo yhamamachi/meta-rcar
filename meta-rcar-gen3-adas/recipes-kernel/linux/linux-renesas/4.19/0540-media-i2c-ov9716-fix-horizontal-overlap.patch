@@ -1,0 +1,49 @@
+From 64cfe2c2a1d99d5463fcd0cebce7f3f0f87c2002 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 22 Dec 2020 19:46:52 +0300
+Subject: [PATCH] media: i2c: ov9716: fix horizontal overlap
+
+Ths OV9716 sliicon has internal overlap between crop and DVP
+output engine. The frame is internally overlapped by itself on the
+right side by 2 pixels. This is fixed if the DVP output enlarged by 2 pixels.
+This fix does not change the frame size on output.
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ov9716.c     | 4 ++--
+ drivers/media/i2c/soc_camera/ov9716_r1e.h | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ov9716.c b/drivers/media/i2c/soc_camera/ov9716.c
+index 7c7e778..3b6928c 100644
+--- a/drivers/media/i2c/soc_camera/ov9716.c
++++ b/drivers/media/i2c/soc_camera/ov9716.c
+@@ -130,8 +130,8 @@ static int ov9716_set_window(struct v4l2_subdev *sd)
+ 	reg16_write(client, BIT(15) | 0x30a6, (priv->rect.top + priv->rect.height + OV9716_Y_START + 1 + OV9716_EMB_PADDED) >> 8);
+ 	reg16_write(client, BIT(15) | 0x30a7, (priv->rect.top + priv->rect.height + OV9716_Y_START + 1 + OV9716_EMB_PADDED) & 0xff);
+ 	/* horiz output */
+-	reg16_write(client, BIT(15) | 0x30ac, priv->rect.width >> 8);
+-	reg16_write(client, BIT(15) | 0x30ad, priv->rect.width & 0xff);
++	reg16_write(client, BIT(15) | 0x30ac, (priv->rect.width + OV9716_EXTRA_OFFSET) >> 8);
++	reg16_write(client, BIT(15) | 0x30ad, (priv->rect.width + OV9716_EXTRA_OFFSET) & 0xff);
+ 	/* vert output */
+ 	reg16_write(client, BIT(15) | 0x30ae, (priv->rect.height + OV9716_EMB_PADDED) >> 8);
+ 	reg16_write(client, BIT(15) | 0x30af, (priv->rect.height + OV9716_EMB_PADDED) & 0xff);
+diff --git a/drivers/media/i2c/soc_camera/ov9716_r1e.h b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+index eecb3ff..495eea4 100644
+--- a/drivers/media/i2c/soc_camera/ov9716_r1e.h
++++ b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+@@ -1754,8 +1754,8 @@ static const struct ov9716_reg ov9716_regs_r1e[] = {
+ {0x30a5, OV9716_X_DEF_END & 0xff},
+ {0x30a6, OV9716_Y_DEF_END >> 8},
+ {0x30a7, OV9716_Y_DEF_END & 0xff},
+-{0x30ac, OV9716_DEFAULT_WIDTH >> 8},
+-{0x30ad, OV9716_DEFAULT_WIDTH & 0xff},
++{0x30ac, (OV9716_DEFAULT_WIDTH + OV9716_EXTRA_OFFSET) >> 8},
++{0x30ad, (OV9716_DEFAULT_WIDTH + OV9716_EXTRA_OFFSET) & 0xff},
+ {0x30ae, OV9716_DEFAULT_HEIGHT >> 8},
+ {0x30af, OV9716_DEFAULT_HEIGHT & 0xff},
+ {0x30b0, (OV9716_SENSOR_WIDTH + 992) >> 8}, // HTS must be large enough
+-- 
+2.7.4
+
