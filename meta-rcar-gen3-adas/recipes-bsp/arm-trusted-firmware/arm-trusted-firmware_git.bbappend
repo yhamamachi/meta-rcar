@@ -18,6 +18,7 @@ SRC_URI_append = " \
     file://0004-plat-renesas-rcar-Add-R-Car-V3H-support.patch \
     file://0005-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
     file://0006-bl2-change-bl2-location-to-dram.patch \
+    file://0007-R-Car-Gen3-V3U-Falcon-support-WIP.patch \
 "
 
 do_ipl_opt_deploy_append () {

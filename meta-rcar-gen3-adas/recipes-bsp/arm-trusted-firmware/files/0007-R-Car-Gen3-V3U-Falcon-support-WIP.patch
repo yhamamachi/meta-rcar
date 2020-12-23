@@ -1,0 +1,3439 @@
+From a4a48eca7aac57555c8d59f4bff67e265ff3267d Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 18 Dec 2020 15:51:46 +0300
+Subject: [PATCH] R-Car Gen3 V3U Falcon support (WIP)
+
+This is still work in progress and subject to change significantly.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ bl2/aarch64/bl2_el3_entrypoint.S                   |    5 +-
+ include/drivers/console.h                          |    1 +
+ lib/cpus/aarch64/cpu_helpers.S                     |    1 +
+ plat/renesas/rcar/aarch64/rcar_drivers_common.c    |   34 +-
+ plat/renesas/rcar/bl2_cpg_init.c                   |   90 +-
+ plat/renesas/rcar/bl2_rcar_setup.c                 |   77 +-
+ plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c       |    2 +-
+ .../renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h |    1 +
+ plat/renesas/rcar/drivers/avs/avs_driver.c         |    2 +-
+ plat/renesas/rcar/drivers/dma/dma_driver.c         |  127 +-
+ plat/renesas/rcar/drivers/iic_dvfs/iic_dvfs.c      |    2 +-
+ plat/renesas/rcar/drivers/memdrv/rcar_console.S    |   27 +
+ plat/renesas/rcar/drivers/rom/rom_api.c            |    2 +-
+ plat/renesas/rcar/drivers/rpc/rpc_driver.c         |   22 +-
+ plat/renesas/rcar/drivers/scif/scif.S              |   69 +-
+ plat/renesas/rcar/drivers/timer/bl2_swdt.c         |    3 +-
+ plat/renesas/rcar/include/bl2_cpg_register.h       |   49 +
+ plat/renesas/rcar/include/bl2_dma_register.h       |   32 +-
+ plat/renesas/rcar/include/platform_def.h           |    6 +
+ plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c           | 1363 ++++++++++++++++++++
+ plat/renesas/rcar/pfc/V3U/pfc_init_v3u.h           |   37 +
+ plat/renesas/rcar/pfc/pfc.mk                       |    4 +
+ plat/renesas/rcar/pfc/pfc_init.c                   |   19 +
+ plat/renesas/rcar/platform.mk                      |   25 +-
+ plat/renesas/rcar/qos/H3/qos_init_h3_v11.c         |    3 +-
+ plat/renesas/rcar/qos/V3U/qos_init_v3u.c           |  544 ++++++++
+ plat/renesas/rcar/qos/V3U/qos_init_v3u.h           |   37 +
+ plat/renesas/rcar/qos/qos.mk                       |    4 +
+ plat/renesas/rcar/qos/qos_init.c                   |   25 +
+ plat/renesas/rcar/rcar_def.h                       |    4 +
+ plat/renesas/rcar/rcar_private.h                   |    3 +
+ 31 files changed, 2550 insertions(+), 70 deletions(-)
+ create mode 100644 plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c
+ create mode 100644 plat/renesas/rcar/pfc/V3U/pfc_init_v3u.h
+ create mode 100644 plat/renesas/rcar/qos/V3U/qos_init_v3u.c
+ create mode 100644 plat/renesas/rcar/qos/V3U/qos_init_v3u.h
+
+diff --git a/bl2/aarch64/bl2_el3_entrypoint.S b/bl2/aarch64/bl2_el3_entrypoint.S
+index 0473c5e..70bce3c 100644
+--- a/bl2/aarch64/bl2_el3_entrypoint.S
++++ b/bl2/aarch64/bl2_el3_entrypoint.S
+@@ -14,14 +14,13 @@
+ 	.globl	bl2_vector_table
+ 	.globl	bl2_el3_run_image
+ 	.globl	bl2_run_next_image
+-
+ func bl2_entrypoint
+ 	/* Save arguments x0-x3 from previous Boot loader */
+ 	mov	x20, x0
+ 	mov	x21, x1
+ 	mov	x22, x2
+ 	mov	x23, x3
+-
++#if 1
+ 	el3_entrypoint_common                                   \
+ 		_init_sctlr=1                                   \
+ 		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
+@@ -29,7 +28,7 @@ func bl2_entrypoint
+ 		_init_memory=1                                  \
+ 		_init_c_runtime=1                               \
+ 		_exception_vectors=bl2_el3_exceptions
+-
++#endif
+ 	/*
+ 	 * Restore parameters of boot rom
+ 	 */
+diff --git a/include/drivers/console.h b/include/drivers/console.h
+index f8ec83d..6ed0b16 100644
+--- a/include/drivers/console.h
++++ b/include/drivers/console.h
+@@ -57,6 +57,7 @@ void console_set_scope(console_t *console, unsigned int scope);
+ void console_switch_state(unsigned int new_state);
+ /* Output a character on all consoles registered for the current state. */
+ int console_putc(int c);
++int console_puthex(uint64_t c);
+ /* Read a character (blocking) from any console registered for current state. */
+ int console_getc(void);
+ /* Flush all consoles registered for the current state. */
+diff --git a/lib/cpus/aarch64/cpu_helpers.S b/lib/cpus/aarch64/cpu_helpers.S
+index 652cfe6..45c71dd 100644
+--- a/lib/cpus/aarch64/cpu_helpers.S
++++ b/lib/cpus/aarch64/cpu_helpers.S
+@@ -40,6 +40,7 @@ func reset_handler
+ 	cbz	x2, 1f
+ 
+ 	/* The cpu_ops reset handler can clobber x0 - x19, x30 */
++	mov	x0, x2
+ 	br	x2
+ 1:
+ 	ret
+diff --git a/plat/renesas/rcar/aarch64/rcar_drivers_common.c b/plat/renesas/rcar/aarch64/rcar_drivers_common.c
+index 0ad22b2..7728a30 100644
+--- a/plat/renesas/rcar/aarch64/rcar_drivers_common.c
++++ b/plat/renesas/rcar/aarch64/rcar_drivers_common.c
+@@ -6,7 +6,6 @@
+ 
+ #include <mmio.h>
+ #include "rcar_private.h"
+-
+ void
+ #if IMAGE_BL31
+ 	__attribute__ ((section (".system_ram")))
+@@ -14,7 +13,18 @@ void
+ 	cpg_write(uintptr_t regadr, uint32_t regval)
+ {
+ 	uint32_t value = (regval);
+-	mmio_write_32((uintptr_t)RCAR_CPGWPR,~value);
++#if RCAR_LSI == RCAR_V3U
++	uintptr_t cpgwpr = RCAR_CPGWPR_V3U;
++#else
++	uintptr_t cpgwpr = RCAR_CPGWPR;
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U)
++		cpgwpr = RCAR_CPGWPR_V3U;
++#endif	/* RCAR_LSI == RCAR_AUTO */
++#endif	/* RCAR_LSI == RCAR_V3U */
++	mmio_write_32(cpgwpr,~value);
+ 	mmio_write_32(regadr,value);
+ }
+ 
+@@ -31,3 +41,23 @@ void
+ 	while ((mmio_read_32(mstpsr) & target_bit) != 0U) {
+ 	}
+ }
++
++uint32_t
++#if IMAGE_BL31
++	__attribute__ ((section (".system_ram")))
++#endif
++	modemr_read(void)
++{
++#if RCAR_LSI == RCAR_V3U
++	uintptr_t modemr = RCAR_MODEMR0;
++#else
++	uintptr_t modemr = RCAR_MODEMR;
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U)
++		modemr = RCAR_MODEMR;
++#endif	/* RCAR_LSI == RCAR_AUTO */
++#endif	/* RCAR_LSI == RCAR_V3U */
++	return mmio_read_32(modemr);
++}
+diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
+index c75d125..553d7d8 100644
+--- a/plat/renesas/rcar/bl2_cpg_init.c
++++ b/plat/renesas/rcar/bl2_cpg_init.c
+@@ -36,6 +36,10 @@ static void bl2_system_cpg_init_v3m(void);
+ static void bl2_realtime_cpg_init_v3h(void);
+ static void bl2_system_cpg_init_v3h(void);
+ #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H) */
++#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3U)
++static void bl2_realtime_cpg_init_v3u(void);
++static void bl2_system_cpg_init_v3u(void);
++#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3U) */
+ 
+ typedef struct {
+ 	uintptr_t	adr;
+@@ -44,6 +48,15 @@ typedef struct {
+ 
+ static void bl2_secure_cpg_init(void)
+ {
++#if RCAR_LSI != RCAR_V3U
++
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t	prr;
++
++	prr = mmio_read_32(RCAR_PRR) & RCAR_CUT_MASK;
++	if (prr == RCAR_PRODUCT_V3U)
++		return;
++#endif	/* RCAR_LSI == RCAR_AUTO */
+ 
+ 	/* CPG (SECURITY) registers */
+ 
+@@ -109,6 +122,7 @@ static void bl2_secure_cpg_init(void)
+ 	cpg_write(SCSRSTECR10,	0x00000000U);
+ 	/* Secure Software Reset Access Enable Control Register 11 */
+ 	cpg_write(SCSRSTECR11,	0x00000000U);
++#endif	/* RCAR_LSI != RCAR_V3U */
+ }
+ 
+ #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+@@ -481,6 +495,70 @@ static void bl2_system_cpg_init_v3h(void)
+ }
+ #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H) */
+ 
++#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3U)
++static void bl2_realtime_cpg_init_v3u(void)
++{
++}
++
++static void bl2_system_cpg_init_v3u(void)
++{
++	/* CPG (SYSTEM) registers */
++
++	/* System Module Stop Control Register 0 */
++	cpg_write(MSTPCR0,	0x003F7FFEU);
++	/* System Module Stop Control Register 1 */
++	cpg_write(MSTPCR1,	0x00CB0000U);
++	/* System Module Stop Control Register 2 */
++	cpg_write(MSTPCR2,	0x0001F800U);
++	/* System Module Stop Control Register 3 */
++	cpg_write(MSTPCR3,	0x90000000U);
++	/* System Module Stop Control Register 4 */
++	cpg_write(MSTPCR4,	0x0001C807U);
++	/* System Module Stop Control Register 5 */
++	cpg_write(MSTPCR5,	0x7E03C380U);
++	/* System Module Stop Control Register 6 */
++	cpg_write(MSTPCR6,	0x1F01F001U);
++	/* System Module Stop Control Register 7 */
++	cpg_write(MSTPCR7,	0xFFFFE040U);
++	/* System Module Stop Control Register 8 */
++	cpg_write(MSTPCR8,	0xFFFFFFFFU);
++	/* System Module Stop Control Register 9 */
++	cpg_write(MSTPCR9,	0x00003C78U);
++	/* System Module Stop Control Register 10 */
++	cpg_write(MSTPCR10,	0xF0000000U);
++	/* System Module Stop Control Register 11 */
++	cpg_write(MSTPCR11,	0x0000000FU);
++	/* System Module Stop Control Register 12 */
++	cpg_write(MSTPCR12,	0xBE800000U);
++	/* System Module Stop Control Register 13 */
++	cpg_write(MSTPCR14,	0x00000037U);
++	/* System Module Stop Control Register 14 */
++	cpg_write(MSTPCR11,	0x00000000U);
++}
++#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3U) */
++
++static void bl2_cpg_unlock(void)
++{
++#if RCAR_LSI == RCAR_V3U
++	uintptr_t cpgwpcr = CPG_CPGWPCR_V3U;
++#else	/* RCAR_LSI == RCAR_V3U */
++	uintptr_t cpgwpcr = CPG_CPGWPCR;
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U)
++		cpgwpcr = CPG_CPGWPCR_V3U;
++#endif	/* RCAR_LSI == RCAR_AUTO */
++#endif	/* RCAR_LSI == RCAR_V3U */
++
++	if ((mmio_read_32(cpgwpcr) & CPGWPCR_WPE) != CPGWPCR_WPE_VALID) {
++		cpg_write(cpgwpcr, CPGWPCR_PASSWORD);
++
++		/* bit in WPE = 0? */
++		while ((mmio_read_32(cpgwpcr) & CPGWPCR_WPE) != CPGWPCR_WPE_VALID);
++        }
++}
++
+ void bl2_cpg_init(void)
+ {
+ 	uint32_t	modemr;
+@@ -488,10 +566,13 @@ void bl2_cpg_init(void)
+ 	uint32_t	prr;
+ #endif /* RCAR_LSI == RCAR_AUTO */
+ 
++	/* Release CPG write protect */
++	bl2_cpg_unlock();
++
+ 	/* CPG (SECURITY) registers */
+ 	bl2_secure_cpg_init();
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = modemr_read();
+ 	modemr &= MODEMR_BOOT_CPU_MASK;
+ 
+ 	/* CPG (REALTIME) registers */
+@@ -531,6 +612,8 @@ void bl2_cpg_init(void)
+ 		bl2_realtime_cpg_init_v3m();
+ #elif RCAR_LSI == RCAR_V3H
+ 		bl2_realtime_cpg_init_v3h();
++#elif RCAR_LSI == RCAR_V3U
++		bl2_realtime_cpg_init_v3u();
+ #else /* RCAR_LSI == RCAR_XX */
+ #error "Don't have CPG initialize routine(unknown)."
+ #endif /* RCAR_LSI == RCAR_XX */
+@@ -559,6 +642,9 @@ void bl2_system_cpg_init(void)
+ 	case RCAR_PRODUCT_V3H:
+ 		bl2_system_cpg_init_v3h();
+ 		break;
++	case RCAR_PRODUCT_V3U:
++		bl2_system_cpg_init_v3u();
++		break;
+ 	default:
+ 		panic();
+ 		break;
+@@ -575,6 +661,8 @@ void bl2_system_cpg_init(void)
+ 	bl2_system_cpg_init_v3m();
+ #elif RCAR_LSI == RCAR_V3H
+ 	bl2_system_cpg_init_v3h();
++#elif RCAR_LSI == RCAR_V3U
++	bl2_system_cpg_init_v3u();
+ #else /* RCAR_LSI == RCAR_XX */
+ #error "Don't have CPG initialize routine(unknown)."
+ #endif /* RCAR_LSI == RCAR_XX */
+diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
+index ca895d6..d9419c2 100755
+--- a/plat/renesas/rcar/bl2_rcar_setup.c
++++ b/plat/renesas/rcar/bl2_rcar_setup.c
+@@ -59,6 +59,7 @@
+ /* RST Registers */
+ #define	RST_BASE		(0xE6160000U)
+ #define	RST_WDTRSTCR		(RST_BASE + 0x0054U)
++#define	RST_WDTRSTCR_V3U	(RST_BASE + 0x0010U)
+ #define	WDTRSTCR_PASSWORD	(0xA55A0000U)
+ #define	WDTRSTCR_RWDT_RSTMSK	((uint32_t)1U << 0U)
+ 
+@@ -118,6 +119,7 @@
+ /* MIDR */
+ #define MIDR_CA57		(0x0D07U << MIDR_PN_SHIFT)
+ #define MIDR_CA53		(0x0D03U << MIDR_PN_SHIFT)
++#define MIDR_CA76		(0x0D0BU << MIDR_PN_SHIFT)
+ 
+ /* R-Car Series, 3rd Generation product check */
+ #if (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+@@ -138,6 +140,9 @@
+ #elif RCAR_LSI == RCAR_V3H
+ #define TARGET_PRODUCT		RCAR_PRODUCT_V3H
+ #define TARGET_NAME		"R-Car V3H"
++#elif RCAR_LSI == RCAR_V3U
++#define TARGET_PRODUCT		RCAR_PRODUCT_V3U
++#define TARGET_NAME		"R-Car V3U"
+ #elif RCAR_LSI == RCAR_AUTO
+ #define TARGET_NAME		"R-Car H3/M3/M3N/V3M/V3H"
+ #endif
+@@ -276,7 +281,7 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
+ 	uint32_t modemr_boot_dev;
+ 	int32_t ret;
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = modemr_read();
+ 	modemr_boot_dev = modemr & MODEMR_BOOT_DEV_MASK;
+ 
+ 	if (isDdrBackupMode() != 0U) {
+@@ -392,6 +397,28 @@ static void bl2_lossy_setting(uint32_t no, uint64_t start_addr,
+ }
+ #endif /* #if (RCAR_LOSSY_ENABLE == 1) */
+ 
++static void rcar_bl2_rwdt_unlock(void)
++{
++	uint32_t reg;
++#if RCAR_LSI == RCAR_V3U
++	uintptr_t wdtrstcr = RST_WDTRSTCR_V3U;
++#else
++	uintptr_t wdtrstcr = RST_WDTRSTCR;
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U)
++		wdtrstcr = RST_WDTRSTCR_V3U;
++#endif	/* RCAR_LSI == RCAR_AUTO */
++#endif	/* RCAR_LSI == RCAR_V3U */
++
++	/* unmask the detection of RWDT overflow */
++	reg = mmio_read_32(wdtrstcr);
++	reg &= ~WDTRSTCR_RWDT_RSTMSK;
++	reg |= WDTRSTCR_PASSWORD;
++	mmio_write_32(wdtrstcr, reg);
++}
++
+ /*******************************************************************************
+  * BL1 has passed the extents of the trusted SRAM that should be visible to BL2
+  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
+@@ -410,6 +437,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	uint32_t prr_val;
+ 	char msg[128];
+ 	const char *str;
++	const char *cpu_ca76        = "CA76";
+ 	const char *cpu_ca57        = "CA57";
+ 	const char *cpu_ca53        = "CA53";
+ 	const char *product_h3      = "H3";
+@@ -418,6 +446,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	const char *product_e3      = "E3";
+ 	const char *product_v3m     = "V3M";
+ 	const char *product_v3h     = "V3H";
++	const char *product_v3u     = "V3U";
+ 	const char *lcs_cm          = "CM";
+ 	const char *lcs_dm          = "DM";
+ 	const char *lcs_sd          = "SD";
+@@ -437,7 +466,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	const char *sscg_on         = "PLL1 SSCG Clock select";
+ 	const char *unknown         = "unknown";
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = modemr_read();
+ 	modemr_boot_dev = modemr & MODEMR_BOOT_DEV_MASK;
+ 	modemr &= MODEMR_BOOT_CPU_MASK;
+ 
+@@ -468,6 +497,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	/* boot message */
+ 	reg = (uint32_t)read_midr();
+ 	switch (reg & ((uint32_t)MIDR_PN_MASK << MIDR_PN_SHIFT)) {
++	case MIDR_CA76:
++		str = cpu_ca76;
++		break;
+ 	case MIDR_CA57:
+ 		str = cpu_ca57;
+ 		break;
+@@ -508,6 +540,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	case RCAR_PRODUCT_V3H:
+ 		str = product_v3h;
+ 		break;
++	case RCAR_PRODUCT_V3U:
++		str = product_v3u;
++		break;
+ 	default:
+ 		str = unknown;
+ 		break;
+@@ -535,7 +570,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	/* R-Car Series, 3rd Generation PLL1 clock select display (E3 only) */
+ 	reg = mmio_read_32(RCAR_PRR);
+ 	if ((reg & RCAR_PRODUCT_MASK) == RCAR_PRODUCT_E3) {
+-		modemr_sscg = mmio_read_32(RCAR_MODEMR);
++		modemr_sscg = modemr_read();
+ 		if ((modemr_sscg & RCAR_SSCG_MASK) == RCAR_SSCG_ENABLE) {
+ 			str = sscg_on;
+ 		} else {
+@@ -582,7 +617,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	}
+ #endif /* RCAR_LSI != RCAR_AUTO */
+ 
+-#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H)
++#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H) && (RCAR_LSI != RCAR_V3U)
+ 	/* Initialize AVS Settings */
+ 	bl2_avs_init();
+ 
+@@ -616,7 +651,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
+ 	NOTICE("%s", msg);
+ 
+-#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H)
++#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H) && (RCAR_LSI != RCAR_V3U)
+ 	/* Proceed with separated AVS processing */
+ 	bl2_avs_setting();
+ #endif
+@@ -649,8 +684,10 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 	(void)sprintf(msg, "BL2: LCM state is %s\n", str);
+ 	NOTICE("%s", msg);
+ 
++#if 0	// V3U
+ 	/* End of AVS Settings */
+ 	bl2_avs_end();
++#endif
+ 
+ 	/* Save BKUP_TRG for SuspendToRAM */
+ 	(void)isDdrBackupMode();
+@@ -732,25 +769,19 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
+ 		initDMA();
+ 	}
+ 
+-	/* unmask the detection of RWDT overflow */
+-	reg = mmio_read_32(RST_WDTRSTCR);
+-	reg &= ~WDTRSTCR_RWDT_RSTMSK;
+-	reg |= WDTRSTCR_PASSWORD;
+-	mmio_write_32(RST_WDTRSTCR, reg);
+-
+-	/* Release CPG write protect */
+-	mmio_write_32(CPG_CPGWPR, CPGWPR_PASSWORD);
+-	mmio_write_32(CPG_CPGWPCR, CPGWPCR_PASSWORD);
++	rcar_bl2_rwdt_unlock();
+ 
+ 	/* CA5x debug resource control */
+ 	reg = mmio_read_32(RCAR_PRR);
+-	if ((reg & RCAR_CPU_MASK_CA57) == RCAR_CPU_HAVE_CA57 ) {
+-		mmio_write_32(CPG_CA57DBGRCR,
+-				DBGCPUPREN | mmio_read_32(CPG_CA57DBGRCR));
+-	}
+-	if ((reg & RCAR_CPU_MASK_CA53) == RCAR_CPU_HAVE_CA53 ) {
+-		mmio_write_32(CPG_CA53DBGRCR,
+-				DBGCPUPREN | mmio_read_32(CPG_CA53DBGRCR));
++	if ((reg & RCAR_PRODUCT_MASK) != RCAR_PRODUCT_V3U) {
++		if ((reg & RCAR_CPU_MASK_CA57) == RCAR_CPU_HAVE_CA57 ) {
++			mmio_write_32(CPG_CA57DBGRCR,
++					DBGCPUPREN | mmio_read_32(CPG_CA57DBGRCR));
++		}
++		if ((reg & RCAR_CPU_MASK_CA53) == RCAR_CPU_HAVE_CA53 ) {
++			mmio_write_32(CPG_CA53DBGRCR,
++					DBGCPUPREN | mmio_read_32(CPG_CA53DBGRCR));
++		}
+ 	}
+ 
+ 	/* STA restriction check for R-Car H3 Ver.1.0 */
+@@ -882,7 +913,7 @@ void bl2_plat_flush_bl31_params(void)
+ 	uint32_t modemr_boot_dev;
+ 	uint32_t lcs;
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = modemr_read();
+ 	modemr_boot_dev = modemr & MODEMR_BOOT_DEV_MASK;
+ 	if((modemr_boot_dev == MODEMR_BOOT_DEV_EMMC_25X1) ||
+ 	   (modemr_boot_dev == MODEMR_BOOT_DEV_EMMC_50X8)) {
+@@ -1086,7 +1117,7 @@ static void bl2_init_generic_timer(void)
+ 	uint32_t board_type;
+ 	uint32_t board_rev;
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = modemr_read();
+ 	modemr_pll = (modemr & MODEMR_BOOT_PLL_MASK);
+ 
+ 	/* Set frequency data in CNTFID0 */
+diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
+index 089dd9b..38be244 100644
+--- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
++++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
+@@ -3877,7 +3877,7 @@ int32_t InitDram(void)
+ 	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
+ #endif /* RCAR_DDR_FIXED_LSI_TYPE */
+ 
+-#if RCAR_LSI == RCAR_V3H
++#if (RCAR_LSI == RCAR_V3H) || (LSI == RCAR_V3U)
+ 	if (Prr_Product == PRR_PRODUCT_V3H) {
+ 		/* dram initialized by CR7 */
+ 		return INITDRAM_OK;
+diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
+index bf9493d..cbae8c7 100644
+--- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
++++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
+@@ -58,6 +58,7 @@
+ #define PRR_PRODUCT_M3		(0x00005200U)           /* R-Car M3-W */
+ #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3-N */
+ #define PRR_PRODUCT_V3H		(0x00005600U)           /* R-Car V3H  */
++#define PRR_PRODUCT_V3U		(0x00005900U)           /* R-Car V3U */
+ #define PRR_PRODUCT_10		(0x00U)			/*   Ver.1.0  */
+ #define PRR_PRODUCT_11		(0x01U)			/*   Ver.1.1  */
+ #define PRR_PRODUCT_20		(0x10U)			/*   Ver.2.0  */
+diff --git a/plat/renesas/rcar/drivers/avs/avs_driver.c b/plat/renesas/rcar/drivers/avs/avs_driver.c
+index a7e1549..77f5caf 100644
+--- a/plat/renesas/rcar/drivers/avs/avs_driver.c
++++ b/plat/renesas/rcar/drivers/avs/avs_driver.c
+@@ -500,7 +500,7 @@ static void avs_set_iic_clock(void)
+ 	uint32_t md_pin;
+ 
+ 	/* Read Mode pin register. */
+-	md_pin = mmio_read_32(RCAR_MODEMR) & CHECK_MD13_MD14;
++	md_pin = modemr_read() & CHECK_MD13_MD14;
+ 	/* Set the module clock (CP phy) for the IIC-DVFS. */
+ 	/* CP phy is EXTAL / 2.                            */
+ 	switch (md_pin) {
+diff --git a/plat/renesas/rcar/drivers/dma/dma_driver.c b/plat/renesas/rcar/drivers/dma/dma_driver.c
+index d976725..141b96f 100644
+--- a/plat/renesas/rcar/drivers/dma/dma_driver.c
++++ b/plat/renesas/rcar/drivers/dma/dma_driver.c
+@@ -37,73 +37,162 @@
+ 				* ((uint32_t)1U << DMATCR_CNT_SHIFT)) \
+ 				& ~((uint32_t)DMA_FRACTION_MASK))
+ 
++#define DMA_USE_CHANNEL_V3U	(1U);
++
++/* NON V3U */
+ static void enableDMA(void);
+ static void setupDMA(void);
+ static void startDMA(uintptr_t dst, uint32_t src, uint32_t len);
+ static void endDMA(void);
+ 
++struct dma_regs {
++	uintptr_t dmactl;
++	uintptr_t dmachan;
++	uintptr_t dmasec;
++	uintptr_t dmachclr;
++	uintptr_t cpgcr;
++	uintptr_t cpgsr;
++};
++
++struct dma_info {
++	struct dma_regs regs;
++	uint32_t dmachan;
++	uint32_t cpgbit;
++};
++
++static struct dma_info dmainfo;
++
++static inline void dmactl_write_32(uint32_t offset, uint32_t value)
++{
++	mmio_write_32(dmainfo.regs.dmactl + offset, value);
++}
++
++static inline void dmactl_write_16(uint32_t offset, uint16_t value)
++{
++	mmio_write_16(dmainfo.regs.dmactl + offset, value);
++}
++
++static inline void dmachan_sec(int on)
++{
++	mmio_write_32(dmainfo.regs.dmasec, on ? dmainfo.dmachan : 0x0U);
++}
++
++static inline void dmachan_clr(void)
++{
++	mmio_write_32(dmainfo.regs.dmachclr, dmainfo.dmachan);
++}
++
++static inline void dmachan_write_32(uint32_t offset, uint32_t value)
++{
++	mmio_write_32(dmainfo.regs.dmachan + offset, value);
++}
++
++static inline uint32_t dmachan_read_32(uint32_t offset)
++{
++	return mmio_read_32(dmainfo.regs.dmachan + offset);
++}
+ 
+ static void enableDMA(void)
+ {
+ 	/* Enable clock supply to DMAC. */
+-	mstpcr_write(CPG_SMSTPCR2, CPG_MSTPSR2, SYS_DMAC_BIT);
++	mstpcr_write(dmainfo.regs.cpgcr, dmainfo.regs.cpgsr, dmainfo.cpgbit);
+ }
+ 
+ static void setupDMA(void)
+ {
+ 	/* DMA operation */
+-	mmio_write_16(DMA_DMAOR,0x0000U);
++	dmactl_write_16(DMA_OR_OFFSET, 0x0U);
+ 	/* DMA channel clear */
+-	mmio_write_32(DMA_DMACHCLR,DMACHCLR_CH_ALL);
++	dmachan_clr();
+ }
+ 
+ static void startDMA(uintptr_t dst, uint32_t src, uint32_t len)
+ {
+ 	/* DMA operation */
+-	mmio_write_16(DMA_DMAOR,DMAOR_INITIAL);
++	dmactl_write_16(DMA_OR_OFFSET, DMAOR_INITIAL);
+ 	/* DMA fixed destination address */
+-	mmio_write_32(DMA_DMAFIXDAR,
++	dmachan_write_32(DMA_FIXDAR_OFFSET,
+ 		(uint32_t)((dst >> DMAFIXDAR_32BIT_SHIFT) &
+ 					DMAFIXDAR_DAR_MASK));
+ 	/* DMA destination address */
+-	mmio_write_32(DMA_DMADAR,
++	dmachan_write_32(DMA_DAR_OFFSET,
+ 		(uint32_t)(dst & UINT32_MAX));
+ 	/* DMA source address */
+-	mmio_write_32(DMA_DMASAR,src);
++	dmachan_write_32(DMA_SAR_OFFSET, src);
+ 	/* DMA 64bytes-unit transfer count */
+-	mmio_write_32(DMA_DMATCR,len >> DMATCR_CNT_SHIFT);
++	dmachan_write_32(DMA_TCR_OFFSET, len >> DMATCR_CNT_SHIFT);
+ 	/* DMA DMA Secure Control Register */
+-	mmio_write_32(DMA_DMASEC,DMA_USE_CHANNEL);
++	dmachan_sec(1);
+ 	/* DMA channel control */
+-	mmio_write_32(DMA_DMACHCR,DMACHCR_TRN_MODE);
++	dmachan_write_32(DMA_CHCR_OFFSET, DMACHCR_TRN_MODE);
+ }
+ 
+ static void endDMA(void)
+ {
+ 	/* DMA channel control */
+-	while((mmio_read_32(DMA_DMACHCR) & DMACHCR_TE_BIT) == 0x00000000U) {
++	while ((dmachan_read_32(DMA_CHCR_OFFSET) & DMACHCR_TE_BIT) == 0x00000000U) {
+ 		/* DMA channel control */
+-		if ((mmio_read_32(DMA_DMACHCR) & DMACHCR_CHE_BIT) != 0U) {
++		if ((dmachan_read_32(DMA_CHCR_OFFSET) & DMACHCR_CHE_BIT) != 0U) {
+ 			ERROR("BL2: DMA - Channel Address Error\n");
+ 			panic();
+ 			break;
+ 		}
+ 	}
+ 	/* DMA transfer Disable*/
+-	mmio_write_32(DMA_DMACHCR,
+-		mmio_read_32(DMA_DMACHCR) & ~((uint32_t)DMACHCR_DE_BIT));
+-	while ((mmio_read_32(DMA_DMACHCR) & DMACHCR_DE_BIT) != 0U) {
++	dmachan_write_32(DMA_CHCR_OFFSET,
++		dmachan_read_32(DMA_CHCR_OFFSET) & ~((uint32_t)DMACHCR_DE_BIT));
++	while ((dmachan_read_32(DMA_CHCR_OFFSET) & DMACHCR_DE_BIT) != 0U) {
+ 	}
+ 	/* DMA DMA Secure Control Register */
+-	mmio_write_32(DMA_DMASEC,0x00000000U);
++	dmachan_sec(0);
+ 	/* DMA operation */
+-	mmio_write_16(DMA_DMAOR,0x0000U);
++	dmactl_write_16(DMA_OR_OFFSET,0x0000U);
+ 	/* DMA channel clear */
+-	mmio_write_32(DMA_DMACHCLR,DMA_USE_CHANNEL);
++	dmachan_clr();
+ }
+ 
++#if (RCAR_LSI != RCAR_V3U)
++static void init_dma_info(void)
++{
++	dmainfo.regs.dmactl = DMA_CTL_BASE;
++	dmainfo.regs.dmachan = DMA_CHAN_BASE;
++	dmainfo.regs.dmasec = DMA_DMASEC;
++	dmainfo.regs.dmachclr = DMA_DMACHCLR;
++	dmainfo.regs.cpgcr = CPG_SMSTPCR2;
++	dmainfo.regs.cpgsr = CPG_MSTPSR2;
++	dmainfo.dmachan = DMA_USE_CHANNEL;
++	dmainfo.cpgbit = SYS_DMAC_BIT;
++}
++#endif
++
++#if (RCAR_LSI == RCAR_V3U) || (RCAR_LSI == RCAR_AUTO)
++static void init_dma_info_v3u(void)
++{
++	dmainfo.regs.dmactl = DMA_CTL_BASE_V3U;
++	dmainfo.regs.dmachan = DMA_CHAN_BASE_V3U;
++	dmainfo.regs.dmasec = DMA_DMASEC_V3U;
++	dmainfo.regs.dmachclr = DMA_DMACHCLR_V3U;
++	dmainfo.regs.cpgcr = CPG_MSTPCR7_V3U;
++	dmainfo.regs.cpgsr = CPG_MSTPSR7_V3U;
++	dmainfo.dmachan = DMA_USE_CHANNEL_V3U;
++	dmainfo.cpgbit = SYS_DMAC_BIT_V3U;
++}
++#endif
++
+ void initDMA(void)
+ {
++#if RCAR_LSI == RCAR_V3U
++	init_dma_info_v3u();
++#elif RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U)
++		init_dma_info_v3u();
++	else
++		init_dma_info();
++#else	/* RCAR_LSI == RCAR_AUTO */
++	init_dma_info();
++#endif	/* RCAR_LSI == RCAR_V3U */
+ 	enableDMA();
+ 	setupDMA();
+ }
+@@ -113,6 +202,7 @@ void execDMA(uintptr_t dst, uint32_t src, uint32_t len)
+ {
+ 	uint32_t	dmalen;
+ 
++	NOTICE("%s: %x -> %lx %x\n", __func__, src, dst, len);
+ 	if ((len & DMA_FRACTION_MASK) != 0U) {
+ 		dmalen = (len + DMA_SIZE_UNIT) & ~((uint32_t)DMA_FRACTION_MASK);
+ 	} else {
+@@ -148,4 +238,5 @@ void execDMA(uintptr_t dst, uint32_t src, uint32_t len)
+ 
+ 	startDMA(dst, src, dmalen);
+ 	endDMA();
++	NOTICE("%s: %x <- %lx %x\n", __func__, src, dst, len);
+ }
+diff --git a/plat/renesas/rcar/drivers/iic_dvfs/iic_dvfs.c b/plat/renesas/rcar/drivers/iic_dvfs/iic_dvfs.c
+index c2c1358..3d8a80c 100644
+--- a/plat/renesas/rcar/drivers/iic_dvfs/iic_dvfs.c
++++ b/plat/renesas/rcar/drivers/iic_dvfs/iic_dvfs.c
+@@ -312,7 +312,7 @@ static int32_t
+ 		mmio_write_8(IIC_DVFS_REG_ICCL, IIC_DVFS_SET_ICCL_EXTAL_TYPE_E);
+ 		mmio_write_8(IIC_DVFS_REG_ICCH, IIC_DVFS_SET_ICCH_EXTAL_TYPE_E);
+ 	} else {
+-		reg = mmio_read_32(RCAR_MODEMR) & CHECK_MD13_MD14;
++		reg = modemr_read() & CHECK_MD13_MD14;
+ 		switch (reg) {
+ 		case MD14_MD13_TYPE_0:
+ 			mmio_write_8(IIC_DVFS_REG_ICCL, IIC_DVFS_SET_ICCL_EXTAL_TYPE_0);
+diff --git a/plat/renesas/rcar/drivers/memdrv/rcar_console.S b/plat/renesas/rcar/drivers/memdrv/rcar_console.S
+index dbbb93c..28cd650 100644
+--- a/plat/renesas/rcar/drivers/memdrv/rcar_console.S
++++ b/plat/renesas/rcar/drivers/memdrv/rcar_console.S
+@@ -8,6 +8,7 @@
+ #include <arch.h>
+ #include <asm_macros.S>
+ 
++	.globl	console_puthex
+ 	.globl	console_init
+ 	.globl	console_putc
+ 	.globl	console_uninit
+@@ -19,6 +20,32 @@
+ 	.extern	rcar_log_init
+ 	.extern	rcar_set_log_data
+ 
++	/* ---------------------------------------------
++	 * int console_puthex(u64)
++	 * Clobber list : x0, x1, x3, x4, x9
++	 * ---------------------------------------------
++	 */
++func console_puthex
++	mov	x3, x0
++	mov	x9, x30
++	mov	x4, 60
++1:
++	lsr	x0, x0, x4
++	and	x0, x0, 0xf
++	add	x0, x0, '0'
++	cmp	x0, '9'
++	b.le	2f
++	add	x0, x0, 7
++2:
++	bl	console_putc
++	mov	x0, x3
++	subs	x4, x4, 4
++	b.ge	1b
++	mov	w0, '\n'
++	bl	console_putc
++	ret	x9
++endfunc console_puthex
++
+ 	/* -----------------------------------------------
+ 	 * int console_core_init(unsigned long base_addr,
+ 	 * unsigned int uart_clk, unsigned int baud_rate)
+diff --git a/plat/renesas/rcar/drivers/rom/rom_api.c b/plat/renesas/rcar/drivers/rom/rom_api.c
+index a555fd3..500cfbd 100644
+--- a/plat/renesas/rcar/drivers/rom/rom_api.c
++++ b/plat/renesas/rcar/drivers/rom/rom_api.c
+@@ -56,7 +56,7 @@ uint32_t ROM_SecureBootAPI( uint32_t *pKeyCert,
+ 
+ uint32_t ROM_GetLcs(uint32_t *pLcs)
+ {
+-#if RCAR_LSI == RCAR_V3H
++#if (RCAR_LSI == RCAR_V3H) || (RCAR_LSI == RCAR_V3U)
+ 	*pLcs = 0xff;
+ 	return 0;
+ #else
+diff --git a/plat/renesas/rcar/drivers/rpc/rpc_driver.c b/plat/renesas/rcar/drivers/rpc/rpc_driver.c
+index a04d603..346fbb2 100644
+--- a/plat/renesas/rcar/drivers/rpc/rpc_driver.c
++++ b/plat/renesas/rcar/drivers/rpc/rpc_driver.c
+@@ -16,6 +16,8 @@
+ #include "rcar_def.h"
+ 
+ #define MSTPSR9_RPC_BIT		(0x00020000U)
++#define MSTPSR6_RPC_BIT		(0x1U << 29)	// V3U
++
+ #define RPC_CMNCR_MD_BIT	(0x80000000U)
+ #define RPC_PHYCNT_CAL		((uint32_t)1U << 31U)
+ #define RPC_PHYCNT_STRTIM_M3V1	((uint32_t)0x6U << 15U)
+@@ -27,7 +29,25 @@ static void setupRPC(void);
+ static void enableRPC(void)
+ {
+ 	/* Enable clock supply to RPC. */
+-	mstpcr_write(CPG_SMSTPCR9, CPG_MSTPSR9, MSTPSR9_RPC_BIT);
++#if RCAR_LSI == RCAR_V3U
++	uintptr_t cpgcr = CPG_MSTPCR6_V3U;
++	uintptr_t cpgsr = CPG_MSTPSR6_V3U;
++	uint32_t rpcbit = MSTPSR6_RPC_BIT;
++#else
++	uintptr_t cpgcr = CPG_SMSTPCR9;
++	uintptr_t cpgsr = CPG_MSTPSR9;
++	uint32_t rpcbit = MSTPSR9_RPC_BIT;
++#if RCAR_LSI == RCAR_AUTO
++	uint32_t prr = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
++
++	if (prr == PRR_PRODUCT_V3U) {
++		cpgcr = CPG_MSTPCR6_V3U;
++		cpgsr = CPG_MSTPSR6_V3U;
++		rpcbit = MSTPSR6_RPC_BIT;
++	}
++#endif	/* RCAR_LSI == RCAR_AUTO */
++#endif	/* RCAR_LSI == RCAR_V3U */
++	mstpcr_write(cpgcr, cpgsr, rpcbit);
+ }
+ 
+ static void setupRPC(void)
+diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
+index 5b660d4..6dd9c7f 100644
+--- a/plat/renesas/rcar/drivers/scif/scif.S
++++ b/plat/renesas/rcar/drivers/scif/scif.S
+@@ -18,10 +18,14 @@
+ /* module stop */
+ #define	CPG_BASE		(0xE6150000)
+ #define	CPG_SMSTPCR2		(0x0138)
++#define CPG_SMSTPCR7		(0x2D1C)	// V3U
+ #define	CPG_SMSTPCR3		(0x013C)
+ #define CPG_MSTPSR2		(0x0040)
++#define CPG_MSTPSR7		(0x2E1C)	// V3U
++#define IP0SR1			(1 << 4) | (1 << 8) | (1 << 12) | (1 << 16) | (1 << 20)
+ #define CPG_MSTPSR3		(0x0048)
+ #define	MSTP207			(1 << 7)
++#define	MSTP702			(1 << 2)
+ #define	MSTP310			(1 << 10)
+ #define	CPG_CPGWPR		(0x0900)
+ 
+@@ -31,9 +35,14 @@
+ 
+ #if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)	/* V3M or V3H */
+ #define SCIF_BASE		SCIF0_BASE
+-#define CPG_SMSTPCR		CPG_SMSTPCR2
+-#define CPG_MSTPSR		CPG_MSTPSR2
+-#define MSTP			MSTP207
++#define CPG_SMSTPCR		CPG_SMSTPCR7
++#define CPG_MSTPSR		CPG_MSTPSR7
++#define MSTP			MSTP702
++#elif (RCAR_LSI == RCAR_V3U)
++#define SCIF_BASE		SCIF0_BASE
++#define CPG_SMSTPCR		CPG_SMSTPCR7
++#define CPG_MSTPSR		CPG_MSTPSR7
++#define MSTP			MSTP702
+ #else
+ #define SCIF_BASE		SCIF2_BASE
+ #define CPG_SMSTPCR		CPG_SMSTPCR3
+@@ -116,6 +125,7 @@
+ #define	CKS_XIN_SCIF_CLK	(0x0000)
+ #define	CKS_INIT_DATA		(CKS_CKS_DIV_CLK + CKS_XIN_SCIF_CLK)
+ 
++	.globl	console_puthex
+ 	.globl	console_init
+ 	.globl	console_putc
+ 	.globl	console_core_init
+@@ -123,6 +133,32 @@
+ 	.globl	console_getc
+ 	.globl	console_flush
+ 
++	/* ---------------------------------------------
++	 * int console_puthex(u64)
++	 * Clobber list : x0, x1, x3, x4, x9
++	 * ---------------------------------------------
++	 */
++func console_puthex
++	mov	x3, x0
++	mov	x9, x30
++	mov	x4, 60
++1:
++	lsr	x0, x0, x4
++	and	x0, x0, 0xf
++	add	x0, x0, '0'
++	cmp	x0, '9'
++	b.le	2f
++	add	x0, x0, 7
++2:
++	bl	console_putc
++	mov	x0, x3
++	subs	x4, x4, 4
++	b.ge	1b
++	mov	w0, '\n'
++	bl	console_putc
++	ret	x9
++endfunc console_puthex
++
+ 	/*
+ 	 *  The console base is in the data section and not in .bss
+ 	 *  even though it is zero-init. In particular, this allows
+@@ -162,13 +198,37 @@ endfunc console_init
+ 	 * -----------------------------------------------
+ 	 */
+ func console_core_init
++#if 0
++	ldr	x0, =0xE6050000
++	ldr	w1, =~0x111110
++	str	w1, [x0]
++	ldr	w1, =0x111110		//IPSR
++	str	w1, [x0, #(0x60)]
++	ldr	w1, =~0x7ffffff
++	str	w1, [x0]
++	ldr	w1, =0x7ffffff		//GPSR
++	str	w1, [x0, #(0x40)]
++	ldr	w1, =~0x7ffffff
++	str	w1, [x0]
++	ldr	w1, =0x7ffffff		//POC
++	str	w1, [x0, #(0xA0)]
++
++	ldr	x0, =CPG_BASE
++	mov	w1, 0x5A5AFFFF
++	str	w1, [x0]
++	mov	w1, 0xA5A50000
++	str	w1, [x0, #(0x4)]
++#endif
++
+ 	ldr	x0, =CPG_BASE
+ 	ldr	w1, [x0, #CPG_SMSTPCR]
+ 	and	w1, w1, #~MSTP
+ 	mvn	w2, w1
+-	str	w2, [x0, #CPG_CPGWPR]
++//	str	w2, [x0, #CPG_CPGWPR]
++	str	w2, [x0]
+ 	str	w1, [x0, #CPG_SMSTPCR]
+ 5:
++	b	5b
+ 	ldr w1, [x0, #CPG_MSTPSR]
+ 	and w1, w1, #MSTP
+ 	cbnz w1, 5b
+@@ -339,4 +399,3 @@ func console_flush
+ 	mov	w0, #0
+ 	ret
+ endfunc console_flush
+-
+diff --git a/plat/renesas/rcar/drivers/timer/bl2_swdt.c b/plat/renesas/rcar/drivers/timer/bl2_swdt.c
+index 1134837..7628f71 100644
+--- a/plat/renesas/rcar/drivers/timer/bl2_swdt.c
++++ b/plat/renesas/rcar/drivers/timer/bl2_swdt.c
+@@ -10,6 +10,7 @@
+ #include <debug.h>
+ #include "bl2_swdt.h"
+ #include "rcar_def.h"
++#include "rcar_private.h"
+ 
+ #define RST_BASE		(0xE6160000U)
+ #define RST_WDTRSTCR		(RST_BASE + 0x0054U)
+@@ -62,7 +63,7 @@ void bl2_swdt_init(void)
+ #if (RCAR_LSI != RCAR_E3)
+ 	uint32_t product_cut = mmio_read_32((uintptr_t)RCAR_PRR)
+ 				& (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
+-	uint32_t chk_data = mmio_read_32((uintptr_t)RCAR_MODEMR)
++	uint32_t chk_data = modemr_read()
+ 							& CHECK_MD13_MD14;
+ #endif /* RCAR_LSI != RCAR_E3 */
+ 
+diff --git a/plat/renesas/rcar/include/bl2_cpg_register.h b/plat/renesas/rcar/include/bl2_cpg_register.h
+index 47ab2dd..04a7f9a 100644
+--- a/plat/renesas/rcar/include/bl2_cpg_register.h
++++ b/plat/renesas/rcar/include/bl2_cpg_register.h
+@@ -25,6 +25,23 @@
+ /* CPG module stop status 9 */
+ #define CPG_MSTPSR9     (CPG_BASE + 0x09A4U)
+ 
++/* V3U */
++#define CPG_CPGWPCR_V3U	(CPG_BASE + 0x0004U)
++/* CPG system module stop control 6 */
++#define CPG_MSTPCR6_V3U	(CPG_BASE + 0x2D18U)
++/* CPG system module stop status 6 */
++#define CPG_MSTPSR6_V3U	(CPG_BASE + 0x2E18U)
++/* CPG system module stop control 7 */
++#define CPG_MSTPCR7_V3U	(CPG_BASE + 0x2D1CU)
++/* CPG system module stop status 7 */
++#define CPG_MSTPSR7_V3U	(CPG_BASE + 0x2E1CU)
++
++/* CPG write protection */
++#define	CPGWPCR_WPE		(1 << 0)
++#define	CPGWPCR_WPE_VALID	(0x0)
++#define	CPGWPR_PASSWORD		(0x5A5AFFFFU)
++#define	CPGWPCR_PASSWORD	(0xA5A50000U)
++
+ /* CPG (SECURITY) registers */
+ 
+ /* Secure Module Stop Control Register 0 */
+@@ -133,4 +150,36 @@
+ /* System Module Stop Control Register 11 */
+ #define	SMSTPCR11	(CPG_BASE + 0x099CU)
+ 
++/* CPG (V3U) registers */
++
++/* Module Stop Control Register 0 */
++#define	MSTPCR0		(CPG_BASE + 0x2D00U)
++/* System Module Stop Control Register 1 */
++#define	MSTPCR1		(CPG_BASE + 0x2D04U)
++/* System Module Stop Control Register 2 */
++#define	MSTPCR2		(CPG_BASE + 0x2D08U)
++/* System Module Stop Control Register 3 */
++#define	MSTPCR3		(CPG_BASE + 0x2D0CU)
++/* System Module Stop Control Register 4 */
++#define	MSTPCR4		(CPG_BASE + 0x2D10U)
++/* System Module Stop Control Register 5 */
++#define	MSTPCR5		(CPG_BASE + 0x2D14U)
++/* System Module Stop Control Register 6 */
++#define	MSTPCR6		(CPG_BASE + 0x2D18U)
++/* System Module Stop Control Register 7 */
++#define	MSTPCR7		(CPG_BASE + 0x2D1CU)
++/* System Module Stop Control Register 8 */
++#define	MSTPCR8		(CPG_BASE + 0x2D20U)
++/* System Module Stop Control Register 9 */
++#define	MSTPCR9		(CPG_BASE + 0x2D24U)
++/* System Module Stop Control Register 10 */
++#define	MSTPCR10	(CPG_BASE + 0x2D28U)
++/* System Module Stop Control Register 11 */
++#define	MSTPCR11	(CPG_BASE + 0x2D2CU)
++/* System Module Stop Control Register 12 */
++#define	MSTPCR12	(CPG_BASE + 0x2D30U)
++/* System Module Stop Control Register 13 */
++#define	MSTPCR13	(CPG_BASE + 0x2D34U)
++/* System Module Stop Control Register 14 */
++#define	MSTPCR14	(CPG_BASE + 0x2D38U)
+ #endif	/* BL2_CPG_REGISTER_H__ */
+diff --git a/plat/renesas/rcar/include/bl2_dma_register.h b/plat/renesas/rcar/include/bl2_dma_register.h
+index cd083f6..875b4dd 100644
+--- a/plat/renesas/rcar/include/bl2_dma_register.h
++++ b/plat/renesas/rcar/include/bl2_dma_register.h
+@@ -27,21 +27,35 @@
+ #define DMA_BASE	(0xE6700000U)
+ #endif
+ 
+-/* DMA operation */
+-#define DMA_DMAOR	(DMA_BASE + 0x0060U)
++#define DMACHAN_V3U		(0U)
++#define SYS_DMAC_BIT_V3U	((uint32_t)1U << 9U)
++#define DMA_BASE_V3U		(0xE7300000U)
++#define DMA_CHAN_OFFSET_V3U	((uint32_t)((DMACHAN_V3U) * 0x1000U))
++
++#define DMA_CHAN_BASE_V3U	(DMA_BASE_V3U + DMA_CHAN_OFFSET_V3U)
++#define DMA_CTL_BASE_V3U	(0xE7350000U)
++
++#define	DMA_DMASEC_V3U		(DMA_CHAN_BASE_V3U + 0x0080U)
++#define DMA_DMACHCLR_V3U	(DMA_CHAN_BASE_V3U + 0x0100U)
++
++#define DMA_CHAN_BASE		(DMA_BASE + 0x8000U)
++#define DMA_CTL_BASE		(DMA_BASE)
+ /* DMA secure control */
+-#define	DMA_DMASEC	(DMA_BASE + 0x0030U)
++#define	DMA_DMASEC		(DMA_BASE + 0x0030U)
+ /* DMA channel clear */
+-#define DMA_DMACHCLR	(DMA_BASE + 0x0080U)
++#define DMA_DMACHCLR		(DMA_BASE + 0x0080U)
++
++/* DMA operation */
++#define DMA_OR_OFFSET		(0x0060U)
+ /* DMA source address */
+-#define DMA_DMASAR	(DMA_BASE + 0x8000U)
++#define DMA_SAR_OFFSET		(0x0000U)
+ /* DMA destination address */
+-#define DMA_DMADAR	(DMA_BASE + 0x8004U)
++#define DMA_DAR_OFFSET		(0x0004U)
+ /* DMA transfer count */
+-#define DMA_DMATCR	(DMA_BASE + 0x8008U)
++#define DMA_TCR_OFFSET		(0x0008U)
+ /* DMA channel control */
+-#define DMA_DMACHCR	(DMA_BASE + 0x800CU)
++#define DMA_CHCR_OFFSET		(0x000CU)
+ /* DMA fixed destination address */
+-#define DMA_DMAFIXDAR	(DMA_BASE + 0x8014U)
++#define DMA_FIXDAR_OFFSET	(0x0014U)
+ 
+ #endif	/* BL2_DMA_REGISTER_H__ */
+diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
+index 019c1a8..82a5d9c 100644
+--- a/plat/renesas/rcar/include/platform_def.h
++++ b/plat/renesas/rcar/include/platform_def.h
+@@ -127,6 +127,12 @@
+ #define BL2_BASE			U(0xE6304000)
+ #define BL2_LIMIT			U(0xE6320000)
+ #define BL2_IMAGE_LIMIT			U(0xE6318000)
++#elif RCAR_LSI == RCAR_V3U
++//#define BL2_BASE			U(0xEB2B4000)
++//#define BL2_BASE			U(0x50000000)
++#define BL2_BASE			U(0x46400000)
++#define BL2_LIMIT			(BL2_BASE + U(0x100000))
++#define BL2_IMAGE_LIMIT			(BL2_LIMIT + U(0xA800))
+ #else
+ #define BL2_BASE			U(0xE6304000)
+ #define BL2_LIMIT			U(0xE6360000)
+diff --git a/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c b/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c
+new file mode 100644
+index 0000000..4e060da
+--- /dev/null
++++ b/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c
+@@ -0,0 +1,1363 @@
++/*
++ * Copyright (c) 2015-2017, Renesas Electronics Corporation
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *   - Redistributions of source code must retain the above copyright notice,
++ *     this list of conditions and the following disclaimer.
++ *
++ *   - Redistributions in binary form must reproduce the above copyright
++ *     notice, this list of conditions and the following disclaimer in the
++ *     documentation and/or other materials provided with the distribution.
++ *
++ *   - Neither the name of Renesas nor the names of its contributors may be
++ *     used to endorse or promote products derived from this software without
++ *     specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdint.h>		/* for uint32_t */
++#include <mmio.h>
++#include <debug.h>
++#include "pfc_init_v3u.h"
++
++/* Pin functon base address */
++#define	PFC_BASE		(0xE6050000U)
++
++#define PFC_RW_OFFSET           (0x0000U)
++#define PFC_SET_OFFSET          (0x0200U)
++#define PFC_CLR_OFFSET          (0x0400U)
++
++#define PFC_PORT_GRP0           (0x00008000U)
++#define PFC_PORT_GRP1           (0x00000000U)
++#define PFC_PORT_GRP2           (0x00000800U)
++#define PFC_PORT_GRP3           (0x00008800U)
++#define PFC_PORT_GRP4           (0x00010000U)
++#define PFC_PORT_GRP5           (0x00010800U)
++#define PFC_PORT_GRP6           (0x00018000U)
++#define PFC_PORT_GRP7           (0x00018800U)
++#define PFC_PORT_GRP8           (0x00019000U)
++#define PFC_PORT_GRP9           (0x00019800U)
++#define PFC_PORT_GRP10          (0x00028000U)
++
++#define PFC_PORT_GRP_MASK	(0x00029800U)
++
++/* Port Group0 */
++#define PFC_PMMR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL0_RW	(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG0_RW		(PFC_BASE + PFC_PORT_GRP0 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group1 */
++#define PFC_PMMR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL1_RW	(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG1_RW		(PFC_BASE + PFC_PORT_GRP1 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group2 */
++#define PFC_PMMR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL2_RW	(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG2_RW		(PFC_BASE + PFC_PORT_GRP2 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group3 */
++#define PFC_PMMR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL3_RW	(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG3_RW		(PFC_BASE + PFC_PORT_GRP3 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group4 */
++#define PFC_PMMR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL4_RW	(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG4_RW		(PFC_BASE + PFC_PORT_GRP4 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group5 */
++#define PFC_PMMR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL5_RW	(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG5_RW		(PFC_BASE + PFC_PORT_GRP5 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group6 */
++#define PFC_PMMR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL6_RW	(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG6_RW		(PFC_BASE + PFC_PORT_GRP6 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group7 */
++#define PFC_PMMR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL7_RW	(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG7_RW		(PFC_BASE + PFC_PORT_GRP7 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group8 */
++#define PFC_PMMR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL8_RW	(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG8_RW		(PFC_BASE + PFC_PORT_GRP8 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group9 */
++#define PFC_PMMR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL9_RW	(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG9_RW		(PFC_BASE + PFC_PORT_GRP9 + PFC_RW_OFFSET + 0x01A0U)
++/* Port Group10 */
++#define PFC_PMMR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0000U)
++#define PFC_GPSR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0040U)
++#define PFC_IP0SR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0060U)
++#define PFC_IP1SR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0064U)
++#define PFC_IP2SR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0068U)
++#define PFC_IP3SR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x006CU)
++#define PFC_DRV0CTRL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0080U)
++#define PFC_DRV1CTRL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0084U)
++#define PFC_DRV2CTRL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0088U)
++#define PFC_DRV3CTRL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x008CU)
++#define PFC_POC10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x00A0U)
++#define PFC_PUEN10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x00C0U)
++#define PFC_PUD10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x00E0U)
++#define PFC_MODSEL10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0100U)
++#define PFC_IOINTSEL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0180U)
++#define PFC_INOUTSEL10_RW	(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0184U)
++#define PFC_OUTDT10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0188U)
++#define PFC_INDT10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x018CU)
++#define PFC_INTDT10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0190U)
++#define PFC_INTCLR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0194U)
++#define PFC_INTMSK10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x0198U)
++#define PFC_MSKCLR10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x019CU)
++#define PFC_POSNEG10_RW		(PFC_BASE + PFC_PORT_GRP10 + PFC_RW_OFFSET + 0x01A0U)
++
++#define GPSR0_QSPI0_SPCLK	(1U << 0U)
++#define GPSR0_QSPI0_MOSI_IO0	(1U << 1U)
++#define GPSR0_QSPI0_MISO_IO1	(1U << 2U)
++#define GPSR0_QSPI0_IO2		(1U << 3U)
++#define GPSR0_QSPI0_IO3		(1U << 4U)
++#define GPSR0_QSPI0_SSL		(1U << 5U)
++#define GPSR0_QSPI1_SPCLK	(1U << 6U)
++#define GPSR0_QSPI1_MOSI_IO0	(1U << 7U)
++#define GPSR0_QSPI1_MISO_IO1	(1U << 8U)
++#define GPSR0_QSPI1_IO2		(1U << 9U)
++#define GPSR0_QSPI1_IO3		(1U << 10U)
++#define GPSR0_QSPI1_SSL		(1U << 11U)
++#define GPSR0_RPC_RESET		(1U << 12U)
++#define GPSR0_RPC_WP		(1U << 13U)
++#define GPSR0_RPC_INT		(1U << 14U)
++#define GPSR0_SD_WP		(1U << 15U)
++#define GPSR0_SD_CD		(1U << 16U)
++#define GPSR0_MMC_DS		(1U << 17U)
++#define GPSR0_MMC_SD_CMD	(1U << 18U)
++#define GPSR0_MMC_SD_D0		(1U << 19U)
++#define GPSR0_MMC_SD_D1		(1U << 20U)
++#define GPSR0_MMC_SD_D2		(1U << 21U)
++#define GPSR0_MMC_SD_D3		(1U << 22U)
++#define GPSR0_MMC_SD_CLK	(1U << 23U)
++#define GPSR0_MMC_D4		(1U << 24U)
++#define GPSR0_MMC_D5		(1U << 25U)
++#define GPSR0_MMC_D6		(1U << 26U)
++#define GPSR0_MMC_D7		(1U << 27U)
++
++#define GPSR1_SCIF_CLK		(1U << 0U)
++#define GPSR1_HRX0		(1U << 1U)
++#define GPSR1_HSCK0		(1U << 2U)
++#define GPSR1_HRTS0		(1U << 3U)
++#define GPSR1_HCTS0		(1U << 4U)
++#define GPSR1_HTX0		(1U << 5U)
++#define GPSR1_MSIOF0_RXD	(1U << 6U)
++#define GPSR1_MSIOF0_TXD	(1U << 7U)
++#define GPSR1_MSIOF0_SCK	(1U << 8U)
++#define GPSR1_MSIOF0_SYNC	(1U << 9U)
++#define GPSR1_MSIOF0_SS1	(1U << 10U)
++#define GPSR1_MSIOF0_SS2	(1U << 11U)
++#define GPSR1_MSIOF1_RXD	(1U << 12U)
++#define GPSR1_MSIOF1_TXD	(1U << 13U)
++#define GPSR1_MSIOF1_SCK	(1U << 14U)
++#define GPSR1_MSIOF1_SYNC	(1U << 15U)
++#define GPSR1_MSIOF1_SS1	(1U << 16U)
++#define GPSR1_MSIOF1_SS2	(1U << 17U)
++#define GPSR1_MSIOF2_RXD	(1U << 18U)
++#define GPSR1_MSIOF2_TXD	(1U << 19U)
++#define GPSR1_MSIOF2_SCK	(1U << 20U)
++#define GPSR1_MSIOF2_SYNC	(1U << 21U)
++#define GPSR1_MSIOF2_SS1	(1U << 22U)
++#define GPSR1_MSIOF2_SS2	(1U << 23U)
++#define GPSR1_IRQ0		(1U << 24U)
++#define GPSR1_IRQ1		(1U << 25U)
++#define GPSR1_IRQ2		(1U << 26U)
++#define GPSR1_IRQ3		(1U << 27U)
++#define GPSR1_GP1_28		(1U << 28U)
++#define GPSR1_GP1_29		(1U << 29U)
++#define GPSR1_GP1_30		(1U << 30U)
++
++#define GPSR2_IPC_CLKIN		(1U << 0U)
++#define GPSR2_IPC_CLKOUT	(1U << 1U)
++#define GPSR2_GP2_02		(1U << 2U)
++#define GPSR2_GP2_03		(1U << 3U)
++#define GPSR2_GP2_04		(1U << 4U)
++#define GPSR2_GP2_05		(1U << 5U)
++#define GPSR2_GP2_06		(1U << 6U)
++#define GPSR2_GP2_07		(1U << 7U)
++#define GPSR2_GP2_08		(1U << 8U)
++#define GPSR2_GP2_09		(1U << 9U)
++#define GPSR2_GP2_10		(1U << 10U)
++#define GPSR2_GP2_11		(1U << 11U)
++#define GPSR2_GP2_12		(1U << 12U)
++#define GPSR2_GP2_13		(1U << 13U)
++#define GPSR2_GP2_14		(1U << 14U)
++#define GPSR2_GP2_15		(1U << 15U)
++#define GPSR2_FXR_TXDA		(1U << 16U)
++#define GPSR2_RXDA_EXTFXR	(1U << 17U)
++#define GPSR2_FXR_TXDB		(1U << 18U)
++#define GPSR2_RXDB_EXTFXR	(1U << 19U)
++#define GPSR2_CLK_EXTFXR	(1U << 20U)
++#define GPSR2_TPU0TO0		(1U << 21U)
++#define GPSR2_TPUTO1		(1U << 22U)
++#define GPSR2_TCLK1		(1U << 23U)
++#define GPSR2_TCLK2		(1U << 24U)
++
++#define GPSR3_CAN_CLK		(1U << 0U)
++#define GPSR3_CANFD0_TX		(1U << 1U)
++#define GPSR3_CANFD0_RX		(1U << 2U)
++#define GPSR3_CANFD1_TX		(1U << 3U)
++#define GPSR3_CANFD1_RX		(1U << 4U)
++#define GPSR3_CANFD2_TX		(1U << 5U)
++#define GPSR3_CANFD2_RX		(1U << 6U)
++#define GPSR3_CANFD3_TX		(1U << 7U)
++#define GPSR3_CANFD3_RX		(1U << 8U)
++#define GPSR3_CANFD4_TX		(1U << 9U)
++#define GPSR3_CANFD4_RX		(1U << 10U)
++#define GPSR3_CANFD5_TX		(1U << 11U)
++#define GPSR3_CANFD5_RX		(1U << 12U)
++#define GPSR3_CANFD6_TX		(1U << 13U)
++#define GPSR3_CANFD6_RX		(1U << 14U)
++#define GPSR3_CANFD7_TX		(1U << 15U)
++#define GPSR3_CANFD7_RX		(1U << 16U)
++
++#define GPSR4_AVB0_RX_CTL	(1U << 0U)
++#define GPSR4_AVB0_RXC		(1U << 1U)
++#define GPSR4_AVB0_RD0		(1U << 2U)
++#define GPSR4_AVB0_RD1		(1U << 3U)
++#define GPSR4_AVB0_RD2		(1U << 4U)
++#define GPSR4_AVB0_RD3		(1U << 5U)
++#define GPSR4_AVB0_TX_CTL	(1U << 6U)
++#define GPSR4_AVB0_TXC		(1U << 7U)
++#define GPSR4_AVB0_TD0		(1U << 8U)
++#define GPSR4_AVB0_TD1		(1U << 9U)
++#define GPSR4_AVB0_TD2		(1U << 10U)
++#define GPSR4_AVB0_TD3		(1U << 11U)
++#define GPSR4_AVB0_TXCREFCLK	(1U << 12U)
++#define GPSR4_AVB0_MDIO		(1U << 13U)
++#define GPSR4_AVB0_MDC		(1U << 14U)
++#define GPSR4_AVB0_MAGIC	(1U << 15U)
++#define GPSR4_AVB0_PHY_INT	(1U << 16U)
++#define GPSR4_AVB0_LINK		(1U << 17U)
++#define GPSR4_AVB0_AVTP_MATCH	(1U << 18U)
++#define GPSR4_AVB0_AVTP_CAPTURE	(1U << 19U)
++#define GPSR4_AVB0_AVTP_PPS	(1U << 20U)
++#define GPSR4_PCIE0_CLKREQ	(1U << 21U)
++#define GPSR4_PCIE1_CLKREQ	(1U << 22U)
++#define GPSR4_PCIE2_CLKREQ	(1U << 23U)
++#define GPSR4_PCIE3_CLKREQ	(1U << 24U)
++#define GPSR4_AVS0		(1U << 25U)
++#define GPSR4_AVS1		(1U << 26U)
++
++#define GPSR5_AVB1_RX_CTL	(1U << 0U)
++#define GPSR5_AVB1_RXC		(1U << 1U)
++#define GPSR5_AVB1_RD0		(1U << 2U)
++#define GPSR5_AVB1_RD1		(1U << 3U)
++#define GPSR5_AVB1_RD2		(1U << 4U)
++#define GPSR5_AVB1_RD3		(1U << 5U)
++#define GPSR5_AVB1_TX_CTL	(1U << 6U)
++#define GPSR5_AVB1_TXC		(1U << 7U)
++#define GPSR5_AVB1_TD0		(1U << 8U)
++#define GPSR5_AVB1_TD1		(1U << 9U)
++#define GPSR5_AVB1_TD2		(1U << 10U)
++#define GPSR5_AVB1_TD3		(1U << 11U)
++#define GPSR5_AVB1_TXCREFCLK	(1U << 12U)
++#define GPSR5_AVB1_MDIO		(1U << 13U)
++#define GPSR5_AVB1_MDC		(1U << 14U)
++#define GPSR5_AVB1_MAGIC	(1U << 15U)
++#define GPSR5_AVB1_PHY_INT	(1U << 16U)
++#define GPSR5_AVB1_LINK		(1U << 17U)
++#define GPSR5_AVB1_AVTP_MATCH	(1U << 18U)
++#define GPSR5_AVB1_AVTP_CAPTURE	(1U << 19U)
++#define GPSR5_AVB1_AVTP_PPS	(1U << 20U)
++
++#define GPSR6_AVB2_RX_CTL	(1U << 0U)
++#define GPSR6_AVB2_RXC		(1U << 1U)
++#define GPSR6_AVB2_RD0		(1U << 2U)
++#define GPSR6_AVB2_RD1		(1U << 3U)
++#define GPSR6_AVB2_RD2		(1U << 4U)
++#define GPSR6_AVB2_RD3		(1U << 5U)
++#define GPSR6_AVB2_TX_CTL	(1U << 6U)
++#define GPSR6_AVB2_TXC		(1U << 7U)
++#define GPSR6_AVB2_TD0		(1U << 8U)
++#define GPSR6_AVB2_TD1		(1U << 9U)
++#define GPSR6_AVB2_TD2		(1U << 10U)
++#define GPSR6_AVB2_TD3		(1U << 11U)
++#define GPSR6_AVB2_TXCREFCLK	(1U << 12U)
++#define GPSR6_AVB2_MDIO		(1U << 13U)
++#define GPSR6_AVB2_MDC		(1U << 14U)
++#define GPSR6_AVB2_MAGIC	(1U << 15U)
++#define GPSR6_AVB2_PHY_INT	(1U << 16U)
++#define GPSR6_AVB2_LINK		(1U << 17U)
++#define GPSR6_AVB2_AVTP_MATCH	(1U << 18U)
++#define GPSR6_AVB2_AVTP_CAPTURE	(1U << 19U)
++#define GPSR6_AVB2_AVTP_PPS	(1U << 20U)
++
++#define GPSR7_AVB3_RX_CTL	(1U << 0U)
++#define GPSR7_AVB3_RXC		(1U << 1U)
++#define GPSR7_AVB3_RD0		(1U << 2U)
++#define GPSR7_AVB3_RD1		(1U << 3U)
++#define GPSR7_AVB3_RD2		(1U << 4U)
++#define GPSR7_AVB3_RD3		(1U << 5U)
++#define GPSR7_AVB3_TX_CTL	(1U << 6U)
++#define GPSR7_AVB3_TXC		(1U << 7U)
++#define GPSR7_AVB3_TD0		(1U << 8U)
++#define GPSR7_AVB3_TD1		(1U << 9U)
++#define GPSR7_AVB3_TD2		(1U << 10U)
++#define GPSR7_AVB3_TD3		(1U << 11U)
++#define GPSR7_AVB3_TXCREFCLK	(1U << 12U)
++#define GPSR7_AVB3_MDIO		(1U << 13U)
++#define GPSR7_AVB3_MDC		(1U << 14U)
++#define GPSR7_AVB3_MAGIC	(1U << 15U)
++#define GPSR7_AVB3_PHY_INT	(1U << 16U)
++#define GPSR7_AVB3_LINK		(1U << 17U)
++#define GPSR7_AVB3_AVTP_MATCH	(1U << 18U)
++#define GPSR7_AVB3_AVTP_CAPTURE	(1U << 19U)
++#define GPSR7_AVB3_AVTP_PPS	(1U << 20U)
++
++#define GPSR8_AVB4_RX_CTL	(1U << 0U)
++#define GPSR8_AVB4_RXC		(1U << 1U)
++#define GPSR8_AVB4_RD0		(1U << 2U)
++#define GPSR8_AVB4_RD1		(1U << 3U)
++#define GPSR8_AVB4_RD2		(1U << 4U)
++#define GPSR8_AVB4_RD3		(1U << 5U)
++#define GPSR8_AVB4_TX_CTL	(1U << 6U)
++#define GPSR8_AVB4_TXC		(1U << 7U)
++#define GPSR8_AVB4_TD0		(1U << 8U)
++#define GPSR8_AVB4_TD1		(1U << 9U)
++#define GPSR8_AVB4_TD2		(1U << 10U)
++#define GPSR8_AVB4_TD3		(1U << 11U)
++#define GPSR8_AVB4_TXCREFCLK	(1U << 12U)
++#define GPSR8_AVB4_MDIO		(1U << 13U)
++#define GPSR8_AVB4_MDC		(1U << 14U)
++#define GPSR8_AVB4_MAGIC	(1U << 15U)
++#define GPSR8_AVB4_PHY_INT	(1U << 16U)
++#define GPSR8_AVB4_LINK		(1U << 17U)
++#define GPSR8_AVB4_AVTP_MATCH	(1U << 18U)
++#define GPSR8_AVB4_AVTP_CAPTURE	(1U << 19U)
++#define GPSR8_AVB4_AVTP_PPS	(1U << 20U)
++
++#define GPSR9_AVB5_RX_CTL	(1U << 0U)
++#define GPSR9_AVB5_RXC		(1U << 1U)
++#define GPSR9_AVB5_RD0		(1U << 2U)
++#define GPSR9_AVB5_RD1		(1U << 3U)
++#define GPSR9_AVB5_RD2		(1U << 4U)
++#define GPSR9_AVB5_RD3		(1U << 5U)
++#define GPSR9_AVB5_TX_CTL	(1U << 6U)
++#define GPSR9_AVB5_TXC		(1U << 7U)
++#define GPSR9_AVB5_TD0		(1U << 8U)
++#define GPSR9_AVB5_TD1		(1U << 9U)
++#define GPSR9_AVB5_TD2		(1U << 10U)
++#define GPSR9_AVB5_TD3		(1U << 11U)
++#define GPSR9_AVB5_TXCREFCLK	(1U << 12U)
++#define GPSR9_AVB5_MDIO		(1U << 13U)
++#define GPSR9_AVB5_MDC		(1U << 14U)
++#define GPSR9_AVB5_MAGIC	(1U << 15U)
++#define GPSR9_AVB5_PHY_INT	(1U << 16U)
++#define GPSR9_AVB5_LINK		(1U << 17U)
++#define GPSR9_AVB5_AVTP_MATCH	(1U << 18U)
++#define GPSR9_AVB5_AVTP_CAPTURE	(1U << 19U)
++#define GPSR9_AVB5_AVTP_PPS	(1U << 20U)
++
++#define	IPSR_28_FUNC(x)		((uint32_t)(x) << 28U)
++#define	IPSR_24_FUNC(x)		((uint32_t)(x) << 24U)
++#define	IPSR_20_FUNC(x)		((uint32_t)(x) << 20U)
++#define	IPSR_16_FUNC(x)		((uint32_t)(x) << 16U)
++#define	IPSR_12_FUNC(x)		((uint32_t)(x) << 12U)
++#define	IPSR_8_FUNC(x)		((uint32_t)(x) << 8U)
++#define	IPSR_4_FUNC(x)		((uint32_t)(x) << 4U)
++#define	IPSR_0_FUNC(x)		((uint32_t)(x) << 0U)
++
++#define POC0_SD_WP		(1U << 15U)
++#define POC0_SD_CD		(1U << 16U)
++#define POC0_MMC_DS		(1U << 17U)
++#define POC0_MMC_SD_CMD		(1U << 18U)
++#define POC0_MMC_SD_D0		(1U << 19U)
++#define POC0_MMC_SD_D1		(1U << 20U)
++#define POC0_MMC_SD_D2		(1U << 21U)
++#define POC0_MMC_SD_D3		(1U << 22U)
++#define POC0_MMC_SD_CLK		(1U << 23U)
++#define POC0_MMC_D4		(1U << 24U)
++#define POC0_MMC_D5		(1U << 25U)
++#define POC0_MMC_D6		(1U << 26U)
++#define POC0_MMC_D7		(1U << 27U)
++
++#define POC1_SCIF_CLK		(1U << 0U)
++#define POC1_HRX0		(1U << 1U)
++#define POC1_HSCK0		(1U << 2U)
++#define POC1_HRTS0		(1U << 3U)
++#define POC1_HCTS0		(1U << 4U)
++#define POC1_HTX0		(1U << 5U)
++#define POC1_MSIOF0_RXD		(1U << 6U)
++#define POC1_MSIOF0_TXD		(1U << 7U)
++#define POC1_MSIOF0_SCK		(1U << 8U)
++#define POC1_MSIOF0_SYNC	(1U << 9U)
++#define POC1_MSIOF0_SS1		(1U << 10U)
++#define POC1_MSIOF0_SS2		(1U << 11U)
++#define POC1_MSIOF1_RXD		(1U << 12U)
++#define POC1_MSIOF1_TXD		(1U << 13U)
++#define POC1_MSIOF1_SCK		(1U << 14U)
++#define POC1_MSIOF1_SYNC	(1U << 15U)
++#define POC1_MSIOF1_SS1		(1U << 16U)
++#define POC1_MSIOF1_SS2		(1U << 17U)
++#define POC1_MSIOF2_RXD		(1U << 18U)
++#define POC1_MSIOF2_TXD		(1U << 19U)
++#define POC1_MSIOF2_SCK		(1U << 20U)
++#define POC1_MSIOF2_SYNC	(1U << 21U)
++#define POC1_MSIOF2_SS1		(1U << 22U)
++#define POC1_MSIOF2_SS2		(1U << 23U)
++#define POC1_IRQ0		(1U << 24U)
++#define POC1_IRQ1		(1U << 25U)
++#define POC1_IRQ2		(1U << 26U)
++#define POC1_IRQ3		(1U << 27U)
++#define POC1_GP1_28		(1U << 28U)
++#define POC1_GP1_29		(1U << 29U)
++#define POC1_GP1_30		(1U << 30U)
++
++#define POC2_GP2_02		(1U << 2U)
++#define POC2_GP2_03		(1U << 3U)
++#define POC2_GP2_04		(1U << 4U)
++#define POC2_GP2_05		(1U << 5U)
++#define POC2_GP2_06		(1U << 6U)
++#define POC2_GP2_07		(1U << 7U)
++#define POC2_GP2_08		(1U << 8U)
++#define POC2_GP2_09		(1U << 9U)
++#define POC2_GP2_10		(1U << 10U)
++#define POC2_GP2_11		(1U << 11U)
++#define POC2_GP2_12		(1U << 12U)
++#define POC2_GP2_13		(1U << 13U)
++#define POC2_GP2_14		(1U << 14U)
++#define POC2_GP2_15		(1U << 15U)
++
++#define POC4_AVB0_RX_CTL	(1U << 0U)
++#define POC4_AVB0_RXC		(1U << 1U)
++#define POC4_AVB0_RD0		(1U << 2U)
++#define POC4_AVB0_RD1		(1U << 3U)
++#define POC4_AVB0_RD2		(1U << 4U)
++#define POC4_AVB0_RD3		(1U << 5U)
++#define POC4_AVB0_TX_CTL	(1U << 6U)
++#define POC4_AVB0_TXC		(1U << 7U)
++#define POC4_AVB0_TD0		(1U << 8U)
++#define POC4_AVB0_TD1		(1U << 9U)
++#define POC4_AVB0_TD2		(1U << 10U)
++#define POC4_AVB0_TD3		(1U << 11U)
++#define POC4_AVB0_TXCREFCLK	(1U << 12U)
++#define POC4_AVB0_MDIO		(1U << 13U)
++#define POC4_AVB0_MDC		(1U << 14U)
++#define POC4_AVB0_MAGIC		(1U << 15U)
++#define POC4_AVB0_PHY_INT	(1U << 16U)
++#define POC4_AVB0_LINK		(1U << 17U)
++
++#define POC5_AVB1_RX_CTL	(1U << 0U)
++#define POC5_AVB1_RXC		(1U << 1U)
++#define POC5_AVB1_RD0		(1U << 2U)
++#define POC5_AVB1_RD1		(1U << 3U)
++#define POC5_AVB1_RD2		(1U << 4U)
++#define POC5_AVB1_RD3		(1U << 5U)
++#define POC5_AVB1_TX_CTL	(1U << 6U)
++#define POC5_AVB1_TXC		(1U << 7U)
++#define POC5_AVB1_TD0		(1U << 8U)
++#define POC5_AVB1_TD1		(1U << 9U)
++#define POC5_AVB1_TD2		(1U << 10U)
++#define POC5_AVB1_TD3		(1U << 11U)
++#define POC5_AVB1_TXCREFCLK	(1U << 12U)
++#define POC5_AVB1_MDIO		(1U << 13U)
++#define POC5_AVB1_MDC		(1U << 14U)
++#define POC5_AVB1_MAGIC		(1U << 15U)
++#define POC5_AVB1_PHY_INT	(1U << 16U)
++#define POC5_AVB1_LINK		(1U << 17U)
++
++#define POC6_AVB2_RX_CTL	(1U << 0U)
++#define POC6_AVB2_RXC		(1U << 1U)
++#define POC6_AVB2_RD0		(1U << 2U)
++#define POC6_AVB2_RD1		(1U << 3U)
++#define POC6_AVB2_RD2		(1U << 4U)
++#define POC6_AVB2_RD3		(1U << 5U)
++#define POC6_AVB2_TX_CTL	(1U << 6U)
++#define POC6_AVB2_TXC		(1U << 7U)
++#define POC6_AVB2_TD0		(1U << 8U)
++#define POC6_AVB2_TD1		(1U << 9U)
++#define POC6_AVB2_TD2		(1U << 10U)
++#define POC6_AVB2_TD3		(1U << 11U)
++#define POC6_AVB2_TXCREFCLK	(1U << 12U)
++#define POC6_AVB2_MDIO		(1U << 13U)
++#define POC6_AVB2_MDC		(1U << 14U)
++#define POC6_AVB2_MAGIC		(1U << 15U)
++#define POC6_AVB2_PHY_INT	(1U << 16U)
++#define POC6_AVB2_LINK		(1U << 17U)
++
++#define POC7_AVB3_RX_CTL	(1U << 0U)
++#define POC7_AVB3_RXC		(1U << 1U)
++#define POC7_AVB3_RD0		(1U << 2U)
++#define POC7_AVB3_RD1		(1U << 3U)
++#define POC7_AVB3_RD2		(1U << 4U)
++#define POC7_AVB3_RD3		(1U << 5U)
++#define POC7_AVB3_TX_CTL	(1U << 6U)
++#define POC7_AVB3_TXC		(1U << 7U)
++#define POC7_AVB3_TD0		(1U << 8U)
++#define POC7_AVB3_TD1		(1U << 9U)
++#define POC7_AVB3_TD2		(1U << 10U)
++#define POC7_AVB3_TD3		(1U << 11U)
++#define POC7_AVB3_TXCREFCLK	(1U << 12U)
++#define POC7_AVB3_MDIO		(1U << 13U)
++#define POC7_AVB3_MDC		(1U << 14U)
++#define POC7_AVB3_MAGIC		(1U << 15U)
++#define POC7_AVB3_PHY_INT	(1U << 16U)
++#define POC7_AVB3_LINK		(1U << 17U)
++
++#define POC8_AVB4_RX_CTL	(1U << 0U)
++#define POC8_AVB4_RXC		(1U << 1U)
++#define POC8_AVB4_RD0		(1U << 2U)
++#define POC8_AVB4_RD1		(1U << 3U)
++#define POC8_AVB4_RD2		(1U << 4U)
++#define POC8_AVB4_RD3		(1U << 5U)
++#define POC8_AVB4_TX_CTL	(1U << 6U)
++#define POC8_AVB4_TXC		(1U << 7U)
++#define POC8_AVB4_TD0		(1U << 8U)
++#define POC8_AVB4_TD1		(1U << 9U)
++#define POC8_AVB4_TD2		(1U << 10U)
++#define POC8_AVB4_TD3		(1U << 11U)
++#define POC8_AVB4_TXCREFCLK	(1U << 12U)
++#define POC8_AVB4_MDIO		(1U << 13U)
++#define POC8_AVB4_MDC		(1U << 14U)
++#define POC8_AVB4_MAGIC		(1U << 15U)
++#define POC8_AVB4_PHY_INT	(1U << 16U)
++#define POC8_AVB4_LINK		(1U << 17U)
++
++#define POC9_AVB5_RX_CTL	(1U << 0U)
++#define POC9_AVB5_RXC		(1U << 1U)
++#define POC9_AVB5_RD0		(1U << 2U)
++#define POC9_AVB5_RD1		(1U << 3U)
++#define POC9_AVB5_RD2		(1U << 4U)
++#define POC9_AVB5_RD3		(1U << 5U)
++#define POC9_AVB5_TX_CTL	(1U << 6U)
++#define POC9_AVB5_TXC		(1U << 7U)
++#define POC9_AVB5_TD0		(1U << 8U)
++#define POC9_AVB5_TD1		(1U << 9U)
++#define POC9_AVB5_TD2		(1U << 10U)
++#define POC9_AVB5_TD3		(1U << 11U)
++#define POC9_AVB5_TXCREFCLK	(1U << 12U)
++#define POC9_AVB5_MDIO		(1U << 13U)
++#define POC9_AVB5_MDC		(1U << 14U)
++#define POC9_AVB5_MAGIC		(1U << 15U)
++#define POC9_AVB5_PHY_INT	(1U << 16U)
++#define POC9_AVB5_LINK		(1U << 17U)
++
++static void pfc_reg_write(uint32_t addr, uint32_t data);
++
++static void pfc_reg_write(uint32_t addr, uint32_t data)
++{
++	uint32_t pmmr;
++
++	switch (PFC_PORT_GRP_MASK & addr) {
++	case PFC_PORT_GRP0:
++		pmmr = PFC_PMMR0_RW;
++		break;
++	case PFC_PORT_GRP1:
++		pmmr = PFC_PMMR1_RW;
++		break;
++	case PFC_PORT_GRP2:
++		pmmr = PFC_PMMR2_RW;
++		break;
++	case PFC_PORT_GRP3:
++		pmmr = PFC_PMMR3_RW;
++		break;
++	case PFC_PORT_GRP4:
++		pmmr = PFC_PMMR4_RW;
++		break;
++	case PFC_PORT_GRP5:
++		pmmr = PFC_PMMR5_RW;
++		break;
++	case PFC_PORT_GRP6:
++		pmmr = PFC_PMMR6_RW;
++		break;
++	case PFC_PORT_GRP7:
++		pmmr = PFC_PMMR7_RW;
++		break;
++	case PFC_PORT_GRP8:
++		pmmr = PFC_PMMR8_RW;
++		break;
++	case PFC_PORT_GRP9:
++		pmmr = PFC_PMMR9_RW;
++		break;
++	case PFC_PORT_GRP10:
++		pmmr = PFC_PMMR10_RW;
++		break;
++	default:
++		panic();
++		return;
++	}
++
++	mmio_write_32((uintptr_t)pmmr, ~data);
++	mmio_write_32(addr, data);
++}
++
++void pfc_init_v3u(void)
++{
++	/* initialize module select */
++	pfc_reg_write(PFC_MODSEL2_RW, 0x00000000);
++
++	/* Initialize peripheral function select */
++	pfc_reg_write(PFC_IP0SR0_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR0_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR0_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR0_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	/* Pin setting for SCIF */
++	pfc_reg_write(PFC_IP0SR1_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(1)
++				    | IPSR_16_FUNC(1)
++				    | IPSR_12_FUNC(1)
++				    | IPSR_8_FUNC(1)
++				    | IPSR_4_FUNC(1)
++				    | IPSR_0_FUNC(0));
++
++	pfc_reg_write(PFC_IP1SR1_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR1_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR1_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR2_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR2_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR2_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR2_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR3_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR3_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR3_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR3_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR4_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR4_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR4_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR4_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR5_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR5_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR5_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR5_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR6_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR6_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR6_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR6_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR7_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR7_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR7_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR7_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR8_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR8_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR8_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR8_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR9_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR9_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR9_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR9_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP0SR10_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP1SR10_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP2SR10_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++	pfc_reg_write(PFC_IP3SR10_RW, IPSR_28_FUNC(0)
++				    | IPSR_24_FUNC(0)
++				    | IPSR_20_FUNC(0)
++				    | IPSR_16_FUNC(0)
++				    | IPSR_12_FUNC(0)
++				    | IPSR_8_FUNC(0)
++				    | IPSR_4_FUNC(0)
++				    | IPSR_0_FUNC(0));
++
++	/* Initialize GPIO/perihperal function select */
++	pfc_reg_write(PFC_GPSR0_RW, GPSR0_MMC_D7
++				   | GPSR0_MMC_D6
++				   | GPSR0_MMC_D5
++				   | GPSR0_MMC_D4
++				   | GPSR0_MMC_SD_CLK
++				   | GPSR0_MMC_SD_D3
++				   | GPSR0_MMC_SD_D2
++				   | GPSR0_MMC_SD_D1
++				   | GPSR0_MMC_SD_D0
++				   | GPSR0_MMC_SD_CMD
++				   | GPSR0_SD_WP
++				   | GPSR0_QSPI1_SSL
++				   | GPSR0_QSPI1_IO3
++				   | GPSR0_QSPI1_IO2
++				   | GPSR0_QSPI1_MISO_IO1
++				   | GPSR0_QSPI1_MOSI_IO0
++				   | GPSR0_QSPI1_SPCLK
++				   | GPSR0_QSPI0_SSL
++				   | GPSR0_QSPI0_IO3
++				   | GPSR0_QSPI0_IO2
++				   | GPSR0_QSPI0_MISO_IO1
++				   | GPSR0_QSPI0_MOSI_IO0
++				   | GPSR0_QSPI0_SPCLK);
++
++	pfc_reg_write(PFC_GPSR1_RW, GPSR1_IRQ3
++				   | GPSR1_IRQ1
++				   | GPSR1_IRQ0
++				   | GPSR1_MSIOF2_SS2
++				   | GPSR1_MSIOF2_SS1
++				   | GPSR1_MSIOF2_SYNC
++				   | GPSR1_MSIOF2_SCK
++				   | GPSR1_MSIOF2_TXD
++				   | GPSR1_MSIOF2_RXD
++				   | GPSR1_MSIOF1_SS2
++				   | GPSR1_MSIOF1_SS1
++				   | GPSR1_MSIOF1_SCK
++				   | GPSR1_MSIOF1_TXD
++				   | GPSR1_MSIOF1_RXD
++				   | GPSR1_MSIOF0_SS2
++				   | GPSR1_MSIOF0_SS1
++				   | GPSR1_MSIOF0_SYNC
++				   | GPSR1_MSIOF0_SCK
++				   | GPSR1_MSIOF0_TXD
++				   | GPSR1_MSIOF0_RXD
++				   | GPSR1_HTX0
++				   | GPSR1_HCTS0
++				   | GPSR1_HRTS0
++				   | GPSR1_HSCK0
++				   | GPSR1_HRX0
++				   | GPSR1_SCIF_CLK);
++
++	pfc_reg_write(PFC_GPSR2_RW, GPSR2_GP2_09
++				   | GPSR2_GP2_08
++				   | GPSR2_GP2_07
++				   | GPSR2_GP2_06
++				   | GPSR2_GP2_05
++				   | GPSR2_GP2_04
++				   | GPSR2_GP2_03
++				   | GPSR2_GP2_02);
++
++	pfc_reg_write(PFC_GPSR3_RW, 0x00000000U);
++
++	pfc_reg_write(PFC_GPSR4_RW, GPSR4_AVS1
++				   | GPSR4_AVS0);
++	pfc_reg_write(PFC_GPSR5_RW, 0x00000000U);
++
++	pfc_reg_write(PFC_GPSR6_RW, GPSR6_AVB2_AVTP_PPS
++				   | GPSR6_AVB2_AVTP_CAPTURE
++				   | GPSR6_AVB2_AVTP_MATCH);
++
++	pfc_reg_write(PFC_GPSR7_RW, 0x00000000U);
++	pfc_reg_write(PFC_GPSR8_RW, 0x00000000U);
++	pfc_reg_write(PFC_GPSR9_RW, 0x00000000U);
++
++	/* Initialize POC Control */
++
++
++	pfc_reg_write(PFC_POC0_RW, POC0_SD_CD
++				  | POC0_SD_WP);
++
++	/* added W/A version */
++	pfc_reg_write(PFC_POC1_RW, POC1_GP1_30
++				  | POC1_IRQ3
++				  | POC1_IRQ1
++				  | POC1_MSIOF2_SS2
++				  | POC1_MSIOF2_SS1
++				  | POC1_MSIOF2_SYNC
++				  | POC1_MSIOF2_SCK
++				  | POC1_MSIOF2_TXD
++				  | POC1_MSIOF2_RXD
++				  | POC1_MSIOF1_SS2
++				  | POC1_MSIOF1_SS1
++				  | POC1_MSIOF1_SCK
++				  | POC1_MSIOF1_TXD
++				  | POC1_MSIOF1_RXD
++				  | POC1_MSIOF0_SS2
++				  | POC1_MSIOF0_SS1
++				  | POC1_MSIOF0_SYNC
++				  | POC1_MSIOF0_SCK
++				  | POC1_MSIOF0_TXD
++				  | POC1_MSIOF0_RXD
++				  | POC1_HCTS0
++				  | POC1_HRTS0
++				  | POC1_HSCK0
++				  | POC1_SCIF_CLK);
++
++	pfc_reg_write(PFC_POC2_RW, POC2_GP2_15
++				  | POC2_GP2_14
++				  | POC2_GP2_09
++				  | POC2_GP2_08
++				  | POC2_GP2_07
++				  | POC2_GP2_06
++				  | POC2_GP2_03
++				  | POC2_GP2_02);
++
++	pfc_reg_write(PFC_POC3_RW,0x00000000U);
++	pfc_reg_write(PFC_POC4_RW,0x00000000U);
++	pfc_reg_write(PFC_POC5_RW,0x00000000U);
++
++	pfc_reg_write(PFC_POC6_RW, POC6_AVB2_LINK
++				  | POC6_AVB2_PHY_INT
++				  | POC6_AVB2_MAGIC);
++
++	pfc_reg_write(PFC_POC7_RW,0x00000000U);
++	pfc_reg_write(PFC_POC8_RW,0x00000000U);
++	pfc_reg_write(PFC_POC9_RW,0x00000000U);
++	pfc_reg_write(PFC_POC10_RW,0x00000000U);
++
++
++	/* Initialize LSI pin pull-up/down control */
++	pfc_reg_write(PFC_PUD0_RW,0x00002000U);
++	pfc_reg_write(PFC_PUD1_RW,0x04008000U);
++	pfc_reg_write(PFC_PUD2_RW,0x005F0001U);
++	pfc_reg_write(PFC_PUD3_RW,0x0001FFFFU);
++	pfc_reg_write(PFC_PUD4_RW,0x00000000U);
++	pfc_reg_write(PFC_PUD5_RW,0x00000000U);
++	pfc_reg_write(PFC_PUD6_RW,0x00000000U);
++	pfc_reg_write(PFC_PUD7_RW,0x00008000U);
++	pfc_reg_write(PFC_PUD8_RW,0x00008000U);
++	pfc_reg_write(PFC_PUD9_RW,0x00008000U);
++	pfc_reg_write(PFC_PUD10_RW,0x00008000U);
++
++	/* Initialize LSI pin pull-enable register */
++	pfc_reg_write(PFC_PUEN0_RW,0x00002000U);
++	pfc_reg_write(PFC_PUEN1_RW,0x0E008000U);
++	pfc_reg_write(PFC_PUEN2_RW,0x005F00F3U);
++	pfc_reg_write(PFC_PUEN3_RW,0x0001FFFFU);
++	pfc_reg_write(PFC_PUEN4_RW,0x00039FFFU);
++	pfc_reg_write(PFC_PUEN5_RW,0x00073FFFU);
++	pfc_reg_write(PFC_PUEN6_RW,0x00033FFFU);
++	pfc_reg_write(PFC_PUEN7_RW,0x000F3FFFU);
++	pfc_reg_write(PFC_PUEN8_RW,0x000F3FFFU);
++	pfc_reg_write(PFC_PUEN9_RW,0x000F3FFFU);
++	pfc_reg_write(PFC_PUEN10_RW,0x00000000U);
++
++	/* Initialize positive/negative logic select */
++	mmio_write_32(PFC_POSNEG0_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG1_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG2_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG3_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG4_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG5_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG6_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG7_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG8_RW, 0x00000000U);
++	mmio_write_32(PFC_POSNEG9_RW, 0x00000000U);
++
++	/* Initialize general IO/interrupt switching */
++	mmio_write_32(PFC_IOINTSEL0_RW, 0x00004000U);
++	mmio_write_32(PFC_IOINTSEL1_RW, 0x00000000U);
++	mmio_write_32(PFC_IOINTSEL2_RW, 0x00000000U);
++	mmio_write_32(PFC_IOINTSEL3_RW, 0x00000000U);
++	mmio_write_32(PFC_IOINTSEL4_RW, 0x00010000U);
++	mmio_write_32(PFC_IOINTSEL5_RW, 0x00010000U);
++	mmio_write_32(PFC_IOINTSEL6_RW, 0x00010000U);
++	mmio_write_32(PFC_IOINTSEL7_RW, 0x00010000U);
++	mmio_write_32(PFC_IOINTSEL8_RW, 0x00010000U);
++	mmio_write_32(PFC_IOINTSEL9_RW, 0x00010000U);
++
++	/* Initialize general output register */
++	mmio_write_32(PFC_OUTDT0_RW, 0x00001000U);
++	mmio_write_32(PFC_OUTDT1_RW, 0x00000000U);
++	mmio_write_32(PFC_OUTDT2_RW, 0x00000000U);
++	mmio_write_32(PFC_OUTDT3_RW, 0x00000000U);
++	mmio_write_32(PFC_OUTDT4_RW, 0x00008000U);
++	mmio_write_32(PFC_OUTDT5_RW, 0x00008000U);
++	mmio_write_32(PFC_OUTDT6_RW, 0x00008000U);
++	mmio_write_32(PFC_OUTDT7_RW, 0x00008000U);
++	mmio_write_32(PFC_OUTDT8_RW, 0x00008000U);
++	mmio_write_32(PFC_OUTDT9_RW, 0x00008000U);
++
++	/* Initialize general input/output switching */
++	mmio_write_32(PFC_INOUTSEL0_RW, 0x00000000U);
++	mmio_write_32(PFC_INOUTSEL1_RW, 0x00008006U);
++	mmio_write_32(PFC_INOUTSEL2_RW, 0x00050002U);
++	mmio_write_32(PFC_INOUTSEL3_RW, 0x00015554U);
++	mmio_write_32(PFC_INOUTSEL4_RW, 0x07FECFC0U);
++	mmio_write_32(PFC_INOUTSEL5_RW, 0x0010CFC0U);
++	mmio_write_32(PFC_INOUTSEL6_RW, 0x0010CFC0U);
++	mmio_write_32(PFC_INOUTSEL7_RW, 0x0010CFC0U);
++	mmio_write_32(PFC_INOUTSEL8_RW, 0x0010CFC0U);
++	mmio_write_32(PFC_INOUTSEL9_RW, 0x0010CFC0U);
++}
+diff --git a/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.h b/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.h
+new file mode 100644
+index 0000000..325072a
+--- /dev/null
++++ b/plat/renesas/rcar/pfc/V3U/pfc_init_v3u.h
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (c) 2015-2017, Renesas Electronics Corporation
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *   - Redistributions of source code must retain the above copyright notice,
++ *     this list of conditions and the following disclaimer.
++ *
++ *   - Redistributions in binary form must reproduce the above copyright
++ *     notice, this list of conditions and the following disclaimer in the
++ *     documentation and/or other materials provided with the distribution.
++ *
++ *   - Neither the name of Renesas nor the names of its contributors may be
++ *     used to endorse or promote products derived from this software without
++ *     specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef PFC_INIT_V3U_H__
++#define PFC_INIT_V3U_H__
++
++void pfc_init_v3u(void);
++
++#endif	/* PFC_INIT_V3U_H__ */
+diff --git a/plat/renesas/rcar/pfc/pfc.mk b/plat/renesas/rcar/pfc/pfc.mk
+index b74f33b..197ca6b 100644
+--- a/plat/renesas/rcar/pfc/pfc.mk
++++ b/plat/renesas/rcar/pfc/pfc.mk
+@@ -11,6 +11,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
+     BL2_SOURCES += plat/renesas/rcar/pfc/M3N/pfc_init_m3n.c
+     BL2_SOURCES += plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c
+     BL2_SOURCES += plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
++    BL2_SOURCES += plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c
+ 
+ else ifdef RCAR_LSI_CUT_COMPAT
+   ifeq (${RCAR_LSI},${RCAR_H3})
+@@ -36,6 +37,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
+   ifeq (${RCAR_LSI},${RCAR_V3H})
+     BL2_SOURCES += plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
+   endif
++  ifeq (${RCAR_LSI},${RCAR_V3U})
++    BL2_SOURCES += plat/renesas/rcar/pfc/V3U/pfc_init_v3u.c
++  endif
+ else
+   ifeq (${RCAR_LSI},${RCAR_H3})
+     ifeq (${LSI_CUT},10)
+diff --git a/plat/renesas/rcar/pfc/pfc_init.c b/plat/renesas/rcar/pfc/pfc_init.c
+index 12f46e3..64c73f5 100644
+--- a/plat/renesas/rcar/pfc/pfc_init.c
++++ b/plat/renesas/rcar/pfc/pfc_init.c
+@@ -36,6 +36,9 @@
+ #if RCAR_LSI == RCAR_V3H	/* V3H */
+   #include "V3H/pfc_init_v3h.h"
+ #endif
++#if RCAR_LSI == RCAR_V3U	/* V3U */
++  #include "V3U/pfc_init_v3u.h"
++#endif
+ 
+  /* Product Register */
+ #define PRR			(0xFFF00044U)
+@@ -47,6 +50,7 @@
+ #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3N */
+ #define PRR_PRODUCT_V3H		(0x00005600U)           /* R-Car V3H */
+ #define PRR_PRODUCT_E3		(0x00005700U)		/* R-Car E3 */
++#define PRR_PRODUCT_V3U		(0x00005900U)           /* R-Car V3U */
+ #define PRR_PRODUCT_10		(0x00U)
+ #define PRR_PRODUCT_11		(0x01U)
+ #define PRR_PRODUCT_20		(0x10U)
+@@ -94,6 +98,9 @@ void pfc_init(void)
+ 	case RCAR_PRODUCT_V3H:
+ 		pfc_init_v3h();
+ 		break;
++	case RCAR_PRODUCT_V3U:
++		pfc_init_v3u();
++		break;
+ 	default:
+ 		PRR_PRODUCT_ERR(reg);
+ 		break;
+@@ -153,6 +160,13 @@ void pfc_init(void)
+ 		pfc_init_v3h();
+ #endif
+ 		break;
++	case PRR_PRODUCT_V3U:
++#if RCAR_LSI != RCAR_V3U
++		PRR_PRODUCT_ERR(reg);
++#else
++		pfc_init_v3u();
++#endif
++		break;
+ 	default:
+ 		PRR_PRODUCT_ERR(reg);
+ 		break;
+@@ -206,6 +220,11 @@ void pfc_init(void)
+ 		PRR_PRODUCT_ERR(reg);
+ 
+ 	pfc_init_v3h();
++ #elif RCAR_LSI == RCAR_V3U	/* V3U */
++	if ((PRR_PRODUCT_V3U) != (reg & PRR_PRODUCT_MASK))
++		PRR_PRODUCT_ERR(reg);
++
++	pfc_init_v3u();
+  #else
+   #error "Don't have PFC initialize routine(unknown)."
+  #endif
+diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
+index d0ec7cd..df32450 100644
+--- a/plat/renesas/rcar/platform.mk
++++ b/plat/renesas/rcar/platform.mk
+@@ -5,9 +5,10 @@
+ # SPDX-License-Identifier: BSD-3-Clause
+ #
+ 
++# Needed for Cortex A76
++DYNAMIC_WORKAROUND_CVE_2018_3639 := 1
+ 
+ # Process flags
+-
+ PLAT_INCLUDES		:=	-Iinclude/common/tbbr				\
+ 				-Iplat/renesas/rcar/drivers/iic_dvfs/		\
+ 				-Iplat/renesas/rcar/drivers/board/		\
+@@ -58,13 +59,15 @@ BL2_SOURCES		+=	${RCAR_GIC_SOURCES}				\
+ 				plat/renesas/rcar/bl2_secure_setting.c		\
+ 				plat/renesas/rcar/bl2_cpg_init.c		\
+ 				lib/cpus/aarch64/cortex_a53.S			\
+-				lib/cpus/aarch64/cortex_a57.S
++				lib/cpus/aarch64/cortex_a57.S			\
++				lib/cpus/aarch64/cortex_a76.S
+ 
+ BL31_SOURCES		+=	${RCAR_GIC_SOURCES}				\
+ 				drivers/arm/cci/cci.c				\
+ 				lib/cpus/aarch64/aem_generic.S			\
+ 				lib/cpus/aarch64/cortex_a53.S			\
+ 				lib/cpus/aarch64/cortex_a57.S			\
++				lib/cpus/aarch64/cortex_a76.S			\
+ 				plat/renesas/rcar/bl31_rcar_setup.c		\
+ 				plat/renesas/rcar/rcar_pm.c			\
+ 				plat/renesas/rcar/rcar_sip_svc.c		\
+@@ -99,6 +102,7 @@ RCAR_E3:=3
+ RCAR_H3N:=4
+ RCAR_V3M:=5
+ RCAR_V3H:=6
++RCAR_V3U:=7
+ RCAR_AUTO:=99
+ $(eval $(call add_define,RCAR_H3))
+ $(eval $(call add_define,RCAR_M3))
+@@ -107,6 +111,7 @@ $(eval $(call add_define,RCAR_E3))
+ $(eval $(call add_define,RCAR_H3N))
+ $(eval $(call add_define,RCAR_V3M))
+ $(eval $(call add_define,RCAR_V3H))
++$(eval $(call add_define,RCAR_V3U))
+ $(eval $(call add_define,RCAR_AUTO))
+ RCAR_CUT_10:=0
+ RCAR_CUT_11:=1
+@@ -247,6 +252,22 @@ else
+       endif
+       $(eval $(call add_define,RCAR_LSI_CUT))
+     endif
++  else ifeq (${LSI},V3U)
++    RCAR_LSI:=${RCAR_V3U}
++    ifndef LSI_CUT
++      # enable compatible function.
++      RCAR_LSI_CUT_COMPAT := 1
++      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
++    else
++      # disable compatible function.
++      ifeq (${LSI_CUT},10)
++        RCAR_LSI_CUT:=0
++      endif
++      ifeq (${LSI_CUT},20)
++        RCAR_LSI_CUT:=10
++      endif
++      $(eval $(call add_define,RCAR_LSI_CUT))
++    endif
+   else
+     $(error "Error: ${LSI} is not supported.")
+   endif
+diff --git a/plat/renesas/rcar/qos/H3/qos_init_h3_v11.c b/plat/renesas/rcar/qos/H3/qos_init_h3_v11.c
+index b9dbb08..e57d26e 100755
+--- a/plat/renesas/rcar/qos/H3/qos_init_h3_v11.c
++++ b/plat/renesas/rcar/qos/H3/qos_init_h3_v11.c
+@@ -9,6 +9,7 @@
+ #include <rcar_def.h>
+ #include "../qos_common.h"
+ #include "qos_init_h3_v11.h"
++#include "rcar_private.h"
+ 
+ #define	RCAR_QOS_VERSION		"rev.0.37"
+ 
+@@ -579,7 +580,7 @@ void qos_init_h3_v11(void)
+ 
+ 	/* CCI bus Leaf setting */
+ 	{
+-		uint32_t modemr = io_read_32(RCAR_MODEMR);
++		uint32_t modemr = modemr_read();
+ 
+ 		modemr &= MODEMR_BOOT_CPU_MASK;
+ 
+diff --git a/plat/renesas/rcar/qos/V3U/qos_init_v3u.c b/plat/renesas/rcar/qos/V3U/qos_init_v3u.c
+new file mode 100644
+index 0000000..e5f7968
+--- /dev/null
++++ b/plat/renesas/rcar/qos/V3U/qos_init_v3u.c
+@@ -0,0 +1,544 @@
++/*
++ * Copyright (c) 2015-2017, Renesas Electronics Corporation
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *   - Redistributions of source code must retain the above copyright notice,
++ *     this list of conditions and the following disclaimer.
++ *
++ *   - Redistributions in binary form must reproduce the above copyright
++ *     notice, this list of conditions and the following disclaimer in the
++ *     documentation and/or other materials provided with the distribution.
++ *
++ *   - Neither the name of Renesas nor the names of its contributors may be
++ *     used to endorse or promote products derived from this software without
++ *     specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdint.h>
++#include <debug.h>
++#include "qos_init_v3u.h"
++
++#define	RCAR_QOS_VERSION		"rev.0.02"
++
++#define	RCAR_REWT_TRAINING_DISABLE	(0U)
++#define	RCAR_REWT_TRAINING_ENABLE	(1U)
++
++#define	DBSC_BASE(a)			(0xE6790000U + ((a) * 0x8000U))
++#define DBSC_CH_NUM			(2U)
++#define	DBSC_SYSCNT0(a)			(DBSC_BASE(a) + 0x0100U)
++#define	DBSC_SYSCNT1(a)			(DBSC_BASE(a) + 0x0104U)
++#define	DBSC_SYSCNT0A(a)		(DBSC_BASE(a) + 0x0108U)
++#define	DBSC_AXARB(a)			(DBSC_BASE(a) + 0x0800U)
++#define DBSC_DBCAM0CNF0(a)		(DBSC_BASE(a) + 0x0900U)
++#define DBSC_DBCAM0CNF1(a)		(DBSC_BASE(a) + 0x0904U)
++#define DBSC_DBCAM0CNF2(a)		(DBSC_BASE(a) + 0x0908U)
++#define DBSC_DBCAM0CNF3(a)		(DBSC_BASE(a) + 0x090CU)
++#define DBSC_DBCAMDIS(a)		(DBSC_BASE(a) + 0x09fCU)
++#define DBSC_DBSCHCNT0(a)		(DBSC_BASE(a) + 0x1000U)
++#define DBSC_DBSCHSZ0(a)		(DBSC_BASE(a) + 0x1010U)
++#define DBSC_DBSCHRW0(a)		(DBSC_BASE(a) + 0x1020U)
++#define DBSC_DBSCHRW1(a)		(DBSC_BASE(a) + 0x1024U)
++#define DBSC_DBSCHQOS_0_0(a)		(DBSC_BASE(a) + 0x1030U)
++#define DBSC_DBSCHQOS_0_1(a)		(DBSC_BASE(a) + 0x1034U)
++#define DBSC_DBSCHQOS_0_2(a)		(DBSC_BASE(a) + 0x1038U)
++#define DBSC_DBSCHQOS_0_3(a)		(DBSC_BASE(a) + 0x103CU)
++#define DBSC_DBSCHQOS_4_0(a)		(DBSC_BASE(a) + 0x1070U)
++#define DBSC_DBSCHQOS_4_1(a)		(DBSC_BASE(a) + 0x1074U)
++#define DBSC_DBSCHQOS_4_2(a)		(DBSC_BASE(a) + 0x1078U)
++#define DBSC_DBSCHQOS_4_3(a)		(DBSC_BASE(a) + 0x107CU)
++#define DBSC_DBSCHQOS_9_0(a)		(DBSC_BASE(a) + 0x10C0U)
++#define DBSC_DBSCHQOS_9_1(a)		(DBSC_BASE(a) + 0x10C4U)
++#define DBSC_DBSCHQOS_9_2(a)		(DBSC_BASE(a) + 0x10C8U)
++#define DBSC_DBSCHQOS_9_3(a)		(DBSC_BASE(a) + 0x10CCU)
++#define DBSC_DBSCHQOS_12_0(a)		(DBSC_BASE(a) + 0x10F0U)
++#define DBSC_DBSCHQOS_12_1(a)		(DBSC_BASE(a) + 0x10F4U)
++#define DBSC_DBSCHQOS_12_2(a)		(DBSC_BASE(a) + 0x10F8U)
++#define DBSC_DBSCHQOS_12_3(a)		(DBSC_BASE(a) + 0x10FCU)
++#define DBSC_DBSCHQOS_13_0(a)		(DBSC_BASE(a) + 0x1100U)
++#define DBSC_DBSCHQOS_13_1(a)		(DBSC_BASE(a) + 0x1104U)
++#define DBSC_DBSCHQOS_13_2(a)		(DBSC_BASE(a) + 0x1108U)
++#define DBSC_DBSCHQOS_13_3(a)		(DBSC_BASE(a) + 0x110CU)
++#define DBSC_DBSCHQOS_14_0(a)		(DBSC_BASE(a) + 0x1110U)
++#define DBSC_DBSCHQOS_14_1(a)		(DBSC_BASE(a) + 0x1114U)
++#define DBSC_DBSCHQOS_14_2(a)		(DBSC_BASE(a) + 0x1118U)
++#define DBSC_DBSCHQOS_14_3(a)		(DBSC_BASE(a) + 0x111CU)
++#define DBSC_DBSCHQOS_15_0(a)		(DBSC_BASE(a) + 0x1120U)
++#define DBSC_DBSCHQOS_15_1(a)		(DBSC_BASE(a) + 0x1124U)
++#define DBSC_DBSCHQOS_15_2(a)		(DBSC_BASE(a) + 0x1128U)
++#define DBSC_DBSCHQOS_15_3(a)		(DBSC_BASE(a) + 0x112CU)
++#define DBSC_SCFCTST0(a)		(DBSC_BASE(a) + 0x1700U)
++#define DBSC_SCFCTST1(a)		(DBSC_BASE(a) + 0x1708U)
++#define DBSC_SCFCTST2(a)		(DBSC_BASE(a) + 0x170CU)
++
++
++#define	MSTAT_BASE			(0xE67E0000U)
++#define	MSTAT_FIX_QOS_BANK0		(MSTAT_BASE + 0x0000U)
++#define	MSTAT_FIX_QOS_BANK1		(MSTAT_BASE + 0x1000U)
++#define	MSTAT_BE_QOS_BANK0		(MSTAT_BASE + 0x2000U)
++#define	MSTAT_BE_QOS_BANK1		(MSTAT_BASE + 0x3000U)
++#define	MSTAT_SL_INIT			(MSTAT_BASE + 0x8000U)
++#define	MSTAT_REF_ARS			(MSTAT_BASE + 0x8004U)
++#define	MSTAT_STATQC			(MSTAT_BASE + 0x8008U)
++#define	MSTAT_REF_ENBL			(MSTAT_BASE + 0x8044U)
++#define	MSTAT_BWG			(MSTAT_BASE + 0x804CU)
++#define	MSTAT_AXI_MMCR			(MSTAT_BASE + 0x4300U)
++#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
++#define	QOSWT_FIX_QOS_BANK0		(MSTAT_BASE + 0x0800U)
++#define	QOSWT_FIX_QOS_BANK1		(MSTAT_BASE + 0x1800U)
++#define	QOSWT_BE_QOS_BANK0		(MSTAT_BASE + 0x2800U)
++#define	QOSWT_BE_QOS_BANK1		(MSTAT_BASE + 0x3800U)
++#define	QOSWT_WTEN			(MSTAT_BASE + 0x8030U)
++#define	QOSWT_WTREF			(MSTAT_BASE + 0x8034U)
++#define	QOSWT_WTSET0			(MSTAT_BASE + 0x8038U)
++#define	QOSWT_WTSET1			(MSTAT_BASE + 0x803CU)
++#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
++
++#define	RALLOC_BASE			(0xE67F0000U)
++#define	RALLOC_RAS			(RALLOC_BASE + 0x0000U)
++#define	RALLOC_FIXTH			(RALLOC_BASE + 0x0004U)
++#define	RALLOC_RAEN			(RALLOC_BASE + 0x0018U)
++#define	RALLOC_REGGD			(RALLOC_BASE + 0x0020U)
++#define	RALLOC_DANN_LOW			(RALLOC_BASE + 0x0030U)
++#define	RALLOC_DANN_HIGH		(RALLOC_BASE + 0x0034U)
++#define	RALLOC_DANT			(RALLOC_BASE + 0x0038U)
++#define	RALLOC_EC			(RALLOC_BASE + 0x003CU)
++#define	RALLOC_EMS_LOW			(RALLOC_BASE + 0x0040U)
++#define	RALLOC_EMS_HIGH			(RALLOC_BASE + 0x0044U)
++#define	RALLOC_FSS			(RALLOC_BASE + 0x0048U)
++#define	RALLOC_INSFC			(RALLOC_BASE + 0x0050U)
++#define	RALLOC_BERR			(RALLOC_BASE + 0x0054U)
++#define	RALLOC_EARLYR			(RALLOC_BASE + 0x0060U)
++#define	RALLOC_RACNT0			(RALLOC_BASE + 0x0080U)
++#define	RALLOC_STATGEN0			(RALLOC_BASE + 0x0088U)
++
++
++#define	RT_ACT_BASE			(0xFFC50800U)
++#define RT_ACT0				(RT_ACT_BASE + 0x0000U)
++#define RT_ACT1				(RT_ACT_BASE + 0x1000U)
++
++#define CPU_ACT_BASE			(0xF1300800U)
++#define CPU_ACT1_OFFSET			(0x00040000U)
++
++typedef struct{
++        uint16_t offset;
++        uint64_t fix;
++        uint64_t be;
++} qos_setting_table_t;
++
++
++static const qos_setting_table_t mstat_tbl[] = {
++	{0x0000U,	0x000C00000000FFFFULL,	0x0000000000000000ULL},
++	{0x0008U,	0x000C00000000FFFFULL,	0x0000000000000000ULL},
++	{0x0010U,	0x001004010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0018U,	0x001404010000FFFFULL,	0x0000000000000000ULL},
++	{0x0020U,	0x001420780000FFFFULL,	0x0000000000000000ULL},
++	{0x0028U,	0x001420780000FFFFULL,	0x0000000000000000ULL},
++	{0x0030U,	0x000C0C280000FFFFULL,	0x0000000000000000ULL},
++	{0x0038U,	0x000C0C280000FFFFULL,	0x0000000000000000ULL},
++	{0x0040U,	0x000C0C280000FFFFULL,	0x0000000000000000ULL},
++	{0x0048U,	0x000C0C280000FFFFULL,	0x0000000000000000ULL},
++	{0x0050U,	0x001004010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0058U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0060U,	0x001414500000FFFFULL,	0x0000000000000000ULL},
++	{0x0068U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0070U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0078U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0080U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0088U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x0090U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0098U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x00A0U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x00A8U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x00B0U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x00B8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00C0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00C8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00D0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00D8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00E0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00E8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00F0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x00F8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0100U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0108U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0110U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0118U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0120U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0128U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0130U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0138U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0140U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0148U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0150U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0158U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0160U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0168U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0170U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0178U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0180U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0188U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0190U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0198U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01A0U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01A8U,	0x000C10100000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01B0U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01B8U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01C0U,	0x000C10100000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01C8U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01D0U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01D8U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01E0U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01E8U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x01F0U,	0x000008200000FFFFULL,	0x0000000000000000ULL},
++	{0x01F8U,	0x000C04010000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0200U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0208U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0210U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0218U,	0x000C04080000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0220U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0228U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0230U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0238U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0240U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0248U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0250U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0258U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0260U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0268U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0270U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0278U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0280U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0288U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0290U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0298U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x02A0U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02A8U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02B0U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02B8U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02C0U,	0x001428280000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02C8U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02D0U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02D8U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02E0U,	0x000C28A00000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02E8U,	0x001428280000FFFFULL,	0x00100780030FFC01ULL},
++	{0x02F0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x02F8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0300U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0308U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0310U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0318U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0320U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0328U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0330U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0338U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0340U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0348U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0350U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0358U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0360U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0368U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0370U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0378U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0380U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0388U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0390U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x0398U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03A0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03A8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03B0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03B8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03C0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03C8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03D0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03D8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03E0U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03E8U,	0x000000000000FFFFULL,	0x00200780030FFC01ULL},
++	{0x03F0U,	0x000C04010000FFFFULL,	0x002013F0030FFC01ULL},
++	{0x03F8U,	0x000C04010000FFFFULL,	0x002013F0030FFC01ULL},
++	{0x0400U,	0x000C04010000FFFFULL,	0x002013F0030FFC01ULL},
++	{0x0408U,	0x000C04010000FFFFULL,	0x002013F0030FFC01ULL}
++};
++
++static const qos_setting_table_t qoswt_tbl[] = {
++	{0x0800U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0808U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0810U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0818U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0820U,	0x001420780000FFFFULL,	0x0000000000000000ULL},
++	{0x0828U,	0x001420780000FFFFULL,	0x0000000000000000ULL},
++	{0x0830U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0838U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0840U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0848U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0850U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0858U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0860U,	0x001414500000FFFFULL,	0x0000000000000000ULL},
++	{0x0868U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0870U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0878U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0880U,	0x000C10380000FFFFULL,	0x0000000000000000ULL},
++	{0x0888U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x0890U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0898U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x08A0U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x08A8U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x08B0U,	0x000C04040000FFFFULL,	0x0000000000000000ULL},
++	{0x08B8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08C0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08C8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08D0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08D8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08E0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08E8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08F0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x08F8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0900U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0908U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0910U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0918U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0920U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0928U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0930U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0938U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0940U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0948U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0950U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0958U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0960U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0968U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0970U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0978U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0980U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0988U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0990U,	0x000C04010000FFFFULL,	0x0000000000000000ULL},
++	{0x0998U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09A0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09A8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09B0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09B8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09C0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09C8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09D0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09D8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09E0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09E8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09F0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x09F8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A00U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A08U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A10U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A18U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A20U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A28U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A30U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A38U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A40U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A48U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A50U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A58U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A60U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A68U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A70U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A78U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A80U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A88U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A90U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0A98U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0AA0U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AA8U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AB0U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AB8U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AC0U,	0x001428280000FFFFULL,	0x0000000000000000ULL},
++	{0x0AC8U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AD0U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AD8U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AE0U,	0x000C28A00000FFFFULL,	0x0000000000000000ULL},
++	{0x0AE8U,	0x001428280000FFFFULL,	0x0000000000000000ULL},
++	{0x0AF0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0AF8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B00U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B08U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B10U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B18U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B20U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B28U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B30U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B38U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B40U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B48U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B50U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B58U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B60U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B68U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B70U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B78U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B80U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B88U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B90U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0B98U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BA0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BA8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BB0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BB8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BC0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BC8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BD0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BD8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BE0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BE8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BF0U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0BF8U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0C00U,	0x000000000000FFFFULL,	0x0000000000000000ULL},
++	{0x0C08U,	0x000000000000FFFFULL,	0x0000000000000000ULL}
++};
++
++#define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
++
++static inline void io_write_32(uintptr_t addr, uint32_t value)
++{
++	*(volatile uint32_t*)addr = value;
++}
++
++static inline void io_write_64(uintptr_t addr, uint64_t value)
++{
++	*(volatile uint64_t*)addr = value;
++}
++
++static void dbsc_setting(void)
++{
++	uint32_t loop;
++
++	for(loop = 0; loop < DBSC_CH_NUM; loop++){
++		/* DBSC CAM, Scheduling Setting */
++		io_write_32(DBSC_SYSCNT0(loop),		0x00001234U);
++		io_write_32(DBSC_SYSCNT0A(loop),	0x00001234U);
++		io_write_32(DBSC_DBCAM0CNF1(loop),	0x00104214U);	/* dbcam0cnf1 */
++		io_write_32(DBSC_DBCAM0CNF2(loop),	0x000001C4U);	/* dbcam0cnf2 */
++		io_write_32(DBSC_DBCAM0CNF3(loop),	0x00000003U);	/* dbcam0cnf3 */
++		io_write_32(DBSC_DBSCHCNT0(loop), 	0x000F0037U);	/* dbschcnt0 */
++		io_write_32(DBSC_DBSCHSZ0(loop),	0x00000001U);	/* dbschsz0 */
++		io_write_32(DBSC_DBSCHRW0(loop),	0xF7311111U);	/* dbschrw0 */
++		io_write_32(DBSC_SCFCTST2(loop),	0x111F1FFFU);
++
++		/* DBSC QoS Setting */
++		io_write_32(DBSC_DBSCHQOS_0_0(loop),	0xFFFFFFFFU);
++		io_write_32(DBSC_DBSCHQOS_0_1(loop),	0x00000480U);
++		io_write_32(DBSC_DBSCHQOS_0_2(loop),	0x00000300U);
++		io_write_32(DBSC_DBSCHQOS_0_3(loop),	0x00000180U);
++		io_write_32(DBSC_DBSCHQOS_4_0(loop),	0x00000600U);
++		io_write_32(DBSC_DBSCHQOS_4_1(loop),	0x00000480U);
++		io_write_32(DBSC_DBSCHQOS_4_2(loop),	0x00000300U);
++		io_write_32(DBSC_DBSCHQOS_4_3(loop),	0x00000180U);
++		io_write_32(DBSC_DBSCHQOS_9_0(loop),	0x00000400U);
++		io_write_32(DBSC_DBSCHQOS_9_1(loop),	0x00000300U);
++		io_write_32(DBSC_DBSCHQOS_9_2(loop),	0x00000200U);
++		io_write_32(DBSC_DBSCHQOS_9_3(loop),	0x00000100U);
++		io_write_32(DBSC_DBSCHQOS_12_0(loop),	0x00000040U);
++		io_write_32(DBSC_DBSCHQOS_12_1(loop),	0x00000030U);
++		io_write_32(DBSC_DBSCHQOS_12_2(loop),	0x00000020U);
++		io_write_32(DBSC_DBSCHQOS_12_3(loop),	0x00000010U);
++		io_write_32(DBSC_DBSCHQOS_13_0(loop),	0x00000100U);
++		io_write_32(DBSC_DBSCHQOS_13_1(loop),	0x00000300U);
++		io_write_32(DBSC_DBSCHQOS_13_2(loop),	0x00000240U);
++		io_write_32(DBSC_DBSCHQOS_13_3(loop),	0x00000180U);
++		io_write_32(DBSC_DBSCHQOS_14_0(loop),	0x000000C0U);
++		io_write_32(DBSC_DBSCHQOS_14_1(loop),	0x00000200U);
++		io_write_32(DBSC_DBSCHQOS_14_2(loop),	0x00000180U);
++		io_write_32(DBSC_DBSCHQOS_14_3(loop),	0x00000100U);
++		io_write_32(DBSC_DBSCHQOS_15_0(loop),	0x00000100U);
++		io_write_32(DBSC_DBSCHQOS_15_1(loop),	0x000000C0U);
++		io_write_32(DBSC_DBSCHQOS_15_2(loop),	0x00000080U);
++		io_write_32(DBSC_DBSCHQOS_15_3(loop),	0x00000040U);
++
++		io_write_32(DBSC_SYSCNT0(loop),		0x00000000U);
++		io_write_32(DBSC_SYSCNT0A(loop),	0x00000000U);
++	}
++}
++
++void qos_init_v3u(void)
++{
++	uint32_t i;
++
++	/* Setting the register of DBSC4 for QoS initialize */
++	dbsc_setting();
++
++	NOTICE("QoS setting(%s)\n", RCAR_QOS_VERSION);
++	NOTICE("DRAM refresh interval 1.91 usec\n");
++
++#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
++	NOTICE("Periodic Write DQ Training\n");
++#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
++
++	/* Resource Alloc setting */
++	io_write_32(RALLOC_RAS,		0x00000048U);
++	io_write_32(RALLOC_DANN_LOW,	0x02020201U);
++	io_write_32(RALLOC_DANN_HIGH,	0x04040200U);
++	io_write_32(RALLOC_DANT,	0x00181008U);
++	io_write_32(RALLOC_FSS,		0x0000000AU);
++	io_write_32(RALLOC_INSFC,	0x030F0001U);
++	io_write_32(RALLOC_RACNT0,	0x00000000U);
++	io_write_32(RALLOC_STATGEN0,	0x00000000U);
++
++	/* QoS MSTAT setting */
++	io_write_32(MSTAT_SL_INIT,	0x00050153U);
++	io_write_32(MSTAT_REF_ARS,	0x014E0000U);
++	io_write_32(MSTAT_REF_ENBL,	0x00000012U);
++	io_write_32(MSTAT_BWG,		0x00000004U);
++	io_write_32(MSTAT_AXI_MMCR,	0x00010000U);
++	for (i = 0U; i < ARRAY_SIZE(mstat_tbl); i++) {
++		io_write_64(MSTAT_FIX_QOS_BANK0 + mstat_tbl[i].offset,
++				mstat_tbl[i].fix);
++		io_write_64(MSTAT_FIX_QOS_BANK1 + mstat_tbl[i].offset,
++				mstat_tbl[i].fix);
++		io_write_64(MSTAT_BE_QOS_BANK0 + mstat_tbl[i].offset,
++				mstat_tbl[i].be);
++		io_write_64(MSTAT_BE_QOS_BANK1 + mstat_tbl[i].offset,
++				mstat_tbl[i].be);
++	}
++
++#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
++	for (i = 0U; i < ARRAY_SIZE(qoswt_tbl); i++) {
++		io_write_64(MSTAT_FIX_QOS_BANK0 + qoswt_tbl[i].offset,
++				qoswt_tbl[i].fix);
++		io_write_64(MSTAT_FIX_QOS_BANK1 + qoswt_tbl[i].offset,
++				qoswt_tbl[i].fix);
++		io_write_64(MSTAT_BE_QOS_BANK0 + qoswt_tbl[i].offset,
++				qoswt_tbl[i].be);
++		io_write_64(MSTAT_BE_QOS_BANK1 + qoswt_tbl[i].offset,
++				qoswt_tbl[i].be);
++	}
++#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
++
++	/* RT bus Leaf setting */
++	io_write_32(RT_ACT0,		0x00000000U);
++	io_write_32(RT_ACT1,		0x00000000U);
++
++	/* CPU bus Leaf setting */
++	io_write_32(CPU_ACT_BASE, 0x00000003U);
++	io_write_32((CPU_ACT_BASE + CPU_ACT1_OFFSET), 0x00000003U);
++
++	/* QoS SRAM setting */
++	io_write_32(RALLOC_RAEN,	0x00000001U);
++#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
++	io_write_32(QOSWT_WTREF,	0x02080208U);
++	io_write_32(QOSWT_WTSET0,	0x0A33040BU);
++	io_write_32(QOSWT_WTSET1,	0x0A33040BU);
++	io_write_32(QOSWT_WTEN,		0x00000001U);
++#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
++	io_write_32(MSTAT_STATQC,	0x00000001U);
++}
+diff --git a/plat/renesas/rcar/qos/V3U/qos_init_v3u.h b/plat/renesas/rcar/qos/V3U/qos_init_v3u.h
+new file mode 100644
+index 0000000..88ab4cd
+--- /dev/null
++++ b/plat/renesas/rcar/qos/V3U/qos_init_v3u.h
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (c) 2015-2017, Renesas Electronics Corporation
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *   - Redistributions of source code must retain the above copyright notice,
++ *     this list of conditions and the following disclaimer.
++ *
++ *   - Redistributions in binary form must reproduce the above copyright
++ *     notice, this list of conditions and the following disclaimer in the
++ *     documentation and/or other materials provided with the distribution.
++ *
++ *   - Neither the name of Renesas nor the names of its contributors may be
++ *     used to endorse or promote products derived from this software without
++ *     specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#ifndef QOS_INIT_H_V3U__
++#define QOS_INIT_H_V3U__
++
++void qos_init_v3u(void);
++
++#endif	/* QOS_INIT_H_V3U__ */
+diff --git a/plat/renesas/rcar/qos/qos.mk b/plat/renesas/rcar/qos/qos.mk
+index b833c25..08b1c65 100644
+--- a/plat/renesas/rcar/qos/qos.mk
++++ b/plat/renesas/rcar/qos/qos.mk
+@@ -16,6 +16,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
+     BL2_SOURCES += plat/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
+     BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
+     BL2_SOURCES += plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
++    BL2_SOURCES += plat/renesas/rcar/qos/V3U/qos_init_v3u.c
+ else ifdef RCAR_LSI_CUT_COMPAT
+   ifeq (${RCAR_LSI},${RCAR_H3})
+     BL2_SOURCES += plat/renesas/rcar/qos/H3/qos_init_h3_v10.c
+@@ -43,6 +44,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
+   ifeq (${RCAR_LSI},${RCAR_V3H})
+     BL2_SOURCES += plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+   endif
++  ifeq (${RCAR_LSI},${RCAR_V3U})
++    BL2_SOURCES += plat/renesas/rcar/qos/V3U/qos_init_v3u.c
++  endif
+ else
+   ifeq (${RCAR_LSI},${RCAR_H3})
+     ifeq (${LSI_CUT},10)
+diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
+index 07b6d8d..b61b0fb 100644
+--- a/plat/renesas/rcar/qos/qos_init.c
++++ b/plat/renesas/rcar/qos/qos_init.c
+@@ -20,6 +20,7 @@
+   #include "M3N/qos_init_m3n_v10.h"
+   #include "V3M/qos_init_v3m.h"
+   #include "V3H/qos_init_v3h_v10.h"
++  #include "V3U/qos_init_v3u.h"
+ #endif
+ #if RCAR_LSI == RCAR_H3	/* H3 */
+   #include "H3/qos_init_h3_v10.h"
+@@ -47,6 +48,9 @@
+ #if RCAR_LSI == RCAR_V3H	/* V3H */
+   #include "V3H/qos_init_v3h_v10.h"
+ #endif
++#if RCAR_LSI == RCAR_V3U	/* V3U */
++  #include "V3U/qos_init_v3u.h"
++#endif
+ 
+  /* Product Register */
+ #define PRR			(0xFFF00044U)
+@@ -58,6 +62,7 @@
+ #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3N */
+ #define PRR_PRODUCT_V3H		(0x00005600U)           /* R-Car V3H */
+ #define PRR_PRODUCT_E3		(0x00005700U)           /* R-Car E3 */
++#define PRR_PRODUCT_V3U		(0x00005900U)           /* R-Car V3U */
+ #define PRR_PRODUCT_10		(0x00U)
+ #define PRR_PRODUCT_11		(0x01U)
+ #define PRR_PRODUCT_20		(0x10U)
+@@ -197,6 +202,19 @@ void qos_init(void)
+ 		PRR_PRODUCT_ERR(reg);
+  #endif
+ 		break;
++	case PRR_PRODUCT_V3U:
++ #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3U)
++		switch (reg & PRR_CUT_MASK) {
++		case PRR_PRODUCT_10:
++		case PRR_PRODUCT_20:
++		default:
++			qos_init_v3u();
++			break;
++		}
++ #else
++		PRR_PRODUCT_ERR(reg);
++ #endif
++		break;
+ 	default:
+ 		PRR_PRODUCT_ERR(reg);
+ 		break;
+@@ -297,6 +315,13 @@ void qos_init(void)
+ 		PRR_PRODUCT_ERR(reg);
+ 	}
+ 	qos_init_v3h_v10();
++ #elif RCAR_LSI == RCAR_V3U	/* V3U */
++	/* V3U Cut 10 or later */
++	if ((PRR_PRODUCT_V3U)
++			!= (reg & (PRR_PRODUCT_MASK))) {
++		PRR_PRODUCT_ERR(reg);
++	}
++	qos_init_v3u();
+  #else
+   #error "Don't have QoS initialize routine(Unknown chip)."
+  #endif
+diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
+index 7caead2..5c28f71 100644
+--- a/plat/renesas/rcar/rcar_def.h
++++ b/plat/renesas/rcar/rcar_def.h
+@@ -167,7 +167,10 @@
+ #define	RCAR_CNTC_BASE			U(0xE6080000)					/* The base addess of generic timer control register			*/
+ /* Reset	*/
+ #define	RCAR_CPGWPR			U(0xE6150900)					/* CPG write protect register						*/
++#define	RCAR_CPGWPR_V3U			U(0xE6150000)					/* V3U CPG write protect register					*/
+ #define	RCAR_MODEMR			U(0xE6160060)					/* Mode pin register							*/
++#define	RCAR_MODEMR0			U(0xE6160000)					/* V3U Mode pin register0						*/
++#define	RCAR_MODEMR1			U(0xE6160004)					/* V3U Mode pin register1						*/
+ #define	RCAR_CA57RESCNT			U(0xE6160040)					/* Reset control register for A57					*/
+ #define	RCAR_CA53RESCNT			U(0xE6160044)					/* Reset control register for A53					*/
+ #define	RCAR_SRESCR			U(0xE6160110)					/* Soft Power On Reset Control Register					*/
+@@ -209,6 +212,7 @@
+ #define RCAR_PRODUCT_M3N		U(0x00005500)
+ #define RCAR_PRODUCT_V3H		U(0x00005600)
+ #define RCAR_PRODUCT_E3			U(0x00005700)
++#define RCAR_PRODUCT_V3U		U(0x00005900)
+ #define RCAR_CUT_VER10			U(0x00000000)
+ #define RCAR_CUT_VER11			U(0x00000001)	/* H3/M3N/E3 Ver.1.1 */
+ #define RCAR_M3_CUT_VER11		U(0x00000010)	/* M3 Ver.1.1/Ver.1.2 */
+diff --git a/plat/renesas/rcar/rcar_private.h b/plat/renesas/rcar/rcar_private.h
+index 01c3aa4..39e7a21 100644
+--- a/plat/renesas/rcar/rcar_private.h
++++ b/plat/renesas/rcar/rcar_private.h
+@@ -148,6 +148,9 @@ uint32_t rcar_get_sys_suspend_power_state(void);
+ /* Function prototypes for read and write to the CPU system registers */
+ void iciallu(void);
+ 
++/* Function prototypes for MODEMR read */
++uint32_t modemr_read(void);
++
+ /* Function prototypes for MSTP write */
+ void cpg_write(uintptr_t regadr, uint32_t regval);
+ void mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit);
+-- 
+2.7.4
+
