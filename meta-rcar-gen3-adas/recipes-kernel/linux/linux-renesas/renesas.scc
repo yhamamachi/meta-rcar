@@ -475,3 +475,4 @@ patch 0540-media-i2c-ov9716-fix-horizontal-overlap.patch
 patch 0541-media-i2c-imagers-add-ov10640-for-gmsl2.patch
 patch 0542-media-i2c-max96712-fix-remote-imager-reset.patch
 patch 0543-media-i2c-max96712-fix-BWS-mode.patch
+patch 0544-media-rcar_csi2-fix-VC-cotrnol.patch
