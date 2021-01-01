@@ -1,0 +1,94 @@
+From d54452e244be6e3ef2d45496145bf9831b5ead31 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sat, 2 Jan 2021 00:04:08 +0300
+Subject: [PATCH] media: i2c: max96712: fix BWS mode
+
+This fixes 32-bit BWS mode
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/gmsl/max96712.c | 33 +++++++++++-----------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max96712.c b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+index d800223..7999cc8 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max96712.c
++++ b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+@@ -181,7 +181,7 @@ static void max96712_pipe_override(struct max96712_priv *priv, unsigned int pipe
+ 	bank = pipe / 4;
+ 	pipe %= 4;
+ 
+-	if (priv->dbl == 1) {
++	if (priv->dbl == 1 && !priv->bws) {
+ 		/* DBL=1 is MUX mode, DBL=0 is Normal mode */
+ 		des_update_bits(MAX_BACKTOP27(bank), BIT(pipe + 4), BIT(pipe + 4));	/* enable MUX mode */
+ 		bpp = bpp / 2;								/* divide because of MUX=1 */
+@@ -368,8 +368,7 @@ static void max96712_gmsl1_initial_setup(struct max96712_priv *priv)
+ 		des_write(MAX_GMSL1_2(i), 0x03);			/* Autodetect serial data rate range */
+ 		des_write(MAX_GMSL1_4(i), 0);				/* disable REV/FWD CC */
+ 		des_update_bits(MAX_GMSL1_6(i), BIT(7), priv->him ? BIT(7) : 0); /* HIM/Legacy mode */
+-		des_write(MAX_GMSL1_7(i), (priv->dbl ? BIT(7) : 0) |	/* DBL mode */
+-					  (priv->bws ? BIT(5) : 0) |	/* BWS 32/24-bit */
++		des_write(MAX_GMSL1_7(i), (priv->dbl ? BIT(7) : 0) |	/* DBL mode, BWS: 24-bit (default at start) */
+ 					  (priv->hibw ? BIT(3) : 0) |	/* High-bandwidth mode */
+ 					  (priv->hven ? BIT(2) : 0));	/* HS/VS encoding enable */
+ 		des_write(MAX_GMSL1_D(i), 0);				/* disable artificial ACKs, RC conf disable */
+@@ -404,13 +403,6 @@ static int max96712_gmsl1_reverse_channel_setup(struct max96712_priv *priv, int
+ 			usleep_range(2000, 2500);
+ 			__reg8_write(ser_addrs[0], 0x04, 0x43);	/* wake-up, enable RC, conf_link */
+ 			usleep_range(2000, 2500);
+-			if (priv->bws) {
+-				__reg8_write(ser_addrs[0], 0x07, (priv->hven ? 0x04 : 0) |		/* HS/VS encoding enable */
+-								 (priv->pclk_rising_edge ? 0 : 0x10) |	/* PCLK edge */
+-								 (0x80) |				/* DBL=1 in serializer */
+-								 (priv->bws ? 0x20 : 0));		/* BWS 32/24-bit */
+-				usleep_range(2000, 2500);
+-			}
+ 		} else {
+ 			/* Legacy mode setup */
+ 			des_write(MAX_RLMS95(link_n), 0x88);		/* override RC Tx amplitude */
+@@ -422,14 +414,6 @@ static int max96712_gmsl1_reverse_channel_setup(struct max96712_priv *priv, int
+ 			__reg8_write(ser_addrs[0], 0x97, 0x5f);		/* enable RC programming (MAX96705-MAX96711 only) */
+ 			usleep_range(2000, 2500);
+ 
+-			if (priv->bws) {
+-				__reg8_write(ser_addrs[0], 0x07, (priv->hven ? 0x04 : 0) |		/* HS/VS encoding enable */
+-								 (priv->pclk_rising_edge ? 0 : 0x10) |	/* PCLK edge */
+-								 (0x80) |				/* DBL=1 in serializer */
+-								 (priv->bws ? 0x20 : 0));		/* BWS 32/24-bit */
+-				usleep_range(2000, 2500);
+-			}
+-
+ 			des_write(MAX_RLMS95(link_n), 0xd3);	/* increase RC Tx amplitude */
+ 			usleep_range(2000, 2500);
+ 		}
+@@ -498,8 +482,7 @@ static int max96712_gmsl1_link_serializer_setup(struct max96712_priv *priv, int
+ 	ser_write(0x0d, 0x22 | MAXIM_I2C_I2C_SPEED);		/* disable artificial ACK, I2C speed set */
+ 	ser_write(0x07, (priv->hven ? 0x04 : 0) |		/* HS/VS encoding enable */
+ 			(priv->pclk_rising_edge ? 0 : 0x10) |	/* PCLK edge */
+-			(0x80) |				/* DBL=1 in serializer */
+-			(priv->bws ? 0x20 : 0));		/* BWS 32/24-bit */
++			BIT(7));				/* DBL=1 in serializer, BWS 24-bit (defuat at start) */
+ 	usleep_range(2000, 2500);
+ 	ser_write(0x02, 0xff);					/* spread spectrum +-4%, pclk range automatic, Gbps automatic */
+ 	usleep_range(2000, 2500);
+@@ -667,6 +650,16 @@ static void max96712_gmsl1_postinit(struct max96712_priv *priv)
+ 		max96712_write_remote_verify(priv, i, 0x04, conf_link ? 0x43 : 0x83);
+ 		usleep_range(2000, 2500);
+ 
++		if (priv->bws) {
++			ser_write(0x07, (priv->hven ? 0x04 : 0) |		/* HS/VS encoding enable */
++					(priv->pclk_rising_edge ? 0 : 0x10) |	/* PCLK edge */
++					BIT(7) | BIT(5));			/* DBL=1 in serializer, BWS 32-bit */
++			des_write(MAX_GMSL1_7(i), (priv->dbl ? BIT(7) : 0) |	/* DBL mode */
++						  BIT(5) |			/* BWS 32-bit */
++						  (priv->hibw ? BIT(3) : 0) |	/* High-bandwidth mode */
++						  (priv->hven ? BIT(2) : 0));	/* HS/VS encoding enable */
++		}
++
+ 		des_write(MAX_GMSL1_4(i), 0x00);		/* disable REV/FWD CC */
+ 
+ 		switch (priv->link[i]->ser_id) {
+-- 
+2.7.4
+

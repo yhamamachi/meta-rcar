@@ -1,0 +1,56 @@
+From 514b57363e7ac73e310cf3cb62b218f43a17d4a0 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sat, 2 Jan 2021 00:02:25 +0300
+Subject: [PATCH] media: i2c: max96712: fix remote imager reset
+
+This fixes remote gmsl1 imager reset sequence
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/gmsl/max96712.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max96712.c b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+index 5ee83bb..d800223 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max96712.c
++++ b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+@@ -260,19 +260,19 @@ static void max96712_mipi_setup(struct max96712_priv *priv)
+  * GMSL1
+  */
+ 
+-static int max96712_gmsl1_sensor_reset(struct max96712_priv *priv, int link_n, int reset_on)
++static void max96712_gmsl1_sensor_reset(struct max96712_priv *priv, int link_n, int reset_on)
+ {
+ 	struct max96712_link *link = priv->link[link_n];
+ 
+ 	if (priv->gpio_resetb < 1 || priv->gpio_resetb > 5)
+-		return -EINVAL;
++		return;
+ 
+-	/* sensor reset/unreset */
+-	ser_write(0x0f, (0xfe & ~BIT(priv->gpio_resetb)) | /* set GPIOn value to reset/unreset */
+-		  ((priv->active_low_resetb ? BIT(priv->gpio_resetb) : 0) ^ reset_on));
+-	ser_write(0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
++	if (priv->active_low_resetb)
++		reset_on = !reset_on;
+ 
+-	return 0;
++	/* sensor reset */
++	ser_write(0x0f, (0xfe & ~BIT(priv->gpio_resetb)) | (reset_on ? BIT(priv->gpio_resetb) : 0)); /* set GPIOn value */
++	ser_write(0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
+ }
+ 
+ static void max96712_gmsl1_cc_enable(struct max96712_priv *priv, int link, int on)
+@@ -464,6 +464,9 @@ static int max96712_gmsl1_reverse_channel_setup(struct max96712_priv *priv, int
+ 		}
+ 	}
+ 
++
++	max96712_gmsl1_sensor_reset(priv, link_n, 1);		/* sensor reset */
++	udelay(100);
+ 	max96712_gmsl1_sensor_reset(priv, link_n, 0);		/* sensor un-reset */
+ 
+ 	des_write(MAX_GMSL1_D(link_n), 0);			/* disable artificial ACKs, RC conf disable */
+-- 
+2.7.4
+
