@@ -472,3 +472,6 @@ patch 0537-media-i2c-ov9716-fix-crop.patch
 patch 0538-media-rcar_csi2-control-stream-forwarding.patch
 patch 0539-media-rcar_csi2-fix-race-condition.patch
 patch 0540-media-i2c-ov9716-fix-horizontal-overlap.patch
+patch 0541-media-i2c-imagers-add-ov10640-for-gmsl2.patch
+patch 0542-media-i2c-max96712-fix-remote-imager-reset.patch
+patch 0543-media-i2c-max96712-fix-BWS-mode.patch
