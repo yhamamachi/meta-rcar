@@ -7,24 +7,10 @@ This fixes crop setup settings
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- drivers/media/i2c/soc_camera/ov9716.c     |  2 +-
  drivers/media/i2c/soc_camera/ov9716.h     | 15 ++++++++++-----
  drivers/media/i2c/soc_camera/ov9716_r1e.h | 18 +++++++++---------
- 3 files changed, 20 insertions(+), 15 deletions(-)
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/i2c/soc_camera/ov9716.c b/drivers/media/i2c/soc_camera/ov9716.c
-index 4839012..7c7e778 100644
---- a/drivers/media/i2c/soc_camera/ov9716.c
-+++ b/drivers/media/i2c/soc_camera/ov9716.c
-@@ -596,7 +596,7 @@ static int ov9716_initialize(struct i2c_client *client)
- 	}
- 
- 	dev_info(&client->dev, "ov9716 PID %x (r%x), res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
--		 pid, rev, OV9716_DEFAULT_WIDTH, OV9716_DEFAULT_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
-+		 pid, rev, OV9716_MAX_WIDTH, OV9716_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
- out:
- 	ov9716_s_port(client, 0);
- 
 diff --git a/drivers/media/i2c/soc_camera/ov9716.h b/drivers/media/i2c/soc_camera/ov9716.h
 index b01d91d..bb2cb7e 100644
 --- a/drivers/media/i2c/soc_camera/ov9716.h
