@@ -135,3 +135,4 @@ patch 0134-arm64-dts-r8a77970-r8a77980-Enable-TMU-and-CMT.patch
 patch 0135-arm64-dts-renesas-r8a77980-Add-ES2-boards.patch
 patch 0136-rm64-dts-renesas-v3x-update-videoboxes-for-Yocto4.1..patch
 patch 0137-arm64-dts-renesas-r8a77980-es2-Add-videobox-boards-s.patch
+patch 0138-media-platform-rcar-vin-Set-default-crop-rectangle.patch
