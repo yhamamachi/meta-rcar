@@ -513,3 +513,4 @@ patch 0541-media-i2c-imagers-add-ov10640-for-gmsl2.patch
 patch 0542-media-i2c-max96712-fix-remote-imager-reset.patch
 patch 0543-media-i2c-max96712-fix-BWS-mode.patch
 patch 0544-media-rcar_csi2-fix-VC-cotrnol.patch
+patch 0545-media-i2c-ar0233-add-SE-60fps.patch
