@@ -1,0 +1,491 @@
+From d7bab55bc914d90be5ac647ce43d8d7c367b86e9 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 3 Feb 2021 20:51:23 +0300
+Subject: [PATCH] media: i2c: soc_camera: fix block read/write ad ADV_DEBUG
+
+This fixes block read/write for imagers that introduce different
+registers size
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/imagers/imx390.c  | 11 +++--------
+ drivers/media/i2c/soc_camera/imagers/ov10635.c | 16 ++--------------
+ drivers/media/i2c/soc_camera/imagers/ov10640.c | 14 ++------------
+ drivers/media/i2c/soc_camera/imagers/ov2311.c  | 16 ++--------------
+ drivers/media/i2c/soc_camera/imx390.c          |  9 ++-------
+ drivers/media/i2c/soc_camera/ov10635.c         | 16 ++--------------
+ drivers/media/i2c/soc_camera/ov10640.c         | 10 ++--------
+ drivers/media/i2c/soc_camera/ov2311.c          | 16 ++--------------
+ drivers/media/i2c/soc_camera/ov9716.c          | 10 ++--------
+ drivers/media/i2c/soc_camera/ox01d10.c         | 16 ++--------------
+ drivers/media/i2c/soc_camera/ox03a.c           | 16 ++--------------
+ 11 files changed, 23 insertions(+), 127 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/imagers/imx390.c b/drivers/media/i2c/soc_camera/imagers/imx390.c
+index c326aa6..5343b5a 100644
+--- a/drivers/media/i2c/soc_camera/imagers/imx390.c
++++ b/drivers/media/i2c/soc_camera/imagers/imx390.c
+@@ -287,18 +287,13 @@ static int imx390_g_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 s = reg->size;
+-	int ret;
+ 
+ 	if (!s)
+-		s = 1;
++		s = sizeof(u8);
+ 	if (s > sizeof(reg->val))
+ 		s = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, s);
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, s);
+ }
+ 
+ static int imx390_s_register(struct v4l2_subdev *sd,
+@@ -308,7 +303,7 @@ static int imx390_s_register(struct v4l2_subdev *sd,
+ 	u32 s = reg->size;
+ 
+ 	if (!s)
+-		s = 1;
++		s = sizeof(u8);
+ 	if (s > sizeof(reg->val))
+ 		s = sizeof(reg->val);
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10635.c b/drivers/media/i2c/soc_camera/imagers/ov10635.c
+index d21d357..d0c79d2 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10635.c
++++ b/drivers/media/i2c/soc_camera/imagers/ov10635.c
+@@ -345,19 +345,13 @@ static int ov10635_g_register(struct v4l2_subdev *sd,
+ 			      struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ov10635_s_register(struct v4l2_subdev *sd,
+@@ -365,19 +359,13 @@ static int ov10635_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10640.c b/drivers/media/i2c/soc_camera/imagers/ov10640.c
+index 2091357..ab342a9 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10640.c
++++ b/drivers/media/i2c/soc_camera/imagers/ov10640.c
+@@ -337,7 +337,6 @@ static int ov10640_g_register(struct v4l2_subdev *sd,
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov10640_priv *priv = to_ov10640(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+@@ -345,11 +344,7 @@ static int ov10640_g_register(struct v4l2_subdev *sd,
+ 		reg->size = sizeof(reg->val);
+ 
+ 	mutex_lock(&priv->lock);
+-
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ 	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+@@ -362,7 +357,6 @@ static int ov10640_s_register(struct v4l2_subdev *sd,
+ 	struct ov10640_priv *priv = to_ov10640(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+@@ -370,11 +364,7 @@ static int ov10640_s_register(struct v4l2_subdev *sd,
+ 		size = sizeof(reg->val);
+ 
+ 	mutex_lock(&priv->lock);
+-
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ 	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov2311.c b/drivers/media/i2c/soc_camera/imagers/ov2311.c
+index 24c336e..a350fd3 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov2311.c
++++ b/drivers/media/i2c/soc_camera/imagers/ov2311.c
+@@ -302,19 +302,13 @@ static int ov2311_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ov2311_s_register(struct v4l2_subdev *sd,
+@@ -322,19 +316,13 @@ static int ov2311_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+diff --git a/drivers/media/i2c/soc_camera/imx390.c b/drivers/media/i2c/soc_camera/imx390.c
+index 4f3d730..a3b3f8a 100644
+--- a/drivers/media/i2c/soc_camera/imx390.c
++++ b/drivers/media/i2c/soc_camera/imx390.c
+@@ -273,18 +273,13 @@ static int imx390_g_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 s = reg->size;
+-	int ret;
+ 
+ 	if (!s)
+-		s = 1;
++		s = sizeof(u8);
+ 	if (s > sizeof(reg->val))
+ 		s = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, s);
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, s);
+ }
+ 
+ static int imx390_s_register(struct v4l2_subdev *sd,
+diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
+index e9e0cdf..da217d9 100644
+--- a/drivers/media/i2c/soc_camera/ov10635.c
++++ b/drivers/media/i2c/soc_camera/ov10635.c
+@@ -356,19 +356,13 @@ static int ov10635_g_register(struct v4l2_subdev *sd,
+ 			      struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ov10635_s_register(struct v4l2_subdev *sd,
+@@ -376,19 +370,13 @@ static int ov10635_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+diff --git a/drivers/media/i2c/soc_camera/ov10640.c b/drivers/media/i2c/soc_camera/ov10640.c
+index 2f6a031..5186ae3 100644
+--- a/drivers/media/i2c/soc_camera/ov10640.c
++++ b/drivers/media/i2c/soc_camera/ov10640.c
+@@ -331,7 +331,6 @@ static int ov10640_g_register(struct v4l2_subdev *sd,
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov10640_priv *priv = to_ov10640(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+@@ -340,9 +339,7 @@ static int ov10640_g_register(struct v4l2_subdev *sd,
+ 
+ 	mutex_lock(&priv->lock);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ 
+ 	mutex_unlock(&priv->lock);
+ 
+@@ -356,7 +353,6 @@ static int ov10640_s_register(struct v4l2_subdev *sd,
+ 	struct ov10640_priv *priv = to_ov10640(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+@@ -365,9 +361,7 @@ static int ov10640_s_register(struct v4l2_subdev *sd,
+ 
+ 	mutex_lock(&priv->lock);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ 
+ 	mutex_unlock(&priv->lock);
+ 
+diff --git a/drivers/media/i2c/soc_camera/ov2311.c b/drivers/media/i2c/soc_camera/ov2311.c
+index f8099c7..ed271ec 100644
+--- a/drivers/media/i2c/soc_camera/ov2311.c
++++ b/drivers/media/i2c/soc_camera/ov2311.c
+@@ -267,19 +267,13 @@ static int ov2311_g_register(struct v4l2_subdev *sd,
+ 			      struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ov2311_s_register(struct v4l2_subdev *sd,
+@@ -287,19 +281,13 @@ static int ov2311_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+diff --git a/drivers/media/i2c/soc_camera/ov9716.c b/drivers/media/i2c/soc_camera/ov9716.c
+index a7e50cb..4f9202b 100644
+--- a/drivers/media/i2c/soc_camera/ov9716.c
++++ b/drivers/media/i2c/soc_camera/ov9716.c
+@@ -336,7 +336,6 @@ static int ov9716_g_register(struct v4l2_subdev *sd,
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov9716_priv *priv = to_ov9716(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+@@ -345,9 +344,7 @@ static int ov9716_g_register(struct v4l2_subdev *sd,
+ 
+ 	mutex_lock(&priv->lock);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ 
+ 	mutex_unlock(&priv->lock);
+ 
+@@ -361,7 +358,6 @@ static int ov9716_s_register(struct v4l2_subdev *sd,
+ 	struct ov9716_priv *priv = to_ov9716(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+@@ -370,9 +366,7 @@ static int ov9716_s_register(struct v4l2_subdev *sd,
+ 
+ 	mutex_lock(&priv->lock);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ 
+ 	mutex_unlock(&priv->lock);
+ 
+diff --git a/drivers/media/i2c/soc_camera/ox01d10.c b/drivers/media/i2c/soc_camera/ox01d10.c
+index cac267a..ced5d0b 100644
+--- a/drivers/media/i2c/soc_camera/ox01d10.c
++++ b/drivers/media/i2c/soc_camera/ox01d10.c
+@@ -214,19 +214,13 @@ static int ox01d10_g_register(struct v4l2_subdev *sd,
+ 			    struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ox01d10_s_register(struct v4l2_subdev *sd,
+@@ -234,19 +228,13 @@ static int ox01d10_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
+index 3b4ae27..66087a0 100644
+--- a/drivers/media/i2c/soc_camera/ox03a.c
++++ b/drivers/media/i2c/soc_camera/ox03a.c
+@@ -213,19 +213,13 @@ static int ox03a_g_register(struct v4l2_subdev *sd,
+ 			    struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u8);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
+-
+-	return ret;
++	return reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
+ }
+ 
+ static int ox03a_s_register(struct v4l2_subdev *sd,
+@@ -233,19 +227,13 @@ static int ox03a_s_register(struct v4l2_subdev *sd,
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	u32 size = reg->size;
+-	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u8);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
+-
+-	return ret;
++	return reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
+ }
+ #endif
+ 
+-- 
+2.7.4
+
