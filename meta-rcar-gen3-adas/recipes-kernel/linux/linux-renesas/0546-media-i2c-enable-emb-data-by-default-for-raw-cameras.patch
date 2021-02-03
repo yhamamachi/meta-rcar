@@ -1,0 +1,441 @@
+From 82eb95fe6d5da0e95bfee6357f79e78d7bab2ae0 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 3 Feb 2021 18:55:42 +0300
+Subject: [PATCH] media: i2c: enable emb data by default for raw cameras
+
+Enable embedded data for RAW cameras by default
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0140.c              |  1 +
+ drivers/media/i2c/soc_camera/ar0140.h              |  2 +-
+ drivers/media/i2c/soc_camera/ar0143.c              |  1 +
+ drivers/media/i2c/soc_camera/ar0143_custom.h       |  2 +-
+ drivers/media/i2c/soc_camera/ar0143_rev1.h         |  2 +-
+ drivers/media/i2c/soc_camera/ar0220_rev2.h         |  4 ----
+ drivers/media/i2c/soc_camera/ar0233.c              |  1 +
+ drivers/media/i2c/soc_camera/ar0233_rev1.h         |  4 ----
+ drivers/media/i2c/soc_camera/ar0233_rev2.h         |  4 ----
+ drivers/media/i2c/soc_camera/imagers/ov10640.c     |  1 +
+ drivers/media/i2c/soc_camera/imagers/ov10640_r1d.h | 14 +++++++-------
+ drivers/media/i2c/soc_camera/imagers/ov10640_r1e.h | 14 +++++++-------
+ drivers/media/i2c/soc_camera/imagers/ov10640_r1f.h | 14 +++++++-------
+ drivers/media/i2c/soc_camera/ov10640.c             |  1 +
+ drivers/media/i2c/soc_camera/ov10640_r1d.h         | 14 +++++++-------
+ drivers/media/i2c/soc_camera/ov10640_r1e.h         | 14 +++++++-------
+ drivers/media/i2c/soc_camera/ov10640_r1f.h         | 14 +++++++-------
+ drivers/media/i2c/soc_camera/ov9716.c              |  1 +
+ drivers/media/i2c/soc_camera/ov9716_r1e.h          | 14 +++++++-------
+ 19 files changed, 58 insertions(+), 64 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0140.c b/drivers/media/i2c/soc_camera/ar0140.c
+index 4d3893bf..a7eab26 100644
+--- a/drivers/media/i2c/soc_camera/ar0140.c
++++ b/drivers/media/i2c/soc_camera/ar0140.c
+@@ -589,6 +589,7 @@ static int ar0140_probe(struct i2c_client *client,
+ 
+ 	v4l2_i2c_subdev_init(&priv->sd, client, &ar0140_subdev_ops);
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++	priv->emb_enable = 1;
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0140_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0140.h b/drivers/media/i2c/soc_camera/ar0140.h
+index 08ce1ca..f37c79f 100644
+--- a/drivers/media/i2c/soc_camera/ar0140.h
++++ b/drivers/media/i2c/soc_camera/ar0140.h
+@@ -398,7 +398,7 @@ static const struct ar0140_reg ar0140_regs_wizard[] = {
+ {0x3086, 0x2C2C},
+ {0x3086, 0x2C00},
+ /* End Sequencer */
+-{0x3064, 0x1802}, // SMIA_TEST
++{0x3064, 0x1982}, // SMIA_TEST
+ /* PCLK=27Mhz/0x2 *0x30 /1/0x10 - TI serializers */
+ {0x302A, 0x0010}, // vt_pix_clk_div
+ {0x302E, 0x0002}, // pre_pll_clk_div
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+index 95b2428..e3ee853 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.c
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -693,6 +693,7 @@ static int ar0143_probe(struct i2c_client *client,
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0143_custom.h b/drivers/media/i2c/soc_camera/ar0143_custom.h
+index 8e21416..aef2f46 100644
+--- a/drivers/media/i2c/soc_camera/ar0143_custom.h
++++ b/drivers/media/i2c/soc_camera/ar0143_custom.h
+@@ -368,7 +368,7 @@ static const struct ar0143_reg ar0143_regs_wizard_custom[] = {
+ {0x3180, 0x0080}, // RESERVED_MFR_3180
+ {0x33E4, 0x0080}, // RESERVED_MFR_33E4
+ {0x33E0, 0x0880}, // TEST_ASIL_ROWS
+-{0x3064, 0x1802}, // SMIA_TEST
++{0x3064, 0x1982}, // SMIA_TEST
+ {0x3004, 0x0000}, // X_ADDR_START_
+ {0x3008, 0x053F}, // X_ADDR_END_
+ {0x3002, 0x0000}, // Y_ADDR_START_
+diff --git a/drivers/media/i2c/soc_camera/ar0143_rev1.h b/drivers/media/i2c/soc_camera/ar0143_rev1.h
+index 21cb4bf..7ee237c 100644
+--- a/drivers/media/i2c/soc_camera/ar0143_rev1.h
++++ b/drivers/media/i2c/soc_camera/ar0143_rev1.h
+@@ -394,7 +394,7 @@ static const struct ar0143_reg ar0143_regs_wizard_rev1[] = {
+ {0x3082, 0x0008}, // OPERATION_MODE_CTRL: 3exp
+ {0x30BA, 0x01E2}, // DIGITAL_CTRL: 3exp max
+ {0x3044, 0x0400}, // DARK_CONTROL
+-{0x3064, 0x1802}, // SMIA_TEST: disable emb data and stats
++{0x3064, 0x1982}, // SMIA_TEST: enable emb data and stats
+ {0x33E0, 0x0880}, // TEST_ASIL_ROWS
+ {0x3180, 0x0080}, // RESERVED_MFR_3180
+ {0x33E4, 0x0080}, // RESERVED_MFR_33E4
+diff --git a/drivers/media/i2c/soc_camera/ar0220_rev2.h b/drivers/media/i2c/soc_camera/ar0220_rev2.h
+index 12845cd..814dacf 100644
+--- a/drivers/media/i2c/soc_camera/ar0220_rev2.h
++++ b/drivers/media/i2c/soc_camera/ar0220_rev2.h
+@@ -275,11 +275,7 @@ static const struct ar0xxx_reg ar0220_rev2_Full_Res_FOV[] = {
+ static const struct ar0xxx_reg ar0220_rev2_hdr_Timing_and_Exposure[] = {
+ {0x3082, 0x8}, // operation_mode_ctrl
+ {0x30BA, 0x1112}, // digital_ctrl: num_exp_max=2
+-#ifdef AR0231_EMBEDDED_LINE
+ {0x3064, 0x1982}, // SMIA_TEST
+-#else
+-{0x3064, 0x1802}, // SMIA_TEST
+-#endif
+ //{0x33E0, 0xC80},
+ //{0x3180, 0x80},
+ //{0x33E4, 0x80},
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index 9aabba3..ca65fb6 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -733,6 +733,7 @@ static int ar0233_probe(struct i2c_client *client,
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0233_rev1.h b/drivers/media/i2c/soc_camera/ar0233_rev1.h
+index 8b9638b..4a3943b 100644
+--- a/drivers/media/i2c/soc_camera/ar0233_rev1.h
++++ b/drivers/media/i2c/soc_camera/ar0233_rev1.h
+@@ -1157,11 +1157,7 @@ static const struct ar0xxx_reg ar0233_rev1_Full_resolution[] = {
+ 
+ static const struct ar0xxx_reg ar0233_rev1_disable_embed_data_stat[] = {
+ {0x3040, 0xC005}, //Embedded stat4 and data4 rows, hflip/vflip=1
+-#ifdef AR0233_EMBEDDED_LINE
+ {0x3064, 0x0180}, //Enable embedded data and stat
+-#else
+-{0x3064, 0x0}, //Disable embedded data and stat
+-#endif
+ { }
+ }; /* disable_embed_data_stat */
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0233_rev2.h b/drivers/media/i2c/soc_camera/ar0233_rev2.h
+index c2fe508..bd4263c 100644
+--- a/drivers/media/i2c/soc_camera/ar0233_rev2.h
++++ b/drivers/media/i2c/soc_camera/ar0233_rev2.h
+@@ -3440,11 +3440,7 @@ static const struct ar0xxx_reg ar0233_rev2_Tempsensor_init[] = {
+ static const struct ar0xxx_reg ar0233_rev2_disable_embed_data_stat[] = {
+ {0x3040, 0xC005}, //Embedded stat4 and data4 rows, hflip/vflip=1
+ {0x350e, 0x2089}, // bit0 must be set for vflip=1
+-#ifdef AR0233_EMBEDDED_LINE
+ {0x3064, 0x0180}, // SMIA_TEST: enable emb data and stats
+-#else
+-{0x3064, 0x0}, // Disable embedded data and stat
+-#endif
+ { }
+ }; /* disable_embed_data_stat */
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10640.c b/drivers/media/i2c/soc_camera/imagers/ov10640.c
+index 8e92b6d..2091357 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10640.c
++++ b/drivers/media/i2c/soc_camera/imagers/ov10640.c
+@@ -646,6 +646,7 @@ static int ov10640_probe(struct i2c_client *client,
+ 	priv->rect.height = OV10640_DEFAULT_HEIGHT;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10640_r1d.h b/drivers/media/i2c/soc_camera/imagers/ov10640_r1d.h
+index a036b0d..f4e7e97 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10640_r1d.h
++++ b/drivers/media/i2c/soc_camera/imagers/ov10640_r1d.h
+@@ -1216,16 +1216,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1d[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1236,7 +1236,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1d[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10640_r1e.h b/drivers/media/i2c/soc_camera/imagers/ov10640_r1e.h
+index 440027b..96b6518 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10640_r1e.h
++++ b/drivers/media/i2c/soc_camera/imagers/ov10640_r1e.h
+@@ -1210,16 +1210,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1e[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1230,7 +1230,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1e[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/imagers/ov10640_r1f.h b/drivers/media/i2c/soc_camera/imagers/ov10640_r1f.h
+index a40ac14..eb0a87b 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ov10640_r1f.h
++++ b/drivers/media/i2c/soc_camera/imagers/ov10640_r1f.h
+@@ -1173,16 +1173,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1f[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1193,7 +1193,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1f[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/ov10640.c b/drivers/media/i2c/soc_camera/ov10640.c
+index d52a0a2..2f6a031 100644
+--- a/drivers/media/i2c/soc_camera/ov10640.c
++++ b/drivers/media/i2c/soc_camera/ov10640.c
+@@ -724,6 +724,7 @@ static int ov10640_probe(struct i2c_client *client,
+ 	priv->rect.height = OV10640_DEFAULT_HEIGHT;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+diff --git a/drivers/media/i2c/soc_camera/ov10640_r1d.h b/drivers/media/i2c/soc_camera/ov10640_r1d.h
+index 6f29b01..f3e119e 100644
+--- a/drivers/media/i2c/soc_camera/ov10640_r1d.h
++++ b/drivers/media/i2c/soc_camera/ov10640_r1d.h
+@@ -1213,16 +1213,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1d[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1233,7 +1233,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1d[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/ov10640_r1e.h b/drivers/media/i2c/soc_camera/ov10640_r1e.h
+index ba3c636..a32929e 100644
+--- a/drivers/media/i2c/soc_camera/ov10640_r1e.h
++++ b/drivers/media/i2c/soc_camera/ov10640_r1e.h
+@@ -1208,16 +1208,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1e[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1228,7 +1228,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1e[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/ov10640_r1f.h b/drivers/media/i2c/soc_camera/ov10640_r1f.h
+index 3f9b3f5..b7ddda7 100644
+--- a/drivers/media/i2c/soc_camera/ov10640_r1f.h
++++ b/drivers/media/i2c/soc_camera/ov10640_r1f.h
+@@ -1171,16 +1171,16 @@ static const struct ov10640_reg ov10640_regs_wizard_r1f[] = {
+ {0x3127, 0x63},
+ {0x3074, OV10640_X_START >> 8},
+ {0x3075, OV10640_X_START & 0xff},
+-{0x3076, OV10640_Y_START >> 8},
+-{0x3077, OV10640_Y_START & 0xff},
++{0x3076, (OV10640_Y_START - OV10640_EMB_LINES / 2) >> 8},
++{0x3077, (OV10640_Y_START - OV10640_EMB_LINES / 2) & 0xff},
+ {0x3078, OV10640_X_END >> 8},
+ {0x3079, OV10640_X_END & 0xff},
+-{0x307a, OV10640_Y_END >> 8},
+-{0x307b, OV10640_Y_END & 0xff},
++{0x307a, (OV10640_Y_END + OV10640_EMB_LINES / 2) >> 8},
++{0x307b, (OV10640_Y_END + OV10640_EMB_LINES / 2) & 0xff},
+ {0x307c, OV10640_DEFAULT_WIDTH >> 8},
+ {0x307d, OV10640_DEFAULT_WIDTH & 0xff},
+-{0x307e, OV10640_DEFAULT_HEIGHT >> 8},
+-{0x307f, OV10640_DEFAULT_HEIGHT & 0xff},
++{0x307e, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) >> 8},
++{0x307f, (OV10640_DEFAULT_HEIGHT + OV10640_EMB_LINES) & 0xff},
+ {0x3080, (OV10640_SENSOR_WIDTH + 200) >> 8}, // HTS
+ {0x3081, (OV10640_SENSOR_WIDTH + 200) & 0xff},
+ {0x3082, (OV10640_SENSOR_HEIGHT + 208) >> 8}, //VTS
+@@ -1191,7 +1191,7 @@ static const struct ov10640_reg ov10640_regs_wizard_r1f[] = {
+ {0x3087, 0x0},
+ {0x346d, 0x14},
+ {0x3444, 0x28},
+-{0x3091, 0x00}, // embedded data, embedded stats
++{0x3091, 0x0C}, // embedded data, embedded stats
+ {0x3119, 0x44}, // COMB12
+ {0x3012, 0x1},
+ #endif
+diff --git a/drivers/media/i2c/soc_camera/ov9716.c b/drivers/media/i2c/soc_camera/ov9716.c
+index 3b6928c..a7e50cb 100644
+--- a/drivers/media/i2c/soc_camera/ov9716.c
++++ b/drivers/media/i2c/soc_camera/ov9716.c
+@@ -665,6 +665,7 @@ static int ov9716_probe(struct i2c_client *client,
+ 	priv->rect.height = OV9716_DEFAULT_HEIGHT;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+diff --git a/drivers/media/i2c/soc_camera/ov9716_r1e.h b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+index 495eea4..42028ff0 100644
+--- a/drivers/media/i2c/soc_camera/ov9716_r1e.h
++++ b/drivers/media/i2c/soc_camera/ov9716_r1e.h
+@@ -1748,21 +1748,21 @@ static const struct ov9716_reg ov9716_regs_r1e[] = {
+ /* 1280x960@30 COMB12 */
+ {0x30a0, OV9716_X_DEF_START >> 8},
+ {0x30a1, OV9716_X_DEF_START & 0xff},
+-{0x30a2, OV9716_Y_DEF_START >> 8},
+-{0x30a3, OV9716_Y_DEF_START & 0xff},
++{0x30a2, (OV9716_Y_DEF_START - OV9716_EMB_LINES) >> 8},
++{0x30a3, (OV9716_Y_DEF_START - OV9716_EMB_LINES) & 0xff},
+ {0x30a4, OV9716_X_DEF_END >> 8},
+ {0x30a5, OV9716_X_DEF_END & 0xff},
+-{0x30a6, OV9716_Y_DEF_END >> 8},
+-{0x30a7, OV9716_Y_DEF_END & 0xff},
++{0x30a6, (OV9716_Y_DEF_END + OV9716_EMB_LINES) >> 8},
++{0x30a7, (OV9716_Y_DEF_END + OV9716_EMB_LINES) & 0xff},
+ {0x30ac, (OV9716_DEFAULT_WIDTH + OV9716_EXTRA_OFFSET) >> 8},
+ {0x30ad, (OV9716_DEFAULT_WIDTH + OV9716_EXTRA_OFFSET) & 0xff},
+-{0x30ae, OV9716_DEFAULT_HEIGHT >> 8},
+-{0x30af, OV9716_DEFAULT_HEIGHT & 0xff},
++{0x30ae, (OV9716_DEFAULT_HEIGHT + OV9716_EMB_LINES) >> 8},
++{0x30af, (OV9716_DEFAULT_HEIGHT + OV9716_EMB_LINES) & 0xff},
+ {0x30b0, (OV9716_SENSOR_WIDTH + 992) >> 8}, // HTS must be large enough
+ {0x30b1, (OV9716_SENSOR_WIDTH + 992) & 0xff},
+ {0x30b2, (OV9716_SENSOR_HEIGHT + 8) >> 8}, // VTS
+ {0x30b3, (OV9716_SENSOR_HEIGHT + 8) & 0xff},
+-{0x30c1, 0x00}, // embedded data
++{0x30c1, 0x04}, // embedded data
+ {0x3190, 0x02}, // COMB12
+ {0x3012, 0x01},
+ };
+-- 
+2.7.4
+
