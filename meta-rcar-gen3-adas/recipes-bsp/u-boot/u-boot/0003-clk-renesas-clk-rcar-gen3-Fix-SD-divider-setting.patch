@@ -1,7 +1,7 @@
-From 57056dd00dc0638e4afb79e6e541611d17cf9a55 Mon Sep 17 00:00:00 2001
+From 6cc41a0c98dd5e0b842d5dd4d04be2ffbb3dbbe4 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 7 Dec 2020 20:00:45 +0300
-Subject: [PATCH] clk: renesas: clk-rcar-gen3: Fix SD divider setting
+Subject: [PATCH 3/9] clk: renesas: clk-rcar-gen3: Fix SD divider setting
 
 This backports kernel commit ee87a8797d62dda7 ("clk: renesas: rcar-gen3:
 Fix SD divider setting")
@@ -22,7 +22,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 80cc932..6caa4aa 100644
+index 06c94b0..3abf33e 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
 @@ -68,16 +68,16 @@

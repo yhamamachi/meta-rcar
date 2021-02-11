@@ -1,7 +1,7 @@
-From d879a50b9bc21f0d852f522150f7ac1e9d141d11 Mon Sep 17 00:00:00 2001
+From f0210c1b3916bb924f63f7b530917b4bfc259333 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Sat, 3 Aug 2019 00:49:38 +0300
-Subject: [PATCH 07/21] ARM: dts: r8a77970: eagle: Add eMMC support
+Subject: [PATCH 4/9] ARM: dts: r8a77970: eagle: Add eMMC support
 
 The Eagle platform supports an expansion board with
 the eMMC device on it. This Adds eMMC device node
@@ -13,10 +13,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 44 insertions(+)
 
 diff --git a/arch/arm/dts/r8a77970-eagle.dts b/arch/arm/dts/r8a77970-eagle.dts
-index b6d5332..49b3359 100644
+index ca9d777..1c9fa70 100644
 --- a/arch/arm/dts/r8a77970-eagle.dts
 +++ b/arch/arm/dts/r8a77970-eagle.dts
-@@ -73,6 +73,24 @@
+@@ -74,6 +74,24 @@
  			};
  		};
  	};
@@ -41,7 +41,7 @@ index b6d5332..49b3359 100644
  };
  
  &avb {
-@@ -157,6 +175,20 @@
+@@ -159,6 +177,20 @@
  	};
  };
  
@@ -62,7 +62,7 @@ index b6d5332..49b3359 100644
  &pfc {
  	avb_pins: avb0 {
  		groups = "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
-@@ -173,6 +205,18 @@
+@@ -175,6 +207,18 @@
  		function = "i2c0";
  	};
  
