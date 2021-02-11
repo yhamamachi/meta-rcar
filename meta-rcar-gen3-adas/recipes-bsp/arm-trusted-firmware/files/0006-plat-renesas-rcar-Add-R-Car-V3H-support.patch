@@ -1,341 +1,127 @@
-From 47b1fe0ca134d3e434e498a7b3d10b723e9855e0 Mon Sep 17 00:00:00 2001
+From 2843970b1688d2356693f58e8ef3127c9d8b68a8 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
-Date: Wed, 31 Oct 2018 00:46:40 +0300
-Subject: [PATCH 4/5] plat: renesas: rcar: Add R-Car V3H support
+Date: Tue, 19 Jan 2021 23:57:49 +0300
+Subject: [PATCH 6/6] plat: renesas: rcar: Add R-Car V3H support
 
-Add R-Car V3H support. This is based on the original
-V3H support patch for Yocto v2.23.1 by Vladimir Barinov.
+Add R-Car V3H support. This is based on the original V3H
+support patch for Yocto v2.23.1 by Vladimir Barinov.
+The BL2 image has been moved to SRAM to make it consistent
+with other boards. This also should workaround h/w RT-SRAM
+issues with the V3H v2.0 SoC.
 
-Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- plat/renesas/rcar/bl2_cpg_init.c             |   68 ++
- plat/renesas/rcar/bl2_rcar_setup.c           |   13 +-
- plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c |    7 +
- plat/renesas/rcar/drivers/rom/rom_api.c      |   17 +-
- plat/renesas/rcar/drivers/scif/scif.S        |    2 +-
- plat/renesas/rcar/include/bl2_dma_register.h |    2 +-
- plat/renesas/rcar/include/platform_def.h     |   10 +-
- plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c     | 1196 ++++++++++++++++++++++++++
- plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h     |   37 +
- plat/renesas/rcar/pfc/pfc.mk                 |    7 +
- plat/renesas/rcar/pfc/pfc_init.c             |   20 +
- plat/renesas/rcar/platform.mk                |   18 +
- plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c |  651 ++++++++++++++
- plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h |   37 +
- plat/renesas/rcar/qos/qos.mk                 |    7 +
- plat/renesas/rcar/qos/qos_init.c             |   25 +
- plat/renesas/rcar/rcar_def.h                 |    1 +
- tools/dummy_create/makefile                  |   14 +-
- 18 files changed, 2121 insertions(+), 11 deletions(-)
- create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
- create mode 100644 plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h
- create mode 100644 plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
- create mode 100644 plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
+ drivers/renesas/rcar/board/board.c              |    5 +
+ drivers/renesas/rcar/board/board.h              |    3 +-
+ drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c |    5 +
+ drivers/renesas/rcar/dma/dma_driver.c           |    2 +-
+ drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c     | 1031 +++++++++++++++++++++++
+ drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.h     |   37 +
+ drivers/renesas/rcar/pfc/pfc.mk                 |    7 +
+ drivers/renesas/rcar/pfc/pfc_init.c             |   13 +
+ drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c |  533 ++++++++++++
+ drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.h |   37 +
+ drivers/renesas/rcar/qos/qos.mk                 |    7 +
+ drivers/renesas/rcar/qos/qos_init.c             |   24 +
+ drivers/renesas/rcar/rom/rom_api.c              |   21 +-
+ drivers/renesas/rcar/scif/scif.S                |    2 +-
+ plat/renesas/rcar/bl2_cpg_init.c                |   69 ++
+ plat/renesas/rcar/bl2_plat_setup.c              |   23 +-
+ plat/renesas/rcar/include/platform_def.h        |    8 +-
+ plat/renesas/rcar/platform.mk                   |   18 +
+ tools/renesas/rcar_layout_create/makefile       |    4 +
+ 19 files changed, 1839 insertions(+), 10 deletions(-)
+ create mode 100644 drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
+ create mode 100644 drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.h
+ create mode 100644 drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+ create mode 100644 drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
 
-diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
-index 32a6746..1481029 100644
---- a/plat/renesas/rcar/bl2_cpg_init.c
-+++ b/plat/renesas/rcar/bl2_cpg_init.c
-@@ -32,6 +32,10 @@ static void bl2_system_cpg_init_e3(void);
- static void bl2_realtime_cpg_init_v3m(void);
- static void bl2_system_cpg_init_v3m(void);
- #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3M) */
-+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
-+static void bl2_realtime_cpg_init_v3h(void);
-+static void bl2_system_cpg_init_v3h(void);
-+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H) */
- 
- typedef struct {
- 	uintptr_t	adr;
-@@ -423,6 +427,60 @@ static void bl2_system_cpg_init_v3m(void)
- }
- #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3M) */
- 
-+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
-+static void bl2_realtime_cpg_init_v3h(void)
-+{
-+	/* CPG (REALTIME) registers */
-+
-+	/* Realtime Module Stop Control Register 0 */
-+	cpg_write(RMSTPCR0,	0x00230000U);
-+	/* Realtime Module Stop Control Register 1 */
-+	cpg_write(RMSTPCR1,	0xFFFFFFFFU);
-+	/* Realtime Module Stop Control Register 2 */
-+	cpg_write(RMSTPCR2,	0x14062FD8U);
-+	/* Realtime Module Stop Control Register 3 */
-+	cpg_write(RMSTPCR3,	0xFFFFFFDFU);
-+	/* Realtime Module Stop Control Register 4 */
-+	cpg_write(RMSTPCR4,	0x80000184U);
-+	/* Realtime Module Stop Control Register 5 */
-+	cpg_write(RMSTPCR5,	0x83FFFFFFU);
-+	/* Realtime Module Stop Control Register 6 */
-+	cpg_write(RMSTPCR6,	0xFFFFFFFFU);
-+	/* Realtime Module Stop Control Register 7 */
-+	cpg_write(RMSTPCR7,	0xFFFFFFFFU);
-+	/* Realtime Module Stop Control Register 8 */
-+	cpg_write(RMSTPCR8,	0x7FF3FFF4U);
-+	/* Realtime Module Stop Control Register 9 */
-+	cpg_write(RMSTPCR9,	0xFFFFFFFEU);
-+}
-+
-+static void bl2_system_cpg_init_v3h(void)
-+{
-+	/* CPG (SYSTEM) registers */
-+
-+	/* System Module Stop Control Register 0 */
-+	cpg_write(SMSTPCR0,	0x00210000U);
-+	/* System Module Stop Control Register 1 */
-+	cpg_write(SMSTPCR1,	0xFFFFFFFFU);
-+	/* System Module Stop Control Register 2 */
-+	cpg_write(SMSTPCR2,	0x340E2FDCU);
-+	/* System Module Stop Control Register 3 */
-+	cpg_write(SMSTPCR3,	0xFFFFFBDFU);
-+	/* System Module Stop Control Register 4 */
-+	cpg_write(SMSTPCR4,	0x80000004U);
-+	/* System Module Stop Control Register 5 */
-+	cpg_write(SMSTPCR5,	0xC3FFFFFFU);
-+	/* System Module Stop Control Register 6 */
-+	cpg_write(SMSTPCR6,	0xFFFFFFFFU);
-+	/* System Module Stop Control Register 7 */
-+	cpg_write(SMSTPCR7,	0xFFFFFFFFU);
-+	/* System Module Stop Control Register 8 */
-+	cpg_write(SMSTPCR8,	0x01F1FFF5U);
-+	/* System Module Stop Control Register 9 */
-+	cpg_write(SMSTPCR9,	0xFFFFFFFEU);
-+}
-+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H) */
-+
- void bl2_cpg_init(void)
- {
- 	uint32_t	modemr;
-@@ -454,6 +512,9 @@ void bl2_cpg_init(void)
- 		case RCAR_PRODUCT_V3M:
- 			bl2_realtime_cpg_init_v3m();
- 			break;
-+		case RCAR_PRODUCT_V3H:
-+			bl2_realtime_cpg_init_v3h();
-+			break;
- 		default:
- 			panic();
- 			break;
-@@ -468,6 +529,8 @@ void bl2_cpg_init(void)
- 		bl2_realtime_cpg_init_e3();
- #elif RCAR_LSI == RCAR_V3M
- 		bl2_realtime_cpg_init_v3m();
-+#elif RCAR_LSI == RCAR_V3H
-+		bl2_realtime_cpg_init_v3h();
- #else /* RCAR_LSI == RCAR_XX */
- #error "Don't have CPG initialize routine(unknown)."
- #endif /* RCAR_LSI == RCAR_XX */
-@@ -493,6 +556,9 @@ void bl2_system_cpg_init(void)
- 	case RCAR_PRODUCT_V3M:
- 		bl2_system_cpg_init_v3m();
- 		break;
-+	case RCAR_PRODUCT_V3H:
-+		bl2_system_cpg_init_v3h();
-+		break;
- 	default:
- 		panic();
- 		break;
-@@ -507,6 +573,8 @@ void bl2_system_cpg_init(void)
- 	bl2_system_cpg_init_e3();
- #elif RCAR_LSI == RCAR_V3M
- 	bl2_system_cpg_init_v3m();
-+#elif RCAR_LSI == RCAR_V3H
-+	bl2_system_cpg_init_v3h();
- #else /* RCAR_LSI == RCAR_XX */
- #error "Don't have CPG initialize routine(unknown)."
- #endif /* RCAR_LSI == RCAR_XX */
-diff --git a/plat/renesas/rcar/bl2_rcar_setup.c b/plat/renesas/rcar/bl2_rcar_setup.c
-index 02a15c2..375f5c0 100755
---- a/plat/renesas/rcar/bl2_rcar_setup.c
-+++ b/plat/renesas/rcar/bl2_rcar_setup.c
-@@ -132,8 +132,11 @@
- #elif RCAR_LSI == RCAR_V3M
- #define TARGET_PRODUCT		RCAR_PRODUCT_V3M
- #define TARGET_NAME		"R-Car V3M"
-+#elif RCAR_LSI == RCAR_V3H
-+#define TARGET_PRODUCT		RCAR_PRODUCT_V3H
-+#define TARGET_NAME		"R-Car V3H"
- #elif RCAR_LSI == RCAR_AUTO
--#define TARGET_NAME		"R-Car H3/M3/M3N/V3M"
-+#define TARGET_NAME		"R-Car H3/M3/M3N/V3M/V3H"
+diff --git a/drivers/renesas/rcar/board/board.c b/drivers/renesas/rcar/board/board.c
+index 093b667..e29a4cb 100644
+--- a/drivers/renesas/rcar/board/board.c
++++ b/drivers/renesas/rcar/board/board.c
+@@ -20,6 +20,8 @@
+ #define BOARD_DEFAULT		(BOARD_EBISU << BOARD_CODE_SHIFT)
+ #elif (RCAR_LSI == RCAR_V3M)
+ #define BOARD_DEFAULT		(BOARD_EAGLE << BOARD_CODE_SHIFT)
++#elif (RCAR_LSI == RCAR_V3H)
++#define BOARD_DEFAULT		(BOARD_CONDOR << BOARD_CODE_SHIFT)
+ #else
+ #define BOARD_DEFAULT		(BOARD_SALVATOR_X << BOARD_CODE_SHIFT)
  #endif
+@@ -38,6 +40,7 @@
+ #define EB_ID	{ 0x10U, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU }
+ #define DR_ID	{ 0x10U, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU }
+ #define EA_ID	{ 0x10U, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU }
++#define CR_ID	{ 0x10U, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU }
+ #define KK_ID	{ 0x10U, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU }
  
- /* for SuspendToRAM */
-@@ -390,6 +393,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
- 	const char *product_m3n     = "M3N";
- 	const char *product_e3      = "E3";
- 	const char *product_v3m     = "V3M";
-+	const char *product_v3h     = "V3H";
- 	const char *lcs_cm          = "CM";
- 	const char *lcs_dm          = "DM";
- 	const char *lcs_sd          = "SD";
-@@ -477,6 +481,9 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
- 	case RCAR_PRODUCT_V3M:
- 		str = product_v3m;
- 		break;
-+	case RCAR_PRODUCT_V3H:
-+		str = product_v3h;
-+		break;
- 	default:
- 		str = unknown;
- 		break;
-@@ -551,7 +558,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
- 	}
- #endif /* RCAR_LSI != RCAR_AUTO */
+ const char *g_board_tbl[] = {
+@@ -50,6 +53,7 @@ const char *g_board_tbl[] = {
+ 	[BOARD_EBISU] = "Ebisu",
+ 	[BOARD_DRAAK] = "Draak",
+ 	[BOARD_EAGLE] = "Eagle",
++	[BOARD_CONDOR] = "Condor",
+ 	[BOARD_UNKNOWN] = "unknown"
+ };
  
--#if RCAR_LSI != RCAR_V3M
-+#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H)
- 	/* Initialize AVS Settings */
- 	bl2_avs_init();
+@@ -65,6 +69,7 @@ int32_t rcar_get_board_type(uint32_t *type, uint32_t *rev)
+ 		[BOARD_EBISU] = EB_ID,
+ 		[BOARD_DRAAK] = DR_ID,
+ 		[BOARD_EAGLE] = EA_ID,
++		[BOARD_CONDOR] = CR_ID,
+ 		[BOARD_KRIEK] = KK_ID,
+ 	};
+ 	static uint8_t board_id = BOARD_ID_UNKNOWN;
+diff --git a/drivers/renesas/rcar/board/board.h b/drivers/renesas/rcar/board/board.h
+index 51a8e30..6ea6842 100644
+--- a/drivers/renesas/rcar/board/board.h
++++ b/drivers/renesas/rcar/board/board.h
+@@ -17,7 +17,8 @@
+ #define BOARD_EBISU_4D			(0x0DU)
+ #define BOARD_DRAAK			(0x0EU)
+ #define BOARD_EAGLE			(0x0FU)
+-#define BOARD_UNKNOWN			(BOARD_EAGLE + 1U)
++#define BOARD_CONDOR			(0x10U)
++#define BOARD_UNKNOWN			(BOARD_CONDOR + 1U)
  
-@@ -585,7 +592,7 @@ static void rcar_bl2_early_platform_setup(const meminfo_t *mem_layout)
- 	(void)sprintf(msg, "BL2: Boot device is %s\n", str);
- 	NOTICE("%s", msg);
+ #define BOARD_REV_UNKNOWN		(0xFF)
  
--#if RCAR_LSI != RCAR_V3M
-+#if (RCAR_LSI != RCAR_V3M) && (RCAR_LSI != RCAR_V3H)
- 	/* Proceed with separated AVS processing */
- 	bl2_avs_setting();
- #endif
-diff --git a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-index 09f2f04..e4d2916 100644
---- a/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-+++ b/plat/renesas/rcar/ddr/ddr_b/boot_init_dram.c
-@@ -3852,6 +3852,13 @@ int32_t InitDram(void)
- 	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
+diff --git a/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c b/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c
+index 095e18f..2792016 100644
+--- a/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c
++++ b/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c
+@@ -4166,6 +4166,11 @@ int32_t rcar_dram_init(void)
+ 	prr_cut = mmio_read_32(PRR) & PRR_CUT_MASK;
  #endif /* RCAR_DDR_FIXED_LSI_TYPE */
  
-+#if RCAR_LSI == RCAR_V3H
-+	if (Prr_Product == PRR_PRODUCT_V3H) {
-+		/* dram initialized by CR7 */
++	/* DRAM is initialized by CR7 */
++	if (prr_product == PRR_PRODUCT_V3H) {
 +		return INITDRAM_OK;
 +	}
-+#endif
 +
- 	if (Prr_Product == PRR_PRODUCT_H3) {
- 		if (Prr_Cut <= PRR_PRODUCT_11)
- 			pDDR_REGDEF_TBL = (const uint32_t *)&DDR_REGDEF_TBL[0][0];
-diff --git a/plat/renesas/rcar/drivers/rom/rom_api.c b/plat/renesas/rcar/drivers/rom/rom_api.c
-index c683fc8..a555fd3 100644
---- a/plat/renesas/rcar/drivers/rom/rom_api.c
-+++ b/plat/renesas/rcar/drivers/rom/rom_api.c
-@@ -24,7 +24,8 @@ static uint32_t get_table_index(void);
- #define NEW_API_TABLE	(3U)	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, */
- 				/* V3M WS2.0 */
- #define NEW_API_TABLE2	(4U)	/* V3M WS1.0 */
--#define API_TABLE_MAX	(5U)	/* table max */
-+#define NEW_API_TABLE3	(5U)	/* V3H WS1.0 */
-+#define API_TABLE_MAX	(6U)	/* table max */
+ 	if (prr_product == PRR_PRODUCT_H3) {
+ 		if (prr_cut <= PRR_PRODUCT_11) {
+ 			p_ddr_regdef_tbl =
+diff --git a/drivers/renesas/rcar/dma/dma_driver.c b/drivers/renesas/rcar/dma/dma_driver.c
+index e0be46e..7f928dd 100644
+--- a/drivers/renesas/rcar/dma/dma_driver.c
++++ b/drivers/renesas/rcar/dma/dma_driver.c
+@@ -16,7 +16,7 @@
+ #include "rcar_private.h"
  
- 
- 
-@@ -40,6 +41,7 @@ uint32_t ROM_SecureBootAPI( uint32_t *pKeyCert,
- 		0xEB100180U,	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, */
- 				/* V3M WS2.0 */
- 		0xEB110128U,	/* V3M WS1.0 */
-+		0xEB101960U,	/* V3H WS1.0 */
- 	};
- 
- 	ROM_SECURE_BOOT_API func;
-@@ -54,6 +56,10 @@ uint32_t ROM_SecureBootAPI( uint32_t *pKeyCert,
- 
- uint32_t ROM_GetLcs(uint32_t *pLcs)
- {
-+#if RCAR_LSI == RCAR_V3H
-+	*pLcs = 0xff;
-+	return 0;
-+#else
- 	/* Get LCS stete API address table */
- 	static const uintptr_t ROM_GetLcs_table[API_TABLE_MAX] = {
- 		0xEB10DFE0U,	/* H3 Ver.1.0/Ver.1.1 */
-@@ -62,6 +68,7 @@ uint32_t ROM_GetLcs(uint32_t *pLcs)
- 		0xEB10018CU,	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, */
- 				/* V3M WS2.0 */
- 		0xEB1103A4U,	/* V3M WS1.0 */
-+		0xEB101940U,	/* V3H WS1.0 */
- 	};
- 
- 	ROM_GETLCS_API func;
-@@ -71,6 +78,7 @@ uint32_t ROM_GetLcs(uint32_t *pLcs)
- 	func = (ROM_GETLCS_API)ROM_GetLcs_table[index];
- 
- 	return func(pLcs);
-+#endif
- }
- 
- 
-@@ -109,6 +117,13 @@ static uint32_t get_table_index(void)
- 			index = NEW_API_TABLE;	/* V3M WS2.0 or later */
- 		}
- 		break;
-+	case RCAR_PRODUCT_V3H:
-+		if (cut_ver == RCAR_CUT_VER10) {
-+			index = NEW_API_TABLE3;	/* V3H WS1.0 */
-+		} else {
-+			index = NEW_API_TABLE3;	/* V3H WS2.0 or later */
-+		}
-+		break;
- 	default:
- 		index = NEW_API_TABLE;		/* M3N and E3 */
- 		break;
-diff --git a/plat/renesas/rcar/drivers/scif/scif.S b/plat/renesas/rcar/drivers/scif/scif.S
-index 2b0bae5..5b660d4 100644
---- a/plat/renesas/rcar/drivers/scif/scif.S
-+++ b/plat/renesas/rcar/drivers/scif/scif.S
-@@ -29,7 +29,7 @@
- #define	SCIF0_BASE		(0xE6E60000)	/* SCIF-0 base address */
- #define	SCIF2_BASE		(0xE6E88000)	/* SCIF-2 base address */
- 
--#if RCAR_LSI == RCAR_V3M	/* V3M */
-+#if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)	/* V3M or V3H */
- #define SCIF_BASE		SCIF0_BASE
- #define CPG_SMSTPCR		CPG_SMSTPCR2
- #define CPG_MSTPSR		CPG_MSTPSR2
-diff --git a/plat/renesas/rcar/include/bl2_dma_register.h b/plat/renesas/rcar/include/bl2_dma_register.h
-index f359156..cd083f6 100644
---- a/plat/renesas/rcar/include/bl2_dma_register.h
-+++ b/plat/renesas/rcar/include/bl2_dma_register.h
-@@ -7,7 +7,7 @@
- #ifndef BL2_DMA_REGISTER_H__
- #define BL2_DMA_REGISTER_H__
- 
--#if RCAR_LSI == RCAR_V3M	/* V3M */
-+#if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)	/* V3M/V3H */
- #define	DMACH	16	/* DMA CH setting (0/16/32) */
- #else
- #define	DMACH	0	/* DMA CH setting (0/16/32) */
-diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
-index e9da655..c461b95 100644
---- a/plat/renesas/rcar/include/platform_def.h
-+++ b/plat/renesas/rcar/include/platform_def.h
-@@ -103,9 +103,17 @@
-  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
-  * size plus a little space for growth.
-  */
-+#if RCAR_LSI == RCAR_V3H
-+#define RCAR_SYSRAM_BASE		U(0xEB200000)
-+#else
- #define RCAR_SYSRAM_BASE		U(0xE6300000)
-+#endif
- 
+ /* DMA CHANNEL setting (0/16/32) */
 -#if RCAR_LSI == RCAR_V3M
-+#if RCAR_LSI == RCAR_V3H
-+#define BL2_BASE			U(0xEB244000)
-+#define BL2_LIMIT			U(0xEB264000)
-+#define BL2_IMAGE_LIMIT			U(0xEB26E800)
-+#elif RCAR_LSI == RCAR_V3M
- #define BL2_BASE			U(0xE6344000)
- #define BL2_LIMIT			U(0xE6360000)
- #define BL2_IMAGE_LIMIT			U(0xE636E800)
-diff --git a/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
++#if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)	/* V3M/V3H */
+ #define	DMA_CH		16
+ #else
+ #define	DMA_CH		0
+diff --git a/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c b/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
 new file mode 100644
-index 0000000..351747a
+index 0000000..59c8767
 --- /dev/null
-+++ b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
-@@ -0,0 +1,1196 @@
++++ b/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
+@@ -0,0 +1,1031 @@
 +/*
 + * Copyright (c) 2015-2017, Renesas Electronics Corporation
 + * All rights reserved.
@@ -368,176 +154,11 @@ index 0000000..351747a
 + */
 +
 +#include <stdint.h>		/* for uint32_t */
-+#include <mmio.h>
++#include <lib/mmio.h>
 +#include "pfc_init_v3h.h"
-+
-+
-+/* GPIO base address */
-+#define	GPIO_BASE		(0xE6050000U)
-+
-+/* GPIO registers */
-+#define	GPIO_IOINTSEL0		(GPIO_BASE + 0x0000U)
-+#define	GPIO_INOUTSEL0		(GPIO_BASE + 0x0004U)
-+#define	GPIO_OUTDT0		(GPIO_BASE + 0x0008U)
-+#define	GPIO_INDT0		(GPIO_BASE + 0x000CU)
-+#define	GPIO_INTDT0		(GPIO_BASE + 0x0010U)
-+#define	GPIO_INTCLR0		(GPIO_BASE + 0x0014U)
-+#define	GPIO_INTMSK0		(GPIO_BASE + 0x0018U)
-+#define	GPIO_MSKCLR0		(GPIO_BASE + 0x001CU)
-+#define	GPIO_POSNEG0		(GPIO_BASE + 0x0020U)
-+#define	GPIO_EDGLEVEL0		(GPIO_BASE + 0x0024U)
-+#define	GPIO_FILONOFF0		(GPIO_BASE + 0x0028U)
-+#define	GPIO_INTMSKS0		(GPIO_BASE + 0x0038U)
-+#define	GPIO_MSKCLRS0		(GPIO_BASE + 0x003CU)
-+#define	GPIO_OUTDTSEL0		(GPIO_BASE + 0x0040U)
-+#define	GPIO_OUTDTH0		(GPIO_BASE + 0x0044U)
-+#define	GPIO_OUTDTL0		(GPIO_BASE + 0x0048U)
-+#define	GPIO_BOTHEDGE0		(GPIO_BASE + 0x004CU)
-+#define	GPIO_IOINTSEL1		(GPIO_BASE + 0x1000U)
-+#define	GPIO_INOUTSEL1		(GPIO_BASE + 0x1004U)
-+#define	GPIO_OUTDT1		(GPIO_BASE + 0x1008U)
-+#define	GPIO_INDT1		(GPIO_BASE + 0x100CU)
-+#define	GPIO_INTDT1		(GPIO_BASE + 0x1010U)
-+#define	GPIO_INTCLR1		(GPIO_BASE + 0x1014U)
-+#define	GPIO_INTMSK1		(GPIO_BASE + 0x1018U)
-+#define	GPIO_MSKCLR1		(GPIO_BASE + 0x101CU)
-+#define	GPIO_POSNEG1		(GPIO_BASE + 0x1020U)
-+#define	GPIO_EDGLEVEL1		(GPIO_BASE + 0x1024U)
-+#define	GPIO_FILONOFF1		(GPIO_BASE + 0x1028U)
-+#define	GPIO_INTMSKS1		(GPIO_BASE + 0x1038U)
-+#define	GPIO_MSKCLRS1		(GPIO_BASE + 0x103CU)
-+#define	GPIO_OUTDTSEL1		(GPIO_BASE + 0x1040U)
-+#define	GPIO_OUTDTH1		(GPIO_BASE + 0x1044U)
-+#define	GPIO_OUTDTL1		(GPIO_BASE + 0x1048U)
-+#define	GPIO_BOTHEDGE1		(GPIO_BASE + 0x104CU)
-+#define	GPIO_IOINTSEL2		(GPIO_BASE + 0x2000U)
-+#define	GPIO_INOUTSEL2		(GPIO_BASE + 0x2004U)
-+#define	GPIO_OUTDT2		(GPIO_BASE + 0x2008U)
-+#define	GPIO_INDT2		(GPIO_BASE + 0x200CU)
-+#define	GPIO_INTDT2		(GPIO_BASE + 0x2010U)
-+#define	GPIO_INTCLR2		(GPIO_BASE + 0x2014U)
-+#define	GPIO_INTMSK2		(GPIO_BASE + 0x2018U)
-+#define	GPIO_MSKCLR2		(GPIO_BASE + 0x201CU)
-+#define	GPIO_POSNEG2		(GPIO_BASE + 0x2020U)
-+#define	GPIO_EDGLEVEL2		(GPIO_BASE + 0x2024U)
-+#define	GPIO_FILONOFF2		(GPIO_BASE + 0x2028U)
-+#define	GPIO_INTMSKS2		(GPIO_BASE + 0x2038U)
-+#define	GPIO_MSKCLRS2		(GPIO_BASE + 0x203CU)
-+#define	GPIO_OUTDTSEL2		(GPIO_BASE + 0x2040U)
-+#define	GPIO_OUTDTH2		(GPIO_BASE + 0x2044U)
-+#define	GPIO_OUTDTL2		(GPIO_BASE + 0x2048U)
-+#define	GPIO_BOTHEDGE2		(GPIO_BASE + 0x204CU)
-+#define	GPIO_IOINTSEL3		(GPIO_BASE + 0x3000U)
-+#define	GPIO_INOUTSEL3		(GPIO_BASE + 0x3004U)
-+#define	GPIO_OUTDT3		(GPIO_BASE + 0x3008U)
-+#define	GPIO_INDT3		(GPIO_BASE + 0x300CU)
-+#define	GPIO_INTDT3		(GPIO_BASE + 0x3010U)
-+#define	GPIO_INTCLR3		(GPIO_BASE + 0x3014U)
-+#define	GPIO_INTMSK3		(GPIO_BASE + 0x3018U)
-+#define	GPIO_MSKCLR3		(GPIO_BASE + 0x301CU)
-+#define	GPIO_POSNEG3		(GPIO_BASE + 0x3020U)
-+#define	GPIO_EDGLEVEL3		(GPIO_BASE + 0x3024U)
-+#define	GPIO_FILONOFF3		(GPIO_BASE + 0x3028U)
-+#define	GPIO_INTMSKS3		(GPIO_BASE + 0x3038U)
-+#define	GPIO_MSKCLRS3		(GPIO_BASE + 0x303CU)
-+#define	GPIO_OUTDTSEL3		(GPIO_BASE + 0x3040U)
-+#define	GPIO_OUTDTH3		(GPIO_BASE + 0x3044U)
-+#define	GPIO_OUTDTL3		(GPIO_BASE + 0x3048U)
-+#define	GPIO_BOTHEDGE3		(GPIO_BASE + 0x304CU)
-+#define	GPIO_IOINTSEL4		(GPIO_BASE + 0x4000U)
-+#define	GPIO_INOUTSEL4		(GPIO_BASE + 0x4004U)
-+#define	GPIO_OUTDT4		(GPIO_BASE + 0x4008U)
-+#define	GPIO_INDT4		(GPIO_BASE + 0x400CU)
-+#define	GPIO_INTDT4		(GPIO_BASE + 0x4010U)
-+#define	GPIO_INTCLR4		(GPIO_BASE + 0x4014U)
-+#define	GPIO_INTMSK4		(GPIO_BASE + 0x4018U)
-+#define	GPIO_MSKCLR4		(GPIO_BASE + 0x401CU)
-+#define	GPIO_POSNEG4		(GPIO_BASE + 0x4020U)
-+#define	GPIO_EDGLEVEL4		(GPIO_BASE + 0x4024U)
-+#define	GPIO_FILONOFF4		(GPIO_BASE + 0x4028U)
-+#define	GPIO_INTMSKS4		(GPIO_BASE + 0x4038U)
-+#define	GPIO_MSKCLRS4		(GPIO_BASE + 0x403CU)
-+#define	GPIO_OUTDTSEL4		(GPIO_BASE + 0x4040U)
-+#define	GPIO_OUTDTH4		(GPIO_BASE + 0x4044U)
-+#define	GPIO_OUTDTL4		(GPIO_BASE + 0x4048U)
-+#define	GPIO_BOTHEDGE4		(GPIO_BASE + 0x404CU)
-+#define	GPIO_IOINTSEL5		(GPIO_BASE + 0x5000U)
-+#define	GPIO_INOUTSEL5		(GPIO_BASE + 0x5004U)
-+#define	GPIO_OUTDT5		(GPIO_BASE + 0x5008U)
-+#define	GPIO_INDT5		(GPIO_BASE + 0x500CU)
-+#define	GPIO_INTDT5		(GPIO_BASE + 0x5010U)
-+#define	GPIO_INTCLR5		(GPIO_BASE + 0x5014U)
-+#define	GPIO_INTMSK5		(GPIO_BASE + 0x5018U)
-+#define	GPIO_MSKCLR5		(GPIO_BASE + 0x501CU)
-+#define	GPIO_POSNEG5		(GPIO_BASE + 0x5020U)
-+#define	GPIO_EDGLEVEL5		(GPIO_BASE + 0x5024U)
-+#define	GPIO_FILONOFF5		(GPIO_BASE + 0x5028U)
-+#define	GPIO_INTMSKS5		(GPIO_BASE + 0x5038U)
-+#define	GPIO_MSKCLRS5		(GPIO_BASE + 0x503CU)
-+#define	GPIO_OUTDTSEL5		(GPIO_BASE + 0x5040U)
-+#define	GPIO_OUTDTH5		(GPIO_BASE + 0x5044U)
-+#define	GPIO_OUTDTL5		(GPIO_BASE + 0x5048U)
-+#define	GPIO_BOTHEDGE5		(GPIO_BASE + 0x504CU)
-+
-+/* Pin functon base address */
-+#define	PFC_BASE		(0xE6060000U)
-+
-+/* Pin functon registers */
-+#define	PFC_PMMR		(PFC_BASE + 0x0000U)
-+#define PFC_GPSR0		(PFC_BASE + 0x0100U)
-+#define PFC_GPSR1		(PFC_BASE + 0x0104U)
-+#define PFC_GPSR2		(PFC_BASE + 0x0108U)
-+#define PFC_GPSR3		(PFC_BASE + 0x010CU)
-+#define PFC_GPSR4		(PFC_BASE + 0x0110U)
-+#define	PFC_GPSR5		(PFC_BASE + 0x0114U)
-+#define	PFC_IPSR0		(PFC_BASE + 0x0200U)
-+#define	PFC_IPSR1		(PFC_BASE + 0x0204U)
-+#define	PFC_IPSR2		(PFC_BASE + 0x0208U)
-+#define	PFC_IPSR3		(PFC_BASE + 0x020CU)
-+#define	PFC_IPSR4		(PFC_BASE + 0x0210U)
-+#define	PFC_IPSR5		(PFC_BASE + 0x0214U)
-+#define	PFC_IPSR6		(PFC_BASE + 0x0218U)
-+#define	PFC_IPSR7		(PFC_BASE + 0x021CU)
-+#define	PFC_IPSR8		(PFC_BASE + 0x0220U)
-+#define	PFC_IPSR9		(PFC_BASE + 0x0224U)
-+#define	PFC_IPSR10		(PFC_BASE + 0x0228U)
-+#define PFC_IOCTRL0		(PFC_BASE + 0x0300U)
-+#define PFC_IOCTRL1		(PFC_BASE + 0x0304U)
-+#define PFC_IOCTRL2		(PFC_BASE + 0x0308U)
-+#define PFC_IOCTRL3		(PFC_BASE + 0x030CU)
-+#define PFC_IOCTRL4		(PFC_BASE + 0x0310U)
-+#define PFC_IOCTRL5		(PFC_BASE + 0x0314U)
-+#define PFC_IOCTRL6		(PFC_BASE + 0x0318U)
-+#define PFC_IOCTRL7		(PFC_BASE + 0x031CU)
-+#define PFC_IOCTRL8		(PFC_BASE + 0x0320U)
-+#define PFC_IOCTRL9		(PFC_BASE + 0x0324U)
-+#define PFC_IOCTRL10		(PFC_BASE + 0x0328U)
-+#define PFC_IOCTRL11		(PFC_BASE + 0x032CU)
-+#define PFC_IOCTRL12		(PFC_BASE + 0x0330U)
-+#define PFC_IOCTRL13		(PFC_BASE + 0x0334U)
-+#define PFC_IOCTRL14		(PFC_BASE + 0x0338U)
-+#define PFC_IOCTRL15		(PFC_BASE + 0x033CU)
-+#define PFC_IOCTRL16		(PFC_BASE + 0x0340U)
-+#define PFC_IOCTRL17		(PFC_BASE + 0x0344U)
-+#define PFC_IOCTRL18		(PFC_BASE + 0x0348U)
-+#define PFC_IOCTRL19		(PFC_BASE + 0x034CU)
-+#define PFC_IOCTRL30		(PFC_BASE + 0x0380U)
-+#define PFC_IOCTRL31		(PFC_BASE + 0x0384U)
-+#define PFC_IOCTRL32		(PFC_BASE + 0x0388U)
-+#define PFC_IOCTRL33		(PFC_BASE + 0x038CU)
-+#define PFC_IOCTRL40		(PFC_BASE + 0x03C0U)
-+#define	PFC_TSREG		(PFC_BASE + 0x03E4U)
-+#define	PFC_PUEN0		(PFC_BASE + 0x0400U)
-+#define	PFC_PUEN1		(PFC_BASE + 0x0404U)
-+#define	PFC_PUEN2		(PFC_BASE + 0x0408U)
-+#define	PFC_PUEN3		(PFC_BASE + 0x040CU)
-+#define	PFC_PUEN4		(PFC_BASE + 0x0410U)
-+#define	PFC_PUD0		(PFC_BASE + 0x0440U)
-+#define	PFC_PUD1		(PFC_BASE + 0x0444U)
-+#define	PFC_PUD2		(PFC_BASE + 0x0448U)
-+#define	PFC_PUD3		(PFC_BASE + 0x044CU)
-+#define	PFC_PUD4		(PFC_BASE + 0x0450U)
-+#define	PFC_MOD_SEL0		(PFC_BASE + 0x0500U)
++#include "include/rcar_def.h"
++#include "rcar_private.h"
++#include "../pfc_regs.h"
 +
 +#define	GPSR0_DU_EXODDF_DU_ODDF_DISP_CDE	((uint32_t)1U << 21U)
 +#define	GPSR0_DU_EXVSYNC_DU_VSYNC		((uint32_t)1U << 20U)
@@ -1411,7 +1032,7 @@ index 0000000..351747a
 +	
 +	/* initialize POC Control */
 +
-+	pfc_reg_write(PFC_IOCTRL30, IOCTRL30_POC_VI0_DATA5
++	pfc_reg_write(PFC_POCCTRL0, IOCTRL30_POC_VI0_DATA5
 +			       | IOCTRL30_POC_VI0_DATA4
 +			       | IOCTRL30_POC_VI0_DATA3
 +			       | IOCTRL30_POC_VI0_DATA2
@@ -1444,7 +1065,7 @@ index 0000000..351747a
 +			       | IOCTRL30_POC_DU_DR3
 +			       | IOCTRL30_POC_DU_DR2);
 +
-+	pfc_reg_write(PFC_IOCTRL31, IOCTRL31_POC_MSIOF0_SS2
++	pfc_reg_write(PFC_POCCTRL1, IOCTRL31_POC_MSIOF0_SS2
 +			       | IOCTRL31_POC_MSIOF0_SS1
 +			       | IOCTRL31_POC_MSIOF0_SYNC
 +			       | IOCTRL31_POC_MSIOF0_SCK
@@ -1478,15 +1099,15 @@ index 0000000..351747a
 +			       | IOCTRL31_POC_VI0_DATA6
 +			       | IOCTRL31_POC_VI0_DATA6);
 +
-+	pfc_reg_write(PFC_IOCTRL32, IOCTRL32_POC_FSO_TOE
++	pfc_reg_write(PFC_POCCTRL2, IOCTRL32_POC_FSO_TOE
 +			       | IOCTRL32_POC_FSO_CFE_1
 +			       | IOCTRL32_POC_FSO_CFE_0
 +			       | IOCTRL32_POC_SDA3
 +			       | IOCTRL32_POC_SCL3);
 +
-+	pfc_reg_write(PFC_IOCTRL33,0x00000000);
++	pfc_reg_write(PFC_POCCTRL3,0x00000000);
 +
-+	pfc_reg_write(PFC_IOCTRL40,0x00000000);
++	pfc_reg_write(PFC_TDSELCTRL0,0x00000000);
 +	
 +
 +	/* initialize LSI pin pull-up/down control */
@@ -1532,11 +1153,11 @@ index 0000000..351747a
 +	mmio_write_32(GPIO_INOUTSEL4, 0x00400000U);
 +	mmio_write_32(GPIO_INOUTSEL5, 0x00007000U);
 +}
-diff --git a/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h
+diff --git a/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.h b/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.h
 new file mode 100644
 index 0000000..6ecedb5
 --- /dev/null
-+++ b/plat/renesas/rcar/pfc/V3H/pfc_init_v3h.h
++++ b/drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.h
 @@ -0,0 +1,37 @@
 +/*
 + * Copyright (c) 2015-2017, Renesas Electronics Corporation
@@ -1575,79 +1196,63 @@ index 0000000..6ecedb5
 +void pfc_init_v3h(void);
 +
 +#endif	/* PFC_INIT_V3H_H__ */
-diff --git a/plat/renesas/rcar/pfc/pfc.mk b/plat/renesas/rcar/pfc/pfc.mk
-index d539dd2..b74f33b 100644
---- a/plat/renesas/rcar/pfc/pfc.mk
-+++ b/plat/renesas/rcar/pfc/pfc.mk
+diff --git a/drivers/renesas/rcar/pfc/pfc.mk b/drivers/renesas/rcar/pfc/pfc.mk
+index f1dd92c..c3c7855 100644
+--- a/drivers/renesas/rcar/pfc/pfc.mk
++++ b/drivers/renesas/rcar/pfc/pfc.mk
 @@ -10,6 +10,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
-     BL2_SOURCES += plat/renesas/rcar/pfc/M3/pfc_init_m3.c
-     BL2_SOURCES += plat/renesas/rcar/pfc/M3N/pfc_init_m3n.c
-     BL2_SOURCES += plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c
-+    BL2_SOURCES += plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
+     BL2_SOURCES += drivers/renesas/rcar/pfc/M3/pfc_init_m3.c
+     BL2_SOURCES += drivers/renesas/rcar/pfc/M3N/pfc_init_m3n.c
+     BL2_SOURCES += drivers/renesas/rcar/pfc/V3M/pfc_init_v3m.c
++    BL2_SOURCES += drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
  
  else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_H3})
-@@ -32,6 +33,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
+@@ -29,6 +30,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_V3M})
-     BL2_SOURCES += plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c
+     BL2_SOURCES += drivers/renesas/rcar/pfc/V3M/pfc_init_v3m.c
    endif
 +  ifeq (${RCAR_LSI},${RCAR_V3H})
-+    BL2_SOURCES += plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
++    BL2_SOURCES += drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
 +  endif
- else
-   ifeq (${RCAR_LSI},${RCAR_H3})
-     ifeq (${LSI_CUT},10)
+   ifeq (${RCAR_LSI},${RCAR_E3})
+     BL2_SOURCES += drivers/renesas/rcar/pfc/E3/pfc_init_e3.c
+   endif
 @@ -58,6 +62,9 @@ else
    ifeq (${RCAR_LSI},${RCAR_V3M})
-     BL2_SOURCES += plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c
+     BL2_SOURCES += drivers/renesas/rcar/pfc/V3M/pfc_init_v3m.c
    endif
 +  ifeq (${RCAR_LSI},${RCAR_V3H})
-+    BL2_SOURCES += plat/renesas/rcar/pfc/V3H/pfc_init_v3h.c
++    BL2_SOURCES += drivers/renesas/rcar/pfc/V3H/pfc_init_v3h.c
 +  endif
- endif
- 
- BL2_SOURCES += plat/renesas/rcar/pfc/pfc_init.c
-diff --git a/plat/renesas/rcar/pfc/pfc_init.c b/plat/renesas/rcar/pfc/pfc_init.c
-index 75fecd6..12f46e3 100644
---- a/plat/renesas/rcar/pfc/pfc_init.c
-+++ b/plat/renesas/rcar/pfc/pfc_init.c
-@@ -15,6 +15,7 @@
-   #include "M3/pfc_init_m3.h"
-   #include "M3N/pfc_init_m3n.h"
-   #include "V3M/pfc_init_v3m.h"
-+  #include "V3H/pfc_init_v3h.h"
- #endif
- #if (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)	/* H3 */
-   #include "H3/pfc_init_h3_v1.h"
-@@ -32,6 +33,9 @@
+   ifeq (${RCAR_LSI},${RCAR_E3})
+     BL2_SOURCES += drivers/renesas/rcar/pfc/E3/pfc_init_e3.c
+   endif
+diff --git a/drivers/renesas/rcar/pfc/pfc_init.c b/drivers/renesas/rcar/pfc/pfc_init.c
+index 8810667..3de4a42 100644
+--- a/drivers/renesas/rcar/pfc/pfc_init.c
++++ b/drivers/renesas/rcar/pfc/pfc_init.c
+@@ -30,6 +30,9 @@
  #if RCAR_LSI == RCAR_V3M	/* V3M */
-   #include "V3M/pfc_init_v3m.h"
+ #include "V3M/pfc_init_v3m.h"
  #endif
 +#if RCAR_LSI == RCAR_V3H	/* V3H */
-+  #include "V3H/pfc_init_v3h.h"
++#include "V3H/pfc_init_v3h.h"
 +#endif
- 
-  /* Product Register */
- #define PRR			(0xFFF00044U)
-@@ -41,6 +45,7 @@
- #define PRR_PRODUCT_M3		(0x00005200U)           /* R-Car M3 */
- #define PRR_PRODUCT_V3M		(0x00005400U)           /* R-Car V3M */
- #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3N */
-+#define PRR_PRODUCT_V3H		(0x00005600U)           /* R-Car V3H */
- #define PRR_PRODUCT_E3		(0x00005700U)		/* R-Car E3 */
- #define PRR_PRODUCT_10		(0x00U)
- #define PRR_PRODUCT_11		(0x01U)
-@@ -86,6 +91,9 @@ void pfc_init(void)
- 	case RCAR_PRODUCT_V3M:
+ #if RCAR_LSI == RCAR_E3		/* E3 */
+ #include "E3/pfc_init_e3.h"
+ #endif
+@@ -80,6 +83,9 @@ void rcar_pfc_init(void)
+ 	case PRR_PRODUCT_V3M:
  		pfc_init_v3m();
  		break;
-+	case RCAR_PRODUCT_V3H:
++	case PRR_PRODUCT_V3H:
 +		pfc_init_v3h();
 +		break;
  	default:
  		PRR_PRODUCT_ERR(reg);
  		break;
-@@ -138,6 +146,13 @@ void pfc_init(void)
+@@ -125,6 +131,13 @@ void rcar_pfc_init(void)
  		pfc_init_v3m();
  #endif
  		break;
@@ -1658,70 +1263,15 @@ index 75fecd6..12f46e3 100644
 +		pfc_init_v3h();
 +#endif
 +		break;
- 	default:
+ 	case PRR_PRODUCT_E3:
+ #if RCAR_LSI != RCAR_E3
  		PRR_PRODUCT_ERR(reg);
- 		break;
-@@ -186,6 +201,11 @@ void pfc_init(void)
- 		PRR_PRODUCT_ERR(reg);
- 
- 	pfc_init_v3m();
-+ #elif RCAR_LSI == RCAR_V3H	/* V3H */
-+	if ((PRR_PRODUCT_V3H) != (reg & PRR_PRODUCT_MASK))
-+		PRR_PRODUCT_ERR(reg);
-+
-+	pfc_init_v3h();
-  #else
-   #error "Don't have PFC initialize routine(unknown)."
-  #endif
-diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
-index e6eb04b..d0ec7cd 100644
---- a/plat/renesas/rcar/platform.mk
-+++ b/plat/renesas/rcar/platform.mk
-@@ -98,6 +98,7 @@ RCAR_M3N:=2
- RCAR_E3:=3
- RCAR_H3N:=4
- RCAR_V3M:=5
-+RCAR_V3H:=6
- RCAR_AUTO:=99
- $(eval $(call add_define,RCAR_H3))
- $(eval $(call add_define,RCAR_M3))
-@@ -105,6 +106,7 @@ $(eval $(call add_define,RCAR_M3N))
- $(eval $(call add_define,RCAR_E3))
- $(eval $(call add_define,RCAR_H3N))
- $(eval $(call add_define,RCAR_V3M))
-+$(eval $(call add_define,RCAR_V3H))
- $(eval $(call add_define,RCAR_AUTO))
- RCAR_CUT_10:=0
- RCAR_CUT_11:=1
-@@ -229,6 +231,22 @@ else
-       endif
-       $(eval $(call add_define,RCAR_LSI_CUT))
-     endif
-+  else ifeq (${LSI},V3H)
-+    RCAR_LSI:=${RCAR_V3H}
-+    ifndef LSI_CUT
-+      # enable compatible function.
-+      RCAR_LSI_CUT_COMPAT := 1
-+      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
-+    else
-+      # disable compatible function.
-+      ifeq (${LSI_CUT},10)
-+        RCAR_LSI_CUT:=0
-+      endif
-+      ifeq (${LSI_CUT},20)
-+        RCAR_LSI_CUT:=10
-+      endif
-+      $(eval $(call add_define,RCAR_LSI_CUT))
-+    endif
-   else
-     $(error "Error: ${LSI} is not supported.")
-   endif
-diff --git a/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c b/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+diff --git a/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
 new file mode 100644
-index 0000000..af56e33
+index 0000000..09d1dad
 --- /dev/null
-+++ b/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
-@@ -0,0 +1,651 @@
++++ b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+@@ -0,0 +1,533 @@
 +/*
 + * Copyright (c) 2015-2017, Renesas Electronics Corporation
 + * All rights reserved.
@@ -1754,112 +1304,12 @@ index 0000000..af56e33
 + */
 +
 +#include <stdint.h>
-+#include <debug.h>
++#include <common/debug.h>
++#include "../qos_common.h"
++#include "../qos_reg.h"
 +#include "qos_init_v3h_v10.h"
 +
-+
 +#define	RCAR_QOS_VERSION		"rev.0.14"
-+
-+#define	RCAR_QOS_NONE			(3U)
-+#define	RCAR_QOS_TYPE_DEFAULT		(0U)
-+
-+#define	RCAR_DRAM_SPLIT_LINEAR		(0U)
-+#define	RCAR_DRAM_SPLIT_4CH		(1U)
-+#define	RCAR_DRAM_SPLIT_2CH		(2U)
-+#define	RCAR_DRAM_SPLIT_AUTO		(3U)
-+
-+#define	RST_BASE			(0xE6160000U)
-+#define	RST_MODEMR			(RST_BASE + 0x0060U)
-+
-+#define	DBSC_BASE			(0xE6790000U)
-+#define	DBSC_DBDFIPMSTRCNF		(DBSC_BASE + 0x0520U)
-+#define	DBSC_AXARB			(DBSC_BASE + 0x0800U)
-+#define DBSC_DBCAM0CNF0			(DBSC_BASE + 0x0900U)
-+#define DBSC_DBCAM0CNF1			(DBSC_BASE + 0x0904U)
-+#define DBSC_DBCAM0CNF2			(DBSC_BASE + 0x0908U)
-+#define DBSC_DBCAM0CNF3			(DBSC_BASE + 0x090CU)
-+#define DBSC_DBCAMDIS			(DBSC_BASE + 0x09fCU)
-+#define DBSC_DBSCHCNT0			(DBSC_BASE + 0x1000U)
-+#define DBSC_DBSCHCNT1			(DBSC_BASE + 0x1004U)
-+#define DBSC_DBSCHSZ0			(DBSC_BASE + 0x1010U)
-+#define DBSC_DBSCHRW0			(DBSC_BASE + 0x1020U)
-+#define DBSC_DBSCHRW1			(DBSC_BASE + 0x1024U)
-+#define DBSC_DBSCHQOS_0_0		(DBSC_BASE + 0x1030U)
-+#define DBSC_DBSCHQOS_0_1		(DBSC_BASE + 0x1034U)
-+#define DBSC_DBSCHQOS_0_2		(DBSC_BASE + 0x1038U)
-+#define DBSC_DBSCHQOS_0_3		(DBSC_BASE + 0x103CU)
-+#define DBSC_DBSCHQOS_1_0		(DBSC_BASE + 0x1040U)
-+#define DBSC_DBSCHQOS_1_1		(DBSC_BASE + 0x1044U)
-+#define DBSC_DBSCHQOS_1_2		(DBSC_BASE + 0x1048U)
-+#define DBSC_DBSCHQOS_1_3		(DBSC_BASE + 0x104CU)
-+#define DBSC_DBSCHQOS_2_0		(DBSC_BASE + 0x1050U)
-+#define DBSC_DBSCHQOS_2_1		(DBSC_BASE + 0x1054U)
-+#define DBSC_DBSCHQOS_2_2		(DBSC_BASE + 0x1058U)
-+#define DBSC_DBSCHQOS_2_3		(DBSC_BASE + 0x105CU)
-+#define DBSC_DBSCHQOS_3_0		(DBSC_BASE + 0x1060U)
-+#define DBSC_DBSCHQOS_3_1		(DBSC_BASE + 0x1064U)
-+#define DBSC_DBSCHQOS_3_2		(DBSC_BASE + 0x1068U)
-+#define DBSC_DBSCHQOS_3_3		(DBSC_BASE + 0x106CU)
-+#define DBSC_DBSCHQOS_4_0		(DBSC_BASE + 0x1070U)
-+#define DBSC_DBSCHQOS_4_1		(DBSC_BASE + 0x1074U)
-+#define DBSC_DBSCHQOS_4_2		(DBSC_BASE + 0x1078U)
-+#define DBSC_DBSCHQOS_4_3		(DBSC_BASE + 0x107CU)
-+#define DBSC_DBSCHQOS_5_0		(DBSC_BASE + 0x1080U)
-+#define DBSC_DBSCHQOS_5_1		(DBSC_BASE + 0x1084U)
-+#define DBSC_DBSCHQOS_5_2		(DBSC_BASE + 0x1088U)
-+#define DBSC_DBSCHQOS_5_3		(DBSC_BASE + 0x108CU)
-+#define DBSC_DBSCHQOS_6_0		(DBSC_BASE + 0x1090U)
-+#define DBSC_DBSCHQOS_6_1		(DBSC_BASE + 0x1094U)
-+#define DBSC_DBSCHQOS_6_2		(DBSC_BASE + 0x1098U)
-+#define DBSC_DBSCHQOS_6_3		(DBSC_BASE + 0x109CU)
-+#define DBSC_DBSCHQOS_7_0		(DBSC_BASE + 0x10A0U)
-+#define DBSC_DBSCHQOS_7_1		(DBSC_BASE + 0x10A4U)
-+#define DBSC_DBSCHQOS_7_2		(DBSC_BASE + 0x10A8U)
-+#define DBSC_DBSCHQOS_7_3		(DBSC_BASE + 0x10ACU)
-+#define DBSC_DBSCHQOS_8_0		(DBSC_BASE + 0x10B0U)
-+#define DBSC_DBSCHQOS_8_1		(DBSC_BASE + 0x10B4U)
-+#define DBSC_DBSCHQOS_8_2		(DBSC_BASE + 0x10B8U)
-+#define DBSC_DBSCHQOS_8_3		(DBSC_BASE + 0x10BCU)
-+#define DBSC_DBSCHQOS_9_0		(DBSC_BASE + 0x10C0U)
-+#define DBSC_DBSCHQOS_9_1		(DBSC_BASE + 0x10C4U)
-+#define DBSC_DBSCHQOS_9_2		(DBSC_BASE + 0x10C8U)
-+#define DBSC_DBSCHQOS_9_3		(DBSC_BASE + 0x10CCU)
-+#define DBSC_DBSCHQOS_10_0		(DBSC_BASE + 0x10D0U)
-+#define DBSC_DBSCHQOS_10_1		(DBSC_BASE + 0x10D4U)
-+#define DBSC_DBSCHQOS_10_2		(DBSC_BASE + 0x10D8U)
-+#define DBSC_DBSCHQOS_10_3		(DBSC_BASE + 0x10DCU)
-+#define DBSC_DBSCHQOS_11_0		(DBSC_BASE + 0x10E0U)
-+#define DBSC_DBSCHQOS_11_1		(DBSC_BASE + 0x10E4U)
-+#define DBSC_DBSCHQOS_11_2		(DBSC_BASE + 0x10E8U)
-+#define DBSC_DBSCHQOS_11_3		(DBSC_BASE + 0x10ECU)
-+#define DBSC_DBSCHQOS_12_0		(DBSC_BASE + 0x10F0U)
-+#define DBSC_DBSCHQOS_12_1		(DBSC_BASE + 0x10F4U)
-+#define DBSC_DBSCHQOS_12_2		(DBSC_BASE + 0x10F8U)
-+#define DBSC_DBSCHQOS_12_3		(DBSC_BASE + 0x10FCU)
-+#define DBSC_DBSCHQOS_13_0		(DBSC_BASE + 0x1100U)
-+#define DBSC_DBSCHQOS_13_1		(DBSC_BASE + 0x1104U)
-+#define DBSC_DBSCHQOS_13_2		(DBSC_BASE + 0x1108U)
-+#define DBSC_DBSCHQOS_13_3		(DBSC_BASE + 0x110CU)
-+#define DBSC_DBSCHQOS_14_0		(DBSC_BASE + 0x1110U)
-+#define DBSC_DBSCHQOS_14_1		(DBSC_BASE + 0x1114U)
-+#define DBSC_DBSCHQOS_14_2		(DBSC_BASE + 0x1118U)
-+#define DBSC_DBSCHQOS_14_3		(DBSC_BASE + 0x111CU)
-+#define DBSC_DBSCHQOS_15_0		(DBSC_BASE + 0x1120U)
-+#define DBSC_DBSCHQOS_15_1		(DBSC_BASE + 0x1124U)
-+#define DBSC_DBSCHQOS_15_2		(DBSC_BASE + 0x1128U)
-+#define DBSC_DBSCHQOS_15_3		(DBSC_BASE + 0x112CU)
-+#define DBSC_SCFCTST2			(DBSC_BASE + 0x170CU)
-+
-+#define	AXI_BASE			(0xE6784000U)
-+#define	AXI_ADSPLCR0			(AXI_BASE + 0x0008U)
-+#define	AXI_ADSPLCR1			(AXI_BASE + 0x000CU)
-+#define	AXI_ADSPLCR2			(AXI_BASE + 0x0010U)
-+#define	AXI_ADSPLCR3			(AXI_BASE + 0x0014U)
-+#define	ADSPLCR0_ADRMODE_DEFAULT	((uint32_t)0U << 31U)
-+#define	ADSPLCR0_ADRMODE_GEN2		((uint32_t)1U << 31U)
-+#define	ADSPLCR0_SPLITSEL(x)		((uint32_t)(x) << 16U)
-+#define	ADSPLCR0_AREA(x)		((uint32_t)(x) <<  8U)
-+#define	ADSPLCR0_SWP			(0x0CU)
 +
 +#define	MSTAT_BASE			(0xE67E0000U)
 +#define	MSTAT_FIX_QOS_BANK0		(MSTAT_BASE + 0x0000U)
@@ -1887,24 +1337,6 @@ index 0000000..af56e33
 +#define	RALLOC_STATGEN0			(RALLOC_BASE + 0x0088U)
 +
 +#define ACTIVE_OR			(0xFD812030U)
-+
-+#define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
-+
-+static inline void io_write_32(uintptr_t addr, uint32_t value)
-+{
-+	*(volatile uint32_t*)addr = value;
-+}
-+
-+static inline void io_write_64(uintptr_t addr, uint64_t value)
-+{
-+	*(volatile uint64_t*)addr = value;
-+}
-+
-+typedef struct {
-+	uintptr_t addr;
-+	uint64_t value;
-+} mstat_slot_t;
-+
 +
 +#if RCAR_QOS_TYPE  == RCAR_QOS_TYPE_DEFAULT
 +static const mstat_slot_t mstat_fix[] = {
@@ -2171,70 +1603,70 @@ index 0000000..af56e33
 +	}
 +
 +	/* QoS Settings */
-+	io_write_32(DBSC_DBSCHQOS_0_0,  0x00000F00U);
-+	io_write_32(DBSC_DBSCHQOS_0_1,  0x00000B00U);
-+	io_write_32(DBSC_DBSCHQOS_0_2,  0x00000000U);
-+	io_write_32(DBSC_DBSCHQOS_0_3,  0x00000000U);
-+	//DBSC_DBSCHQOS_1_0 not set
-+	//DBSC_DBSCHQOS_1_1 not set
-+	//DBSC_DBSCHQOS_1_2 not set
-+	//DBSC_DBSCHQOS_1_3 not set
-+	//DBSC_DBSCHQOS_2_0 not set
-+	//DBSC_DBSCHQOS_2_1 not set
-+	//DBSC_DBSCHQOS_2_2 not set
-+	//DBSC_DBSCHQOS_2_3 not set
-+	//DBSC_DBSCHQOS_3_0 not set
-+	//DBSC_DBSCHQOS_3_1 not set
-+	//DBSC_DBSCHQOS_3_2 not set
-+	//DBSC_DBSCHQOS_3_3 not set
-+	io_write_32(DBSC_DBSCHQOS_4_0,  0x00000300U);
-+	io_write_32(DBSC_DBSCHQOS_4_1,  0x000002F0U);
-+	io_write_32(DBSC_DBSCHQOS_4_2,  0x00000200U);
-+	io_write_32(DBSC_DBSCHQOS_4_3,  0x00000100U);
-+	//DBSC_DBSCHQOS_5_0 not set
-+	//DBSC_DBSCHQOS_5_1 not set
-+	//DBSC_DBSCHQOS_5_2 not set
-+	//DBSC_DBSCHQOS_5_3 not set
-+	//DBSC_DBSCHQOS_6_0 not set
-+	//DBSC_DBSCHQOS_6_1 not set
-+	//DBSC_DBSCHQOS_6_2 not set
-+	//DBSC_DBSCHQOS_6_3 not set
-+	//DBSC_DBSCHQOS_7_0 not set
-+	//DBSC_DBSCHQOS_7_1 not set
-+	//DBSC_DBSCHQOS_7_2 not set
-+	//DBSC_DBSCHQOS_7_3 not set
-+	//DBSC_DBSCHQOS_8_0 not set
-+	//DBSC_DBSCHQOS_8_1 not set
-+	//DBSC_DBSCHQOS_8_2 not set
-+	//DBSC_DBSCHQOS_8_3 not set
-+	io_write_32(DBSC_DBSCHQOS_9_0,  0x00000300U);
-+	io_write_32(DBSC_DBSCHQOS_9_1,  0x000002F0U);
-+	io_write_32(DBSC_DBSCHQOS_9_2,  0x00000200U);
-+	io_write_32(DBSC_DBSCHQOS_9_3,  0x00000100U);
-+	//DBSC_DBSCHQOS_10_0 not set
-+	//DBSC_DBSCHQOS_10_1 not set
-+	//DBSC_DBSCHQOS_10_2 not set
-+	//DBSC_DBSCHQOS_10_3 not set
-+	//DBSC_DBSCHQOS_11_0 not set
-+	//DBSC_DBSCHQOS_11_1 not set
-+	//DBSC_DBSCHQOS_11_2 not set
-+	//DBSC_DBSCHQOS_11_3 not set
-+	io_write_32(DBSC_DBSCHQOS_12_0, 0x00000040U);
-+	io_write_32(DBSC_DBSCHQOS_12_1, 0x00000030U);
-+	io_write_32(DBSC_DBSCHQOS_12_2, 0x00000020U);
-+	io_write_32(DBSC_DBSCHQOS_12_3, 0x00000010U);
-+	io_write_32(DBSC_DBSCHQOS_13_0, 0x00000100U);
-+	io_write_32(DBSC_DBSCHQOS_13_1, 0x000000F0U);
-+	io_write_32(DBSC_DBSCHQOS_13_2, 0x000000A0U);
-+	io_write_32(DBSC_DBSCHQOS_13_3, 0x00000040U);
-+	io_write_32(DBSC_DBSCHQOS_14_0, 0x000000C0U);
-+	io_write_32(DBSC_DBSCHQOS_14_1, 0x000000B0U);
-+	io_write_32(DBSC_DBSCHQOS_14_2, 0x00000080U);
-+	io_write_32(DBSC_DBSCHQOS_14_3, 0x00000040U);
-+	io_write_32(DBSC_DBSCHQOS_15_0, 0x00000040U);
-+	io_write_32(DBSC_DBSCHQOS_15_1, 0x00000030U);
-+	io_write_32(DBSC_DBSCHQOS_15_2, 0x00000020U);
-+	io_write_32(DBSC_DBSCHQOS_15_3, 0x00000010U);
++	io_write_32(DBSC_DBSCHQOS00,  0x00000F00U);
++	io_write_32(DBSC_DBSCHQOS01,  0x00000B00U);
++	io_write_32(DBSC_DBSCHQOS02,  0x00000000U);
++	io_write_32(DBSC_DBSCHQOS03,  0x00000000U);
++	//DBSC_DBSCHQOS10 not set
++	//DBSC_DBSCHQOS11 not set
++	//DBSC_DBSCHQOS12 not set
++	//DBSC_DBSCHQOS13 not set
++	//DBSC_DBSCHQOS20 not set
++	//DBSC_DBSCHQOS21 not set
++	//DBSC_DBSCHQOS22 not set
++	//DBSC_DBSCHQOS23 not set
++	//DBSC_DBSCHQOS30 not set
++	//DBSC_DBSCHQOS31 not set
++	//DBSC_DBSCHQOS32 not set
++	//DBSC_DBSCHQOS33 not set
++	io_write_32(DBSC_DBSCHQOS40,  0x00000300U);
++	io_write_32(DBSC_DBSCHQOS41,  0x000002F0U);
++	io_write_32(DBSC_DBSCHQOS42,  0x00000200U);
++	io_write_32(DBSC_DBSCHQOS43,  0x00000100U);
++	//DBSC_DBSCHQOS50 not set
++	//DBSC_DBSCHQOS51 not set
++	//DBSC_DBSCHQOS52 not set
++	//DBSC_DBSCHQOS53 not set
++	//DBSC_DBSCHQOS60 not set
++	//DBSC_DBSCHQOS61 not set
++	//DBSC_DBSCHQOS62 not set
++	//DBSC_DBSCHQOS63 not set
++	//DBSC_DBSCHQOS70 not set
++	//DBSC_DBSCHQOS71 not set
++	//DBSC_DBSCHQOS72 not set
++	//DBSC_DBSCHQOS73 not set
++	//DBSC_DBSCHQOS80 not set
++	//DBSC_DBSCHQOS81 not set
++	//DBSC_DBSCHQOS82 not set
++	//DBSC_DBSCHQOS83 not set
++	io_write_32(DBSC_DBSCHQOS90,  0x00000300U);
++	io_write_32(DBSC_DBSCHQOS91,  0x000002F0U);
++	io_write_32(DBSC_DBSCHQOS92,  0x00000200U);
++	io_write_32(DBSC_DBSCHQOS93,  0x00000100U);
++	//DBSC_DBSCHQOS100 not set
++	//DBSC_DBSCHQOS101 not set
++	//DBSC_DBSCHQOS102 not set
++	//DBSC_DBSCHQOS103 not set
++	//DBSC_DBSCHQOS110 not set
++	//DBSC_DBSCHQOS111 not set
++	//DBSC_DBSCHQOS112 not set
++	//DBSC_DBSCHQOS113 not set
++	io_write_32(DBSC_DBSCHQOS120, 0x00000040U);
++	io_write_32(DBSC_DBSCHQOS121, 0x00000030U);
++	io_write_32(DBSC_DBSCHQOS122, 0x00000020U);
++	io_write_32(DBSC_DBSCHQOS123, 0x00000010U);
++	io_write_32(DBSC_DBSCHQOS130, 0x00000100U);
++	io_write_32(DBSC_DBSCHQOS131, 0x000000F0U);
++	io_write_32(DBSC_DBSCHQOS132, 0x000000A0U);
++	io_write_32(DBSC_DBSCHQOS133, 0x00000040U);
++	io_write_32(DBSC_DBSCHQOS140, 0x000000C0U);
++	io_write_32(DBSC_DBSCHQOS141, 0x000000B0U);
++	io_write_32(DBSC_DBSCHQOS142, 0x00000080U);
++	io_write_32(DBSC_DBSCHQOS143, 0x00000040U);
++	io_write_32(DBSC_DBSCHQOS150, 0x00000040U);
++	io_write_32(DBSC_DBSCHQOS151, 0x00000030U);
++	io_write_32(DBSC_DBSCHQOS152, 0x00000020U);
++	io_write_32(DBSC_DBSCHQOS153, 0x00000010U);
 +}
 +
 +void qos_init_v3h_v10(void)
@@ -2373,11 +1805,11 @@ index 0000000..af56e33
 +	io_write_32(RALLOC_RAEN,  0x00000001U);
 +#endif /* !(RCAR_QOS_TYPE == RCAR_QOS_NONE) */
 +}
-diff --git a/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h b/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
+diff --git a/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.h b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
 new file mode 100644
 index 0000000..893d46f
 --- /dev/null
-+++ b/plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
++++ b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.h
 @@ -0,0 +1,37 @@
 +/*
 + * Copyright (c) 2015-2017, Renesas Electronics Corporation
@@ -2416,74 +1848,66 @@ index 0000000..893d46f
 +void qos_init_v3h_v10(void);
 +
 +#endif	/* QOS_INIT_H_H3_V20__ */
-diff --git a/plat/renesas/rcar/qos/qos.mk b/plat/renesas/rcar/qos/qos.mk
-index 2512373..b833c25 100644
---- a/plat/renesas/rcar/qos/qos.mk
-+++ b/plat/renesas/rcar/qos/qos.mk
+diff --git a/drivers/renesas/rcar/qos/qos.mk b/drivers/renesas/rcar/qos/qos.mk
+index da10da2..89711cd 100644
+--- a/drivers/renesas/rcar/qos/qos.mk
++++ b/drivers/renesas/rcar/qos/qos.mk
 @@ -15,6 +15,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
-     BL2_SOURCES += plat/renesas/rcar/qos/M3/qos_init_m3_v30.c
-     BL2_SOURCES += plat/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
-     BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
-+    BL2_SOURCES += plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+     BL2_SOURCES += drivers/renesas/rcar/qos/M3/qos_init_m3_v30.c
+     BL2_SOURCES += drivers/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
+     BL2_SOURCES += drivers/renesas/rcar/qos/V3M/qos_init_v3m.c
++    BL2_SOURCES += drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
  else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_H3})
-     BL2_SOURCES += plat/renesas/rcar/qos/H3/qos_init_h3_v10.c
-@@ -39,6 +40,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
+     BL2_SOURCES += drivers/renesas/rcar/qos/H3/qos_init_h3_v10.c
+@@ -36,6 +37,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
    ifeq (${RCAR_LSI},${RCAR_V3M})
-     BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
+     BL2_SOURCES += drivers/renesas/rcar/qos/V3M/qos_init_v3m.c
    endif
 +  ifeq (${RCAR_LSI},${RCAR_V3H})
-+    BL2_SOURCES += plat/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
++    BL2_SOURCES += drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
 +  endif
- else
-   ifeq (${RCAR_LSI},${RCAR_H3})
+   ifeq (${RCAR_LSI},${RCAR_E3})
+     BL2_SOURCES += drivers/renesas/rcar/qos/E3/qos_init_e3_v10.c
+   endif
+@@ -90,6 +94,9 @@ else
+   ifeq (${RCAR_LSI},${RCAR_V3M})
+     BL2_SOURCES += drivers/renesas/rcar/qos/V3M/qos_init_v3m.c
+   endif
++  ifeq (${RCAR_LSI},${RCAR_V3H})
++    BL2_SOURCES += drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
++  endif
+   ifeq (${RCAR_LSI},${RCAR_E3})
      ifeq (${LSI_CUT},10)
-@@ -95,6 +99,9 @@ else
-   ifeq (${RCAR_LSI},${RCAR_V3M})
-     BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3m.c
-   endif
-+  ifeq (${RCAR_LSI},${RCAR_V3H})
-+    BL2_SOURCES += plat/renesas/rcar/qos/V3M/qos_init_v3h_v10.c
-+  endif
- endif
- 
- BL2_SOURCES += plat/renesas/rcar/qos/qos_init.c
-diff --git a/plat/renesas/rcar/qos/qos_init.c b/plat/renesas/rcar/qos/qos_init.c
-index cab2c28..07b6d8d 100644
---- a/plat/renesas/rcar/qos/qos_init.c
-+++ b/plat/renesas/rcar/qos/qos_init.c
-@@ -19,6 +19,7 @@
-   #include "M3/qos_init_m3_v30.h"
-   #include "M3N/qos_init_m3n_v10.h"
-   #include "V3M/qos_init_v3m.h"
-+  #include "V3H/qos_init_v3h_v10.h"
+      BL2_SOURCES += drivers/renesas/rcar/qos/E3/qos_init_e3_v10.c
+diff --git a/drivers/renesas/rcar/qos/qos_init.c b/drivers/renesas/rcar/qos/qos_init.c
+index d0f1730..0171dbb 100644
+--- a/drivers/renesas/rcar/qos/qos_init.c
++++ b/drivers/renesas/rcar/qos/qos_init.c
+@@ -23,6 +23,7 @@
+ #include "M3/qos_init_m3_v30.h"
+ #include "M3N/qos_init_m3n_v10.h"
+ #include "V3M/qos_init_v3m.h"
++#include "V3H/qos_init_v3h_v10.h"
  #endif
- #if RCAR_LSI == RCAR_H3	/* H3 */
-   #include "H3/qos_init_h3_v10.h"
-@@ -43,6 +44,9 @@
+ #if RCAR_LSI == RCAR_H3		/* H3 */
+ #include "H3/qos_init_h3_v10.h"
+@@ -44,6 +45,9 @@
  #if RCAR_LSI == RCAR_V3M	/* V3M */
-   #include "V3M/qos_init_v3m.h"
+ #include "V3M/qos_init_v3m.h"
  #endif
 +#if RCAR_LSI == RCAR_V3H	/* V3H */
-+  #include "V3H/qos_init_v3h_v10.h"
++#include "V3H/qos_init_v3h_v10.h"
 +#endif
- 
-  /* Product Register */
- #define PRR			(0xFFF00044U)
-@@ -52,6 +56,7 @@
- #define PRR_PRODUCT_M3		(0x00005200U)           /* R-Car M3 */
- #define PRR_PRODUCT_V3M		(0x00005400U)           /* R-Car V3M */
- #define PRR_PRODUCT_M3N		(0x00005500U)           /* R-Car M3N */
-+#define PRR_PRODUCT_V3H		(0x00005600U)           /* R-Car V3H */
- #define PRR_PRODUCT_E3		(0x00005700U)           /* R-Car E3 */
- #define PRR_PRODUCT_10		(0x00U)
- #define PRR_PRODUCT_11		(0x01U)
-@@ -179,6 +184,19 @@ void qos_init(void)
+ #if RCAR_LSI == RCAR_E3		/* E3 */
+ #include "E3/qos_init_e3_v10.h"
+ #endif
+@@ -161,6 +165,19 @@ void rcar_qos_init(void)
  		PRR_PRODUCT_ERR(reg);
-  #endif
+ #endif
  		break;
 +	case PRR_PRODUCT_V3H:
-+ #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
++#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
 +		switch (reg & PRR_CUT_MASK) {
 +		case PRR_PRODUCT_10:
 +		case PRR_PRODUCT_20:
@@ -2491,78 +1915,389 @@ index cab2c28..07b6d8d 100644
 +			qos_init_v3h_v10();
 +			break;
 +		}
-+ #else
++#else
 +		PRR_PRODUCT_ERR(reg);
-+ #endif
++#endif
 +		break;
- 	default:
- 		PRR_PRODUCT_ERR(reg);
- 		break;
-@@ -272,6 +290,13 @@ void qos_init(void)
+ 	case PRR_PRODUCT_E3:
+ #if (RCAR_LSI == RCAR_E3)
+ 		switch (reg & PRR_CUT_MASK) {
+@@ -271,6 +288,13 @@ void rcar_qos_init(void)
  		PRR_PRODUCT_ERR(reg);
  	}
  	qos_init_v3m();
-+ #elif RCAR_LSI == RCAR_V3H	/* V3H */
++#elif RCAR_LSI == RCAR_V3H	/* V3H */
 +	/* V3H Cut 10 or later */
 +	if ((PRR_PRODUCT_V3H)
 +			!= (reg & (PRR_PRODUCT_MASK))) {
 +		PRR_PRODUCT_ERR(reg);
 +	}
 +	qos_init_v3h_v10();
-  #else
-   #error "Don't have QoS initialize routine(Unknown chip)."
-  #endif
-diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 50c868b..7caead2 100644
---- a/plat/renesas/rcar/rcar_def.h
-+++ b/plat/renesas/rcar/rcar_def.h
-@@ -207,6 +207,7 @@
- #define RCAR_PRODUCT_M3			U(0x00005200)
- #define RCAR_PRODUCT_V3M		U(0x00005400)
- #define RCAR_PRODUCT_M3N		U(0x00005500)
-+#define RCAR_PRODUCT_V3H		U(0x00005600)
- #define RCAR_PRODUCT_E3			U(0x00005700)
- #define RCAR_CUT_VER10			U(0x00000000)
- #define RCAR_CUT_VER11			U(0x00000001)	/* H3/M3N/E3 Ver.1.1 */
-diff --git a/tools/dummy_create/makefile b/tools/dummy_create/makefile
-index 9093111..b7c48b5 100644
---- a/tools/dummy_create/makefile
-+++ b/tools/dummy_create/makefile
-@@ -77,6 +77,12 @@ CL = rm -f
- ###################################################
- # command
+ #elif RCAR_LSI == RCAR_D3	/* D3 */
+ 	/* D3 Cut 10 or later */
+ 	if ((PRR_PRODUCT_D3)
+diff --git a/drivers/renesas/rcar/rom/rom_api.c b/drivers/renesas/rcar/rom/rom_api.c
+index fda2815..a597528 100644
+--- a/drivers/renesas/rcar/rom/rom_api.c
++++ b/drivers/renesas/rcar/rom/rom_api.c
+@@ -21,7 +21,8 @@ typedef uint32_t(*rom_get_lcs_api_f) (uint32_t *lcs);
+ #define OLD_API_TABLE3	(2U)	/* M3 Ver.1.0 */
+ #define NEW_API_TABLE	(3U)	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, D3, V3M WS2.0 */
+ #define NEW_API_TABLE2	(4U)	/* V3M WS1.0 */
+-#define API_TABLE_MAX	(5U)	/* table max */
++#define NEW_API_TABLE3	(5U)	/* V3H WS1.0 */
++#define API_TABLE_MAX	(6U)	/* table max */
+ 				/* Later than H3 Ver.2.0 */
  
-+ifeq (${LSI},V3H)
-+VMA := 0xEB220000
-+else
-+VMA := 0xE6320000
-+endif
+ static uint32_t get_table_index(void)
+@@ -60,6 +61,14 @@ static uint32_t get_table_index(void)
+ 			/* V3M WS2.0 or later */
+ 			index = NEW_API_TABLE;
+ 		break;
 +
- .PHONY: all
- all: $(OUTPUT_FILE_SA0) $(OUTPUT_FILE_SA6)
- ###################################################
-@@ -88,8 +94,8 @@ $(OUTPUT_FILE_SA0) : $(MEMORY_DEF_SA0) $(OBJ_FILE_SA0)
- 	-o $(OUTPUT_FILE_SA0)			\
- 	-Map $(FILE_NAME_SA0).map 		\
++	case PRR_PRODUCT_V3H:
++		if (cut_ver == PRR_PRODUCT_10)
++			index = NEW_API_TABLE3;	/* V3H WS1.0 */
++		else
++			index = API_TABLE_MAX;
++		break;
++
+ 	default:
+ 		index = NEW_API_TABLE;
+ 		break;
+@@ -77,11 +86,15 @@ uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
+ 		0xEB1102FCU,	/* M3 Ver.1.0 */
+ 		0xEB100180U,	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, D3, V3M WS2.0 */
+ 		0xEB110128U,	/* V3M WS1.0 */
++		0xEB101960U,	/* V3H WS1.0 */
+ 	};
+ 	rom_secure_boot_api_f secure_boot;
+ 	uint32_t index;
  
--	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).srec
--	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).bin
-+	$(objcopy) -O srec --adjust-vma=$(VMA) --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).srec
-+	$(objcopy) -O binary --adjust-vma=$(VMA) --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).bin
+ 	index = get_table_index();
++	if (index >= API_TABLE_MAX)
++		return 1;
++
+ 	secure_boot = (rom_secure_boot_api_f) rom_api_table[index];
  
- $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
- 	$(LD) $(OBJ_FILE_SA6)		 	\
-@@ -97,8 +103,8 @@ $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
- 	-o $(OUTPUT_FILE_SA6)			\
- 	-Map $(FILE_NAME_SA6).map 		\
+ 	return secure_boot(key, cert, read_flash);
+@@ -95,11 +108,17 @@ uint32_t rcar_rom_get_lcs(uint32_t *lcs)
+ 		0xEB110578U,	/* M3 Ver.1.0 */
+ 		0xEB10018CU,	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, D3, V3M WS2.0 */
+ 		0xEB1103A4U,	/* V3M WS1.0 */
++		0xEB101940U,	/* V3H WS1.0 */
+ 	};
+ 	rom_get_lcs_api_f get_lcs;
+ 	uint32_t index;
  
--	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).srec
--	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).bin
-+	$(objcopy) -O srec --adjust-vma=$(VMA) --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).srec
-+	$(objcopy) -O binary --adjust-vma=$(VMA) --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).bin
+ 	index = get_table_index();
++	if (index >= API_TABLE_MAX) {
++		*lcs = 0xffffffff;
++		return 0;
++	}
++
+ 	get_lcs = (rom_get_lcs_api_f) rom_get_lcs_table[index];
  
- ###################################################
- # Compile
+ 	return get_lcs(lcs);
+diff --git a/drivers/renesas/rcar/scif/scif.S b/drivers/renesas/rcar/scif/scif.S
+index 064aba4..1626d44 100644
+--- a/drivers/renesas/rcar/scif/scif.S
++++ b/drivers/renesas/rcar/scif/scif.S
+@@ -47,7 +47,7 @@
+ #define	SCIF_DL			(0x30)
+ #define	SCIF_CKS		(0x34)
+ 
+-#if RCAR_LSI == RCAR_V3M
++#if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)	/* V3M or V3H */
+ #define SCIF_BASE		SCIF0_BASE
+ #define CPG_SMSTPCR		CPG_SMSTPCR2
+ #define CPG_MSTPSR		CPG_MSTPSR2
+diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
+index c3ca9ea..b26c89f 100644
+--- a/plat/renesas/rcar/bl2_cpg_init.c
++++ b/plat/renesas/rcar/bl2_cpg_init.c
+@@ -33,6 +33,11 @@ static void bl2_realtime_cpg_init_v3m(void);
+ static void bl2_system_cpg_init_v3m(void);
+ #endif
+ 
++#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
++static void bl2_realtime_cpg_init_v3h(void);
++static void bl2_system_cpg_init_v3h(void);
++#endif
++
+ #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
+ static void bl2_realtime_cpg_init_e3(void);
+ static void bl2_system_cpg_init_e3(void);
+@@ -253,6 +258,60 @@ static void bl2_system_cpg_init_v3m(void)
+ }
+ #endif
+ 
++#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
++static void bl2_realtime_cpg_init_v3h(void)
++{
++	/* CPG (REALTIME) registers */
++
++	/* Realtime Module Stop Control Register 0 */
++	cpg_write(RMSTPCR0,	0x00230000U);
++	/* Realtime Module Stop Control Register 1 */
++	cpg_write(RMSTPCR1,	0xFFFFFFFFU);
++	/* Realtime Module Stop Control Register 2 */
++	cpg_write(RMSTPCR2,	0x14062FD8U);
++	/* Realtime Module Stop Control Register 3 */
++	cpg_write(RMSTPCR3,	0xFFFFFFDFU);
++	/* Realtime Module Stop Control Register 4 */
++	cpg_write(RMSTPCR4,	0x80000184U);
++	/* Realtime Module Stop Control Register 5 */
++	cpg_write(RMSTPCR5,	0x83FFFFFFU);
++	/* Realtime Module Stop Control Register 6 */
++	cpg_write(RMSTPCR6,	0xFFFFFFFFU);
++	/* Realtime Module Stop Control Register 7 */
++	cpg_write(RMSTPCR7,	0xFFFFFFFFU);
++	/* Realtime Module Stop Control Register 8 */
++	cpg_write(RMSTPCR8,	0x7FF3FFF4U);
++	/* Realtime Module Stop Control Register 9 */
++	cpg_write(RMSTPCR9,	0xFFFFFFFEU);
++}
++
++static void bl2_system_cpg_init_v3h(void)
++{
++	/* CPG (SYSTEM) registers */
++
++	/* System Module Stop Control Register 0 */
++	cpg_write(SMSTPCR0,	0x00210000U);
++	/* System Module Stop Control Register 1 */
++	cpg_write(SMSTPCR1,	0xFFFFFFFFU);
++	/* System Module Stop Control Register 2 */
++	cpg_write(SMSTPCR2,	0x340E2FDCU);
++	/* System Module Stop Control Register 3 */
++	cpg_write(SMSTPCR3,	0xFFFFFBDFU);
++	/* System Module Stop Control Register 4 */
++	cpg_write(SMSTPCR4,	0x80000004U);
++	/* System Module Stop Control Register 5 */
++	cpg_write(SMSTPCR5,	0xC3FFFFFFU);
++	/* System Module Stop Control Register 6 */
++	cpg_write(SMSTPCR6,	0xFFFFFFFFU);
++	/* System Module Stop Control Register 7 */
++	cpg_write(SMSTPCR7,	0xFFFFFFFFU);
++	/* System Module Stop Control Register 8 */
++	cpg_write(SMSTPCR8,	0x01F1FFF5U);
++	/* System Module Stop Control Register 9 */
++	cpg_write(SMSTPCR9,	0xFFFFFFFEU);
++}
++#endif
++
+ #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
+ static void bl2_realtime_cpg_init_e3(void)
+ {
+@@ -350,6 +409,9 @@ void bl2_cpg_init(void)
+ 		case PRR_PRODUCT_V3M:
+ 			bl2_realtime_cpg_init_v3m();
+ 			break;
++		case PRR_PRODUCT_V3H:
++			bl2_realtime_cpg_init_v3h();
++			break;
+ 		case PRR_PRODUCT_E3:
+ 			bl2_realtime_cpg_init_e3();
+ 			break;
+@@ -368,6 +430,8 @@ void bl2_cpg_init(void)
+ 		bl2_realtime_cpg_init_m3n();
+ #elif RCAR_LSI == RCAR_V3M
+ 		bl2_realtime_cpg_init_v3m();
++#elif RCAR_LSI == RCAR_V3H
++		bl2_realtime_cpg_init_v3h();
+ #elif RCAR_LSI == RCAR_E3
+ 		bl2_realtime_cpg_init_e3();
+ #elif RCAR_LSI == RCAR_D3
+@@ -396,6 +460,9 @@ void bl2_system_cpg_init(void)
+ 	case PRR_PRODUCT_V3M:
+ 		bl2_system_cpg_init_v3m();
+ 		break;
++	case PRR_PRODUCT_V3H:
++		bl2_system_cpg_init_v3h();
++		break;
+ 	case PRR_PRODUCT_E3:
+ 		bl2_system_cpg_init_e3();
+ 		break;
+@@ -414,6 +481,8 @@ void bl2_system_cpg_init(void)
+ 	bl2_system_cpg_init_m3n();
+ #elif RCAR_LSI == RCAR_V3M
+ 	bl2_system_cpg_init_v3m();
++#elif RCAR_LSI == RCAR_V3H
++	bl2_system_cpg_init_v3h();
+ #elif RCAR_LSI == RCAR_E3
+ 	bl2_system_cpg_init_e3();
+ #elif RCAR_LSI == RCAR_D3
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index 24a13c7..220bbc0 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -84,6 +84,9 @@ static void bl2_init_generic_timer(void);
+ #elif RCAR_LSI == RCAR_V3M
+ #define TARGET_PRODUCT			PRR_PRODUCT_V3M
+ #define TARGET_NAME			"R-Car V3M"
++#elif RCAR_LSI == RCAR_V3H
++#define TARGET_PRODUCT			PRR_PRODUCT_V3H
++#define TARGET_NAME			"R-Car V3H"
+ #elif RCAR_LSI == RCAR_E3
+ #define TARGET_PRODUCT			PRR_PRODUCT_E3
+ #define TARGET_NAME			"R-Car E3"
+@@ -91,7 +94,7 @@ static void bl2_init_generic_timer(void);
+ #define TARGET_PRODUCT			PRR_PRODUCT_D3
+ #define TARGET_NAME			"R-Car D3"
+ #elif RCAR_LSI == RCAR_AUTO
+-#define TARGET_NAME			"R-Car H3/M3/M3N/V3M"
++#define TARGET_NAME			"R-Car H3/M3/M3N/V3M/V3H"
+ #endif
+ 
+ #if (RCAR_LSI == RCAR_E3)
+@@ -482,6 +485,10 @@ static void bl2_populate_compatible_string(void *dt)
+ 		ret = fdt_setprop_string(dt, 0, "compatible",
+ 					 "renesas,eagle");
+ 		break;
++	case BOARD_CONDOR:
++		ret = fdt_setprop_string(dt, 0, "compatible",
++					 "renesas,condor");
++		break;
+ 	case BOARD_EBISU:
+ 	case BOARD_EBISU_4D:
+ 		ret = fdt_setprop_string(dt, 0, "compatible",
+@@ -519,6 +526,10 @@ static void bl2_populate_compatible_string(void *dt)
+ 		ret = fdt_appendprop_string(dt, 0, "compatible",
+ 					    "renesas,r8a77970");
+ 		break;
++	case PRR_PRODUCT_V3H:
++		ret = fdt_appendprop_string(dt, 0, "compatible",
++					    "renesas,r8a77980");
++		break;
+ 	case PRR_PRODUCT_E3:
+ 		ret = fdt_appendprop_string(dt, 0, "compatible",
+ 					    "renesas,r8a77990");
+@@ -660,6 +671,11 @@ static void bl2_advertise_dram_size(uint32_t product)
+ 		dram_config[1] = 0x40000000ULL;
+ 		break;
+ 
++	case PRR_PRODUCT_V3H:
++		/* 2GB(512MBx4) */
++		dram_config[1] = 0x80000000ULL;
++		break;
++
+ 	case PRR_PRODUCT_E3:
+ #if (RCAR_DRAM_DDR3L_MEMCONF == 0)
+ 		/* 1GB(512MBx2) */
+@@ -698,6 +714,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
+ 	const char *product_e3 = "E3";
+ 	const char *product_d3 = "D3";
+ 	const char *product_v3m = "V3M";
++	const char *product_v3h = "V3H";
+ 	const char *lcs_secure = "SE";
+ 	const char *lcs_cm = "CM";
+ 	const char *lcs_dm = "DM";
+@@ -776,6 +793,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
+ 	case PRR_PRODUCT_V3M:
+ 		str = product_v3m;
+ 		break;
++	case PRR_PRODUCT_V3H:
++		str = product_v3h;
++		break;
+ 	case PRR_PRODUCT_E3:
+ 		str = product_e3;
+ 		break;
+@@ -824,6 +844,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
+ 	case BOARD_EBISU_4D:
+ 	case BOARD_DRAAK:
+ 	case BOARD_EAGLE:
++	case BOARD_CONDOR:
+ 		break;
+ 	default:
+ 		type = BOARD_UNKNOWN;
+diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
+index f28d727..86d2b2f 100644
+--- a/plat/renesas/rcar/include/platform_def.h
++++ b/plat/renesas/rcar/include/platform_def.h
+@@ -103,20 +103,18 @@
+ /* Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+  * size plus a little space for growth. */
+ #define RCAR_SYSRAM_BASE		U(0xE6300000)
+-#if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
+-#define BL2_LIMIT			U(0xE6320000)
+-#else
+-#define BL2_LIMIT			U(0xE6360000)
+-#endif
+ 
+ #if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
+ #define BL2_BASE			U(0xE6304000)
++#define BL2_LIMIT			U(0xE6320000)
+ #define BL2_IMAGE_LIMIT			U(0xE6318000)
+ #elif (RCAR_LSI == RCAR_V3M)
+ #define BL2_BASE			U(0xE6344000)
++#define BL2_LIMIT			U(0xE6360000)
+ #define BL2_IMAGE_LIMIT			U(0xE636E800)
+ #else
+ #define BL2_BASE			U(0xE6304000)
++#define BL2_LIMIT			U(0xE6360000)
+ #define BL2_IMAGE_LIMIT			U(0xE632E800)
+ #endif
+ #define RCAR_SYSRAM_SIZE		(BL2_BASE - RCAR_SYSRAM_BASE)
+diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
+index 5aa45fd..74d0313 100644
+--- a/plat/renesas/rcar/platform.mk
++++ b/plat/renesas/rcar/platform.mk
+@@ -33,6 +33,7 @@ RCAR_E3:=3
+ RCAR_H3N:=4
+ RCAR_D3:=5
+ RCAR_V3M:=6
++RCAR_V3H:=7
+ RCAR_AUTO:=99
+ $(eval $(call add_define,RCAR_H3))
+ $(eval $(call add_define,RCAR_M3))
+@@ -41,6 +42,7 @@ $(eval $(call add_define,RCAR_E3))
+ $(eval $(call add_define,RCAR_H3N))
+ $(eval $(call add_define,RCAR_D3))
+ $(eval $(call add_define,RCAR_V3M))
++$(eval $(call add_define,RCAR_V3H))
+ $(eval $(call add_define,RCAR_AUTO))
+ RCAR_CUT_10:=0
+ RCAR_CUT_11:=1
+@@ -180,6 +182,22 @@ else
+       endif
+       $(eval $(call add_define,RCAR_LSI_CUT))
+     endif
++  else ifeq (${LSI},V3H)
++    RCAR_LSI:=${RCAR_V3H}
++    ifndef LSI_CUT
++      # enable compatible function.
++      RCAR_LSI_CUT_COMPAT := 1
++      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
++    else
++      # disable compatible function.
++      ifeq (${LSI_CUT},10)
++        RCAR_LSI_CUT:=0
++      endif
++      ifeq (${LSI_CUT},20)
++        RCAR_LSI_CUT:=10
++      endif
++      $(eval $(call add_define,RCAR_LSI_CUT))
++    endif
+   else
+     $(error "Error: ${LSI} is not supported.")
+   endif
+diff --git a/tools/renesas/rcar_layout_create/makefile b/tools/renesas/rcar_layout_create/makefile
+index 4bfea7d..8bef2c7 100644
+--- a/tools/renesas/rcar_layout_create/makefile
++++ b/tools/renesas/rcar_layout_create/makefile
+@@ -59,8 +59,12 @@ $(eval $(call add_define,RCAR_SA6_TYPE))
+ ifeq (${RCAR_LSI},${RCAR_D3})
+ RCAR_VMA_ADJUST_ADDR := 0xE6320000
+ else
++ifeq (${RCAR_LSI},V3H)
++RCAR_VMA_ADJUST_ADDR := 0xEB220000
++else
+ RCAR_VMA_ADJUST_ADDR := 0xE6312000
+ endif
++endif
+ $(eval $(call add_define,RCAR_VMA_ADJUST_ADDR))
+ 
+ 
 -- 
 2.7.4
 
