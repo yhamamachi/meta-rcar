@@ -20,10 +20,10 @@ Signed-off-by: Kiran Pawar <kiran.pawar@opensynergy.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index e9717fa..bbe20fe 100644
+index 0857ebb..e3d345a 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -546,6 +546,7 @@ static int rcar_du_remove(struct platform_device *pdev)
+@@ -573,6 +573,7 @@ static int rcar_du_remove(struct platform_device *pdev)
  	drm_dev_unregister(ddev);
  
  	drm_kms_helper_poll_fini(ddev);

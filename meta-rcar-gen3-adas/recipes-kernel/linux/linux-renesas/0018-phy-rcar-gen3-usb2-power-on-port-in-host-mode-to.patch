@@ -9,10 +9,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-index 898331f..d57f6fc 100644
+index 34c189b..cfaed72 100644
 --- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
 +++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -199,7 +199,8 @@ static void rcar_gen3_init_for_host(struct rcar_gen3_chan *ch)
+@@ -201,7 +201,8 @@ static void rcar_gen3_init_for_host(struct rcar_gen3_chan *ch)
  	rcar_gen3_enable_vbus_ctrl(ch, 1);
  
  	ch->extcon_host = true;
@@ -22,7 +22,7 @@ index 898331f..d57f6fc 100644
  }
  
  static void rcar_gen3_init_for_peri(struct rcar_gen3_chan *ch)
-@@ -209,7 +210,8 @@ static void rcar_gen3_init_for_peri(struct rcar_gen3_chan *ch)
+@@ -211,7 +212,8 @@ static void rcar_gen3_init_for_peri(struct rcar_gen3_chan *ch)
  	rcar_gen3_enable_vbus_ctrl(ch, 0);
  
  	ch->extcon_host = false;
@@ -32,7 +32,7 @@ index 898331f..d57f6fc 100644
  }
  
  static void rcar_gen3_init_for_b_host(struct rcar_gen3_chan *ch)
-@@ -376,7 +378,7 @@ static void rcar_gen3_init_otg(struct rcar_gen3_chan *ch)
+@@ -378,7 +380,7 @@ static void rcar_gen3_init_otg(struct rcar_gen3_chan *ch)
  
  	val = readl(usb2_base + USB2_VBCTRL);
  	val &= ~USB2_VBCTRL_OCCLREN;
@@ -41,7 +41,7 @@ index 898331f..d57f6fc 100644
  	val = readl(usb2_base + USB2_ADPCTRL);
  	writel(val | USB2_ADPCTRL_IDPULLUP, usb2_base + USB2_ADPCTRL);
  
-@@ -401,13 +403,17 @@ static int rcar_gen3_phy_usb2_init(struct phy *p)
+@@ -429,13 +431,17 @@ static int rcar_gen3_phy_usb2_init(struct phy *p)
  	writel(val, usb2_base + USB2_INT_ENABLE);
  	writel(USB2_SPD_RSM_TIMSET_INIT, usb2_base + USB2_SPD_RSM_TIMSET);
  	writel(USB2_OC_TIMSET_INIT, usb2_base + USB2_OC_TIMSET);

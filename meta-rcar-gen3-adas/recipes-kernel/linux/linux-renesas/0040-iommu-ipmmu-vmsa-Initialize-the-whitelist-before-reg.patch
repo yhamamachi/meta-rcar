@@ -13,10 +13,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 89851ea..1e8c013 100644
+index 4fc3208..2b83161 100644
 --- a/drivers/iommu/ipmmu-vmsa.c
 +++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -1545,6 +1545,19 @@ static int ipmmu_probe(struct platform_device *pdev)
+@@ -1551,6 +1551,19 @@ static int ipmmu_probe(struct platform_device *pdev)
  		}
  	}
  
@@ -36,7 +36,7 @@ index 89851ea..1e8c013 100644
  	/*
  	 * Register the IPMMU to the IOMMU subsystem in the following cases:
  	 * - R-Car Gen2 IPMMU (all devices registered)
-@@ -1570,19 +1583,6 @@ static int ipmmu_probe(struct platform_device *pdev)
+@@ -1580,19 +1593,6 @@ static int ipmmu_probe(struct platform_device *pdev)
  #endif
  	}
  

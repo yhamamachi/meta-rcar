@@ -11,7 +11,6 @@ SRC_URI_append = " \
     file://imr.cfg \
     file://disable-unused.cfg \
     file://enable.cfg \
-    file://0130-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch \
     file://renesas.scc \
 "
 

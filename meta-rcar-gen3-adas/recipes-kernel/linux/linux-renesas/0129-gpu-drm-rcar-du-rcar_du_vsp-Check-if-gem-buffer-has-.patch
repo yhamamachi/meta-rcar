@@ -12,10 +12,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
-index b9317ad..0db759d 100644
+index 3c34437..9246351 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
-@@ -197,7 +197,7 @@ int rcar_du_vsp_map_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
+@@ -203,7 +203,7 @@ int rcar_du_vsp_map_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
  		struct drm_gem_cma_object *gem = drm_fb_cma_get_gem_obj(fb, i);
  		struct sg_table *sgt = &sg_tables[i];
  

@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 24 insertions(+)
 
 diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index f7df4c8..89851ea 100644
+index 731a9fc..4fc3208 100644
 --- a/drivers/iommu/ipmmu-vmsa.c
 +++ b/drivers/iommu/ipmmu-vmsa.c
 @@ -230,6 +230,16 @@ static struct ipmmu_whitelist *r8a77965_whitelist[] = {
@@ -32,7 +32,7 @@ index f7df4c8..89851ea 100644
  /* R-Car E3 (R8A77990) */
  static struct ipmmu_whitelist r8a77990_ipmmu_vi0 = {
  	.ipmmu_name	= "febd0000.mmu",
-@@ -1049,6 +1059,16 @@ static const struct soc_device_attribute r8a77965[]  = {
+@@ -1050,6 +1060,16 @@ static const struct soc_device_attribute r8a77965[]  = {
  	{ /* sentinel */ }
  };
  
@@ -49,7 +49,7 @@ index f7df4c8..89851ea 100644
  static const struct soc_device_attribute r8a77990[]  = {
  	{ .soc_id = "r8a77990" },
  	{ /* sentinel */ }
-@@ -1431,6 +1451,10 @@ static int ipmmu_whitelist_init(struct ipmmu_vmsa_device *mmu)
+@@ -1437,6 +1457,10 @@ static int ipmmu_whitelist_init(struct ipmmu_vmsa_device *mmu)
  		mmu->whitelist = r8a77965_whitelist;
  	else if (soc_device_match(r8a77990))
  		mmu->whitelist = r8a77990_whitelist;
