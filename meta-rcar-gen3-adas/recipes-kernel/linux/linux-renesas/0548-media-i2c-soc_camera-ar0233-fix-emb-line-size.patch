@@ -1,0 +1,28 @@
+From 5122ba22b2da368530944afeaa9f08ca99ebca82 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 22 Mar 2021 20:37:38 +0300
+Subject: [PATCH] media: i2c: soc_camera: ar0233: fix emb line size
+
+This fixes the emb line size report for ISP usage
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0233.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index ca65fb6..4ba8493 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -256,7 +256,7 @@ static int ar0233_get_selection(struct v4l2_subdev *sd,
+ 		return 0;
+ 	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+ 		sel->r.left = 0;
+-		sel->r.top = AR_EMB_PADDED;
++		sel->r.top = AR_EMB_PADDED / 2;
+ 		sel->r.width = priv->rect.width;
+ 		sel->r.height = priv->rect.height;
+ 		return 0;
+-- 
+2.7.4
+

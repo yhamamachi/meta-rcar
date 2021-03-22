@@ -479,3 +479,4 @@ patch 0544-media-rcar_csi2-fix-VC-cotrnol.patch
 patch 0545-media-i2c-ar0233-add-SE-60fps.patch
 patch 0546-media-i2c-enable-emb-data-by-default-for-raw-cameras.patch
 patch 0547-media-i2c-soc_camera-fix-block-read-write-ad-ADV_DEB.patch
+patch 0548-media-i2c-soc_camera-ar0233-fix-emb-line-size.patch
