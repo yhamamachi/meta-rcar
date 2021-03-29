@@ -1,0 +1,476 @@
+From fc5f886ae533fb0afbe8798b9cde707d90159703 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 29 Mar 2021 17:37:17 +0300
+Subject: [PATCH] media: i2c: soc_camera: ar0xxx: change ADV_DEBUG endianess
+
+This changes the endianness during ADV_DEBUG v4l access
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0132.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0140.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0143.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0147.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0231.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0233.c | 18 ++++++++++--------
+ drivers/media/i2c/soc_camera/ar0323.c | 18 ++++++++++--------
+ 7 files changed, 70 insertions(+), 56 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0132.c b/drivers/media/i2c/soc_camera/ar0132.c
+index 9f55364..bdfcbbb 100644
+--- a/drivers/media/i2c/soc_camera/ar0132.c
++++ b/drivers/media/i2c/soc_camera/ar0132.c
+@@ -35,6 +35,7 @@ struct ar0132_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				init_complete;
+ 	u8				id[6];
+ 	int				exposure;
+@@ -235,17 +236,17 @@ static int ar0132_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0132_priv *priv = to_ar0132(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -254,18 +255,18 @@ static int ar0132_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0132_priv *priv = to_ar0132(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -461,6 +462,7 @@ static int ar0132_probe(struct i2c_client *client,
+ 
+ 	v4l2_i2c_subdev_init(&priv->sd, client, &ar0132_subdev_ops);
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++	mutex_init(&priv->lock);
+ 
+ 	priv->exposure = 0x100;
+ 	priv->gain = 0x100;
+diff --git a/drivers/media/i2c/soc_camera/ar0140.c b/drivers/media/i2c/soc_camera/ar0140.c
+index a7eab26..9c3067f 100644
+--- a/drivers/media/i2c/soc_camera/ar0140.c
++++ b/drivers/media/i2c/soc_camera/ar0140.c
+@@ -34,6 +34,7 @@ struct ar0140_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				init_complete;
+ 	u8				id[6];
+ 	bool				emb_enable;
+@@ -268,17 +269,17 @@ static int ar0140_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0140_priv *priv = to_ar0140(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -287,18 +288,18 @@ static int ar0140_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0140_priv *priv = to_ar0140(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -590,6 +591,7 @@ static int ar0140_probe(struct i2c_client *client,
+ 	v4l2_i2c_subdev_init(&priv->sd, client, &ar0140_subdev_ops);
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	priv->emb_enable = 1;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0140_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+index e3ee853..efa28dd 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.c
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -35,6 +35,7 @@ struct ar0143_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				fps_numerator;
+ 	int				fps_denominator;
+ 	int				init_complete;
+@@ -358,17 +359,17 @@ static int ar0143_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -377,18 +378,18 @@ static int ar0143_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0143_priv *priv = to_ar0143(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -694,6 +695,7 @@ static int ar0143_probe(struct i2c_client *client,
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
+ 	priv->emb_enable = 1;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0143_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0147.c b/drivers/media/i2c/soc_camera/ar0147.c
+index d7e3f83..5f39e48 100644
+--- a/drivers/media/i2c/soc_camera/ar0147.c
++++ b/drivers/media/i2c/soc_camera/ar0147.c
+@@ -36,6 +36,7 @@ struct ar0147_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				fps_denominator;
+ 	int				fps_numerator;
+ 	int				init_complete;
+@@ -375,17 +376,17 @@ static int ar0147_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0147_priv *priv = to_ar0147(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -394,18 +395,18 @@ static int ar0147_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0147_priv *priv = to_ar0147(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -720,6 +721,7 @@ static int ar0147_probe(struct i2c_client *client,
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0147_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0231.c b/drivers/media/i2c/soc_camera/ar0231.c
+index 922c078..ffe2dd5 100644
+--- a/drivers/media/i2c/soc_camera/ar0231.c
++++ b/drivers/media/i2c/soc_camera/ar0231.c
+@@ -35,6 +35,7 @@ struct ar0231_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				init_complete;
+ 	u8				id[6];
+ 	/* serializers */
+@@ -256,17 +257,17 @@ static int ar0231_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0231_priv *priv = to_ar0231(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -275,18 +276,18 @@ static int ar0231_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0231_priv *priv = to_ar0231(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -556,6 +557,7 @@ static int ar0231_probe(struct i2c_client *client,
+ 
+ 	v4l2_i2c_subdev_init(&priv->sd, client, &ar0231_subdev_ops);
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0231_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index 4ba8493..2321bb6 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -55,6 +55,7 @@ struct ar0233_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				fps_denominator;
+ 	int				fps_numerator;
+ 	int				init_complete;
+@@ -322,17 +323,17 @@ static int ar0233_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0233_priv *priv = to_ar0233(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -341,18 +342,18 @@ static int ar0233_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0233_priv *priv = to_ar0233(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -734,6 +735,7 @@ static int ar0233_probe(struct i2c_client *client,
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
+ 	priv->emb_enable = 1;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0233_ctrl_ops,
+diff --git a/drivers/media/i2c/soc_camera/ar0323.c b/drivers/media/i2c/soc_camera/ar0323.c
+index 1f20fef..5b1c91ca 100644
+--- a/drivers/media/i2c/soc_camera/ar0323.c
++++ b/drivers/media/i2c/soc_camera/ar0323.c
+@@ -35,6 +35,7 @@ struct ar0323_priv {
+ 	struct v4l2_ctrl_handler	hdl;
+ 	struct media_pad		pad;
+ 	struct v4l2_rect		rect;
++	struct mutex			lock;
+ 	int				init_complete;
+ 	u8				id[6];
+ 	/* serializers */
+@@ -210,17 +211,17 @@ static int ar0323_g_register(struct v4l2_subdev *sd,
+ 			     struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0323_priv *priv = to_ar0323(client);
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!reg->size)
+ 		reg->size = sizeof(u16);
+ 	if (reg->size > sizeof(reg->val))
+ 		reg->size = sizeof(reg->val);
+ 
+-	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&be_val, reg->size);
+-	be_val = be_val << ((sizeof(be_val) - reg->size) * 8);
+-	reg->val = be64_to_cpu(be_val);
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -229,18 +230,18 @@ static int ar0323_s_register(struct v4l2_subdev *sd,
+ 			     const struct v4l2_dbg_register *reg)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0323_priv *priv = to_ar0323(client);
+ 	u32 size = reg->size;
+ 	int ret;
+-	__be64 be_val;
+ 
+ 	if (!size)
+ 		size = sizeof(u16);
+ 	if (size > sizeof(reg->val))
+ 		size = sizeof(reg->val);
+ 
+-	be_val = cpu_to_be64(reg->val);
+-	be_val = be_val >> ((sizeof(be_val) - size) * 8);
+-	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&be_val, size);
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
+ 
+ 	return ret;
+ }
+@@ -483,6 +484,7 @@ static int ar0323_probe(struct i2c_client *client,
+ 
+ 	v4l2_i2c_subdev_init(&priv->sd, client, &ar0323_subdev_ops);
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+ 	v4l2_ctrl_new_std(&priv->hdl, &ar0323_ctrl_ops,
+-- 
+2.7.4
+
