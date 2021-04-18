@@ -1,0 +1,65 @@
+From 4b2e6790a13b2514bcfe920e746d983b67c30c21 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sat, 17 Apr 2021 22:18:50 +0300
+Subject: [PATCH] media: i2c: ti9x4: support changing DT
+
+This add support to change CSI output data type
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/fpdlink/ti9x4.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c b/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
+index ca78e93..6e76624 100644
+--- a/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
+@@ -41,6 +41,7 @@ struct ti9x4_priv {
+ 	int			dvp_lsb;
+ 	int			hsync;
+ 	int			vsync;
++	int			dt;
+ 	int			poc_delay;
+ 	atomic_t		use_count;
+ 	struct i2c_client	*client;
+@@ -80,6 +81,10 @@ static int vsync = 1;
+ module_param(vsync, int, 0644);
+ MODULE_PARM_DESC(vsync, " VSYNC invertion (default: 1 - inverted)");
+ 
++static int dt = 0x1e;
++module_param(dt, int, 0644);
++MODULE_PARM_DESC(dt, " DataType (default: 0x1e - YUV8)");
++
+ static int poc_delay;
+ module_param(poc_delay, int, 0644);
+ MODULE_PARM_DESC(poc_delay, " Delay in ms after POC enable (default: 0 ms)");
+@@ -273,7 +278,7 @@ static void ti9x4_fpdlink3_setup(struct i2c_client *client, int idx)
+ 
+ 	reg8_write(client, 0x6d, port_config);
+ 	reg8_write(client, 0x7c, port_config2);
+-	reg8_write(client, 0x70, ((priv->vc_map >> (idx * 4)) << 6) | 0x1e); /* CSI data type: yuv422 8-bit, assign VC */
++	reg8_write(client, 0x70, ((priv->vc_map >> (idx * 4)) << 6) | priv->dt); /* CSI data type: yuv422 8-bit, assign VC */
+ 	reg8_write(client, 0x71, ((priv->vc_map >> (idx * 4)) << 6) | 0x2c); /* CSI data type: RAW12, assign VC */
+ 	reg8_write(client, 0xbc, 0x00);				/* Setup minimal time between FV and LV to 3 PCLKs */
+ 	reg8_write(client, 0x72, priv->vc_map >> (idx * 4));	/* CSI VC MAP */
+@@ -558,6 +563,8 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		priv->hsync = 0;
+ 	if (of_property_read_u32(np, "ti,vsync", &priv->vsync))
+ 		priv->vsync = 1;
++	if (of_property_read_u32(np, "ti,dt", &priv->dt))
++		priv->dt = 0x1e;
+ 	if (of_property_read_u32(np, "ti,ser_id", &priv->ser_id))
+ 		priv->ser_id = TI913_ID;
+ 	if (of_property_read_u32(np, "ti,poc-delay", &priv->poc_delay))
+@@ -600,6 +607,8 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		priv->hsync = hsync;
+ 	if (!vsync)
+ 		priv->vsync = vsync;
++	if (dt != 0x1e)
++		priv->dt = dt;
+ 	if (ser_id)
+ 		priv->ser_id = ser_id;
+ 	if (poc_delay)
+-- 
+2.7.4
+
