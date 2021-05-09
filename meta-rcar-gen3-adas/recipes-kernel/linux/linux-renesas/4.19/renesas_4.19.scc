@@ -524,3 +524,4 @@ patch 0552-media-i2c-soc_camera-ov2311-add-more-i2c-address.patch
 patch 0553-media-i2c-soc_camera-ov2311-add-DVP-suport.patch
 patch 0554-media-i2c-soc_camera-ar0233-fix-statistics.patch
 patch 0555-media-i2c-soc_camera-ar0233-fix-fps-for-27Mhz.patch
+patch 0556-media-i2c-soc_camera-add-IMX623-support.patch
