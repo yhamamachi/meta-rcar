@@ -1,0 +1,70 @@
+From 104ac54d2137ce4110231d95b1bcf2c1f023b050 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sun, 9 May 2021 23:50:02 +0300
+Subject: [PATCH] media: i2c: ti9x4: add fsync setup
+
+This adds fsinc time setup using dts/bootargs
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/fpdlink/ti9x4.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c b/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
+index 6e76624..58995ca 100644
+--- a/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
++++ b/drivers/media/i2c/soc_camera/fpdlink/ti9x4.c
+@@ -107,6 +107,10 @@ MODULE_PARM_DESC(gpio2, "  GPIO2 function select (default: GPIO2 low level)");
+ module_param(gpio3, int, 0644);
+ MODULE_PARM_DESC(gpio3, "  GPIO3 function select (default: GPIO3 low level)");
+ 
++static int fs_time;
++module_param(fs_time, int, 0644);
++MODULE_PARM_DESC(fs_time, " Frame sync period (default: 3.2MHz)");
++
+ #ifdef TI954_SILICON_ERRATA
+ static int indirect_write(struct i2c_client *client, unsigned int page, u8 reg, u8 val)
+ {
+@@ -181,18 +185,18 @@ static void ti9x4_initial_setup(struct i2c_client *client)
+ 	case 800:
+ 	case 400:
+ 		/* FrameSync setup for REFCLK=25MHz,   FPS=30: period_counts=1/FPS/12mks=1/30/12e-6=2777 -> HI=2, LO=2775 */
+-		priv->fs_time = 2790;
++		priv->fs_time = priv->fs_time * 25 / 23;
+ 		break;
+ 	case 1500:
+ 		/* FrameSync setup for REFCLK=23MHz, FPS=30: period_counts=1/FPS/13.043mks=1/30/13.043e-6=2556 -> HI=2, LO=2554 */
+-		priv->fs_time = 2570;
++		/* priv->fs_time = 2570; */
+ 		break;
+ 	case 1450:
+ 	case 1100:
+ 	case 700:
+ 	case 350:
+ 		/* FrameSync setup for REFCLK=22.5MHz, FPS=30: period_counts=1/FPS/13.333mks=1/30/13.333e-6=2500 -> HI=2, LO=2498 */
+-		priv->fs_time = 2513;
++		priv->fs_time = priv->fs_time * 225 / 230;
+ 		break;
+ 	default:
+ 		priv->fs_time = 0;
+@@ -576,6 +580,8 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		if (of_property_read_u32(np, name, &priv->gpio[i]))
+ 			priv->gpio[i] = 0;
+ 	}
++	if (of_property_read_u32(np, "ti,fs-time", &priv->fs_time))
++		priv->fs_time = 2570; /* 30fps */
+ 
+ 	/*
+ 	 * CSI forwarding of all links is to CSI0 by default.
+@@ -625,6 +631,8 @@ static int ti9x4_parse_dt(struct i2c_client *client)
+ 		priv->gpio[2] = gpio2;
+ 	if (gpio3)
+ 		priv->gpio[3] = gpio3;
++	if (fs_time)
++		priv->fs_time = fs_time;
+ 
+ 	for (i = 0; ; i++) {
+ 		endpoint = of_graph_get_next_endpoint(np, endpoint);
+-- 
+2.7.4
+
