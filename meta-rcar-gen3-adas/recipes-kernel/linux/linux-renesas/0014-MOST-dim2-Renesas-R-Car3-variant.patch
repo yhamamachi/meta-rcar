@@ -13,10 +13,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
-index 64c9791..cc18c27 100644
+index b34e3c1..fc74859 100644
 --- a/drivers/staging/most/dim2/dim2.c
 +++ b/drivers/staging/most/dim2/dim2.c
-@@ -40,7 +40,7 @@
+@@ -39,7 +39,7 @@
   * The values 0, 1, 2, 3, 4, 5, 6 represent corresponding number of frames per
   * sub-buffer 1, 2, 4, 8, 16, 32, 64.
   */

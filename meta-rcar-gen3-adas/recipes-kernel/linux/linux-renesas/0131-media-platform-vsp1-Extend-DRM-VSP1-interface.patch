@@ -63,7 +63,7 @@ index db0d2b8..c65dc71 100644
  	brx->entity.subdev.ctrl_handler = &brx->ctrls;
  
 diff --git a/drivers/media/platform/vsp1/vsp1_drm.c b/drivers/media/platform/vsp1/vsp1_drm.c
-index b1e538c..a004b7b 100644
+index 5b43223..9584a03 100644
 --- a/drivers/media/platform/vsp1/vsp1_drm.c
 +++ b/drivers/media/platform/vsp1/vsp1_drm.c
 @@ -208,7 +208,12 @@ static int vsp1_du_pipeline_setup_rpf(struct vsp1_device *vsp1,

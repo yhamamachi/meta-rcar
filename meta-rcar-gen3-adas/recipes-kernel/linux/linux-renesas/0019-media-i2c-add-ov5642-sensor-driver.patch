@@ -5,33 +5,41 @@ Subject: [PATCH] media: i2c: add ov5642 sensor driver
 
 This adds ov5642 glue drivers
 
-Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+
+Updated original patch for Linux 5.10:
+
+ * moved g_mbus_config from v4l2_ctrl_ops to get_mbus_config
+   v4l2_subdev_pad_ops.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/media/i2c/Kconfig       |  10 +
+ drivers/media/i2c/Kconfig       |  11 +
  drivers/media/i2c/Makefile      |   1 +
  drivers/media/i2c/ov5642.c      | 584 +++++++++++++++++++++++++++++++++
  drivers/media/i2c/ov5642.h      | 592 +++++++++++++++++++++++++++++++++
  drivers/media/i2c/ov5642_720p.h | 711 ++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 1898 insertions(+)
+ 5 files changed, 1899 insertions(+)
  create mode 100644 drivers/media/i2c/ov5642.c
  create mode 100644 drivers/media/i2c/ov5642.h
  create mode 100644 drivers/media/i2c/ov5642_720p.h
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index b7c8bdd..377ad9a 100644
+index 878f66e..0589bba 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
-@@ -677,6 +677,16 @@ config VIDEO_OV5640
+@@ -895,6 +895,17 @@ config VIDEO_OV5640
  	  This is a Video4Linux2 sensor driver for the Omnivision
  	  OV5640 camera sensor with a MIPI CSI-2 interface.
  
 +config VIDEO_OV5642
 +	tristate "OmniVision OV5642 sensor support"
 +	depends on OF
-+	depends on GPIOLIB && VIDEO_V4L2 && I2C && VIDEO_V4L2_SUBDEV_API
-+	depends on MEDIA_CAMERA_SUPPORT
++	depends on GPIOLIB && VIDEO_V4L2 && I2C
++	select MEDIA_CONTROLLER
++        select VIDEO_V4L2_SUBDEV_API
 +	select V4L2_FWNODE
-+	---help---
++	help
 +	  This is a Video4Linux2 sensor driver for the Omnivision
 +	  OV5642 camera sensor with a DVP parallel interface.
 +
@@ -39,12 +47,12 @@ index b7c8bdd..377ad9a 100644
  	tristate "OmniVision OV5645 sensor support"
  	depends on OF
 diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index a27d8f3..ec0a00e 100644
+index f0a7747..5dccb72 100644
 --- a/drivers/media/i2c/Makefile
 +++ b/drivers/media/i2c/Makefile
-@@ -68,6 +68,7 @@ obj-$(CONFIG_VIDEO_OV2640) += ov2640.o
- obj-$(CONFIG_VIDEO_OV2680) += ov2680.o
+@@ -69,6 +69,7 @@ obj-$(CONFIG_VIDEO_OV2680) += ov2680.o
  obj-$(CONFIG_VIDEO_OV2685) += ov2685.o
+ obj-$(CONFIG_VIDEO_OV2740) += ov2740.o
  obj-$(CONFIG_VIDEO_OV5640) += ov5640.o
 +obj-$(CONFIG_VIDEO_OV5642) += ov5642.o
  obj-$(CONFIG_VIDEO_OV5645) += ov5645.o
@@ -52,7 +60,7 @@ index a27d8f3..ec0a00e 100644
  obj-$(CONFIG_VIDEO_OV5670) += ov5670.o
 diff --git a/drivers/media/i2c/ov5642.c b/drivers/media/i2c/ov5642.c
 new file mode 100644
-index 0000000..7a327f4
+index 0000000..14cc29e
 --- /dev/null
 +++ b/drivers/media/i2c/ov5642.c
 @@ -0,0 +1,584 @@
@@ -406,7 +414,7 @@ index 0000000..7a327f4
 +	}
 +}
 +
-+static int ov5642_g_mbus_config(struct v4l2_subdev *sd,
++static int ov5642_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +				struct v4l2_mbus_config *cfg)
 +{
 +	cfg->type = V4L2_MBUS_PARALLEL;
@@ -434,7 +442,6 @@ index 0000000..7a327f4
 +}
 +
 +static const struct v4l2_subdev_video_ops ov5642_subdev_video_ops = {
-+	.g_mbus_config	= ov5642_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ov5642_subdev_pad_ops = {
@@ -443,6 +450,7 @@ index 0000000..7a327f4
 +	.set_selection	= ov5642_set_selection,
 +	.get_fmt	= ov5642_get_fmt,
 +	.set_fmt	= ov5642_set_fmt,
++	.get_mbus_config = ov5642_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_core_ops ov5642_subdev_core_ops = {
@@ -595,7 +603,7 @@ index 0000000..7a327f4
 +	if (ret < 0)
 +		return ret;
 +
-+	ret = v4l2_async_register_subdev(sd);
++	ret = v4l2_async_register_subdev_sensor_common(sd);
 +	if (ret < 0)
 +		media_entity_cleanup(&sd->entity);
 +

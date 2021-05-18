@@ -6,9 +6,18 @@ Subject: [PATCH] media: i2c: add camera lvds support
 This adds GMSL1/GMSL2/FPDLink3 video support
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+
+Updated original patch for Linux 5.10:
+ * updated Kconfig;
+ * used i2c_new_dummy_device instead of i2c_new_dummy;
+ * moved g_mbus_config from v4l2_ctrl_ops to get_mbus_config
+   v4l2_subdev_pad_ops;
+ * disabled community drivers/media/i2c/max9286.c driver.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/media/i2c/Kconfig                 |    4 +
- drivers/media/i2c/Makefile                |    4 +
+ drivers/media/i2c/Kconfig                 |   26 +-
+ drivers/media/i2c/Makefile                |    6 +-
  drivers/media/i2c/fpdlink/Kconfig         |   15 +
  drivers/media/i2c/fpdlink/Makefile        |    2 +
  drivers/media/i2c/fpdlink/ub9x4.c         |  927 +++++++++++++++++
@@ -30,7 +39,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/imagers/Makefile        |   10 +
  drivers/media/i2c/imagers/ap0101.c        |  639 ++++++++++++
  drivers/media/i2c/imagers/ap0101.h        |   36 +
- drivers/media/i2c/imagers/ap0201.c        |  606 +++++++++++
+ drivers/media/i2c/imagers/ap0201.c        |  607 +++++++++++
  drivers/media/i2c/imagers/ap0201.h        |   36 +
  drivers/media/i2c/imagers/dummy.c         |  504 +++++++++
  drivers/media/i2c/imagers/isx016.c        |  550 ++++++++++
@@ -46,7 +55,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/imagers/ov490.h         |  101 ++
  drivers/media/i2c/imagers/ov495.c         |  622 +++++++++++
  drivers/media/i2c/imagers/ov495.h         |   23 +
- 39 files changed, 15896 insertions(+)
+ 39 files changed, 15908 insertions(+), 13 deletions(-)
  create mode 100644 drivers/media/i2c/fpdlink/Kconfig
  create mode 100644 drivers/media/i2c/fpdlink/Makefile
  create mode 100644 drivers/media/i2c/fpdlink/ub9x4.c
@@ -86,20 +95,49 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 drivers/media/i2c/imagers/ov495.h
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 6e5ee08..ed4f74b 100644
+index 0589bba..c6a6999 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
-@@ -1179,4 +1179,8 @@ config VIDEO_ST_MIPID02
+@@ -464,18 +464,16 @@ config VIDEO_VPX3220
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called vpx3220.
  
+-config VIDEO_MAX9286
+-	tristate "Maxim MAX9286 GMSL deserializer support"
+-	depends on I2C && I2C_MUX
+-	depends on OF_GPIO
+-	select V4L2_FWNODE
+-	select VIDEO_V4L2_SUBDEV_API
+-	select MEDIA_CONTROLLER
+-	help
+-	  This driver supports the Maxim MAX9286 GMSL deserializer.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called max9286.
++#config VIDEO_MAX9286
++#	tristate "Maxim MAX9286 GMSL deserializer support"
++#	depends on I2C && I2C_MUX
++#	depends on OF_GPIO
++#	select V4L2_FWNODE
++#	help
++#	  This driver supports the Maxim MAX9286 GMSL deserializer.
++#
++#	  To compile this driver as a module, choose M here: the
++#	  module will be called max9286.
+ 
+ comment "Video and audio decoders"
+ 
+@@ -1346,4 +1344,8 @@ config VIDEO_LM3646
+ 	  flash, torch LEDs.
  endmenu
  
 +source "drivers/media/i2c/gmsl/Kconfig"
 +source "drivers/media/i2c/fpdlink/Kconfig"
 +source "drivers/media/i2c/imagers/Kconfig"
 +
- endif
+ endif # VIDEO_V4L2
 diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index eb04dba..41d4ca6 100644
+index 5dccb72..debc332 100644
 --- a/drivers/media/i2c/Makefile
 +++ b/drivers/media/i2c/Makefile
 @@ -7,6 +7,10 @@ obj-$(CONFIG_VIDEO_ET8EK8)	+= et8ek8/
@@ -113,6 +151,15 @@ index eb04dba..41d4ca6 100644
  obj-$(CONFIG_VIDEO_APTINA_PLL) += aptina-pll.o
  obj-$(CONFIG_VIDEO_TVAUDIO) += tvaudio.o
  obj-$(CONFIG_VIDEO_TDA7432) += tda7432.o
+@@ -120,7 +124,7 @@ obj-$(CONFIG_VIDEO_IMX274)	+= imx274.o
+ obj-$(CONFIG_VIDEO_IMX290)	+= imx290.o
+ obj-$(CONFIG_VIDEO_IMX319)	+= imx319.o
+ obj-$(CONFIG_VIDEO_IMX355)	+= imx355.o
+-obj-$(CONFIG_VIDEO_MAX9286)	+= max9286.o
++#obj-$(CONFIG_VIDEO_MAX9286)	+= max9286.o
+ rdacm20-camera_module-objs	:= rdacm20.o max9271.o
+ obj-$(CONFIG_VIDEO_RDACM20)	+= rdacm20-camera_module.o
+ obj-$(CONFIG_VIDEO_ST_MIPID02) += st-mipid02.o
 diff --git a/drivers/media/i2c/fpdlink/Kconfig b/drivers/media/i2c/fpdlink/Kconfig
 new file mode 100644
 index 0000000..2687507
@@ -3868,7 +3915,7 @@ index 0000000..864c441
 \ No newline at end of file
 diff --git a/drivers/media/i2c/gmsl/max9296.c b/drivers/media/i2c/gmsl/max9296.c
 new file mode 100644
-index 0000000..0c30eef
+index 0000000..440e353
 --- /dev/null
 +++ b/drivers/media/i2c/gmsl/max9296.c
 @@ -0,0 +1,1596 @@
@@ -5382,7 +5429,7 @@ index 0000000..0c30eef
 +	}
 +
 +	for (i = 0; i < priv->n_links; i++) {
-+		priv->link[i]->client = i2c_new_dummy(client->adapter, priv->link[i]->ser_addr);
++		priv->link[i]->client = i2c_new_dummy_device(client->adapter, priv->link[i]->ser_addr);
 +		if (!priv->link[i]->client)
 +			return -ENOMEM;
 +
@@ -6250,7 +6297,7 @@ index 0000000..6bf03a2
 +}
 diff --git a/drivers/media/i2c/gmsl/max96712.c b/drivers/media/i2c/gmsl/max96712.c
 new file mode 100644
-index 0000000..5a92bdc
+index 0000000..6efaba8
 --- /dev/null
 +++ b/drivers/media/i2c/gmsl/max96712.c
 @@ -0,0 +1,1604 @@
@@ -7772,7 +7819,7 @@ index 0000000..5a92bdc
 +	}
 +
 +	for (i = 0; i < priv->n_links; i++) {
-+		priv->link[i]->client = i2c_new_dummy(client->adapter, priv->link[i]->ser_addr);
++		priv->link[i]->client = i2c_new_dummy_device(client->adapter, priv->link[i]->ser_addr);
 +		if (!priv->link[i]->client)
 +			return -ENOMEM;
 +
@@ -8557,7 +8604,7 @@ index 0000000..5617bc1
 +obj-$(CONFIG_VIDEO_LVDS_CAMERA)	+= dummy.o
 diff --git a/drivers/media/i2c/imagers/ap0101.c b/drivers/media/i2c/imagers/ap0101.c
 new file mode 100644
-index 0000000..fdb6f43
+index 0000000..2a67d5d
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ap0101.c
 @@ -0,0 +1,639 @@
@@ -8825,7 +8872,7 @@ index 0000000..fdb6f43
 +	}
 +}
 +
-+static int ap0101_g_mbus_config(struct v4l2_subdev *sd,
++static int ap0101_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -8936,7 +8983,6 @@ index 0000000..fdb6f43
 +
 +static struct v4l2_subdev_video_ops ap0101_video_ops = {
 +	.s_stream	= ap0101_s_stream,
-+	.g_mbus_config	= ap0101_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ap0101_subdev_pad_ops = {
@@ -8946,6 +8992,7 @@ index 0000000..fdb6f43
 +	.set_selection	= ap0101_set_selection,
 +	.get_fmt	= ap0101_get_fmt,
 +	.set_fmt	= ap0101_set_fmt,
++	.get_mbus_config	= ap0101_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ap0101_subdev_ops = {
@@ -9244,10 +9291,10 @@ index 0000000..2dd0fdf
 +};
 diff --git a/drivers/media/i2c/imagers/ap0201.c b/drivers/media/i2c/imagers/ap0201.c
 new file mode 100644
-index 0000000..fd291ec
+index 0000000..fec4875
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ap0201.c
-@@ -0,0 +1,606 @@
+@@ -0,0 +1,607 @@
 +/*
 + * ON Semiconductor AP020X-AR023X sensor camera driver
 + *
@@ -9266,9 +9313,10 @@ index 0000000..fd291ec
 +#include <linux/of_graph.h>
 +#include <linux/videodev2.h>
 +
-+#include <media/soc_camera.h>
 +#include <media/v4l2-common.h>
 +#include <media/v4l2-ctrls.h>
++#include <media/v4l2-device.h>
++#include <media/v4l2-subdev.h>
 +
 +#include "ap0201.h"
 +#include "../gmsl/common.h"
@@ -9509,7 +9557,7 @@ index 0000000..fd291ec
 +	}
 +}
 +
-+static int ap0201_g_mbus_config(struct v4l2_subdev *sd,
++static int ap0201_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +				struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -9617,7 +9665,6 @@ index 0000000..fd291ec
 +
 +static struct v4l2_subdev_video_ops ap0201_video_ops = {
 +	.s_stream	= ap0201_s_stream,
-+	.g_mbus_config	= ap0201_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ap0201_subdev_pad_ops = {
@@ -9627,6 +9674,7 @@ index 0000000..fd291ec
 +	.set_selection	= ap0201_set_selection,
 +	.get_fmt	= ap0201_get_fmt,
 +	.set_fmt	= ap0201_set_fmt,
++	.get_mbus_config	= ap0201_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ap0201_subdev_ops = {
@@ -9898,7 +9946,7 @@ index 0000000..0225407
 +};
 diff --git a/drivers/media/i2c/imagers/dummy.c b/drivers/media/i2c/imagers/dummy.c
 new file mode 100644
-index 0000000..e218e17
+index 0000000..5d64378
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/dummy.c
 @@ -0,0 +1,504 @@
@@ -10093,7 +10141,7 @@ index 0000000..e218e17
 +	}
 +}
 +
-+static int dummy_g_mbus_config(struct v4l2_subdev *sd,
++static int dummy_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -10155,7 +10203,6 @@ index 0000000..e218e17
 +
 +static struct v4l2_subdev_video_ops dummy_video_ops = {
 +	.s_stream	= dummy_s_stream,
-+	.g_mbus_config	= dummy_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops dummy_subdev_pad_ops = {
@@ -10165,6 +10212,7 @@ index 0000000..e218e17
 +	.set_selection	= dummy_set_selection,
 +	.get_fmt	= dummy_get_fmt,
 +	.set_fmt	= dummy_set_fmt,
++	.get_mbus_config	= dummy_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops dummy_subdev_ops = {
@@ -10408,7 +10456,7 @@ index 0000000..e218e17
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/imagers/isx016.c b/drivers/media/i2c/imagers/isx016.c
 new file mode 100644
-index 0000000..e781a9ae
+index 0000000..324f737
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/isx016.c
 @@ -0,0 +1,550 @@
@@ -10652,7 +10700,7 @@ index 0000000..e781a9ae
 +	}
 +}
 +
-+static int isx016_g_mbus_config(struct v4l2_subdev *sd,
++static int isx016_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -10733,7 +10781,6 @@ index 0000000..e781a9ae
 +
 +static struct v4l2_subdev_video_ops isx016_video_ops = {
 +	.s_stream	= isx016_s_stream,
-+	.g_mbus_config	= isx016_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops isx016_subdev_pad_ops = {
@@ -10743,6 +10790,7 @@ index 0000000..e781a9ae
 +	.set_selection	= isx016_set_selection,
 +	.get_fmt	= isx016_get_fmt,
 +	.set_fmt	= isx016_set_fmt,
++	.get_mbus_config	= isx016_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops isx016_subdev_ops = {
@@ -10997,7 +11045,7 @@ index 0000000..caf427f
 +};
 diff --git a/drivers/media/i2c/imagers/isx019.c b/drivers/media/i2c/imagers/isx019.c
 new file mode 100644
-index 0000000..034b6e8
+index 0000000..0860539
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/isx019.c
 @@ -0,0 +1,608 @@
@@ -11306,7 +11354,7 @@ index 0000000..034b6e8
 +	}
 +}
 +
-+static int isx019_g_mbus_config(struct v4l2_subdev *sd,
++static int isx019_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +				struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -11384,7 +11432,6 @@ index 0000000..034b6e8
 +
 +static struct v4l2_subdev_video_ops isx019_video_ops = {
 +	.s_stream	= isx019_s_stream,
-+	.g_mbus_config	= isx019_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops isx019_subdev_pad_ops = {
@@ -11394,6 +11441,7 @@ index 0000000..034b6e8
 +	.set_selection	= isx019_set_selection,
 +	.get_fmt	= isx019_get_fmt,
 +	.set_fmt	= isx019_set_fmt,
++	.get_mbus_config	= isx019_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops isx019_subdev_ops = {
@@ -11647,7 +11695,7 @@ index 0000000..6d936ab
 +};
 diff --git a/drivers/media/i2c/imagers/ov10635.c b/drivers/media/i2c/imagers/ov10635.c
 new file mode 100644
-index 0000000..ffd8a32
+index 0000000..dfca965
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ov10635.c
 @@ -0,0 +1,702 @@
@@ -11933,7 +11981,7 @@ index 0000000..ffd8a32
 +	}
 +}
 +
-+static int ov10635_g_mbus_config(struct v4l2_subdev *sd,
++static int ov10635_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +				 struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -12118,7 +12166,6 @@ index 0000000..ffd8a32
 +
 +static struct v4l2_subdev_video_ops ov10635_video_ops = {
 +	.s_stream	= ov10635_s_stream,
-+	.g_mbus_config	= ov10635_g_mbus_config,
 +	.g_frame_interval = ov10635_g_frame_interval,
 +	.s_frame_interval = ov10635_s_frame_interval,
 +};
@@ -12130,6 +12177,7 @@ index 0000000..ffd8a32
 +	.set_selection	= ov10635_set_selection,
 +	.get_fmt	= ov10635_get_fmt,
 +	.set_fmt	= ov10635_set_fmt,
++	.get_mbus_config	= ov10635_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ov10635_subdev_ops = {
@@ -13564,7 +13612,7 @@ index 0000000..4c3515a
 +#endif
 diff --git a/drivers/media/i2c/imagers/ov2311.c b/drivers/media/i2c/imagers/ov2311.c
 new file mode 100644
-index 0000000..db68b62
+index 0000000..6f9329b
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ov2311.c
 @@ -0,0 +1,588 @@
@@ -13814,7 +13862,7 @@ index 0000000..db68b62
 +	}
 +}
 +
-+static int ov2311_g_mbus_config(struct v4l2_subdev *sd,
++static int ov2311_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +				struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -13929,7 +13977,6 @@ index 0000000..db68b62
 +
 +static struct v4l2_subdev_video_ops ov2311_video_ops = {
 +	.s_stream	= ov2311_s_stream,
-+	.g_mbus_config	= ov2311_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ov2311_subdev_pad_ops = {
@@ -13939,6 +13986,7 @@ index 0000000..db68b62
 +	.set_selection	= ov2311_set_selection,
 +	.get_fmt	= ov2311_get_fmt,
 +	.set_fmt	= ov2311_set_fmt,
++	.get_mbus_config	= ov2311_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ov2311_subdev_ops = {
@@ -14381,7 +14429,7 @@ index 0000000..a525b9f
 +};
 diff --git a/drivers/media/i2c/imagers/ov490.c b/drivers/media/i2c/imagers/ov490.c
 new file mode 100644
-index 0000000..7e66851
+index 0000000..2d384f5
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ov490.c
 @@ -0,0 +1,1075 @@
@@ -14727,7 +14775,7 @@ index 0000000..7e66851
 +	}
 +}
 +
-+static int ov490_g_mbus_config(struct v4l2_subdev *sd,
++static int ov490_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -15125,7 +15173,6 @@ index 0000000..7e66851
 +
 +static struct v4l2_subdev_video_ops ov490_video_ops = {
 +	.s_stream	= ov490_s_stream,
-+	.g_mbus_config	= ov490_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ov490_subdev_pad_ops = {
@@ -15135,6 +15182,7 @@ index 0000000..7e66851
 +	.set_selection	= ov490_set_selection,
 +	.get_fmt	= ov490_get_fmt,
 +	.set_fmt	= ov490_set_fmt,
++	.get_mbus_config	= ov490_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ov490_subdev_ops = {
@@ -15569,7 +15617,7 @@ index 0000000..dae9372
 +};
 diff --git a/drivers/media/i2c/imagers/ov495.c b/drivers/media/i2c/imagers/ov495.c
 new file mode 100644
-index 0000000..7618697
+index 0000000..96b2199
 --- /dev/null
 +++ b/drivers/media/i2c/imagers/ov495.c
 @@ -0,0 +1,622 @@
@@ -15828,7 +15876,7 @@ index 0000000..7618697
 +	}
 +}
 +
-+static int ov495_g_mbus_config(struct v4l2_subdev *sd,
++static int ov495_g_mbus_config(struct v4l2_subdev *sd, unsigned int pad,
 +			       struct v4l2_mbus_config *cfg)
 +{
 +	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
@@ -15937,7 +15985,6 @@ index 0000000..7618697
 +
 +static struct v4l2_subdev_video_ops ov495_video_ops = {
 +	.s_stream	= ov495_s_stream,
-+	.g_mbus_config	= ov495_g_mbus_config,
 +};
 +
 +static const struct v4l2_subdev_pad_ops ov495_subdev_pad_ops = {
@@ -15947,6 +15994,7 @@ index 0000000..7618697
 +	.set_selection	= ov495_set_selection,
 +	.get_fmt	= ov495_get_fmt,
 +	.set_fmt	= ov495_set_fmt,
++	.get_mbus_config	= ov495_g_mbus_config,
 +};
 +
 +static struct v4l2_subdev_ops ov495_subdev_ops = {

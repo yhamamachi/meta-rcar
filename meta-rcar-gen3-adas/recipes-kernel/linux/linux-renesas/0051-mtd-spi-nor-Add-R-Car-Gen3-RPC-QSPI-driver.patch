@@ -15,20 +15,20 @@ size support in the generic spi-nor layer.
 Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/mtd/spi-nor/Kconfig       |    8 +
- drivers/mtd/spi-nor/Makefile      |    1 +
- drivers/mtd/spi-nor/renesas-rpc.c | 1271 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 1280 insertions(+)
- create mode 100644 drivers/mtd/spi-nor/renesas-rpc.c
+ drivers/mtd/spi-nor/controllers/Kconfig       |    7 +
+ drivers/mtd/spi-nor/controllers/Makefile      |    1 +
+ drivers/mtd/spi-nor/controllers/renesas-rpc.c | 1271 +++++++++++++++++++++++++
+ 3 files changed, 1279 insertions(+)
+ create mode 100644 drivers/mtd/spi-nor/controllers/renesas-rpc.c
 
-diff --git a/drivers/mtd/spi-nor/Kconfig b/drivers/mtd/spi-nor/Kconfig
-index f237fcd..2be8865 100644
---- a/drivers/mtd/spi-nor/Kconfig
-+++ b/drivers/mtd/spi-nor/Kconfig
-@@ -10,6 +10,14 @@ menuconfig MTD_SPI_NOR
+diff --git a/drivers/mtd/spi-nor/controllers/Kconfig b/drivers/mtd/spi-nor/controllers/Kconfig
+index 5c0e0ec..4c8cc02 100644
+--- a/drivers/mtd/spi-nor/controllers/Kconfig
++++ b/drivers/mtd/spi-nor/controllers/Kconfig
+@@ -62,3 +62,10 @@ config SPI_INTEL_SPI_PLATFORM
  
- if MTD_SPI_NOR
- 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called intel-spi-platform.
 +
 +config SPI_RENESAS_RPC
 +	tristate "Renesas RPC controller"
@@ -36,27 +36,20 @@ index f237fcd..2be8865 100644
 +	help
 +	  QSPI driver for Renesas SPI Multi I/O Bus controller. This controller
 +	  supports normal, dual and quad spi for one or two SPI NOR Flashes.
-+
- config MTD_SPI_NOR_USE_4K_SECTORS
- 	bool "Use small 4096 B erase sectors"
- 	default y
-diff --git a/drivers/mtd/spi-nor/Makefile b/drivers/mtd/spi-nor/Makefile
-index 9c5ed03..d8f7d31 100644
---- a/drivers/mtd/spi-nor/Makefile
-+++ b/drivers/mtd/spi-nor/Makefile
-@@ -5,6 +5,7 @@ obj-$(CONFIG_SPI_CADENCE_QUADSPI)	+= cadence-quadspi.o
- obj-$(CONFIG_SPI_HISI_SFC)	+= hisi-sfc.o
- obj-$(CONFIG_SPI_MTK_QUADSPI)    += mtk-quadspi.o
- obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi.o
-+obj-$(CONFIG_SPI_RENESAS_RPC)	+= renesas-rpc.o
+diff --git a/drivers/mtd/spi-nor/controllers/Makefile b/drivers/mtd/spi-nor/controllers/Makefile
+index e7abba4..084bd37 100644
+--- a/drivers/mtd/spi-nor/controllers/Makefile
++++ b/drivers/mtd/spi-nor/controllers/Makefile
+@@ -5,3 +5,4 @@ obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi.o
  obj-$(CONFIG_SPI_INTEL_SPI)	+= intel-spi.o
  obj-$(CONFIG_SPI_INTEL_SPI_PCI)	+= intel-spi-pci.o
  obj-$(CONFIG_SPI_INTEL_SPI_PLATFORM)	+= intel-spi-platform.o
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.c b/drivers/mtd/spi-nor/renesas-rpc.c
++obj-$(CONFIG_SPI_RENESAS_RPC)	+= renesas-rpc.o
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.c b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 new file mode 100644
-index 0000000..b619a7e
+index 0000000..c5f6c00
 --- /dev/null
-+++ b/drivers/mtd/spi-nor/renesas-rpc.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 @@ -0,0 +1,1271 @@
 +/*
 + * Renesas RPC driver
@@ -1131,8 +1124,8 @@ index 0000000..b619a7e
 +}
 +
 +static const struct of_device_id rpc_of_match[] = {
-+	{ .compatible = "renesas,qspi-rpc-r8a77980" },
-+	{ .compatible = "renesas,qspi-rpc-r8a77970", .data = (void *)OWN_CLOCK_DIVIDER },
++	{ .compatible = "renesas,r8a77980-rpc-if" },
++	{ .compatible = "renesas,r8a77970-rpc-if", .data = (void *)OWN_CLOCK_DIVIDER },
 +	{ },
 +};
 +

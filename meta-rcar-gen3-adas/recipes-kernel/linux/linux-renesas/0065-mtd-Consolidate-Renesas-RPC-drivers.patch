@@ -20,23 +20,23 @@ The following configuration options are available:
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/mtd/Kconfig                          |    6 -
- drivers/mtd/Makefile                         |    1 -
- drivers/mtd/rpc_hyperflash.c                 |  973 ------------------
- drivers/mtd/spi-nor/Kconfig                  |   22 +-
- drivers/mtd/spi-nor/Makefile                 |    4 +-
- drivers/mtd/spi-nor/renesas-rpc-hyperflash.c |  739 ++++++++++++++
- drivers/mtd/spi-nor/renesas-rpc-qspi.c       |  794 +++++++++++++++
- drivers/mtd/spi-nor/renesas-rpc.c            | 1356 ++++----------------------
- drivers/mtd/spi-nor/renesas-rpc.h            |  267 +++++
- 9 files changed, 1988 insertions(+), 2174 deletions(-)
+ drivers/mtd/Kconfig                                |    6 -
+ drivers/mtd/Makefile                               |    1 -
+ drivers/mtd/rpc_hyperflash.c                       |  973 --------------
+ drivers/mtd/spi-nor/controllers/Kconfig            |   22 +-
+ drivers/mtd/spi-nor/controllers/Makefile           |    4 +-
+ .../spi-nor/controllers/renesas-rpc-hyperflash.c   |  739 +++++++++++
+ drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c |  798 ++++++++++++
+ drivers/mtd/spi-nor/controllers/renesas-rpc.c      | 1358 +++-----------------
+ drivers/mtd/spi-nor/controllers/renesas-rpc.h      |  267 ++++
+ 9 files changed, 1994 insertions(+), 2174 deletions(-)
  delete mode 100644 drivers/mtd/rpc_hyperflash.c
- create mode 100644 drivers/mtd/spi-nor/renesas-rpc-hyperflash.c
- create mode 100644 drivers/mtd/spi-nor/renesas-rpc-qspi.c
- create mode 100644 drivers/mtd/spi-nor/renesas-rpc.h
+ create mode 100644 drivers/mtd/spi-nor/controllers/renesas-rpc-hyperflash.c
+ create mode 100644 drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
+ create mode 100644 drivers/mtd/spi-nor/controllers/renesas-rpc.h
 
 diff --git a/drivers/mtd/Kconfig b/drivers/mtd/Kconfig
-index 728914c..2b38deb 100644
+index 77881ff..a18da88 100644
 --- a/drivers/mtd/Kconfig
 +++ b/drivers/mtd/Kconfig
 @@ -11,12 +11,6 @@ menuconfig MTD
@@ -46,14 +46,14 @@ index 728914c..2b38deb 100644
 -config MTD_RPC_HYPERFLASH
 -	tristate "MTD Renesas R-Car Gen3 RPC HyperFlash"
 -	depends on ARCH_R8A7795
--	---help---
+-	help
 -	  This option includes Renesas R-Car Gen3 RPC HyperFlash support.
 -
  config MTD_TESTS
  	tristate "MTD tests support (DANGEROUS)"
  	depends on m
 diff --git a/drivers/mtd/Makefile b/drivers/mtd/Makefile
-index a1ef6fd..56cc60c 100644
+index 02c6b6b..593d059 100644
 --- a/drivers/mtd/Makefile
 +++ b/drivers/mtd/Makefile
 @@ -8,7 +8,6 @@ obj-$(CONFIG_MTD)		+= mtd.o
@@ -66,7 +66,7 @@ index a1ef6fd..56cc60c 100644
  obj-$(CONFIG_MTD_BLKDEVS)	+= mtd_blkdevs.o
 diff --git a/drivers/mtd/rpc_hyperflash.c b/drivers/mtd/rpc_hyperflash.c
 deleted file mode 100644
-index a4d8bcf..0000000
+index 284c87f..0000000
 --- a/drivers/mtd/rpc_hyperflash.c
 +++ /dev/null
 @@ -1,973 +0,0 @@
@@ -967,7 +967,7 @@ index a4d8bcf..0000000
 -	void __iomem *base;
 -	int retval = -ENODEV;
 -
--	if (!of_machine_is_compatible("renesas,r8a7795"))
+-	if (!of_machine_is_compatible("renesas,r8a77951"))
 -		return -ENODEV;
 -
 -	info = kzalloc(sizeof(*info), GFP_KERNEL);
@@ -1043,13 +1043,13 @@ index a4d8bcf..0000000
 -
 -MODULE_LICENSE("GPL v2");
 -MODULE_DESCRIPTION("Renesas RPC HyperFlash MTD driver");
-diff --git a/drivers/mtd/spi-nor/Kconfig b/drivers/mtd/spi-nor/Kconfig
-index 2be8865..dd3059f 100644
---- a/drivers/mtd/spi-nor/Kconfig
-+++ b/drivers/mtd/spi-nor/Kconfig
-@@ -11,12 +11,26 @@ menuconfig MTD_SPI_NOR
- if MTD_SPI_NOR
- 
+diff --git a/drivers/mtd/spi-nor/controllers/Kconfig b/drivers/mtd/spi-nor/controllers/Kconfig
+index 4c8cc02..e7fcedb 100644
+--- a/drivers/mtd/spi-nor/controllers/Kconfig
++++ b/drivers/mtd/spi-nor/controllers/Kconfig
+@@ -63,9 +63,23 @@ config SPI_INTEL_SPI_PLATFORM
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called intel-spi-platform.
  
 -config SPI_RENESAS_RPC
 +config MTD_RENESAS_RPC
@@ -1075,29 +1075,23 @@ index 2be8865..dd3059f 100644
 +	select MTD_RENESAS_RPC
 +	help
 +	  QSPI driver for Renesas RPC Multi I/O Bus controller.
- 
- config MTD_SPI_NOR_USE_4K_SECTORS
- 	bool "Use small 4096 B erase sectors"
-diff --git a/drivers/mtd/spi-nor/Makefile b/drivers/mtd/spi-nor/Makefile
-index d8f7d31..742c342 100644
---- a/drivers/mtd/spi-nor/Makefile
-+++ b/drivers/mtd/spi-nor/Makefile
-@@ -5,7 +5,9 @@ obj-$(CONFIG_SPI_CADENCE_QUADSPI)	+= cadence-quadspi.o
- obj-$(CONFIG_SPI_HISI_SFC)	+= hisi-sfc.o
- obj-$(CONFIG_SPI_MTK_QUADSPI)    += mtk-quadspi.o
- obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi.o
--obj-$(CONFIG_SPI_RENESAS_RPC)	+= renesas-rpc.o
+diff --git a/drivers/mtd/spi-nor/controllers/Makefile b/drivers/mtd/spi-nor/controllers/Makefile
+index 084bd37..00ca0e2 100644
+--- a/drivers/mtd/spi-nor/controllers/Makefile
++++ b/drivers/mtd/spi-nor/controllers/Makefile
+@@ -5,4 +5,6 @@ obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi.o
  obj-$(CONFIG_SPI_INTEL_SPI)	+= intel-spi.o
  obj-$(CONFIG_SPI_INTEL_SPI_PCI)	+= intel-spi-pci.o
  obj-$(CONFIG_SPI_INTEL_SPI_PLATFORM)	+= intel-spi-platform.o
+-obj-$(CONFIG_SPI_RENESAS_RPC)	+= renesas-rpc.o
 +obj-$(CONFIG_MTD_RENESAS_RPC) += renesas-rpc.o
 +obj-$(CONFIG_MTD_RENESAS_RPC_QSPI) += renesas-rpc-qspi.o
 +obj-$(CONFIG_MTD_RENESAS_RPC_HYPERFLASH) += renesas-rpc-hyperflash.o
-diff --git a/drivers/mtd/spi-nor/renesas-rpc-hyperflash.c b/drivers/mtd/spi-nor/renesas-rpc-hyperflash.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc-hyperflash.c b/drivers/mtd/spi-nor/controllers/renesas-rpc-hyperflash.c
 new file mode 100644
 index 0000000..21b0f87
 --- /dev/null
-+++ b/drivers/mtd/spi-nor/renesas-rpc-hyperflash.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc-hyperflash.c
 @@ -0,0 +1,739 @@
 +/*
 + * Renesas RPC driver
@@ -1838,12 +1832,12 @@ index 0000000..21b0f87
 +MODULE_AUTHOR("Cogent Embedded Inc. <sources@cogentembedded.com>");
 +MODULE_DESCRIPTION("Renesas RPC HyperFlash Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/mtd/spi-nor/renesas-rpc-qspi.c b/drivers/mtd/spi-nor/renesas-rpc-qspi.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c b/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
 new file mode 100644
-index 0000000..3d2d5db
+index 0000000..e694eeb
 --- /dev/null
-+++ b/drivers/mtd/spi-nor/renesas-rpc-qspi.c
-@@ -0,0 +1,794 @@
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
+@@ -0,0 +1,798 @@
 +/*
 + * Renesas RPC QSPI driver
 + *
@@ -2385,7 +2379,7 @@ index 0000000..3d2d5db
 +}
 +
 +#define RPC_REPEAT_TIMEOUT	200
-+static int rpc_read_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
++static int rpc_read_reg(struct spi_nor *nor, u8 opcode, u8 *buf, size_t len)
 +{
 +	unsigned long end = jiffies + msecs_to_jiffies(RPC_REPEAT_TIMEOUT);
 +
@@ -2406,7 +2400,7 @@ index 0000000..3d2d5db
 +	}
 +}
 +
-+static int rpc_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
++static int rpc_write_reg(struct spi_nor *nor, u8 opcode, const u8 *buf, size_t len)
 +{
 +	struct rpc_info *rpc = nor->priv;
 +	u32 val;
@@ -2508,8 +2502,16 @@ index 0000000..3d2d5db
 +		addr >>= 8;
 +	}
 +
-+	return nor->write_reg(nor, nor->erase_opcode, buf, nor->addr_width);
++	return nor->controller_ops->write_reg(nor, nor->erase_opcode, buf, nor->addr_width);
 +}
++
++static const struct spi_nor_controller_ops rpc_qspi_ops = {
++	.read = rpc_read_flash,
++	.write = rpc_write_flash,
++	.read_reg = rpc_read_reg,
++	.write_reg = rpc_write_reg,
++	.erase = rpc_erase_sector,
++};
 +
 +int rpc_qspi_probe(struct platform_device *pdev)
 +{
@@ -2554,10 +2556,7 @@ index 0000000..3d2d5db
 +
 +	nor->dev = &pdev->dev;
 +	spi_nor_set_flash_node(nor, rpc->flash);
-+	nor->read  = rpc_read_flash;
-+	nor->write = rpc_write_flash;
-+	nor->read_reg  = rpc_read_reg;
-+	nor->write_reg = rpc_write_reg;
++	nor->controller_ops = &rpc_qspi_ops;
 +	nor->priv = rpc;
 +
 +	/* ... enable clk */
@@ -2586,7 +2585,6 @@ index 0000000..3d2d5db
 +		nor->mtd.erasesize <<= 1;
 +		nor->mtd.size <<= 1;
 +		nor->mtd.writebufsize <<= 1;
-+		nor->erase = rpc_erase_sector;
 +	}
 +
 +	/* Workaround data size limitation */
@@ -2638,10 +2636,10 @@ index 0000000..3d2d5db
 +MODULE_AUTHOR("Cogent Embedded Inc. <sources@cogentembedded.com>");
 +MODULE_DESCRIPTION("Renesas RPC QSPI Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.c b/drivers/mtd/spi-nor/renesas-rpc.c
-index 0026b99..3aea0ae 100644
---- a/drivers/mtd/spi-nor/renesas-rpc.c
-+++ b/drivers/mtd/spi-nor/renesas-rpc.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.c b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
+index 5d73fba..7a4ff9a 100644
+--- a/drivers/mtd/spi-nor/controllers/renesas-rpc.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 @@ -1,7 +1,7 @@
  /*
   * Renesas RPC driver
@@ -3475,7 +3473,10 @@ index 0026b99..3aea0ae 100644
  
 -static ssize_t rpc_write_flash(struct spi_nor *nor, loff_t to, size_t len,
 -			       const u_char *buf)
--{
++/* Read */
++void rpc_do_read_flash(struct rpc_info *rpc, loff_t from,
++		       size_t len, u_char *buf, bool addr32)
+ {
 -	ssize_t res = len, full = len;
 -	u32 val;
 -	u8 rval[2];
@@ -3550,10 +3551,7 @@ index 0026b99..3aea0ae 100644
 -#define READ_ADR_MASK		(BIT(26) - 1)
 -static ssize_t rpc_read_flash(struct spi_nor *nor, loff_t from, size_t len,
 -			      u_char *buf)
-+/* Read */
-+void rpc_do_read_flash(struct rpc_info *rpc, loff_t from,
-+		       size_t len, u_char *buf, bool addr32)
- {
+-{
 -	u32 val;
 -	struct rpc_spi *rpc = nor->priv;
 -	int adr_width = nor->addr_width;
@@ -3724,10 +3722,13 @@ index 0026b99..3aea0ae 100644
 -	}
 -
 -	return ret;
--}
--
+ }
++EXPORT_SYMBOL(rpc_do_read_flash);
+ 
 -static int rpc_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
--{
++/* Own clock setup */
++static int rpc_own_clk_set_rate(struct rpc_info *rpc, u32 max_clk_rate)
+ {
 -	struct rpc_spi *rpc = nor->priv;
 -	u32 val;
 -	int dsize;
@@ -3775,14 +3776,11 @@ index 0026b99..3aea0ae 100644
 -	}
 -
 -	return 0;
- }
-+EXPORT_SYMBOL(rpc_do_read_flash);
- 
+-}
+-
 -/* hw init for spi-nor flashes */
 -static int rpc_hw_init_1x2x(struct rpc_spi *rpc)
-+/* Own clock setup */
-+static int rpc_own_clk_set_rate(struct rpc_info *rpc, u32 max_clk_rate)
- {
+-{
 -	u32 val;
 -
 -	/* Exec calibration */
@@ -3858,8 +3856,8 @@ index 0026b99..3aea0ae 100644
 -}
 -
 -static const struct of_device_id rpc_of_match[] = {
--	{ .compatible = "renesas,qspi-rpc-r8a77980" },
--	{ .compatible = "renesas,qspi-rpc-r8a77970", .data = (void *)OWN_CLOCK_DIVIDER },
+-	{ .compatible = "renesas,r8a77980-rpc-if" },
+-	{ .compatible = "renesas,r8a77970-rpc-if", .data = (void *)OWN_CLOCK_DIVIDER },
 -	{ },
 -};
 -
@@ -4037,7 +4035,7 @@ index 0026b99..3aea0ae 100644
 -		ret = rpc_setup_clk_ratio(rpc, max_clk_rate);
 +	if (rate) {
 +		ret = of_device_is_compatible(pdev->dev.of_node,
-+					      "renesas,rpc-r8a77970") ?
++					      "renesas,r8a77970-rpc-if") ?
 +		      rpc_own_clk_set_rate(rpc, rate) :
 +		      clk_set_rate(rpc->clk, rate);
  		if (ret) {
@@ -4072,7 +4070,7 @@ index 0026b99..3aea0ae 100644
  	if (use_dma) {
  		dma_cap_mask_t mask;
  
-@@ -1324,58 +290,70 @@ static int rpc_spi_probe(struct platform_device *pdev)
+@@ -1324,58 +290,72 @@ static int rpc_spi_probe(struct platform_device *pdev)
  		dma_cap_set(DMA_MEMCPY, mask);
  		rpc->dma_chan = dma_request_channel(mask, NULL, NULL);
  		if (!rpc->dma_chan)
@@ -4133,14 +4131,16 @@ index 0026b99..3aea0ae 100644
  }
  
 +static const struct of_device_id rpc_of_match[] = {
-+	{ .compatible = "renesas,rpc-r8a7795" },
-+	{ .compatible = "renesas,rpc-r8a7796" },
-+	{ .compatible = "renesas,rpc-r8a77965" },
++	{ .compatible = "renesas,r8a77950-rpc-if" },
++	{ .compatible = "renesas,r8a77951-rpc-if" },
++	{ .compatible = "renesas,r8a77960-rpc-if" },
++	{ .compatible = "renesas,r8a77961-rpc-if" },
++	{ .compatible = "renesas,r8a77965-rpc-if" },
 +	{
-+		.compatible = "renesas,rpc-r8a77970",
++		.compatible = "renesas,r8a77970-rpc-if",
 +		.data = (void *)RPC_OWN_CLOCK_DIVIDER,
 +	},
-+	{ .compatible = "renesas,rpc-r8a77980" },
++	{ .compatible = "renesas,r8a77980-rpc-if" },
 +	{ },
 +};
 +
@@ -4165,11 +4165,11 @@ index 0026b99..3aea0ae 100644
  MODULE_AUTHOR("Cogent Embedded Inc. <sources@cogentembedded.com>");
  MODULE_DESCRIPTION("Renesas RPC Driver");
  MODULE_LICENSE("GPL");
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.h b/drivers/mtd/spi-nor/renesas-rpc.h
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.h b/drivers/mtd/spi-nor/controllers/renesas-rpc.h
 new file mode 100644
 index 0000000..e500a62
 --- /dev/null
-+++ b/drivers/mtd/spi-nor/renesas-rpc.h
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.h
 @@ -0,0 +1,267 @@
 +/*
 + * Renesas RPC driver

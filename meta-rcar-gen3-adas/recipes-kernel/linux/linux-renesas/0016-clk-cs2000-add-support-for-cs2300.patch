@@ -10,10 +10,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  2 files changed, 79 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index c44247d..d37d743 100644
+index c715d46..89068a2 100644
 --- a/drivers/clk/Kconfig
 +++ b/drivers/clk/Kconfig
-@@ -162,10 +162,11 @@ config COMMON_CLK_CDCE925
+@@ -183,10 +183,11 @@ config COMMON_CLK_CDCE925
  	  divider to best approximate the desired output.
  
  config COMMON_CLK_CS2000_CP
@@ -25,8 +25,8 @@ index c44247d..d37d743 100644
 +	  If you say yes here you get support for the CS2000 and CS2300 clock
 +	  multiplier.
  
- config COMMON_CLK_GEMINI
- 	bool "Clock driver for Cortina Systems Gemini SoC"
+ config COMMON_CLK_FSL_SAI
+ 	bool "Clock driver for BCLK of Freescale SAI cores"
 diff --git a/drivers/clk/clk-cs2000-cp.c b/drivers/clk/clk-cs2000-cp.c
 index 92bc4ac..6960244 100644
 --- a/drivers/clk/clk-cs2000-cp.c

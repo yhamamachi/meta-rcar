@@ -5,13 +5,13 @@ Subject: [PATCH 23/23] MTD: renesas-rpc: fix dummy cycles
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
- drivers/mtd/spi-nor/renesas-rpc-qspi.c | 6 +++++-
+ drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/spi-nor/renesas-rpc-qspi.c b/drivers/mtd/spi-nor/renesas-rpc-qspi.c
-index 3d2d5db..f4abdac 100644
---- a/drivers/mtd/spi-nor/renesas-rpc-qspi.c
-+++ b/drivers/mtd/spi-nor/renesas-rpc-qspi.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c b/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
+index e694eeb..17e1007 100644
+--- a/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc-qspi.c
 @@ -458,7 +458,11 @@ static ssize_t rpc_read_flash(struct spi_nor *nor, loff_t from, size_t len,
  
  	/* ...setup read sequence */

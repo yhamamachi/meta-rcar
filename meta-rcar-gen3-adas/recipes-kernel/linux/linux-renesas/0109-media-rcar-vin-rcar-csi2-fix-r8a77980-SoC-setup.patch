@@ -13,10 +13,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/media/platform/rcar-vin/rcar-csi2.c b/drivers/media/platform/rcar-vin/rcar-csi2.c
-index bc64d7c..32544cc 100644
+index 8c17f36..e303898 100644
 --- a/drivers/media/platform/rcar-vin/rcar-csi2.c
 +++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -1072,6 +1072,7 @@ static const struct rcar_csi2_info rcar_csi2_info_r8a77980 = {
+@@ -1129,6 +1129,7 @@ static const struct rcar_csi2_info rcar_csi2_info_r8a77980 = {
  	.init_phtw = rcsi2_init_phtw_h3_v3h_m3n,
  	.hsfreqrange = hsfreqrange_h3_v3h_m3n,
  	.csi0clkfreqrange = 0x20,

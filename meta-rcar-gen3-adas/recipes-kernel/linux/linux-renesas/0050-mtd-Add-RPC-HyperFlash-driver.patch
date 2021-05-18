@@ -14,7 +14,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 drivers/mtd/rpc_hyperflash.c
 
 diff --git a/drivers/mtd/Kconfig b/drivers/mtd/Kconfig
-index 42d401e..728914c 100644
+index 6ddab79..77881ff 100644
 --- a/drivers/mtd/Kconfig
 +++ b/drivers/mtd/Kconfig
 @@ -11,6 +11,11 @@ menuconfig MTD
@@ -24,13 +24,13 @@ index 42d401e..728914c 100644
 +config MTD_RPC_HYPERFLASH
 +	tristate "MTD Renesas R-Car Gen3 RPC HyperFlash"
 +	depends on ARCH_R8A7795
-+	---help---
++	help
 +	  This option includes Renesas R-Car Gen3 RPC HyperFlash support.
  
  config MTD_TESTS
  	tristate "MTD tests support (DANGEROUS)"
 diff --git a/drivers/mtd/Makefile b/drivers/mtd/Makefile
-index 56cc60c..a1ef6fd 100644
+index 593d059..02c6b6b 100644
 --- a/drivers/mtd/Makefile
 +++ b/drivers/mtd/Makefile
 @@ -8,6 +8,7 @@ obj-$(CONFIG_MTD)		+= mtd.o
@@ -43,7 +43,7 @@ index 56cc60c..a1ef6fd 100644
  obj-$(CONFIG_MTD_BLKDEVS)	+= mtd_blkdevs.o
 diff --git a/drivers/mtd/rpc_hyperflash.c b/drivers/mtd/rpc_hyperflash.c
 new file mode 100644
-index 0000000..a4d8bcf
+index 0000000..284c87f
 --- /dev/null
 +++ b/drivers/mtd/rpc_hyperflash.c
 @@ -0,0 +1,973 @@
@@ -944,7 +944,7 @@ index 0000000..a4d8bcf
 +	void __iomem *base;
 +	int retval = -ENODEV;
 +
-+	if (!of_machine_is_compatible("renesas,r8a7795"))
++	if (!of_machine_is_compatible("renesas,r8a77951"))
 +		return -ENODEV;
 +
 +	info = kzalloc(sizeof(*info), GFP_KERNEL);

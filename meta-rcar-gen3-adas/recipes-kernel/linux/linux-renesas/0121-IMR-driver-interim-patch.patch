@@ -14,10 +14,10 @@ Signed-off-by: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com
  create mode 100644 include/uapi/linux/rcar-imr.h
 
 diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
-index 3d72c23..b676d36 100644
+index 62f9147..c320a8b 100644
 --- a/drivers/media/platform/Kconfig
 +++ b/drivers/media/platform/Kconfig
-@@ -433,6 +433,17 @@ config VIDEO_RENESAS_FCP
+@@ -447,6 +447,17 @@ config VIDEO_RENESAS_FCP
  	  To compile this driver as a module, choose M here: the module
  	  will be called rcar-fcp.
  
@@ -34,12 +34,12 @@ index 3d72c23..b676d36 100644
 +
  config VIDEO_RENESAS_VSP1
  	tristate "Renesas VSP1 Video Processing Engine"
- 	depends on VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
+ 	depends on VIDEO_V4L2
 diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
-index 6ee7eb0d..0cdf47a 100644
+index 62b6cdc..a2cb012 100644
 --- a/drivers/media/platform/Makefile
 +++ b/drivers/media/platform/Makefile
-@@ -67,6 +67,7 @@ obj-$(CONFIG_VIDEO_RENESAS_CEU)		+= renesas-ceu.o
+@@ -50,6 +50,7 @@ obj-$(CONFIG_VIDEO_RENESAS_CEU)		+= renesas-ceu.o
  obj-$(CONFIG_VIDEO_RENESAS_FCP)		+= rcar-fcp.o
  obj-$(CONFIG_VIDEO_RENESAS_FDP1)	+= rcar_fdp1.o
  obj-$(CONFIG_VIDEO_RENESAS_JPU)		+= rcar_jpu.o

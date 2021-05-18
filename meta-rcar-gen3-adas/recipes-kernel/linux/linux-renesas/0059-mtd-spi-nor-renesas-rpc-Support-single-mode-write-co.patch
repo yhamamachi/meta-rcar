@@ -9,13 +9,13 @@ This adds single mode write command support.
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/mtd/spi-nor/renesas-rpc.c | 12 ++++++++----
+ drivers/mtd/spi-nor/controllers/renesas-rpc.c | 12 ++++++++----
  1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.c b/drivers/mtd/spi-nor/renesas-rpc.c
-index af99762..4cd50b1 100644
---- a/drivers/mtd/spi-nor/renesas-rpc.c
-+++ b/drivers/mtd/spi-nor/renesas-rpc.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.c b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
+index f9e56d8..3e5c7ad 100644
+--- a/drivers/mtd/spi-nor/controllers/renesas-rpc.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 @@ -555,7 +555,7 @@ static void rpc_setup_write_mode_command_and_adr(struct rpc_spi *rpc,
  	rpc_write(rpc, SMENR, val);
  }

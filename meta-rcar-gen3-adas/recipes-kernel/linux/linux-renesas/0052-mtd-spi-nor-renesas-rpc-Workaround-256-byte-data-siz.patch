@@ -10,13 +10,13 @@ by the spi_nor_scan() callback at the RPC write buffer size.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/mtd/spi-nor/renesas-rpc.c | 6 ++++++
+ drivers/mtd/spi-nor/controllers/renesas-rpc.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.c b/drivers/mtd/spi-nor/renesas-rpc.c
-index b619a7e..af99762 100644
---- a/drivers/mtd/spi-nor/renesas-rpc.c
-+++ b/drivers/mtd/spi-nor/renesas-rpc.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.c b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
+index c5f6c00..f9e56d8 100644
+--- a/drivers/mtd/spi-nor/controllers/renesas-rpc.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 @@ -1225,6 +1225,12 @@ static int rpc_spi_probe(struct platform_device *pdev)
  		nor->mtd.writebufsize <<= 1;
  	}

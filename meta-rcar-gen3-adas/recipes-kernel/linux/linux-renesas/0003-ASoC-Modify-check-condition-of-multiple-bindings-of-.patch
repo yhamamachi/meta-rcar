@@ -18,14 +18,14 @@ Or we have to enable only one of them in dts file as it is designed.
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---
  include/sound/soc-component.h | 1 +
- sound/soc/soc-core.c          | 8 ++++++--
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ sound/soc/soc-core.c          | 9 ++++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/include/sound/soc-component.h b/include/sound/soc-component.h
-index 5d80b2e..fd26000 100644
+index 24a80ee..49ed4f1 100644
 --- a/include/sound/soc-component.h
 +++ b/include/sound/soc-component.h
-@@ -114,6 +114,7 @@ struct snd_soc_component {
+@@ -188,6 +188,7 @@ struct snd_soc_component {
  
  	unsigned int active;
  
@@ -34,10 +34,10 @@ index 5d80b2e..fd26000 100644
  
  	struct list_head list;
 diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 88978a3..12ca72d 100644
+index 05a085f..42ab27c 100644
 --- a/sound/soc/soc-core.c
 +++ b/sound/soc/soc-core.c
-@@ -1007,7 +1007,8 @@ static int soc_probe_component(struct snd_soc_card *card,
+@@ -1174,7 +1174,8 @@ static int soc_probe_component(struct snd_soc_card *card,
  		return 0;
  
  	if (component->card) {
@@ -47,25 +47,33 @@ index 88978a3..12ca72d 100644
  			dev_err(component->dev,
  				"Trying to bind component to card \"%s\" but is already bound to card \"%s\"\n",
  				card->name, component->card->name);
-@@ -2817,6 +2818,9 @@ int snd_soc_add_component(struct device *dev,
- 	if (ret)
- 		goto err_free;
- 
-+	if (num_dai == 1)
-+		component->registered_as_component = true;
-+
- 	if (component_driver->endianness) {
- 		for (i = 0; i < num_dai; i++) {
- 			convert_endianness_formats(&dai_drv[i].playback);
-@@ -2871,7 +2875,7 @@ static int __snd_soc_unregister_component(struct device *dev)
+@@ -2472,6 +2473,8 @@ int snd_soc_add_component(struct snd_soc_component *component,
  
  	mutex_lock(&client_mutex);
- 	for_each_component(component) {
--		if (dev != component->dev)
-+		if (dev != component->dev || !component->registered_as_component)
- 			continue;
  
- 		snd_soc_tplg_component_remove(component,
++	component->registered_as_component = num_dai == 1;
++
+ 	if (component->driver->endianness) {
+ 		for (i = 0; i < num_dai; i++) {
+ 			convert_endianness_formats(&dai_drv[i].playback);
+@@ -2547,7 +2550,7 @@ void snd_soc_unregister_component_by_driver(struct device *dev,
+ 
+ 	mutex_lock(&client_mutex);
+ 	component = snd_soc_lookup_component_nolocked(dev, component_driver->name);
+-	if (!component)
++	if (!component || !component->registered_as_component)
+ 		goto out;
+ 
+ 	snd_soc_del_component_unlocked(component);
+@@ -2570,7 +2573,7 @@ void snd_soc_unregister_component(struct device *dev)
+ 	mutex_lock(&client_mutex);
+ 	while (1) {
+ 		component = snd_soc_lookup_component_nolocked(dev, NULL);
+-		if (!component)
++		if (!component || !component->registered_as_component)
+ 			break;
+ 
+ 		snd_soc_del_component_unlocked(component);
 -- 
 2.7.4
 

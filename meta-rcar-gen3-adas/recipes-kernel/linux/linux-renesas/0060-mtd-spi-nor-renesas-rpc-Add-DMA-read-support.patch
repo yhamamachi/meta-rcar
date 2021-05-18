@@ -12,13 +12,13 @@ transfer iteration.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- drivers/mtd/spi-nor/renesas-rpc.c | 108 ++++++++++++++++++++++++++++++++++++--
+ drivers/mtd/spi-nor/controllers/renesas-rpc.c | 108 +++++++++++++++++++++++++-
  1 file changed, 104 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/renesas-rpc.c b/drivers/mtd/spi-nor/renesas-rpc.c
-index 4cd50b1..0026b99 100644
---- a/drivers/mtd/spi-nor/renesas-rpc.c
-+++ b/drivers/mtd/spi-nor/renesas-rpc.c
+diff --git a/drivers/mtd/spi-nor/controllers/renesas-rpc.c b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
+index 3e5c7ad..5d73fba 100644
+--- a/drivers/mtd/spi-nor/controllers/renesas-rpc.c
++++ b/drivers/mtd/spi-nor/controllers/renesas-rpc.c
 @@ -14,6 +14,8 @@
   */
  

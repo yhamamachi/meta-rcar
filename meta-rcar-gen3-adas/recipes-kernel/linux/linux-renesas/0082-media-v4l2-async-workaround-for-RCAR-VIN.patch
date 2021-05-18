@@ -19,10 +19,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/media/v4l2-core/v4l2-async.c b/drivers/media/v4l2-core/v4l2-async.c
-index 8bde33c..909c910 100644
+index e3ab003..6334ab2 100644
 --- a/drivers/media/v4l2-core/v4l2-async.c
 +++ b/drivers/media/v4l2-core/v4l2-async.c
-@@ -179,8 +179,10 @@ v4l2_async_notifier_can_complete(struct v4l2_async_notifier *notifier)
+@@ -246,8 +246,10 @@ v4l2_async_notifier_can_complete(struct v4l2_async_notifier *notifier)
  {
  	struct v4l2_subdev *sd;
  

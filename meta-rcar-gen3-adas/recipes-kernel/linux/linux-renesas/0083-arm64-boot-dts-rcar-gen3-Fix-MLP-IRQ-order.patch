@@ -9,48 +9,14 @@ R-Car Gen3 mlp device nodes.
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795.dtsi  | 4 ++--
- arch/arm64/boot/dts/renesas/r8a7796.dtsi  | 4 ++--
- arch/arm64/boot/dts/renesas/r8a77965.dtsi | 4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/renesas/r8a77960.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 6ef9821..91f8004 100755
---- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -1950,9 +1950,9 @@
- 		mlp: mlp@ec520000 {
- 			compatible = "rcar,medialb-dim2";
- 			reg = <0 0xec520000 0 0x800>;
--			interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
-+			interrupts = <GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
-+				<GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
--				<GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 802>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index 1945ad0..38865d7 100755
---- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-@@ -1877,9 +1877,9 @@
- 		mlp: mlp@ec520000 {
- 			compatible = "rcar,medialb-dim2";
- 			reg = <0 0xec520000 0 0x800>;
--			interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
-+			interrupts = <GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
-+				<GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
--				<GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
- 				<GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 802>;
-diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index acad48f..f0d2841 100755
---- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -1276,9 +1276,9 @@
+diff --git a/arch/arm64/boot/dts/renesas/r8a77960.dtsi b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
+index 0684772..fae74f9 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77960.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
+@@ -1881,9 +1881,9 @@
  		mlp: mlp@ec520000 {
  			compatible = "rcar,medialb-dim2";
  			reg = <0 0xec520000 0 0x800>;

@@ -40,20 +40,20 @@ ULCB_KF_DTBO = " \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
-    renesas/r8a7795-es1-h3ulcb-kf.dtb \
-    renesas/r8a7795-h3ulcb-kf.dtb \
-    renesas/r8a7795-h3ulcb-4x2g-kf.dtb \
+    renesas/r8a77950-ulcb-kf.dtb \
+    renesas/r8a77951-ulcb-kf.dtb \
+    renesas/r8a779m1-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
 KERNEL_DEVICETREE_append_m3ulcb = " \
-    renesas/r8a7796-m3ulcb-kf.dtb \
-    renesas/r8a7796-m3ulcb-2x4g-kf.dtb \
+    renesas/r8a77960-ulcb-kf.dtb \
+    renesas/r8a77961-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
 KERNEL_DEVICETREE_append_m3nulcb = " \
-    renesas/r8a77965-m3nulcb-kf.dtb \
+    renesas/r8a77965-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
@@ -79,13 +79,11 @@ KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
     renesas/r8a77980-v3hsk-vb-4ch.dtb \
     renesas/r8a77980-v3hsk-vb-8ch.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl-8ch.dtb \
-    renesas/r8a77980-v3hsk-vb-gmsl2-2x2.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl2-4.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl2-8.dtb \
     renesas/r8a77980-es2-v3hsk-vb-4ch.dtb \
     renesas/r8a77980-es2-v3hsk-vb-8ch.dtb \
     renesas/r8a77980-es2-v3hsk-vb-gmsl-8ch.dtb \
-    renesas/r8a77980-es2-v3hsk-vb-gmsl2-2x2.dtb \
     renesas/r8a77980-es2-v3hsk-vb-gmsl2-4.dtb \
     renesas/r8a77980-es2-v3hsk-vb-gmsl2-8.dtb \
 "

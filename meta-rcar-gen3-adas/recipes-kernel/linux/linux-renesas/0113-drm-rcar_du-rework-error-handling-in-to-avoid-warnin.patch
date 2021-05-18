@@ -14,10 +14,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index bbe20fe..6a099b0 100644
+index 29ce84d..c7264ed 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -601,7 +601,7 @@ static int rcar_du_probe(struct platform_device *pdev)
+@@ -684,7 +684,7 @@ static int rcar_du_probe(struct platform_device *pdev)
  		if (ret != -EPROBE_DEFER)
  			dev_err(&pdev->dev,
  				"failed to initialize DRM/KMS (%d)\n", ret);
@@ -26,7 +26,7 @@ index bbe20fe..6a099b0 100644
  	}
  
  	ddev->irq_enabled = 1;
-@@ -621,7 +621,12 @@ static int rcar_du_probe(struct platform_device *pdev)
+@@ -706,7 +706,12 @@ static int rcar_du_probe(struct platform_device *pdev)
  	return 0;
  
  error:

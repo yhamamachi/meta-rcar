@@ -18,7 +18,7 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  2 files changed, 102 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/misc/ti-st/st_kim.c b/drivers/misc/ti-st/st_kim.c
-index a36ed1f..54e2de1 100644
+index f2f6cab..645af34 100644
 --- a/drivers/misc/ti-st/st_kim.c
 +++ b/drivers/misc/ti-st/st_kim.c
 @@ -30,6 +30,9 @@ static struct platform_device *st_kim_devices[MAX_ST_DEVICES];
@@ -28,10 +28,10 @@ index a36ed1f..54e2de1 100644
 +struct ti_st_plat_data	*dt_pdata;
 +static struct ti_st_plat_data *get_platform_data(struct device *dev);
 +
- /**
+ /*
   * st_get_plat_device -
   *	function which returns the reference to the platform device
-@@ -449,7 +452,12 @@ long st_kim_start(void *kim_data)
+@@ -462,7 +465,12 @@ long st_kim_start(void *kim_data)
  	struct kim_data_s	*kim_gdata = (struct kim_data_s *)kim_data;
  
  	pr_info(" %s", __func__);
@@ -45,7 +45,7 @@ index a36ed1f..54e2de1 100644
  
  	do {
  		/* platform specific enabling code here */
-@@ -509,12 +517,17 @@ long st_kim_stop(void *kim_data)
+@@ -526,12 +534,17 @@ long st_kim_stop(void *kim_data)
  {
  	long err = 0;
  	struct kim_data_s	*kim_gdata = (struct kim_data_s *)kim_data;
@@ -65,7 +65,7 @@ index a36ed1f..54e2de1 100644
  	if (tty) {	/* can be called before ldisc is installed */
  		/* Flush any pending characters in the driver and discipline. */
  		tty_ldisc_flush(tty);
-@@ -684,13 +697,53 @@ DEFINE_SHOW_ATTRIBUTE(list);
+@@ -701,13 +714,53 @@ DEFINE_SHOW_ATTRIBUTE(list);
   * board-*.c file
   */
  
@@ -120,7 +120,7 @@ index a36ed1f..54e2de1 100644
  	if ((pdev->id != -1) && (pdev->id < MAX_ST_DEVICES)) {
  		/* multiple devices could exist */
  		st_kim_devices[pdev->id] = pdev;
-@@ -767,9 +820,16 @@ static int kim_probe(struct platform_device *pdev)
+@@ -783,9 +836,16 @@ static int kim_probe(struct platform_device *pdev)
  static int kim_remove(struct platform_device *pdev)
  {
  	/* free the GPIOs requested */
@@ -137,8 +137,8 @@ index a36ed1f..54e2de1 100644
 +
  	kim_gdata = platform_get_drvdata(pdev);
  
- 	/* Free the Bluetooth/FM/GPIO
-@@ -787,12 +847,22 @@ static int kim_remove(struct platform_device *pdev)
+ 	/*
+@@ -804,12 +864,22 @@ static int kim_remove(struct platform_device *pdev)
  
  	kfree(kim_gdata);
  	kim_gdata = NULL;
@@ -162,7 +162,7 @@ index a36ed1f..54e2de1 100644
  
  	if (pdata->suspend)
  		return pdata->suspend(pdev, state);
-@@ -802,7 +872,14 @@ static int kim_suspend(struct platform_device *pdev, pm_message_t state)
+@@ -819,7 +889,14 @@ static int kim_suspend(struct platform_device *pdev, pm_message_t state)
  
  static int kim_resume(struct platform_device *pdev)
  {
@@ -178,7 +178,7 @@ index a36ed1f..54e2de1 100644
  
  	if (pdata->resume)
  		return pdata->resume(pdev);
-@@ -819,6 +896,7 @@ static struct platform_driver kim_platform_driver = {
+@@ -836,6 +913,7 @@ static struct platform_driver kim_platform_driver = {
  	.resume = kim_resume,
  	.driver = {
  		.name = "kim",

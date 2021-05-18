@@ -14,10 +14,10 @@ Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
  create mode 100644 drivers/regulator/max2008x-regulator.c
 
 diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 3ee6353..ca344bf 100644
+index 020a00d..8968c79 100644
 --- a/drivers/regulator/Kconfig
 +++ b/drivers/regulator/Kconfig
-@@ -545,6 +545,12 @@ config REGULATOR_MAX8998
+@@ -590,6 +590,12 @@ config REGULATOR_MAX8998
  	  via I2C bus. The provided regulator is suitable for S3C6410
  	  and S5PC1XX chips to control VCC_CORE and VCC_USIM voltages.
  
@@ -29,12 +29,12 @@ index 3ee6353..ca344bf 100644
 +
  config REGULATOR_MAX77686
  	tristate "Maxim 77686 regulator"
- 	depends on MFD_MAX77686
+ 	depends on MFD_MAX77686 || COMPILE_TEST
 diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 2210ba5..9d734c5 100644
+index 6ebae51..e7d10d39 100644
 --- a/drivers/regulator/Makefile
 +++ b/drivers/regulator/Makefile
-@@ -70,6 +70,7 @@ obj-$(CONFIG_REGULATOR_MAX8952) += max8952.o
+@@ -74,6 +74,7 @@ obj-$(CONFIG_REGULATOR_MAX8952) += max8952.o
  obj-$(CONFIG_REGULATOR_MAX8973) += max8973-regulator.o
  obj-$(CONFIG_REGULATOR_MAX8997) += max8997-regulator.o
  obj-$(CONFIG_REGULATOR_MAX8998) += max8998.o
