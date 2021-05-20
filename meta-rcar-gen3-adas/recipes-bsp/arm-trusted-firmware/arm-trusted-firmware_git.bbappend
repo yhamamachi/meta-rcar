@@ -14,7 +14,6 @@ ATFW_OPT_append = " ${ATFW_OPT_RPC}"
 
 SRC_URI_append = " \
     file://0001-plat-renesas-rcar-bl31-Enable-RPC-access-if-necessar.patch \
-    file://0002-plat-rcar_sip_svc-Fix-build-error-when-PMIC_ROHM_BD9.patch \
     file://0003-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
     file://0004-drivers-renesas-io_memdrv-Invalidate-cache-before-ex.patch \
     file://0005-drivers-renesas-rcar-pfc-Update-common-registers.patch \
