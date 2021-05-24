@@ -1,7 +1,7 @@
-From f0210c1b3916bb924f63f7b530917b4bfc259333 Mon Sep 17 00:00:00 2001
+From b81b25a139e45eff3d69e49bc691dc0da55f7933 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Sat, 3 Aug 2019 00:49:38 +0300
-Subject: [PATCH 4/9] ARM: dts: r8a77970: eagle: Add eMMC support
+Subject: [PATCH 07/22] ARM: dts: r8a77970: eagle: Add eMMC support
 
 The Eagle platform supports an expansion board with
 the eMMC device on it. This Adds eMMC device node
@@ -13,12 +13,12 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 44 insertions(+)
 
 diff --git a/arch/arm/dts/r8a77970-eagle.dts b/arch/arm/dts/r8a77970-eagle.dts
-index ca9d777..1c9fa70 100644
+index 2afb91e..172f29b 100644
 --- a/arch/arm/dts/r8a77970-eagle.dts
 +++ b/arch/arm/dts/r8a77970-eagle.dts
-@@ -74,6 +74,24 @@
- 			};
- 		};
+@@ -73,6 +73,24 @@
+ 		/* first 128MB is reserved for secure area. */
+ 		reg = <0x0 0x48000000 0x0 0x38000000>;
  	};
 +
 +	vcc_3v3: regulator0 {
@@ -41,7 +41,7 @@ index ca9d777..1c9fa70 100644
  };
  
  &avb {
-@@ -159,6 +177,20 @@
+@@ -173,6 +191,20 @@
  	};
  };
  
@@ -62,7 +62,7 @@ index ca9d777..1c9fa70 100644
  &pfc {
  	avb_pins: avb0 {
  		groups = "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
-@@ -175,6 +207,18 @@
+@@ -189,6 +221,18 @@
  		function = "i2c0";
  	};
  
