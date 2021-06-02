@@ -1,0 +1,109 @@
+From d2c9024c8fb3beaf9e9d0c7053a3a64c119d890b Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 2 Jun 2021 16:27:49 +0300
+Subject: [PATCH] media: i2c: max96712: enable HS/VS relocation
+
+This enables hs/vs pins relocation on serializer
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/gmsl/max96712.c | 47 ++++++++++++++++++++++++++--
+ drivers/media/i2c/soc_camera/gmsl/max96712.h |  3 ++
+ 2 files changed, 48 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max96712.c b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+index 7999cc8..5eba67b5 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max96712.c
++++ b/drivers/media/i2c/soc_camera/gmsl/max96712.c
+@@ -86,6 +86,18 @@ static int dt = MIPI_DT_YUV8;
+ module_param(dt, int, 0644);
+ MODULE_PARM_DESC(dt, " DataType (default: 0x1e - YUV8)");
+ 
++static int hsgen;
++module_param(hsgen, int, 0644);
++MODULE_PARM_DESC(hsgen, " Enable HS embedded generator (default: 0 - disabled)");
++
++static int hs = -1;
++module_param(hs, int, 0644);
++MODULE_PARM_DESC(hs, " HS input pin map to different DIN (default: -1 - disabled remap)");
++
++static int vs = -1;
++module_param(vs, int, 0644);
++MODULE_PARM_DESC(vs, " VS input pin map to different DIN (default: -1 - disabled remap)");
++
+ static unsigned long crossbar = 0xba9876543210;
+ module_param(crossbar, ulong, 0644);
+ MODULE_PARM_DESC(crossbar, " Serializer crossbar setup (default: ba9876543210 - reversed)");
+@@ -580,6 +592,27 @@ static int max96712_gmsl1_link_serializer_setup(struct max96712_priv *priv, int
+ 				dev_err(&priv->client->dev, " BWS must be 27/32-bit for RAW12 in DBL mode\n");
+ 			break;
+ 		}
++#if 0
++		/* these are defaults */
++		if (priv->ser_id == MAX96705_ID) {
++			ser_write(0x3f, 14);	/* HS (DIN14) */
++			ser_write(0x40, 15);	/* VS (DIN15) */
++		}
++		if (priv->ser_id == MAX96707_ID) {
++			ser_write(0x3f, 12);	/* HS (DIN12) */
++			ser_write(0x40, 13);	/* VS (DIN13) */
++		}
++#endif
++		/* HS/VS pins map */
++		if (priv->hs >= 0)
++			ser_write(0x3f, priv->hs);	/* HS (DIN_N) */
++		if (priv->vs >= 0)
++			ser_write(0x40, priv->vs);	/* VS (DIN_N) */
++		if (priv->hsgen) {
++			/* HS/DE are NC */
++			ser_write(0x3f, 0x10);		/* HS (NC) */
++			ser_write(0x41, 0x10);		/* DE (NC) */
++		}
+ 	}
+ 
+ 	/* I2C translator setup */
+@@ -1166,6 +1199,12 @@ static int max96712_parse_dt(struct i2c_client *client)
+ 		priv->poc_delay = 50;
+ 	if (of_property_read_u32(np, "maxim,dt", &priv->dt))
+ 		priv->dt = MIPI_DT_YUV8;
++	if (of_property_read_u32(np, "maxim,hsgen", &priv->hsgen))
++		priv->hsgen = 0;
++	if (of_property_read_u32(np, "maxim,hs", &priv->hs))
++		priv->hs = -1;
++	if (of_property_read_u32(np, "maxim,vs", &priv->vs))
++		priv->vs = -1;
+ 	if (of_property_read_u64(np, "maxim,crossbar", &priv->crossbar))
+ 		priv->crossbar = crossbar;
+ 	if (of_property_read_string(np, "maxim,mbus", &priv->mbus))
+@@ -1203,8 +1242,12 @@ static int max96712_parse_dt(struct i2c_client *client)
+ 		priv->dbl = dbl;
+ 	if (dt != MIPI_DT_YUV8)
+ 		priv->dt = dt;
+-//	if (hsgen)
+-//		priv->hsgen = hsgen;
++	if (hsgen)
++		priv->hsgen = hsgen;
++	if (hs >= 0)
++		priv->hs = hs;
++	if (vs >= 0)
++		priv->vs = vs;
+ 	if (gpio0 >= 0)
+ 		priv->gpio[0] = gpio0;
+ 	if (gpio1 >= 0)
+diff --git a/drivers/media/i2c/soc_camera/gmsl/max96712.h b/drivers/media/i2c/soc_camera/gmsl/max96712.h
+index 609da2f..8cf123b 100644
+--- a/drivers/media/i2c/soc_camera/gmsl/max96712.h
++++ b/drivers/media/i2c/soc_camera/gmsl/max96712.h
+@@ -47,6 +47,9 @@ struct max96712_priv {
+ 	int			hsync;
+ 	int			vsync;
+ 	int			dt;
++	int			hsgen;
++	int			vs;
++	int			hs;
+ 	u64			crossbar;
+ 	char			cb[16];
+ 	const char		*mbus;
+-- 
+2.7.4
+
