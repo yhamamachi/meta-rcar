@@ -489,3 +489,5 @@ patch 0554-media-i2c-soc_camera-ar0233-fix-statistics.patch
 patch 0555-media-i2c-soc_camera-ar0233-fix-fps-for-27Mhz.patch
 patch 0556-media-i2c-soc_camera-add-IMX623-support.patch
 patch 0557-media-i2c-ti9x4-add-fsync-setup.patch
+patch 0558-media-i2c-soc_camera-ass-AS0149-imager.patch
+patch 0559-media-i2c-max96712-enable-HS-VS-relocation.patch

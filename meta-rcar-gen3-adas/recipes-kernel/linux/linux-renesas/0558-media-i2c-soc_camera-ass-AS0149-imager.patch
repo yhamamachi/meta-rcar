@@ -1,0 +1,649 @@
+From 599f4abdc8b3f6f7635c90d5ed690b150916444a Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 2 Jun 2021 16:26:42 +0300
+Subject: [PATCH] media: i2c: soc_camera: ass AS0149 imager
+
+This add AS0149 imager
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/camera.dtsi       |   1 +
+ drivers/media/i2c/soc_camera/imagers/Makefile |   1 +
+ drivers/media/i2c/soc_camera/imagers/as0149.c | 569 ++++++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/imagers/as0149.h |  24 ++
+ 4 files changed, 595 insertions(+)
+ create mode 100644 drivers/media/i2c/soc_camera/imagers/as0149.c
+ create mode 100644 drivers/media/i2c/soc_camera/imagers/as0149.h
+
+diff --git a/arch/arm64/boot/dts/renesas/camera.dtsi b/arch/arm64/boot/dts/renesas/camera.dtsi
+index 0216327..310e218 100644
+--- a/arch/arm64/boot/dts/renesas/camera.dtsi
++++ b/arch/arm64/boot/dts/renesas/camera.dtsi
+@@ -16,6 +16,7 @@
+ 	"onnn,ar0233",		\
+ 	"onnn,ap0101",		\
+ 	"onnn,ap0201",		\
++	"onnn,as0149",		\
+ 	"ovti,ov10635",		\
+ 	"ovti,ov10640",		\
+ 	"ovti,ov2311",		\
+diff --git a/drivers/media/i2c/soc_camera/imagers/Makefile b/drivers/media/i2c/soc_camera/imagers/Makefile
+index e279cee..865e5ce 100644
+--- a/drivers/media/i2c/soc_camera/imagers/Makefile
++++ b/drivers/media/i2c/soc_camera/imagers/Makefile
+@@ -2,6 +2,7 @@
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += ap0101_ar014x.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += ap0201_ar023x.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += ar0231.o
++obj-$(CONFIG_SOC_CAMERA_OV106XX) += as0149.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += imx390.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += ov10635.o
+ obj-$(CONFIG_SOC_CAMERA_OV106XX) += ov10640.o
+diff --git a/drivers/media/i2c/soc_camera/imagers/as0149.c b/drivers/media/i2c/soc_camera/imagers/as0149.c
+new file mode 100644
+index 0000000..a36215f
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/imagers/as0149.c
+@@ -0,0 +1,569 @@
++/*
++ * ON Semiconductor AS0149 sensor camera driver
++ *
++ * Copyright (C) 2021 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/of_graph.h>
++#include <linux/videodev2.h>
++
++#include <media/soc_camera.h>
++#include <media/v4l2-common.h>
++#include <media/v4l2-ctrls.h>
++
++#include "../gmsl/common.h"
++#include "as0149.h"
++
++static const int as0149_i2c_addr[] = {0x5d, 0x48};
++
++#define AS0149_PID_REG		0x3000
++#define AS0149_REV_REG		0x300E
++#define AS0149_PID		0x0b44
++
++#define AS0149_MEDIA_BUS_FMT	MEDIA_BUS_FMT_YUYV8_2X8
++
++struct as0149_priv {
++	struct v4l2_subdev		sd;
++	struct v4l2_ctrl_handler	hdl;
++	struct media_pad		pad;
++	struct v4l2_rect		rect;
++	struct mutex			lock;
++	int				max_width;
++	int				max_height;
++	int				init_complete;
++	u8				id[6];
++	int				exposure;
++	int				gain;
++	int				autogain;
++	/* serializers */
++	int				ser_addr;
++	int				hts;
++	int				vts;
++	int				frame_preamble;
++};
++
++static inline struct as0149_priv *to_as0149(const struct i2c_client *client)
++{
++	return container_of(i2c_get_clientdata(client), struct as0149_priv, sd);
++}
++
++static inline struct v4l2_subdev *to_sd(struct v4l2_ctrl *ctrl)
++{
++	return &container_of(ctrl->handler, struct as0149_priv, hdl)->sd;
++}
++
++static int as0149_set_regs(struct i2c_client *client,
++			   const struct as0149_reg *regs, int nr_regs)
++{
++	int i;
++
++	for (i = 0; i < nr_regs; i++) {
++		if (regs[i].reg == AS0149_DELAY) {
++			mdelay(regs[i].val);
++			continue;
++		}
++
++		reg16_write16(client, regs[i].reg, regs[i].val);
++	}
++
++	return 0;
++}
++
++static void as0149_otp_id_read(struct i2c_client *client)
++{
++	struct as0149_priv *priv = to_as0149(client);
++	int i;
++	u16 val = 0;
++
++	/* read camera id from OTP memory */
++	reg16_write16(client, 0x3054, 0x400);
++	reg16_write16(client, 0x304a, 0x110);
++	usleep_range(25000, 25500); /* wait 25 ms */
++
++	for (i = 0; i < 6; i += 2) {
++		reg16_read16(client, 0x3800 + i + 4, &val);
++		priv->id[i]     = val >> 8;
++		priv->id[i + 1] = val & 0xff;
++	}
++}
++
++static int as0149_s_stream(struct v4l2_subdev *sd, int enable)
++{
++	return 0;
++}
++
++static int as0149_get_fmt(struct v4l2_subdev *sd,
++			  struct v4l2_subdev_pad_config *cfg,
++			  struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++
++	if (format->pad)
++		return -EINVAL;
++
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
++	mf->code = AS0149_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	return 0;
++}
++
++static int as0149_set_fmt(struct v4l2_subdev *sd,
++			  struct v4l2_subdev_pad_config *cfg,
++			  struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++
++	mf->code = AS0149_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
++		cfg->try_fmt = *mf;
++
++	return 0;
++}
++
++static int as0149_enum_mbus_code(struct v4l2_subdev *sd,
++				 struct v4l2_subdev_pad_config *cfg,
++				 struct v4l2_subdev_mbus_code_enum *code)
++{
++	if (code->pad || code->index > 0)
++		return -EINVAL;
++
++	code->code = AS0149_MEDIA_BUS_FMT;
++
++	return 0;
++}
++
++static int as0149_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++
++	as0149_otp_id_read(client);
++
++	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = 0xff;
++	edid->edid[7] = client->addr;
++	edid->edid[8] = AS0149_PID >> 8;
++	edid->edid[9] = AS0149_PID & 0xff;
++
++	return 0;
++}
++
++static int as0149_set_selection(struct v4l2_subdev *sd,
++				struct v4l2_subdev_pad_config *cfg,
++				struct v4l2_subdev_selection *sel)
++{
++	struct v4l2_rect *rect = &sel->r;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
++	    sel->target != V4L2_SEL_TGT_CROP)
++		return -EINVAL;
++
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > priv->max_width) ||
++	    (rect->top + rect->height > priv->max_height))
++		*rect = priv->rect;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
++
++	return 0;
++}
++
++static int as0149_get_selection(struct v4l2_subdev *sd,
++				struct v4l2_subdev_pad_config *cfg,
++				struct v4l2_subdev_selection *sel)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
++		return -EINVAL;
++
++	switch (sel->target) {
++	case V4L2_SEL_TGT_CROP_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = priv->max_width;
++		sel->r.height = priv->max_height;
++		return 0;
++	case V4L2_SEL_TGT_CROP_DEFAULT:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = priv->max_width;
++		sel->r.height = priv->max_height;
++		return 0;
++	case V4L2_SEL_TGT_CROP:
++		sel->r = priv->rect;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int as0149_g_mbus_config(struct v4l2_subdev *sd,
++				struct v4l2_mbus_config *cfg)
++{
++	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
++		     V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
++	cfg->type = V4L2_MBUS_CSI2;
++
++	return 0;
++}
++
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++static int as0149_g_register(struct v4l2_subdev *sd,
++			     struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++	int ret;
++
++	if (!reg->size)
++		reg->size = sizeof(u16);
++	if (reg->size > sizeof(reg->val))
++		reg->size = sizeof(reg->val);
++
++	mutex_lock(&priv->lock);
++	ret = reg16_read_n(client, (u16)reg->reg, (u8*)&reg->val, reg->size);
++	mutex_unlock(&priv->lock);
++
++	return ret;
++}
++
++static int as0149_s_register(struct v4l2_subdev *sd,
++			     const struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++	u32 size = reg->size;
++	int ret;
++
++	if (!size)
++		size = sizeof(u16);
++	if (size > sizeof(reg->val))
++		size = sizeof(reg->val);
++
++	mutex_lock(&priv->lock);
++	ret = reg16_write_n(client, (u16)reg->reg, (u8*)&reg->val, size);
++	mutex_unlock(&priv->lock);
++
++	return ret;
++}
++#endif
++
++static struct v4l2_subdev_core_ops as0149_core_ops = {
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++	.g_register = as0149_g_register,
++	.s_register = as0149_s_register,
++#endif
++};
++
++static int as0149_s_ctrl(struct v4l2_ctrl *ctrl)
++{
++	struct v4l2_subdev *sd = to_sd(ctrl);
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++	int ret = -EINVAL;
++	u16 val = 0;
++
++	if (!priv->init_complete)
++		return 0;
++
++	switch (ctrl->id) {
++	case V4L2_CID_BRIGHTNESS:
++	case V4L2_CID_CONTRAST:
++	case V4L2_CID_SATURATION:
++	case V4L2_CID_HUE:
++	case V4L2_CID_GAMMA:
++	case V4L2_CID_SHARPNESS:
++	case V4L2_CID_AUTOGAIN:
++	case V4L2_CID_GAIN:
++	case V4L2_CID_EXPOSURE:
++		break;
++	case V4L2_CID_HFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ctrl->val)
++			val |= (1 << 14);
++		else
++			val &= ~(1 << 14);
++		ret |= reg16_write16(client, 0x3040, val);
++		break;
++	case V4L2_CID_VFLIP:
++		ret = reg16_read16(client, 0x3040, &val);
++		if (ctrl->val)
++			val |= (1 << 15);
++		else
++			val &= ~(1 << 15);
++		ret |= reg16_write16(client, 0x3040, val);
++		break;
++	case V4L2_CID_MIN_BUFFERS_FOR_CAPTURE:
++		ret = 0;
++		break;
++	}
++
++	return ret;
++}
++
++static const struct v4l2_ctrl_ops as0149_ctrl_ops = {
++	.s_ctrl = as0149_s_ctrl,
++};
++
++static struct v4l2_subdev_video_ops as0149_video_ops = {
++	.s_stream	= as0149_s_stream,
++	.g_mbus_config	= as0149_g_mbus_config,
++};
++
++static const struct v4l2_subdev_pad_ops as0149_subdev_pad_ops = {
++	.get_edid	= as0149_get_edid,
++	.enum_mbus_code	= as0149_enum_mbus_code,
++	.get_selection	= as0149_get_selection,
++	.set_selection	= as0149_set_selection,
++	.get_fmt	= as0149_get_fmt,
++	.set_fmt	= as0149_set_fmt,
++};
++
++static struct v4l2_subdev_ops as0149_subdev_ops = {
++	.core	= &as0149_core_ops,
++	.video	= &as0149_video_ops,
++	.pad	= &as0149_subdev_pad_ops,
++};
++
++static ssize_t as0149_otp_id_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct as0149_priv *priv = to_as0149(client);
++
++	as0149_otp_id_read(client);
++
++	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
++			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++}
++
++static DEVICE_ATTR(otp_id_as0149, S_IRUGO, as0149_otp_id_show, NULL);
++
++static int as0149_initialize(struct i2c_client *client)
++{
++	struct as0149_priv *priv = to_as0149(client);
++	u16 pid = 0, rev = 0, val = 0;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(as0149_i2c_addr); i++) {
++		setup_i2c_translator(client, priv->ser_addr, as0149_i2c_addr[i]);
++
++		/* check model ID */
++		reg16_read16(client, AS0149_PID_REG, &pid);
++		if (pid == AS0149_PID)
++			break;
++	}
++
++	if (pid != AS0149_PID) {
++		dev_dbg(&client->dev, "Product ID error %x\n", pid);
++		return -ENODEV;
++	}
++
++	reg16_read16(client, AS0149_REV_REG, &rev);
++#if 1
++	/* read resolution used by current firmware */
++	reg16_read16(client, 0xC888, &val);
++	priv->max_width = val;
++	reg16_read16(client, 0xC88A, &val);
++	priv->max_height = val;
++#else
++	priv->max_width = AS0149_MAX_WIDTH;
++	priv->max_height = AS0149_MAX_HEIGHT;
++#endif
++	/* Setup registers */
++	switch (pid) {
++	case AS0149_PID:
++		as0149_set_regs(client, as0149_regs_setup, ARRAY_SIZE(as0149_regs_setup));
++		break;
++	}
++	/* Read OTP IDs */
++	as0149_otp_id_read(client);
++
++	dev_info(&client->dev, "as0149 PID %x (rev %x), res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, rev, priv->max_width, priv->max_height, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++	return 0;
++}
++
++static const struct i2c_device_id as0149_id[] = {
++	{ "as0149", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, as0149_id);
++
++static const struct of_device_id as0149_of_ids[] = {
++	{ .compatible = "onnn,as0149", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, as0149_of_ids);
++
++static int as0149_parse_dt(struct device_node *np, struct as0149_priv *priv)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
++	u32 addrs[2], naddrs;
++
++	naddrs = of_property_count_elems_of_size(np, "reg", sizeof(u32));
++	if (naddrs != 2) {
++		dev_err(&client->dev, "Invalid DT reg property\n");
++		return -EINVAL;
++	}
++
++	if (of_property_read_u32_array(client->dev.of_node, "reg", addrs, naddrs) < 0) {
++		dev_err(&client->dev, "Invalid DT reg property\n");
++		return -EINVAL;
++	}
++
++	priv->ser_addr = addrs[1];
++
++	return 0;
++}
++
++static int as0149_probe(struct i2c_client *client,
++		        const struct i2c_device_id *did)
++{
++	struct as0149_priv *priv;
++	struct v4l2_ctrl *ctrl;
++	int ret;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	v4l2_i2c_subdev_init(&priv->sd, client, &as0149_subdev_ops);
++	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++	mutex_init(&priv->lock);
++
++	priv->exposure = 0x100;
++	priv->gain = 0x100;
++	priv->autogain = 1;
++	v4l2_ctrl_handler_init(&priv->hdl, 4);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_CONTRAST, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_SATURATION, 0, 7, 1, 2);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_HUE, 0, 23, 1, 12);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_GAMMA, -128, 128, 1, 0);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_HFLIP, 0, 1, 1, 0);
++	v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	ctrl = v4l2_ctrl_new_std(&priv->hdl, &as0149_ctrl_ops,
++			  V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, 1, 32, 1, 9);
++	if (ctrl)
++		ctrl->flags &= ~V4L2_CTRL_FLAG_READ_ONLY;
++	priv->sd.ctrl_handler = &priv->hdl;
++
++	ret = priv->hdl.error;
++	if (ret)
++		goto cleanup;
++
++	v4l2_ctrl_handler_setup(&priv->hdl);
++
++	priv->pad.flags = MEDIA_PAD_FL_SOURCE;
++	priv->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
++	ret = media_entity_pads_init(&priv->sd.entity, 1, &priv->pad);
++	if (ret < 0)
++		goto cleanup;
++
++	ret = as0149_parse_dt(client->dev.of_node, priv);
++	if (ret)
++		goto cleanup;
++
++	ret = as0149_initialize(client);
++	if (ret < 0)
++		goto cleanup;
++
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = priv->max_width;
++	priv->rect.height = priv->max_height;
++
++	ret = v4l2_async_register_subdev(&priv->sd);
++	if (ret)
++		goto cleanup;
++
++	if (device_create_file(&client->dev, &dev_attr_otp_id_as0149) != 0) {
++		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
++		goto cleanup;
++	}
++
++	priv->init_complete = 1;
++
++	return 0;
++
++cleanup:
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++	return ret;
++}
++
++static int as0149_remove(struct i2c_client *client)
++{
++	struct as0149_priv *priv = i2c_get_clientdata(client);
++
++	device_remove_file(&client->dev, &dev_attr_otp_id_as0149);
++	v4l2_async_unregister_subdev(&priv->sd);
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++
++	return 0;
++}
++
++static struct i2c_driver as0149_i2c_driver = {
++	.driver	= {
++		.name		= "as0149",
++		.of_match_table	= as0149_of_ids,
++	},
++	.probe		= as0149_probe,
++	.remove		= as0149_remove,
++	.id_table	= as0149_id,
++};
++
++module_i2c_driver(as0149_i2c_driver);
++
++MODULE_DESCRIPTION("SoC Camera driver for AS0149");
++MODULE_AUTHOR("Vladimir Barinov");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/media/i2c/soc_camera/imagers/as0149.h b/drivers/media/i2c/soc_camera/imagers/as0149.h
+new file mode 100644
+index 0000000..77218f3
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/imagers/as0149.h
+@@ -0,0 +1,24 @@
++/*
++ * ON Semiconductor as0149 sensor camera wizard 1280x960@30/UYVY/BT601/8bit
++ *
++ * Copyright (C) 2021 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#define AS0149_MAX_WIDTH	1280
++#define AS0149_MAX_HEIGHT	960
++
++#define AS0149_DELAY		0xffff
++
++struct as0149_reg {
++	u16	reg;
++	u16	val;
++};
++
++static const struct as0149_reg as0149_regs_setup[] = {
++/* enable FSIN */
++};
+-- 
+2.7.4
+
