@@ -24,6 +24,7 @@ patch 0066-arm64-dts-renesas-Update-rpc-device-nodes.patch
 patch 0072-MTD-renesas-rpc-fix-dummy-cycles.patch
 patch 0074-nvme-Workaround-Samsung-970-Pro-power-state-issues.patch
 patch 0075-media-platform-rcar-vin-fix-parallel-notifier-fail.patch
+patch 0080-ASoC-PCM3168A-add-TDM-modes-merge-ADC-and-DAC.patch
 patch 0082-media-v4l2-async-workaround-for-RCAR-VIN.patch
 patch 0083-arm64-boot-dts-rcar-gen3-Fix-MLP-IRQ-order.patch
 patch 0090-media-i2c-ov2311-add-frame-rate-adjustment.patch
