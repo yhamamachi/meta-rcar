@@ -1,0 +1,125 @@
+From 42db3ada54ff93316097f2beff6efa14960ecb3d Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 23 Jun 2021 22:03:19 +0300
+Subject: [PATCH] media: i2c: imx623: add emb line and fixes
+
+1) add emb line
+2) add next revision sensors
+3) fix crop
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/imx623.c | 21 +++++++++++----------
+ drivers/media/i2c/soc_camera/imx623.h | 20 +++++++++++++++-----
+ 2 files changed, 26 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/imx623.c b/drivers/media/i2c/soc_camera/imx623.c
+index 6edbf8f..15c83d5 100644
+--- a/drivers/media/i2c/soc_camera/imx623.c
++++ b/drivers/media/i2c/soc_camera/imx623.c
+@@ -28,6 +28,7 @@ static const int imx623_i2c_addr[] = {0x1a};
+ #define IMX623_PID_H		0x6000
+ #define IMX623_PID_L		0x6001
+ #define IMX623_VERSION_REG	0xffff
++#define IMX623_VERSION_REG2	0x0422
+ 
+ #define IMX623_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SRGGB12_1X12
+ 
+@@ -107,13 +108,13 @@ static int imx623_set_window(struct v4l2_subdev *sd)
+ 	reg16_write(client, 0xbf07, priv->rect.width >> 8);
+ 	reg16_write(client, 0xbf06, priv->rect.width & 0xff);
+ 	/* vert output */
+-	reg16_write(client, 0x8aaf, priv->rect.height >> 8);
+-	reg16_write(client, 0x8aae, priv->rect.height & 0xff);
+-	reg16_write(client, 0xbf0b, priv->rect.height >> 8);
+-	reg16_write(client, 0xbf0a, priv->rect.height & 0xff);
+-	/* enable crop (already enabled) */
+-	//reg16_write(client, 0x8aa8, 1);
+-	//reg16_write(client, 0xbf04, 1);
++	reg16_write(client, 0x8aaf, (priv->rect.height + IMX623_EMB_PADDED) >> 8);
++	reg16_write(client, 0x8aae, (priv->rect.height + IMX623_EMB_PADDED) & 0xff);
++	reg16_write(client, 0xbf0b, (priv->rect.height + IMX623_EMB_PADDED) >> 8);
++	reg16_write(client, 0xbf0a, (priv->rect.height + IMX623_EMB_PADDED) & 0xff);
++	/* enable crop */
++	reg16_write(client, 0x8aa8, 1);
++	reg16_write(client, 0xbf04, 1);
+ 
+ 	return 0;
+ }
+@@ -240,7 +241,7 @@ static int imx623_get_selection(struct v4l2_subdev *sd,
+ 		return 0;
+ 	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
+ 		sel->r.left = 0;
+-		sel->r.top = 0;
++		sel->r.top = IMX623_EMB_PADDED / 2;
+ 		sel->r.width = priv->rect.width;
+ 		sel->r.height = priv->rect.height;
+ 		return 0;
+@@ -448,11 +449,11 @@ static int imx623_initialize(struct i2c_client *client)
+ 		reg16_read(client, IMX623_PID_L, &val);
+ 		pid = (pid << 8) | val;
+ 
+-		if (pid == IMX623_VERSION_REG)
++		if (pid == IMX623_VERSION_REG || pid == IMX623_VERSION_REG2)
+ 			break;
+ 	}
+ 
+-	if (pid != IMX623_VERSION_REG) {
++	if (pid != IMX623_VERSION_REG && pid != IMX623_VERSION_REG2) {
+ 		dev_dbg(&client->dev, "Product ID error %x\n", pid);
+ 		ret = -ENODEV;
+ 		goto err;
+diff --git a/drivers/media/i2c/soc_camera/imx623.h b/drivers/media/i2c/soc_camera/imx623.h
+index a579576..6129b20 100644
+--- a/drivers/media/i2c/soc_camera/imx623.h
++++ b/drivers/media/i2c/soc_camera/imx623.h
+@@ -11,13 +11,16 @@
+ 
+ //#define IMX623_DISPLAY_PATTERN_COLOR_BAR
+ 
++#define IMX623_EMB_LINES	2 /* 1 emb lines at top and 22 stat lines at bottom */
++#define IMX623_EMB_PADDED	(IMX623_EMB_LINES) /* embedded data (SOF) and stats (EOF) */
++
+ #define IMX623_DEFAULT_WIDTH	1920
+-#define IMX623_DEFAULT_HEIGHT	1552
++#define IMX623_DEFAULT_HEIGHT	(1552 - IMX623_EMB_PADDED)
+ 
+ #define IMX623_MAX_WIDTH	1936
+-#define IMX623_MAX_HEIGHT	1552
++#define IMX623_MAX_HEIGHT	(1552 - IMX623_EMB_PADDED)
+ #define IMX623_SENSOR_WIDTH	1936
+-#define IMX623_SENSOR_HEIGHT	1552
++#define IMX623_SENSOR_HEIGHT	(1552 - IMX623_EMB_PADDED)
+ 
+ #define IMX623_X_START		((IMX623_SENSOR_WIDTH - IMX623_DEFAULT_WIDTH) / 2)
+ #define IMX623_Y_START		((IMX623_SENSOR_HEIGHT - IMX623_DEFAULT_HEIGHT) / 2)
+@@ -3098,17 +3101,24 @@ static const u8 imx623_regs[] = {
+     1, 0x8a, 0xd0, 0x00, 0x00, 0x00,
+ #ifdef IMX623_DISPLAY_PATTERN_COLOR_BAR
+     1, 0xBE, 0x14, 0x01, 0x00, 0x00,
++    1, 0xBF, 0x60, 0x01, 0x00, 0x00,
+ #endif
++#if 0
+     /* fsync setup */
+     1, 0x8a, 0xfe, 0x00, 0x00, 0x00, /* enable fsync input */
+     1, 0x8a, 0xf0, 0x02, 0x00, 0x00, /* fsync mode: shutter trigger-based  */
+     1, 0xbf, 0x14, 0x02, 0x00, 0x00, /* fsync mode: shutter trigger-based  */
+     1, 0x8a, 0xff, 0xff, 0x00, 0x00, /* setup fsync io pads */
++#endif
++    2, 0xbd, 0xf8, 0x01, 0x01, 0x00, 0x00, /* enable emb data in data frame */
++    4, 0xbd, 0xfb, 0x2c, 0x2c, 0x2c, 0x2c, 0x00, 0x00, /* enable emb data in data frame */
++    1, 0x8a, 0x6a, 0x1, 0x00, 0x00, /* change CFA RGGB -> GBRG, because the emb line is 1, and crop can't be odd */
++    1, 0xbf, 0x0e, 0x1, 0x00, 0x00, /* change CFA RGGB -> GBRG, because the emb line is 1, and crop can't be odd */
+     1, 0xbe, 0xf0, 0x53, 0x00, 0x00, /* unlock */
+     2, 0x8a, 0x00, 0x1d, 0x80, 0x00, 0x0f, /* stream on, driver mode: 1936x1552@30 RAW12 */
+     /* setup crop */
+-    8, 0x8a, 0xaa, IMX623_DEFAULT_WIDTH & 0xff, IMX623_DEFAULT_WIDTH >> 8, IMX623_X_START & 0xff, IMX623_X_START >> 8, IMX623_DEFAULT_HEIGHT & 0xff, IMX623_DEFAULT_HEIGHT >> 8, IMX623_Y_START & 0xff, IMX623_Y_START >> 8, 0x00, 0x00,
+-    8, 0xbf, 0x06, IMX623_DEFAULT_WIDTH & 0xff, IMX623_DEFAULT_WIDTH >> 8, IMX623_X_START & 0xff, IMX623_X_START >> 8, IMX623_DEFAULT_HEIGHT & 0xff, IMX623_DEFAULT_HEIGHT >> 8, IMX623_Y_START & 0xff, IMX623_Y_START >> 8, 0x00, 0x00,
++    8, 0x8a, 0xaa, IMX623_DEFAULT_WIDTH & 0xff, IMX623_DEFAULT_WIDTH >> 8, IMX623_X_START & 0xff, IMX623_X_START >> 8, (IMX623_DEFAULT_HEIGHT + IMX623_EMB_PADDED) & 0xff, (IMX623_DEFAULT_HEIGHT + IMX623_EMB_PADDED) >> 8, IMX623_Y_START & 0xff, IMX623_Y_START >> 8, 0x00, 0x00,
++    8, 0xbf, 0x06, IMX623_DEFAULT_WIDTH & 0xff, IMX623_DEFAULT_WIDTH >> 8, IMX623_X_START & 0xff, IMX623_X_START >> 8, (IMX623_DEFAULT_HEIGHT + IMX623_EMB_PADDED) & 0xff, (IMX623_DEFAULT_HEIGHT + IMX623_EMB_PADDED) >> 8, IMX623_Y_START & 0xff, IMX623_Y_START >> 8, 0x00, 0xff,
+     /* enable crop */
+     1, 0x8a, 0xa8, 0x01, 0x00, 0x00,
+     1, 0xbf, 0x04, 0x01, 0x00, 0x00,
+-- 
+2.7.4
+
