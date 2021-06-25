@@ -4,6 +4,7 @@ COMPATIBLE_MACHINE_eagle = "eagle"
 COMPATIBLE_MACHINE_v3msk = "v3msk"
 COMPATIBLE_MACHINE_condor = "condor"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
+COMPATIBLE_MACHINE_falcon = "falcon"
 
 SRC_URI_append = " \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://hyperflash.cfg", d)} \
@@ -12,7 +13,6 @@ SRC_URI_append = " \
     file://disable-unused.cfg \
     file://enable.cfg \
     file://renesas.scc \
-    file://v3x-bsp/renesas.scc \
 "
 
 SRC_URI_append_h3ulcb = " file://ulcb.cfg"
@@ -59,25 +59,21 @@ KERNEL_DEVICETREE_append_m3nulcb = " \
     ${ULCB_KF_DTBO} \
 "
 
-KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
+KERNEL_DEVICETREE_append_r8a77970 = " \
     renesas/r8a77970-es1-eagle.dtb \
     renesas/r8a77970-es1-eagle-function.dtb \
-    renesas/r8a77970-es1-v3msk.dtb \
     renesas/r8a77970-es1-v3msk-vbm-v2.dtb \
     renesas/r8a77970-es1-v3msk-vbm-v3.dtb \
     renesas/r8a77970-es1-v3msk-vbm.dtb \
     renesas/r8a77970-es1-v3msk-view.dtb \
-    renesas/r8a77970-eagle.dtb \
     renesas/r8a77970-eagle-function.dtb \
-    renesas/r8a77970-v3msk.dtb \
     renesas/r8a77970-v3msk-vbm-v2.dtb \
     renesas/r8a77970-v3msk-vbm-v3.dtb \
     renesas/r8a77970-v3msk-vbm.dtb \
     renesas/r8a77970-v3msk-view.dtb \
-    renesas/r8a77980-condor.dtb \
-    renesas/r8a77980-v3hsk.dtb \
-    renesas/r8a77980-es2-condor.dtb \
-    renesas/r8a77980-es2-v3hsk.dtb \
+"
+
+KERNEL_DEVICETREE_append_r8a77980 = " \
     renesas/r8a77980-v3hsk-vb-4ch.dtb \
     renesas/r8a77980-v3hsk-vb-8ch.dtb \
     renesas/r8a77980-v3hsk-vb-gmsl-8ch.dtb \
@@ -93,30 +89,15 @@ KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
 "
 
 # Prefer generic-uio driver over kernel drivers
-KERNEL_MODULE_PROBECONF_append = " rcar_imr"
-KERNEL_MODULE_PROBECONF_append = " rcar_csi2"
-KERNEL_MODULE_PROBECONF_append = " rcar_vin"
-KERNEL_MODULE_PROBECONF_append = " vsp1"
-KERNEL_MODULE_PROBECONF_append = " rcar-du-drm"
-KERNEL_MODULE_PROBECONF_append = " rcar_lvds"
-module_conf_rcar_imr = "blacklist rcar_imr"
-module_conf_rcar_csi2 = "blacklist rcar_csi2"
-module_conf_rcar_vin = "blacklist rcar_vin"
-module_conf_vsp1 = "blacklist vsp1"
-module_conf_rcar-du-drm = "blacklist rcar-du-drm"
-module_conf_rcar_lvds = "blacklist rcar_lvds"
-
-KERNEL_MODULE_AUTOLOAD_append = " uio_pdrv_genirq"
-KERNEL_MODULE_PROBECONF_append = " uio_pdrv_genirq"
-module_conf_uio_pdrv_genirq_append = 'options uio_pdrv_genirq of_id="generic-uio"'
-
-# Install RCAR Gen3 specific UAPI headers
-do_install_append_rcar-gen3() {
-    install -d ${D}/usr/include/linux/
-    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-imr.h ${D}/usr/include/linux/
-    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-ipmmu-domains.h ${D}/usr/include/linux/
-    install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/renesas_uioctl.h ${D}/usr/include/linux/
-}
-
-PACKAGES += "${PN}-uapi"
-FILES_${PN}-uapi = "/usr/include"
+#KERNEL_MODULE_PROBECONF_append = " rcar_imr"
+#KERNEL_MODULE_PROBECONF_append = " rcar_csi2"
+#KERNEL_MODULE_PROBECONF_append = " rcar_vin"
+#KERNEL_MODULE_PROBECONF_append = " vsp1"
+#KERNEL_MODULE_PROBECONF_append = " rcar-du-drm"
+#KERNEL_MODULE_PROBECONF_append = " rcar_lvds"
+#module_conf_rcar_imr = "blacklist rcar_imr"
+#module_conf_rcar_csi2 = "blacklist rcar_csi2"
+#module_conf_rcar_vin = "blacklist rcar_vin"
+#module_conf_vsp1 = "blacklist vsp1"
+#module_conf_rcar-du-drm = "blacklist rcar-du-drm"
+#module_conf_rcar_lvds = "blacklist rcar_lvds"

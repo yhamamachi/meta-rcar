@@ -1,0 +1,165 @@
+From 4c68e3ec53ae5c38a28d1b379e5e63b9a778b970 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 16 Jun 2021 01:35:57 +0300
+Subject: [PATCH 08/12] arm64: dts: renesas: r8a779a0-falcon: Update max96712
+ nodes
+
+This updates mx96712 device nodes according to the driver
+expectations, and enables max96712 deserializer support.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts | 114 ++++++++++++++++++++++--
+ 1 file changed, 108 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts b/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
+index a73174d..f971928 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
++++ b/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
+@@ -409,13 +409,103 @@
+ 		};
+ 	};
+ 
++	max2008x_a: vcam_switch_a@28 {
++		compatible = "maxim,max2008x";
++		reg = <0x28>;
++		#io-channel-cells = <1>;
++
++		regulators {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			vdd_cam_a_0: SW0 {
++				reg = <0>;
++				regulator-name = "Camera-A-0";
++			};
++			vdd_cam_a_1: SW1 {
++				reg = <1>;
++				regulator-name = "Camera-A-1";
++			};
++			vdd_cam_a_2: SW2 {
++				reg = <2>;
++				regulator-name = "Camera-A-2";
++			};
++			vdd_cam_a_3: SW3 {
++				reg = <3>;
++				regulator-name = "Camera-A-3";
++			};
++		};
++	};
++
++	max2008x_b: vcam_switch_b@2a {
++		compatible = "maxim,max2008x";
++		reg = <0x2a>;
++		#io-channel-cells = <1>;
++
++		regulators {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			vdd_cam_b_0: SW0 {
++				reg = <0>;
++				regulator-name = "Camera-B-0";
++			};
++			vdd_cam_b_1: SW1 {
++				reg = <1>;
++				regulator-name = "Camera-B-1";
++			};
++			vdd_cam_b_2: SW2 {
++				reg = <2>;
++				regulator-name = "Camera-B-2";
++			};
++			vdd_cam_b_3: SW3 {
++				reg = <3>;
++				regulator-name = "Camera-B-3";
++			};
++		};
++	};
++
++	max2008x_c: vcam_switch_c@2d {
++		compatible = "maxim,max2008x";
++		reg = <0x2d>;
++		#io-channel-cells = <1>;
++
++		regulators {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			vdd_cam_c_0: SW0 {
++				reg = <0>;
++				regulator-name = "Camera-C-0";
++			};
++			vdd_cam_c_1: SW1 {
++				reg = <1>;
++				regulator-name = "Camera-C-1";
++			};
++			vdd_cam_c_2: SW2 {
++				reg = <2>;
++				regulator-name = "Camera-C-2";
++			};
++			vdd_cam_c_3: SW3 {
++				reg = <3>;
++				regulator-name = "Camera-C-3";
++			};
++		};
++	};
++
+ 	gmsl0: gmsl-deserializer@49 {
+ 		gpio-controller;
+ 		#gpio-cells = <2>;
+ 
+ 		compatible = "maxim,max96712";
+-		reg = <0x49>, <0x01>, <0x02>, <0x03>, <0x04>;
+-		gpios = <&io_expander2 0 GPIO_ACTIVE_HIGH>;
++		reg = <0x49>;
++		regs = <0x01>, <0x02>, <0x03>, <0x04>;
++		shutdown-gpios = <&io_expander2 0 GPIO_ACTIVE_LOW>;
++
++		poc0-supply = <&vdd_cam_a_0>;
++		poc1-supply = <&vdd_cam_a_1>;
++		poc2-supply = <&vdd_cam_a_2>;
++		poc3-supply = <&vdd_cam_a_3>;
+ 
+ 		ports {
+ 			#address-cells = <1>;
+@@ -498,10 +588,16 @@
+ 		#gpio-cells = <2>;
+ 
+ 		compatible = "maxim,max96712";
+-		reg = <0x4b>, <0x05>, <0x06>, <0x07>, <0x08>;
+-		gpios = <&io_expander3 0 GPIO_ACTIVE_HIGH>;
++		reg = <0x4b>;
++		regs = <0x05>, <0x06>, <0x07>, <0x08>;
++		shutdown-gpios = <&io_expander3 0 GPIO_ACTIVE_LOW>;
+ 		maxim,invert_phy-pol;
+ 
++		poc0-supply = <&vdd_cam_b_0>;
++		poc1-supply = <&vdd_cam_b_1>;
++		poc2-supply = <&vdd_cam_b_2>;
++		poc3-supply = <&vdd_cam_b_3>;
++
+ 		ports {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -583,10 +679,16 @@
+ 		#gpio-cells = <2>;
+ 
+ 		compatible = "maxim,max96712";
+-		reg = <0x6b>, <0x09>, <0x0a>, <0x0b>, <0x0c>;
+-		gpios = <&io_expander4 0 GPIO_ACTIVE_HIGH>;
++		reg = <0x6b>;
++		regs = <0x09>, <0x0a>, <0x0b>, <0x0c>;
++		shutdown-gpios = <&io_expander4 0 GPIO_ACTIVE_LOW>;
+ 		maxim,invert_phy-pol;
+ 
++		poc0-supply = <&vdd_cam_c_0>;
++		poc1-supply = <&vdd_cam_c_1>;
++		poc2-supply = <&vdd_cam_c_2>;
++		poc3-supply = <&vdd_cam_c_3>;
++
+ 		ports {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-- 
+2.7.4
+

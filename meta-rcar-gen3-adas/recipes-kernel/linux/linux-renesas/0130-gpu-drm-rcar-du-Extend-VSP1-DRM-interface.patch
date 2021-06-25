@@ -33,10 +33,10 @@ index c630064..eb15ef9 100644
  		{ .format = DRM_FORMAT_BGR233,		.depth = 8,  .num_planes = 1, .cpp = { 1, 0, 0 }, .hsub = 1, .vsub = 1 },
  		{ .format = DRM_FORMAT_XRGB4444,	.depth = 0,  .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-index ae426db..2dbd0a1 100644
+index 87ba006..f362fc4 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-@@ -102,6 +102,11 @@ struct rcar_du_device {
+@@ -105,6 +105,11 @@ struct rcar_du_device {
  		struct drm_property *alpha;
  		struct drm_property *colorkey;
  		struct drm_property *colorkey_alpha;

@@ -1,0 +1,100 @@
+From 23cf3eae8c3b5ae2a9e16fb02d42cf13981447cf Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 16 Jun 2021 01:01:34 +0300
+Subject: [PATCH 10/12] arm64: dts: renesas: r8a779a0-falcon: Update flash
+ partitions
+
+This updates QSPI flash partitions according to the current layout.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts | 71 +++++++++++++++++++++++--
+ 1 file changed, 67 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts b/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
+index f971928..4428dcb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
++++ b/arch/arm64/boot/dts/renesas/r8a779a0-falcon.dts
+@@ -325,12 +325,75 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-			boot_partition@0 {
+-				reg = <0x00000000 0xC40000>;
++			bootparam@0 {
++				reg = <0x00000000 0x00040000>;
+ 				read-only;
+ 			};
+-			user@00C40000 {
+-				reg = <0x00C40000 0x33C0000>;
++			icumxa@00040000 {
++				reg = <0x00040000 0x00080000>;
++				read-only;
++			};
++			cert_header_sa3@000C0000 {
++				reg = <0x000C0000 0x000080000>;
++				read-only;
++			};
++			bl2@00140000 {
++				reg = <0x00140000 0x000040000>;
++				read-only;
++			};
++			cert_header_sa6@00180000 {
++				reg = <0x00180000 0x000040000>;
++				read-only;
++			};
++			bl31@001C0000 {
++				reg = <0x001C0000 0x000280000>;
++				read-only;
++			};
++			cert_header_sa17@00440000 {
++				reg = <0x00440000 0x000040000>;
++				read-only;
++			};
++			dummy_fw@00480000 {
++				reg = <0x00480000 0x000100000>;
++				read-only;
++			};
++			dummy_rtos@00580000 {
++				reg = <0x00580000 0x0000C0000>;
++				read-only;
++			};
++			uboot@00640000 {
++				reg = <0x00640000 0x000100000>;
++				read-only;
++			};
++			reserved@00740000 {
++				reg = <0x00740000 0x000140000>;
++				read-only;
++			};
++			uboot-el3@00880000 {
++				reg = <0x00880000 0x000100000>;
++				read-only;
++			};
++			uboot-el3-env@00980000 {
++				reg = <0x00980000 0x000080000>;
++				read-only;
++			};
++			reserved@00a00000 {
++				reg = <0x00a00000 0x000200000>;
++				read-only;
++			};
++			uboot-env@00c00000 {
++				reg = <0x00c00000 0x000080000>;
++				read-only;
++			};
++			dtb@00c80000 {
++				reg = <0x00c80000 0x000080000>;
++			};
++
++			kernel@00d00000 {
++				reg = <0x00d00000 0x002000000>;
++			};
++			user@01BC0000 {
++				reg = <0x02d00000 0x001300000>;
+ 			};
+ 		};
+ 	};
+-- 
+2.7.4
+

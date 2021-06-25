@@ -1,0 +1,186 @@
+From 12e20a4ccf40a5f094d9a8e6ecfd4ae76fe0492a Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 17 Jun 2021 01:22:42 +0300
+Subject: [PATCH 09/12] arm64: dts: renesas: falcon-fakra: Enable camera
+ support
+
+This adds LVDS cameras instead of dummy-camera.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/falcon-fakra.dtsi | 67 ++++++++++++++-------------
+ 1 file changed, 34 insertions(+), 33 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/falcon-fakra.dtsi b/arch/arm64/boot/dts/renesas/falcon-fakra.dtsi
+index 5354676..45a46da 100644
+--- a/arch/arm64/boot/dts/renesas/falcon-fakra.dtsi
++++ b/arch/arm64/boot/dts/renesas/falcon-fakra.dtsi
+@@ -12,19 +12,20 @@
+  */
+ 
+ #include <dt-bindings/gpio/gpio.h>
+-
+-#define FALCON_CAMERA0  "dummy,camera"
+-#define FALCON_CAMERA1  "dummy,camera"
+-#define FALCON_CAMERA2  "dummy,camera"
+-#define FALCON_CAMERA3  "dummy,camera"
+-#define FALCON_CAMERA4  "dummy,camera"
+-#define FALCON_CAMERA5  "dummy,camera"
+-#define FALCON_CAMERA6  "dummy,camera"
+-#define FALCON_CAMERA7  "dummy,camera"
+-#define FALCON_CAMERA8  "dummy,camera"
+-#define FALCON_CAMERA9  "dummy,camera"
+-#define FALCON_CAMERA10 "dummy,camera"
+-#define FALCON_CAMERA11 "dummy,camera"
++#include "camera.dtsi"
++
++#define FALCON_CAMERA0  LVDS_CAMERA
++#define FALCON_CAMERA1  LVDS_CAMERA
++#define FALCON_CAMERA2  LVDS_CAMERA
++#define FALCON_CAMERA3  LVDS_CAMERA
++#define FALCON_CAMERA4  LVDS_CAMERA
++#define FALCON_CAMERA5  LVDS_CAMERA
++#define FALCON_CAMERA6  LVDS_CAMERA
++#define FALCON_CAMERA7  LVDS_CAMERA
++#define FALCON_CAMERA8  LVDS_CAMERA
++#define FALCON_CAMERA9  LVDS_CAMERA
++#define FALCON_CAMERA10 LVDS_CAMERA
++#define FALCON_CAMERA11 LVDS_CAMERA
+ 
+ /* Define the endpoint links */
+ #ifdef FALCON_CAMERA0
+@@ -115,7 +116,7 @@
+ 
+ 			camera@51 {
+ 				compatible = FALCON_CAMERA0;
+-				reg = <0x51>;
++				reg = <0x51 0x01>;
+ 
+ 				port {
+ 					fakra_con0: endpoint {
+@@ -132,7 +133,7 @@
+ 
+ 			camera@52 {
+ 				compatible = FALCON_CAMERA1;
+-				reg = <0x52>;
++				reg = <0x52 0x02>;
+ 
+ 				port {
+ 					fakra_con1: endpoint {
+@@ -149,7 +150,7 @@
+ 
+ 			camera@53 {
+ 				compatible = FALCON_CAMERA2;
+-				reg = <0x53>;
++				reg = <0x53 0x03>;
+ 
+ 				port {
+ 					fakra_con2: endpoint {
+@@ -166,7 +167,7 @@
+ 
+ 			camera@54 {
+ 				compatible = FALCON_CAMERA3;
+-				reg = <0x54>;
++				reg = <0x54 0x04>;
+ 
+ 				port {
+ 					fakra_con3: endpoint {
+@@ -192,9 +193,9 @@
+ 		i2c@0 {
+ 			status = "okay";
+ 
+-			camera@51 {
++			camera@55 {
+ 				compatible = FALCON_CAMERA4;
+-				reg = <0x51>;
++				reg = <0x55 0x05>;
+ 
+ 				port {
+ 					fakra_con4: endpoint {
+@@ -209,9 +210,9 @@
+ 		i2c@1 {
+ 			status = "okay";
+ 
+-			camera@52 {
++			camera@56 {
+ 				compatible = FALCON_CAMERA5;
+-				reg = <0x52>;
++				reg = <0x56 0x06>;
+ 
+ 				port {
+ 					fakra_con5: endpoint {
+@@ -226,9 +227,9 @@
+ 		i2c@2 {
+ 			status = "okay";
+ 
+-			camera@53 {
++			camera@57 {
+ 				compatible = FALCON_CAMERA6;
+-				reg = <0x53>;
++				reg = <0x57 0x07>;
+ 
+ 				port {
+ 					fakra_con6: endpoint {
+@@ -243,9 +244,9 @@
+ 		i2c@3 {
+ 			status = "okay";
+ 
+-			camera@54 {
++			camera@58 {
+ 				compatible = FALCON_CAMERA7;
+-				reg = <0x54>;
++				reg = <0x58 0x08>;
+ 
+ 				port {
+ 					fakra_con7: endpoint {
+@@ -271,9 +272,9 @@
+ 		i2c@0 {
+ 			status = "okay";
+ 
+-			camera@51 {
++			camera@59 {
+ 				compatible = FALCON_CAMERA8;
+-				reg = <0x51>;
++				reg = <0x59 0x09>;
+ 
+ 				port {
+ 					fakra_con8: endpoint {
+@@ -288,9 +289,9 @@
+ 		i2c@1 {
+ 			status = "okay";
+ 
+-			camera@52 {
++			camera@5a {
+ 				compatible = FALCON_CAMERA9;
+-				reg = <0x52>;
++				reg = <0x5a 0x0a>;
+ 
+ 				port {
+ 					fakra_con9: endpoint {
+@@ -305,9 +306,9 @@
+ 		i2c@2 {
+ 			status = "okay";
+ 
+-			camera@53 {
++			camera@5b {
+ 				compatible = FALCON_CAMERA10;
+-				reg = <0x53>;
++				reg = <0x5b 0x0b>;
+ 
+ 				port {
+ 					fakra_con10: endpoint {
+@@ -322,9 +323,9 @@
+ 		i2c@3 {
+ 			status = "okay";
+ 
+-			camera@54 {
++			camera@5c {
+ 				compatible = FALCON_CAMERA11;
+-				reg = <0x54>;
++				reg = <0x5c 0x0c>;
+ 
+ 				port {
+ 					fakra_con11: endpoint {
+-- 
+2.7.4
+
