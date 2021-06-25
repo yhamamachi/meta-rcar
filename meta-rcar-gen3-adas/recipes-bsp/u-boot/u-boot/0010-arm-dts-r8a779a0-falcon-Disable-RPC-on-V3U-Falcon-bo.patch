@@ -1,0 +1,29 @@
+From 0fc591a620ab145e4c7972332c9de48d1c7b6b2e Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 25 Jun 2021 00:46:01 +0300
+Subject: [PATCH 10/11] arm: dts: r8a779a0-falcon: Disable RPC on V3U Falcon
+ board
+
+This disables RPC device on R-Car V3U Falcon board.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm/dts/r8a779a0-falcon.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/r8a779a0-falcon.dts b/arch/arm/dts/r8a779a0-falcon.dts
+index 8cc2e7a..5baa6c1 100644
+--- a/arch/arm/dts/r8a779a0-falcon.dts
++++ b/arch/arm/dts/r8a779a0-falcon.dts
+@@ -200,7 +200,7 @@
+ 	pinctrl-0 = <&qspi0_pins>;
+ 	pinctrl-names = "default";
+ 
+-	status = "okay";
++	status = "disabled";
+ 
+ 	flash@0 {
+ 		compatible = "jedec,spi-nor";
+-- 
+2.7.4
+

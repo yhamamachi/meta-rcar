@@ -1,0 +1,28 @@
+From 5da2fa475a079b249b96fea7a0e552090b92f4c2 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 24 Jun 2021 00:46:12 +0300
+Subject: [PATCH 01/11] configs: r8a779a0_falcon: Enable askenv command
+
+This enables "askenv" command for V3U Falcon board
+which can be used in U-Boot scripts for user input.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ configs/r8a779a0_falcon_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/r8a779a0_falcon_defconfig b/configs/r8a779a0_falcon_defconfig
+index 88a9cfd..e23345f 100644
+--- a/configs/r8a779a0_falcon_defconfig
++++ b/configs/r8a779a0_falcon_defconfig
+@@ -17,6 +17,7 @@ CONFIG_DEFAULT_FDT_FILE="r8a779a0-falcon.dtb"
+ CONFIG_VERSION_VARIABLE=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_CMD_BOOTZ=y
++CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+-- 
+2.7.4
+

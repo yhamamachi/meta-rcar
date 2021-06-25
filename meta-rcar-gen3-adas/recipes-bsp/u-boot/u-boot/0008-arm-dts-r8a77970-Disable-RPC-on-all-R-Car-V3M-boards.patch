@@ -1,7 +1,7 @@
-From a807c19c45eb347a2d5b4391ff396b94a875d9dc Mon Sep 17 00:00:00 2001
+From 20d32241c6ddc97a564ac79a4acbebaae00329e7 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 26 Nov 2019 21:52:37 +0300
-Subject: [PATCH 1/2] arm: dts: r8a77970: Disable RPC on all R-Car V3M boards
+Subject: [PATCH 08/11] arm: dts: r8a77970: Disable RPC on all R-Car V3M boards
 
 This disables RPC device on all R-Car V3M boards.
 
@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm/dts/r8a77970-eagle-u-boot.dts b/arch/arm/dts/r8a77970-eagle-u-boot.dts
-index 5b17f1d..6c910c2 100644
+index eb868ed..63b9c44 100644
 --- a/arch/arm/dts/r8a77970-eagle-u-boot.dts
 +++ b/arch/arm/dts/r8a77970-eagle-u-boot.dts
 @@ -36,7 +36,7 @@

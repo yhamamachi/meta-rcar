@@ -1,7 +1,7 @@
-From fb21a031270a39fa560040bf9a075bc8652bf706 Mon Sep 17 00:00:00 2001
+From 79e55613d1464294f82060a7a3cbc3a90135707c Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 17 Sep 2020 01:22:31 +0300
-Subject: [PATCH 08/21] configs: r8a77970: Eagle: Enable MMC support by default
+Subject: [PATCH 05/11] configs: r8a77970: Eagle: Enable MMC support by default
 
 This enables MMC support, which is available on Eagle
 function board expansion, by default.
@@ -12,7 +12,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/configs/r8a77970_eagle_defconfig b/configs/r8a77970_eagle_defconfig
-index 0aac4ad..fdb124b 100644
+index 0aac4ad..b6212df 100644
 --- a/configs/r8a77970_eagle_defconfig
 +++ b/configs/r8a77970_eagle_defconfig
 @@ -21,6 +21,7 @@ CONFIG_CMD_BOOTZ=y

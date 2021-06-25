@@ -1,7 +1,7 @@
-From 058497e4a65623045e603ae8678764e6f49b62f6 Mon Sep 17 00:00:00 2001
+From 0d16cb1c74871859abf8cf9bac6f462ebb85b6fb Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 22 Nov 2018 00:17:56 +0300
-Subject: [PATCH 17/21] arm: renesas: Enable RPC HF MTD support for all
+Subject: [PATCH 06/11] arm: renesas: Enable RPC HF MTD support for all
  Salvator-X boards
 
 This enables RPC HyperFlash MTD support

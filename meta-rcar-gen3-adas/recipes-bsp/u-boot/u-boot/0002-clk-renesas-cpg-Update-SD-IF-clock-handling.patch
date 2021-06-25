@@ -1,7 +1,7 @@
-From 807ddb8264e1a7dfac4ec1617c5efd06535c18d8 Mon Sep 17 00:00:00 2001
+From b50af3ccec33398cf8e5b15c99d2f2c110b2f01b Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 22:44:03 +0300
-Subject: [PATCH 05/21] clk: renesas: cpg: Update SD-IF clock handling
+Subject: [PATCH 02/11] clk: renesas: cpg: Update SD-IF clock handling
 
 Make SD-IF clock division rate table configurable
 in the cpg_mssr_info structure. This is needed
@@ -20,7 +20,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  2 files changed, 82 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 2f74f0a..d06443f 100644
+index 8d88431..06c94b0 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
 @@ -51,11 +51,6 @@
@@ -105,7 +105,7 @@ index 2f74f0a..d06443f 100644
  
  			return rate;
  		}
-@@ -351,6 +315,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
+@@ -353,6 +317,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
  	return -ENOENT;
  }
  
@@ -165,7 +165,7 @@ index 2f74f0a..d06443f 100644
  static ulong gen3_clk_get_rate(struct clk *clk)
  {
  	return gen3_clk_get_rate64(clk);
-@@ -358,8 +375,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
+@@ -360,8 +377,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
  
  static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
  {
@@ -183,7 +183,7 @@ index 2f74f0a..d06443f 100644
  	return gen3_clk_get_rate64(clk);
  }
  
-@@ -401,6 +426,12 @@ int gen3_clk_probe(struct udevice *dev)
+@@ -403,6 +428,12 @@ int gen3_clk_probe(struct udevice *dev)
  	if (ret < 0)
  		return ret;
  
