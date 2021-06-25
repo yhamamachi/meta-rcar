@@ -1,0 +1,440 @@
+From 4a2a91b27052eba38b1c76706b53255705d20e28 Mon Sep 17 00:00:00 2001
+From: Hai Pham <hai.pham.ud@renesas.com>
+Date: Sat, 13 Mar 2021 09:23:42 +0700
+Subject: [PATCH 15/18] renesas: rcar: preliminary gicv3 support
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/renesas/rcar/watchdog/swdt.c        | 13 ++++-
+ plat/renesas/rcar/aarch64/plat_helpers.S    | 11 +++++
+ plat/renesas/rcar/aarch64/platform_common.c | 73 +++++++++++++++++++++++++++--
+ plat/renesas/rcar/bl2_interrupt_error.c     | 16 +++++++
+ plat/renesas/rcar/include/plat_macros.S     |  9 +++-
+ plat/renesas/rcar/plat_pm.c                 | 23 +++++++--
+ plat/renesas/rcar/plat_topology.c           | 38 ---------------
+ plat/renesas/rcar/platform.mk               | 10 ++++
+ 8 files changed, 146 insertions(+), 47 deletions(-)
+
+diff --git a/drivers/renesas/rcar/watchdog/swdt.c b/drivers/renesas/rcar/watchdog/swdt.c
+index 647f6cf..6d7b038 100644
+--- a/drivers/renesas/rcar/watchdog/swdt.c
++++ b/drivers/renesas/rcar/watchdog/swdt.c
+@@ -6,7 +6,12 @@
+ 
+ #include <arch_helpers.h>
+ #include <common/debug.h>
++#if (RCAR_LSI == RCAR_V3U)
++#include <plat/common/platform.h>
++#include <drivers/arm/gicv3.h>
++#else
+ #include <drivers/arm/gicv2.h>
++#endif
+ #include <lib/mmio.h>
+ 
+ #include "rcar_def.h"
+@@ -141,7 +146,9 @@ void rcar_swdt_release(void)
+ 	write_scr_el3(read_scr_el3() & ~SCR_FIQ_BIT);
+ 
+ 	swdt_disable();
+-#if RCAR_LSI != RCAR_V3U
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_cpuif_disable(plat_my_core_pos());
++#else
+ 	gicv2_cpuif_disable();
+ #endif
+ 
+@@ -159,7 +166,11 @@ void rcar_swdt_release(void)
+ 
+ void rcar_swdt_exec(uint64_t p)
+ {
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_end_of_interrupt(ARM_IRQ_SEC_WDT);
++#else
+ 	gicv2_end_of_interrupt(ARM_IRQ_SEC_WDT);
++#endif
+ 	rcar_swdt_release();
+ 	ERROR("\n");
+ 	ERROR("System WDT overflow, occured address is %p\n", (void *)p);
+diff --git a/plat/renesas/rcar/aarch64/plat_helpers.S b/plat/renesas/rcar/aarch64/plat_helpers.S
+index 3a47caa..0e76d95 100644
+--- a/plat/renesas/rcar/aarch64/plat_helpers.S
++++ b/plat/renesas/rcar/aarch64/plat_helpers.S
+@@ -24,7 +24,9 @@
+ 	.globl	plat_invalidate_icache
+ 	.globl	plat_report_exception
+ 	.globl	plat_secondary_reset
++#if (RCAR_LSI != RCAR_V3U)
+ 	.globl	plat_reset_handler
++#endif
+ 	.globl	plat_my_core_pos
+ 	.extern	rcar_log_init
+ 
+@@ -37,7 +39,9 @@
+ 	.extern bl2_interrupt_error_type
+ 	.extern bl2_interrupt_error_id
+ 	.globl  bl2_enter_bl31
++#if (RCAR_LSI != RCAR_V3U)
+ 	.extern gicv2_acknowledge_interrupt
++#endif
+ 	.extern rcar_swdt_exec
+ #endif
+ 
+@@ -237,7 +241,12 @@ func plat_report_exception
+ 	beq	rep_exec_fiq_elx
+ 	b	rep_exec_panic_type
+ rep_exec_fiq_elx:
++#if (RCAR_LSI == RCAR_V3U)
++	mrs	x0, ICC_IAR0_EL1
++	and	x0, x0, #0xffffff
++#else
+ 	bl	gicv2_acknowledge_interrupt
++#endif
+ 	mov	x2, #INT_ID_MASK
+ 	and	x0, x0, x2
+ 	mov	x1, #ARM_IRQ_SEC_WDT
+@@ -310,6 +319,7 @@ func plat_crash_console_flush
+ 	b	console_rcar_flush
+ endfunc plat_crash_console_flush
+ 
++#if (RCAR_LSI != RCAR_V3U)
+ 	/* --------------------------------------------------------------------
+ 	 * void plat_reset_handler(void);
+ 	 *
+@@ -387,6 +397,7 @@ M3_L2:
+ apply_l2_ram_latencies:
+ 	ret
+ endfunc plat_reset_handler
++#endif
+ 
+ 	/* ---------------------------------------------
+ 	 * void plat_invalidate_icache(void)
+diff --git a/plat/renesas/rcar/aarch64/platform_common.c b/plat/renesas/rcar/aarch64/platform_common.c
+index f3b0e3e..3e54f8c 100644
+--- a/plat/renesas/rcar/aarch64/platform_common.c
++++ b/plat/renesas/rcar/aarch64/platform_common.c
+@@ -12,7 +12,11 @@
+ #include <common/bl_common.h>
+ #include <common/debug.h>
+ #include <common/interrupt_props.h>
++#if (RCAR_LSI == RCAR_V3U)
++#include <drivers/arm/gicv3.h>
++#else
+ #include <drivers/arm/gicv2.h>
++#endif
+ #include <drivers/arm/gic_common.h>
+ #include <lib/mmio.h>
+ #include <lib/xlat_tables/xlat_tables_v2.h>
+@@ -217,16 +221,77 @@ unsigned int plat_get_syscnt_freq2(void)
+ 	return freq;
+ }
+ 
++int plat_core_pos_by_mpidr(u_register_t mpidr)
++{
++	unsigned int cluster_id, cpu_id;
++
++	mpidr &= MPIDR_AFFINITY_MASK;
++
++#if (RCAR_LSI == RCAR_V3U)
++	cluster_id = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
++	cpu_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
++#else
++	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
++		return -1;
++
++	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
++	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
++#endif
++
++	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
++		return -1;
++
++	if (cluster_id == 0 && cpu_id >= PLATFORM_CLUSTER0_CORE_COUNT)
++		return -1;
++
++	if (cluster_id == 1 && cpu_id >= PLATFORM_CLUSTER1_CORE_COUNT)
++		return -1;
++
++#if (RCAR_LSI == RCAR_V3U)
++	if (cluster_id == 2 && cpu_id >= PLATFORM_CLUSTER2_CORE_COUNT)
++		return -1;
++
++	if (cluster_id == 3 && cpu_id >= PLATFORM_CLUSTER3_CORE_COUNT)
++		return -1;
++#endif
++
++	return (cpu_id + cluster_id * PLATFORM_MAX_CPUS_PER_CLUSTER);
++}
++
+ void plat_rcar_gic_init(void)
+ {
+-#if (RCAR_LSI != RCAR_V3U)
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_distif_init();
++	gicv3_rdistif_init(plat_my_core_pos());
++	gicv3_cpuif_enable(plat_my_core_pos());
++#else
+ 	gicv2_distif_init();
+ 	gicv2_pcpu_distif_init();
+ 	gicv2_cpuif_enable();
+ #endif
+ }
+ 
+-#if (RCAR_LSI != RCAR_V3U)
++#if (RCAR_LSI == RCAR_V3U)
++uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
++//static uint32_t rdist_has_saved[PLATFORM_CORE_COUNT];
++//gicv3_dist_ctx_t dist_ctx;
++
++static unsigned int rcar_mpidr_to_core_pos(u_register_t mpidr)
++{
++	return plat_core_pos_by_mpidr(mpidr);
++}
++
++#define RCAR_GIC_BASE		0xf1000000
++#define RCAR_GIC_RDIST_BASE	0xf1060000
++
++gicv3_driver_data_t rcar_gicv3_data = {
++	.gicd_base = RCAR_GIC_BASE,
++	.gicr_base = RCAR_GIC_RDIST_BASE,
++	.rdistif_num = PLATFORM_CORE_COUNT,
++	.rdistif_base_addrs = rdistif_base_addrs,
++	.mpidr_to_core_pos = rcar_mpidr_to_core_pos,
++};
++#else
+ static const interrupt_prop_t interrupt_props[] = {
+ #if IMAGE_BL2
+ 	INTR_PROP_DESC(ARM_IRQ_SEC_WDT, GIC_HIGHEST_SEC_PRIORITY,
+@@ -277,7 +342,9 @@ static const gicv2_driver_data_t plat_gicv2_driver_data = {
+ 
+ void plat_rcar_gic_driver_init(void)
+ {
+-#if (RCAR_LSI != RCAR_V3U)
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_driver_init(&rcar_gicv3_data);
++#else
+ 	gicv2_driver_init(&plat_gicv2_driver_data);
+ #endif
+ }
+diff --git a/plat/renesas/rcar/bl2_interrupt_error.c b/plat/renesas/rcar/bl2_interrupt_error.c
+index d9a4b8e..95a1d88 100644
+--- a/plat/renesas/rcar/bl2_interrupt_error.c
++++ b/plat/renesas/rcar/bl2_interrupt_error.c
+@@ -8,7 +8,11 @@
+ #include <common/bl_common.h>
+ #include <common/debug.h>
+ #include <common/runtime_svc.h>
++#if (RCAR_LSI == RCAR_V3U)
++#include <drivers/arm/gicv3.h>
++#else
+ #include <drivers/arm/gicv2.h>
++#endif
+ #include <lib/mmio.h>
+ 
+ #include "rcar_def.h"
+@@ -29,7 +33,11 @@ void bl2_interrupt_error_id(uint32_t int_id)
+ 	}
+ 
+ 	/* Clear the interrupt request */
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_end_of_interrupt((uint32_t) int_id);
++#else
+ 	gicv2_end_of_interrupt((uint32_t) int_id);
++#endif
+ 	rcar_swdt_release();
+ 	ERROR("Unhandled exception occurred.\n");
+ 	ERROR("     Exception type = FIQ_SP_EL0\n");
+@@ -87,12 +95,20 @@ void bl2_interrupt_error_type(uint32_t ex_type)
+ 	case IRQ_SP_EL0:
+ 		ERROR("     SPSR_EL3 = 0x%x\n", (uint32_t) read_spsr_el3());
+ 		ERROR("     ELR_EL3  = 0x%x\n", (uint32_t) read_elr_el3());
++#if (RCAR_LSI == RCAR_V3U)
++		ERROR("     IAR_EL3  = 0x%x\n", gicv3_acknowledge_interrupt());
++#else
+ 		ERROR("     IAR_EL3  = 0x%x\n", gicv2_acknowledge_interrupt());
++#endif
+ 		break;
+ 	case FIQ_SP_EL0:
+ 		ERROR("     SPSR_EL3 = 0x%x\n", (uint32_t) read_spsr_el3());
+ 		ERROR("     ELR_EL3  = 0x%x\n", (uint32_t) read_elr_el3());
++#if (RCAR_LSI == RCAR_V3U)
++		ERROR("     IAR_EL3  = 0x%x\n", gicv3_acknowledge_interrupt());
++#else
+ 		ERROR("     IAR_EL3  = 0x%x\n", gicv2_acknowledge_interrupt());
++#endif
+ 		break;
+ 	case SERROR_SP_EL0:
+ 		ERROR("     SPSR_EL3 = 0x%x\n", (uint32_t) read_spsr_el3());
+diff --git a/plat/renesas/rcar/include/plat_macros.S b/plat/renesas/rcar/include/plat_macros.S
+index 927cd39..f0de02d 100644
+--- a/plat/renesas/rcar/include/plat_macros.S
++++ b/plat/renesas/rcar/include/plat_macros.S
+@@ -6,10 +6,14 @@
+ 
+ #include <drivers/arm/cci.h>
+ #include <drivers/arm/gic_common.h>
+-#include <drivers/arm/gicv2.h>
+ 
+ #include "rcar_def.h"
+ 
++#if (RCAR_LSI != RCAR_V3U)
++#include <drivers/arm/gicv2.h>
++#endif
++
++#if (RCAR_LSI != RCAR_V3U)
+ .section .rodata.gic_reg_name, "aS"
+ gicc_regs:
+ 	.asciz "gicc_hppir", "gicc_ahppir", "gicc_ctlr", ""
+@@ -58,6 +62,7 @@ gicd_ispendr_loop:
+ 	b	gicd_ispendr_loop
+ exit_print_gic_regs:
+ 	.endm
++#endif
+ 
+ .section .rodata.cci_reg_name, "aS"
+ cci_iface_regs:
+@@ -83,6 +88,8 @@ cci_iface_regs:
+ 	.endm
+ 
+ 	.macro plat_crash_print_regs
++#if (RCAR_LSI != RCAR_V3U)
+ 	plat_print_gic_regs
++#endif
+ 	plat_print_interconnect_regs
+ 	.endm
+diff --git a/plat/renesas/rcar/plat_pm.c b/plat/renesas/rcar/plat_pm.c
+index da2da34..0fef336 100644
+--- a/plat/renesas/rcar/plat_pm.c
++++ b/plat/renesas/rcar/plat_pm.c
+@@ -12,7 +12,12 @@
+ #include <common/bl_common.h>
+ #include <common/debug.h>
+ #include <drivers/arm/cci.h>
++#if (RCAR_LSI == RCAR_V3U)
++#include <drivers/arm/gicv3.h>
++#else
+ #include <drivers/arm/gicv2.h>
++#endif
++
+ #include <lib/bakery_lock.h>
+ #include <lib/mmio.h>
+ #include <lib/psci/psci.h>
+@@ -74,7 +79,13 @@ static int rcar_pwr_domain_on(u_register_t mpidr)
+ 
+ static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
+ {
+-#if (RCAR_LSI != RCAR_V3U)
++#if (RCAR_LSI == RCAR_V3U)
++	unsigned long mpidr = read_mpidr_el1();
++
++	rcar_program_mailbox(mpidr, 0);
++	gicv3_rdistif_init(plat_my_core_pos());
++	gicv3_cpuif_enable(plat_my_core_pos());
++#else
+ 	uint32_t cluster_type = rcar_pwrc_get_cluster();
+ 	unsigned long mpidr = read_mpidr_el1();
+ 
+@@ -99,7 +110,9 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
+ #endif
+ 	unsigned long mpidr = read_mpidr_el1();
+ 
+-#if RCAR_LSI != RCAR_V3U
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_cpuif_disable(plat_my_core_pos());
++#else
+ 	gicv2_cpuif_disable();
+ #endif
+ 	rcar_pwrc_cpuoff(mpidr);
+@@ -118,7 +131,7 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
+ 
+ static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
+ {
+-#if RCAR_LSI != RCAR_V3U
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint32_t cluster_type = rcar_pwrc_get_cluster();
+ #endif
+ 	unsigned long mpidr = read_mpidr_el1();
+@@ -127,7 +140,9 @@ static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
+ 		return;
+ 
+ 	rcar_program_mailbox(mpidr, rcar_sec_entrypoint);
+-#if RCAR_LSI != RCAR_V3U
++#if (RCAR_LSI == RCAR_V3U)
++	gicv3_cpuif_disable(plat_my_core_pos());
++#else
+ 	rcar_pwrc_enable_interrupt_wakeup(mpidr);
+ 	gicv2_cpuif_disable();
+ #endif
+diff --git a/plat/renesas/rcar/plat_topology.c b/plat/renesas/rcar/plat_topology.c
+index 17ed4bc..e2b573f 100644
+--- a/plat/renesas/rcar/plat_topology.c
++++ b/plat/renesas/rcar/plat_topology.c
+@@ -24,41 +24,3 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
+ {
+ 	return rcar_power_domain_tree_desc;
+ }
+-
+-int plat_core_pos_by_mpidr(u_register_t mpidr)
+-{
+-	unsigned int cluster_id, cpu_id;
+-
+-	mpidr &= MPIDR_AFFINITY_MASK;
+-
+-#if (RCAR_LSI == RCAR_V3U)
+-	cluster_id = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
+-	cpu_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+-#else
+-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
+-		return -1;
+-
+-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+-#endif
+-
+-	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
+-		return -1;
+-
+-	if (cluster_id == 0 && cpu_id >= PLATFORM_CLUSTER0_CORE_COUNT)
+-		return -1;
+-
+-	if (cluster_id == 1 && cpu_id >= PLATFORM_CLUSTER1_CORE_COUNT)
+-		return -1;
+-
+-#if (RCAR_LSI == RCAR_V3U)
+-	if (cluster_id == 2 && cpu_id >= PLATFORM_CLUSTER2_CORE_COUNT)
+-		return -1;
+-
+-	if (cluster_id == 3 && cpu_id >= PLATFORM_CLUSTER3_CORE_COUNT)
+-		return -1;
+-#endif
+-
+-	return (cpu_id + cluster_id * PLATFORM_MAX_CPUS_PER_CLUSTER);
+-}
+-
+diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
+index 68891bd..13834db 100644
+--- a/plat/renesas/rcar/platform.mk
++++ b/plat/renesas/rcar/platform.mk
+@@ -435,10 +435,20 @@ BL_COMMON_SOURCES	+=	plat/renesas/rcar/rcar_stack_protector.c
+ BL31_CFLAGS	+=	-fno-stack-protector
+ endif
+ 
++ifeq (${RCAR_LSI},${RCAR_V3U})
++
++GICV3_IMPL := GIC600
++
++include drivers/arm/gic/v3/gicv3.mk
++
++RCAR_GIC_SOURCES	:=	${GICV3_SOURCES}			\
++				plat/common/plat_gicv3.c
++else
+ RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
+ 				drivers/arm/gic/v2/gicv2_main.c		\
+ 				drivers/arm/gic/v2/gicv2_helpers.c	\
+ 				plat/common/plat_gicv2.c
++endif
+ 
+ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
+ 			${LIBFDT_SRCS}					\
+-- 
+2.7.4
+

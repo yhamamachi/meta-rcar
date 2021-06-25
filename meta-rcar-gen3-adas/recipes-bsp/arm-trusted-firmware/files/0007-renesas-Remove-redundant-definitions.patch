@@ -1,0 +1,272 @@
+From 521f339a6d641d89b4ca13c741d98cf17d9b682c Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 12 Feb 2021 02:08:02 +0300
+Subject: [PATCH 07/18] renesas: Remove redundant definitions
+
+This removes some redundant RST register definitions,
+which are already defined in rcar_def.h.
+Also RCAR_MODEMR definition is dropped and RST_MODEMR
+is used used instead.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/renesas/rcar/auth/auth_mod.c                   |  2 --
+ drivers/renesas/rcar/avs/avs_driver.c                  |  2 +-
+ drivers/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h |  3 ---
+ drivers/renesas/rcar/iic_dvfs/iic_dvfs.c               |  2 +-
+ drivers/renesas/rcar/pwrc/pwrc.c                       |  2 --
+ drivers/renesas/rcar/qos/H3/qos_init_h3_v11.c          |  2 +-
+ drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c        |  1 +
+ drivers/renesas/rcar/qos/qos_reg.h                     |  2 --
+ drivers/renesas/rcar/scif/scif.S                       | 12 ++----------
+ drivers/renesas/rcar/watchdog/swdt.c                   |  4 +---
+ plat/renesas/rcar/bl2_cpg_init.c                       |  2 +-
+ plat/renesas/rcar/bl2_plat_setup.c                     | 10 +++++-----
+ plat/renesas/rcar/include/rcar_def.h                   |  1 -
+ 13 files changed, 13 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/renesas/rcar/auth/auth_mod.c b/drivers/renesas/rcar/auth/auth_mod.c
+index ece3462..2e4361a 100644
+--- a/drivers/renesas/rcar/auth/auth_mod.c
++++ b/drivers/renesas/rcar/auth/auth_mod.c
+@@ -23,8 +23,6 @@ extern int32_t rcar_get_certificate(const int32_t name, uint32_t *cert_addr);
+ #define	RCAR_CERT_MAGIC_NUM	(0xE291F358U)
+ #define RCAR_BOOT_KEY_CERT	(0xE6300C00U)
+ #define RCAR_BOOT_KEY_CERT_NEW	(0xE6300F00U)
+-#define	RST_BASE		(0xE6160000U)
+-#define	RST_MODEMR		(RST_BASE + 0x0060U)
+ #define	MFISOFTMDR		(0xE6260600U)
+ #define	MODEMR_MD5_MASK		(0x00000020U)
+ #define	MODEMR_MD5_SHIFT	(5U)
+diff --git a/drivers/renesas/rcar/avs/avs_driver.c b/drivers/renesas/rcar/avs/avs_driver.c
+index 647869e..c41273c 100644
+--- a/drivers/renesas/rcar/avs/avs_driver.c
++++ b/drivers/renesas/rcar/avs/avs_driver.c
+@@ -484,7 +484,7 @@ static void avs_set_iic_clock(void)
+ 	uint32_t md_pin;
+ 
+ 	/* Read Mode pin register. */
+-	md_pin = mmio_read_32(RCAR_MODEMR) & CHECK_MD13_MD14;
++	md_pin = mmio_read_32(RST_MODEMR) & CHECK_MD13_MD14;
+ 	/* Set the module clock (CP phy) for the IIC-DVFS. */
+ 	/* CP phy is EXTAL / 2.                            */
+ 	switch (md_pin) {
+diff --git a/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h b/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
+index 965c082..007f48d 100644
+--- a/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
++++ b/drivers/renesas/rcar/ddr/ddr_b/boot_init_dram_regdef.h
+@@ -51,9 +51,6 @@
+ #define CPG_PLLECR_PLL3ST_BIT	BIT(11)
+ #define CPG_ZB3CKCR_ZB3ST_BIT	BIT(11)
+ 
+-#define RST_BASE		(0xE6160000U)
+-#define RST_MODEMR		(RST_BASE + 0x0060U)
+-
+ #define LIFEC_CHIPID(x)		(0xE6110040U + 0x04U * (x))
+ 
+ /* DBSC registers */
+diff --git a/drivers/renesas/rcar/iic_dvfs/iic_dvfs.c b/drivers/renesas/rcar/iic_dvfs/iic_dvfs.c
+index 903802f..d5b725d 100644
+--- a/drivers/renesas/rcar/iic_dvfs/iic_dvfs.c
++++ b/drivers/renesas/rcar/iic_dvfs/iic_dvfs.c
+@@ -193,7 +193,7 @@ IIC_DVFS_FUNC(start, DVFS_STATE_T * state)
+ 	if (lsi_product == PRR_PRODUCT_E3)
+ 		goto start;
+ 
+-	reg = mmio_read_32(RCAR_MODEMR) & CHECK_MD13_MD14;
++	reg = mmio_read_32(RST_MODEMR) & CHECK_MD13_MD14;
+ 	switch (reg) {
+ 	case MD14_MD13_TYPE_0:
+ 		iccl = IIC_DVFS_SET_ICCL_EXTAL_TYPE_0;
+diff --git a/drivers/renesas/rcar/pwrc/pwrc.c b/drivers/renesas/rcar/pwrc/pwrc.c
+index 3980170..1c0e4cf 100644
+--- a/drivers/renesas/rcar/pwrc/pwrc.c
++++ b/drivers/renesas/rcar/pwrc/pwrc.c
+@@ -124,8 +124,6 @@ RCAR_INSTANTIATE_LOCK
+ #define	DBSC4_SET_DBPDRGD0_DX2GCR3		(0x00008484U)
+ #define	DBSC4_SET_DBPDRGA0_DX3GCR3		(0x00000103U)
+ #define	DBSC4_SET_DBPDRGD0_DX3GCR3		(0x00008484U)
+-#define	RST_BASE				(0xE6160000U)
+-#define	RST_MODEMR				(RST_BASE + 0x0060U)
+ #define	RST_MODEMR_BIT0				(0x00000001U)
+ 
+ #define RCAR_CNTCR_OFF				(0x00U)
+diff --git a/drivers/renesas/rcar/qos/H3/qos_init_h3_v11.c b/drivers/renesas/rcar/qos/H3/qos_init_h3_v11.c
+index 329bcb8..4798322 100644
+--- a/drivers/renesas/rcar/qos/H3/qos_init_h3_v11.c
++++ b/drivers/renesas/rcar/qos/H3/qos_init_h3_v11.c
+@@ -174,7 +174,7 @@ void qos_init_h3_v11(void)
+ 	io_write_32(0xFFC51800, 0x00000001U);
+ 
+ 	/* CCI bus Leaf setting */
+-	uint32_t modemr = io_read_32(RCAR_MODEMR);
++	uint32_t modemr = io_read_32(RST_MODEMR);
+ 
+ 	modemr &= MODEMR_BOOT_CPU_MASK;
+ 
+diff --git a/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+index 09d1dad..4b66b3e 100644
+--- a/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
++++ b/drivers/renesas/rcar/qos/V3H/qos_init_v3h_v10.c
+@@ -33,6 +33,7 @@
+ #include <common/debug.h>
+ #include "../qos_common.h"
+ #include "../qos_reg.h"
++#include "rcar_def.h"
+ #include "qos_init_v3h_v10.h"
+ 
+ #define	RCAR_QOS_VERSION		"rev.0.14"
+diff --git a/drivers/renesas/rcar/qos/qos_reg.h b/drivers/renesas/rcar/qos/qos_reg.h
+index f2012fa..42000d9 100644
+--- a/drivers/renesas/rcar/qos/qos_reg.h
++++ b/drivers/renesas/rcar/qos/qos_reg.h
+@@ -14,8 +14,6 @@
+ #define	RCAR_DRAM_SPLIT_4CH		1U
+ #define	RCAR_DRAM_SPLIT_2CH		2U
+ #define	RCAR_DRAM_SPLIT_AUTO		3U
+-#define	RST_BASE			(0xE6160000U)
+-#define	RST_MODEMR			(RST_BASE + 0x0060U)
+ 
+ #define	DBSC_BASE			0xE6790000U
+ #define DBSC_DBSYSCNT0			(DBSC_BASE + 0x0100U)
+diff --git a/drivers/renesas/rcar/scif/scif.S b/drivers/renesas/rcar/scif/scif.S
+index 1626d44..e5adfec 100644
+--- a/drivers/renesas/rcar/scif/scif.S
++++ b/drivers/renesas/rcar/scif/scif.S
+@@ -8,19 +8,12 @@
+ #include <asm_macros.S>
+ #include <console_macros.S>
+ #include <drivers/renesas/rcar/console/console.h>
++#include "rcar_def.h"
+ 
+ #define	SCIF_INTERNAL_CLK	0
+ #define	SCIF_EXTARNAL_CLK	1
+ #define	SCIF_CLK		SCIF_INTERNAL_CLK
+ 
+-/* product register */
+-#define	PRR			(0xFFF00044)
+-#define	PRR_PRODUCT_MASK	(0x00007F00)
+-#define	PRR_CUT_MASK		(0x000000FF)
+-#define	PRR_PRODUCT_H3_VER_10	(0x00004F00)
+-#define	PRR_PRODUCT_E3		(0x00005700)
+-#define	PRR_PRODUCT_D3		(0x00005800)
+-
+ /* module stop */
+ #define	CPG_BASE		(0xE6150000)
+ #define	CPG_SMSTPCR2		(0x0138)
+@@ -60,7 +53,6 @@
+ #endif
+ 
+ /* mode pin */
+-#define	RST_MODEMR		(0xE6160060)
+ #define	MODEMR_MD12		(0x00001000)
+ 
+ #define	SCSMR_CA_MASK		(1 << 7)
+@@ -208,7 +200,7 @@ func console_rcar_init
+ 	ldr	x1, =PRR
+ 	ldr	w1, [x1]
+ 	and	w1, w1, #(PRR_PRODUCT_MASK | PRR_CUT_MASK)
+-	mov	w2, #PRR_PRODUCT_H3_VER_10
++	mov	w2, #PRR_PRODUCT_H3_CUT10
+ 	cmp	w1, w2
+ 	beq	3f
+ 	and	w1, w1, #PRR_PRODUCT_MASK
+diff --git a/drivers/renesas/rcar/watchdog/swdt.c b/drivers/renesas/rcar/watchdog/swdt.c
+index 111e651..1bf9179 100644
+--- a/drivers/renesas/rcar/watchdog/swdt.c
++++ b/drivers/renesas/rcar/watchdog/swdt.c
+@@ -13,8 +13,6 @@
+ 
+ extern void gicd_set_icenabler(uintptr_t base, unsigned int id);
+ 
+-#define RST_BASE			(0xE6160000U)
+-#define RST_WDTRSTCR			(RST_BASE + 0x0054U)
+ #define SWDT_BASE			(0xE6030000U)
+ #define SWDT_WTCNT			(SWDT_BASE + 0x0000U)
+ #define SWDT_WTCSRA			(SWDT_BASE + 0x0004U)
+@@ -84,7 +82,7 @@ void rcar_swdt_init(void)
+ 	reg = mmio_read_32(RCAR_PRR);
+ 	product_cut = reg & (PRR_PRODUCT_MASK | PRR_CUT_MASK);
+ 
+-	reg = mmio_read_32(RCAR_MODEMR);
++	reg = mmio_read_32(RST_MODEMR);
+ 	chk_data = reg & CHECK_MD13_MD14;
+ #endif
+ 	/* stop watchdog */
+diff --git a/plat/renesas/rcar/bl2_cpg_init.c b/plat/renesas/rcar/bl2_cpg_init.c
+index b26c89f..0498f0d 100644
+--- a/plat/renesas/rcar/bl2_cpg_init.c
++++ b/plat/renesas/rcar/bl2_cpg_init.c
+@@ -386,7 +386,7 @@ static void bl2_system_cpg_init_d3(void)
+ 
+ void bl2_cpg_init(void)
+ {
+-	uint32_t boot_cpu = mmio_read_32(RCAR_MODEMR) & MODEMR_BOOT_CPU_MASK;
++	uint32_t boot_cpu = mmio_read_32(RST_MODEMR) & MODEMR_BOOT_CPU_MASK;
+ #if RCAR_LSI == RCAR_AUTO
+ 	uint32_t product = mmio_read_32(RCAR_PRR) & PRR_PRODUCT_MASK;
+ #endif
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index 220bbc0..443c194 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -238,7 +238,7 @@ void bl2_plat_flush_bl31_params(void)
+ 	uint32_t boot_dev, boot_cpu;
+ 	uint32_t lcs, reg, val;
+ 
+-	reg = mmio_read_32(RCAR_MODEMR);
++	reg = mmio_read_32(RST_MODEMR);
+ 	boot_dev = reg & MODEMR_BOOT_DEV_MASK;
+ 
+ 	if (boot_dev == MODEMR_BOOT_DEV_EMMC_25X1 ||
+@@ -266,7 +266,7 @@ void bl2_plat_flush_bl31_params(void)
+ 	mmio_write_32(MFISWPCNTR, MFISWPCNTR_PASSWORD | 1);
+ 
+ tlb:
+-	reg = mmio_read_32(RCAR_MODEMR);
++	reg = mmio_read_32(RST_MODEMR);
+ 	boot_cpu = reg & MODEMR_BOOT_CPU_MASK;
+ 	if (boot_cpu != MODEMR_BOOT_CPU_CA57 &&
+ 	    boot_cpu != MODEMR_BOOT_CPU_CA53)
+@@ -738,7 +738,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
+ 
+ 	bl2_init_generic_timer();
+ 
+-	reg = mmio_read_32(RCAR_MODEMR);
++	reg = mmio_read_32(RST_MODEMR);
+ 	boot_dev = reg & MODEMR_BOOT_DEV_MASK;
+ 	boot_cpu = reg & MODEMR_BOOT_CPU_MASK;
+ 
+@@ -826,7 +826,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
+ 	}
+ 
+ 	if (product == PRR_PRODUCT_E3) {
+-		reg = mmio_read_32(RCAR_MODEMR);
++		reg = mmio_read_32(RST_MODEMR);
+ 		sscg = reg & RCAR_SSCG_MASK;
+ 		str = sscg == RCAR_SSCG_ENABLE ? sscg_on : sscg_off;
+ 		NOTICE("BL2: %s\n", str);
+@@ -1081,7 +1081,7 @@ static void bl2_init_generic_timer(void)
+ 		EXTAL_MD14_MD13_TYPE_3	/* MD14/MD13 : 0b11 */
+ 	};
+ 
+-	modemr = mmio_read_32(RCAR_MODEMR);
++	modemr = mmio_read_32(RST_MODEMR);
+ 	modemr_pll = (modemr & MODEMR_BOOT_PLL_MASK);
+ 
+ 	/* Set frequency data in CNTFID0 */
+diff --git a/plat/renesas/rcar/include/rcar_def.h b/plat/renesas/rcar/include/rcar_def.h
+index e966719..81a0926 100644
+--- a/plat/renesas/rcar/include/rcar_def.h
++++ b/plat/renesas/rcar/include/rcar_def.h
+@@ -116,7 +116,6 @@
+ /* Timer control */
+ #define	RCAR_CNTC_BASE		U(0xE6080000)
+ /* Reset */
+-#define	RCAR_MODEMR		U(0xE6160060)	/* Mode pin             */
+ #define	RCAR_CA57RESCNT		U(0xE6160040)	/* Reset control A57    */
+ #define	RCAR_CA53RESCNT		U(0xE6160044)	/* Reset control A53    */
+ #define	RCAR_SRESCR		U(0xE6160110)	/* Soft Power On Reset  */
+-- 
+2.7.4
+

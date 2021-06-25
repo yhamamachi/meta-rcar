@@ -1,0 +1,539 @@
+From 1fc7f8e82adf169ee511567fd388b09f3b3da16b Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 22 Feb 2021 23:10:23 +0300
+Subject: [PATCH 12/18] V3U PSCI support WIP
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/renesas/rcar/pwrc/pwrc.c         | 117 +++++++++++++++++++++++++++++++
+ plat/renesas/rcar/aarch64/plat_helpers.S |   7 ++
+ plat/renesas/rcar/bl2_plat_setup.c       |   2 +
+ plat/renesas/rcar/bl31_plat_setup.c      |  10 ++-
+ plat/renesas/rcar/include/platform_def.h |  13 ++++
+ plat/renesas/rcar/include/rcar_def.h     |  46 ++++++++++++
+ plat/renesas/rcar/plat_pm.c              |  12 +++-
+ plat/renesas/rcar/plat_topology.c        |  21 +++++-
+ 8 files changed, 223 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/renesas/rcar/pwrc/pwrc.c b/drivers/renesas/rcar/pwrc/pwrc.c
+index 1c0e4cf..d90b413 100644
+--- a/drivers/renesas/rcar/pwrc/pwrc.c
++++ b/drivers/renesas/rcar/pwrc/pwrc.c
+@@ -156,6 +156,7 @@ IMPORT_SYM(unsigned long, __SRAM_COPY_START__, SRAM_COPY_START);
+ uint32_t rcar_pwrc_status(uint64_t mpidr)
+ {
+ 	uint32_t ret = 0;
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint64_t cm, cpu;
+ 	uint32_t reg;
+ 	uint32_t c;
+@@ -181,10 +182,43 @@ uint32_t rcar_pwrc_status(uint64_t mpidr)
+ 			ret = RCAR_INVALID;
+ done:
+ 	rcar_lock_release();
++#endif
+ 
+ 	return ret;
+ }
+ 
++#if (RCAR_LSI == RCAR_V3U)
++void rcar_pwrc_cpuon(uint64_t mpidr)
++{
++	uint32_t reg;
++	uint32_t cpu;
++
++	rcar_lock_get();
++
++	cpu = plat_core_pos_by_mpidr(mpidr);
++	reg = mmio_read_32(RCAR_APMU_PWRCTRLC(cpu));
++	mmio_write_32(RCAR_APMU_PWRCTRLC(cpu), reg | RCAR_APMU_PWRCTRLC_WUP_REQ);
++
++	/* Wait until CA76 wake up sequence finishes */
++	while (mmio_read_32(RCAR_APMU_PWRCTRLC(cpu)) & RCAR_APMU_PWRCTRLC_WUP_REQ);
++
++	rcar_lock_release();
++}
++
++void rcar_pwrc_cpuoff(uint64_t mpidr)
++{
++	uint32_t reg;
++	uint32_t cpu;
++
++	rcar_lock_get();
++
++	cpu = plat_core_pos_by_mpidr(mpidr);
++	reg = mmio_read_32(RCAR_APMU_PWRCTRLC(cpu));
++	mmio_write_32(RCAR_APMU_PWRCTRLC(cpu), reg | RCAR_APMU_PWRCTRLC_PCHPDNEN);
++
++	rcar_lock_release();
++}
++#else
+ static void scu_power_up(uint64_t mpidr)
+ {
+ 	uintptr_t reg_pwrsr, reg_cpumcr, reg_pwron, reg_pwrer;
+@@ -264,9 +298,11 @@ void rcar_pwrc_cpuoff(uint64_t mpidr)
+ 
+ 	rcar_lock_release();
+ }
++#endif
+ 
+ void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr)
+ {
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint32_t c, shift_irq, shift_fiq;
+ 	uintptr_t reg;
+ 	uint64_t cpu;
+@@ -283,10 +319,12 @@ void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr)
+ 	mmio_write_32(reg, ~((uint32_t) 1 << shift_irq) &
+ 		      ~((uint32_t) 1 << shift_fiq));
+ 	rcar_lock_release();
++#endif
+ }
+ 
+ void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
+ {
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint32_t c, shift_irq, shift_fiq;
+ 	uintptr_t reg;
+ 	uint64_t cpu;
+@@ -303,10 +341,12 @@ void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr)
+ 	mmio_write_32(reg, ((uint32_t) 1 << shift_irq) |
+ 		      ((uint32_t) 1 << shift_fiq));
+ 	rcar_lock_release();
++#endif
+ }
+ 
+ void rcar_pwrc_clusteroff(uint64_t mpidr)
+ {
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint32_t c, product, cut, reg;
+ 	uintptr_t dst;
+ 
+@@ -329,6 +369,7 @@ void rcar_pwrc_clusteroff(uint64_t mpidr)
+ 	mmio_write_32(dst, MODE_L2_DOWN);
+ done:
+ 	rcar_lock_release();
++#endif
+ }
+ 
+ static uint64_t rcar_pwrc_saved_cntpct_el0;
+@@ -383,6 +424,35 @@ void rcar_pwrc_setup(void)
+ 	uint32_t i, j;
+ 	uint64_t reset = (uint64_t) (&plat_secondary_reset) & 0xFFFFFFFF;
+ 
++#if (RCAR_LSI == RCAR_V3U)
++	uint32_t reg;
++
++	reset &= RCAR_APMU_RVBARPLC_MASK;
++	reset |= RCAR_APMU_RVBARPL_VLD;
++
++	reg = mmio_read_32(RCAR_PRR) >> 17;
++	for (i = 0; i < PLATFORM_CLUSTER_COUNT; i++) {
++		reg >>= 3;
++		if ((reg & PRR_CA76_XX_EN_CLUSTER_MASK) != RCAR_CPU_HAVE_CA76)
++			continue;
++
++		mmio_write_32(APSREG_AP_CLUSTER_AUX0(i),
++			      APSREG_AP_CLUSTER_AUX0_INIT);
++		for (j = 0; j < rcar_pwrc_get_cpu_num(i + 1); j ++) {
++			uint32_t cpu = i * PLATFORM_MAX_CPUS_PER_CLUSTER + j;
++
++			if ((reg & PRR_CA76_XX_EN_CPU(cpu)) != RCAR_CPU_HAVE_CA76)
++				continue;
++
++			rst_barh = RCAR_APMU_RVBARPHC(cpu);
++			rst_barl = RCAR_APMU_RVBARPLC(cpu);
++			mmio_write_32(rst_barh, 0);
++			mmio_write_32(rst_barl, (uint32_t)reset);
++		}
++	}
++	mmio_write_32(APSREG_CCI500_AUX, APSREG_CCI500_AUX_INIT);
++	mmio_write_32(APSREG_P_CCI500_AUX, APSREG_P_CCI500_AUX_INIT);
++#else
+ 	const uint32_t cluster[PLATFORM_CLUSTER_COUNT] = {
+ 		RCAR_CLUSTER_CA53,
+ 		RCAR_CLUSTER_CA57
+@@ -406,6 +476,7 @@ void rcar_pwrc_setup(void)
+ 			rst_barl += 0x10;
+ 		}
+ 	}
++#endif
+ 
+ 	rcar_lock_init();
+ }
+@@ -756,6 +827,18 @@ void rcar_pwrc_code_copy_to_system_ram(void)
+ 	assert(ret == 0);
+ }
+ 
++#if (RCAR_LSI == RCAR_V3U)
++uint32_t rcar_pwrc_get_cluster(void)
++{
++	return 0;
++}
++
++uint32_t rcar_pwrc_get_mpidr_cluster(uint64_t mpidr)
++{
++	/* V3U uses AFFLVL2 for cluster index */
++	return MPIDR_AFFLVL2_VAL(mpidr) + 1;
++}
++#else
+ uint32_t rcar_pwrc_get_cluster(void)
+ {
+ 	uint32_t reg;
+@@ -784,12 +867,36 @@ uint32_t rcar_pwrc_get_mpidr_cluster(uint64_t mpidr)
+ 
+ 	return c;
+ }
++#endif
+ 
+ #if RCAR_LSI == RCAR_D3
+ uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
+ {
+ 	return 1;
+ }
++#elif RCAR_LSI == RCAR_V3U
++uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
++{
++	uint32_t reg = mmio_read_32(RCAR_PRR);
++	uint32_t count = 0, i;
++
++	if (!c) {
++		for (i = 0; i < PLATFORM_CLUSTER_COUNT; i++)
++			count += rcar_pwrc_get_cpu_num(i + 1);
++	} else {
++		c--;
++		reg >>= PRR_CA76_XX_EN_SHIFT(c);
++		if ((reg & PRR_CA76_XX_EN_CLUSTER_MASK) != RCAR_CPU_HAVE_CA76)
++			return 0;
++
++		for (i = 0; i < PLATFORM_MAX_CPUS_PER_CLUSTER; i++) {
++			if ((reg & PRR_CA76_XX_EN_CPU(i)) == RCAR_CPU_HAVE_CA76)
++				count++;
++		}
++	}
++
++	return count;
++}
+ #else
+ uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
+ {
+@@ -826,6 +933,15 @@ done:
+ 
+ int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
+ {
++#if (RCAR_LSI == RCAR_V3U)
++	uint32_t cpu, reg;
++
++	cpu = plat_core_pos_by_mpidr(mpidr);
++	reg = mmio_read_32(RCAR_APMU_FSMSTSRC(cpu)) &
++		RCAR_APMU_FSMSTSRC_STATE_MASK;
++
++	return reg == RCAR_APMU_FSMSTSRC_STATE_ON ? 0 : -1;
++#else
+ 	uint64_t i;
+ 	uint64_t j;
+ 	uint64_t cpu_count;
+@@ -862,4 +978,5 @@ int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
+ 	}
+ 	return (rtn);
+ 
++#endif
+ }
+diff --git a/plat/renesas/rcar/aarch64/plat_helpers.S b/plat/renesas/rcar/aarch64/plat_helpers.S
+index 9d86ff0..3a47caa 100644
+--- a/plat/renesas/rcar/aarch64/plat_helpers.S
++++ b/plat/renesas/rcar/aarch64/plat_helpers.S
+@@ -46,9 +46,16 @@
+ 	 * -----------------------------------------------------
+ 	 */
+ func platform_get_core_pos
++#if RCAR_LSI == RCAR_V3U
++	lsr	x0, x0, #8
++	and     x1, x0, #MPIDR_CPU_MASK
++	and     x0, x0, #MPIDR_CLUSTER_MASK
++	add     x0, x1, x0, LSR #7
++#else
+ 	and     x1, x0, #MPIDR_CPU_MASK
+ 	and     x0, x0, #MPIDR_CLUSTER_MASK
+ 	add     x0, x1, x0, LSR #6
++#endif
+ 	ret
+ endfunc platform_get_core_pos
+ 
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index 50af745..78e64f6 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -1032,6 +1032,7 @@ lcm_state:
+ 	mmio_write_32(CPG_CPGWPR, CPGWPR_PASSWORD);
+ 	mmio_write_32(CPG_CPGWPCR, CPGWPCR_PASSWORD);
+ 
++#if (RCAR_LSI != RCAR_V3U)
+ 	reg = mmio_read_32(RCAR_PRR);
+ 	if ((reg & RCAR_CPU_MASK_CA57) == RCAR_CPU_HAVE_CA57)
+ 		mmio_write_32(CPG_CA57DBGRCR,
+@@ -1040,6 +1041,7 @@ lcm_state:
+ 	if ((reg & RCAR_CPU_MASK_CA53) == RCAR_CPU_HAVE_CA53)
+ 		mmio_write_32(CPG_CA53DBGRCR,
+ 			      DBGCPUPREN | mmio_read_32(CPG_CA53DBGRCR));
++#endif
+ 
+ 	if (product_cut == PRR_PRODUCT_H3_CUT10) {
+ 		reg = mmio_read_32(CPG_PLL2CR);
+diff --git a/plat/renesas/rcar/bl31_plat_setup.c b/plat/renesas/rcar/bl31_plat_setup.c
+index 9bf2646..2865f7f 100644
+--- a/plat/renesas/rcar/bl31_plat_setup.c
++++ b/plat/renesas/rcar/bl31_plat_setup.c
+@@ -104,6 +104,12 @@ void bl31_plat_arch_setup(void)
+ 	rcar_pwrc_code_copy_to_system_ram();
+ }
+ 
++#if (RCAR_LSI == RCAR_V3U)
++#define BOOT_MPIDR_MASK	0x00ffff00U
++#else
++#define BOOT_MPIDR_MASK	0x0000ffffU
++#endif
++
+ void bl31_platform_setup(void)
+ {
+ 	plat_rcar_gic_driver_init();
+@@ -126,7 +132,7 @@ void bl31_platform_setup(void)
+ 	/* mask should match the kernel's MPIDR_HWID_BITMASK so the core can be
+ 	   identified during cpuhotplug (check the kernel's psci migrate set of
+ 	   functions */
+-	rcar_boot_mpidr = read_mpidr_el1() & 0x0000ffffU;
++	rcar_boot_mpidr = read_mpidr_el1() & BOOT_MPIDR_MASK;
+ }
+ 
+ uint32_t bl31_plat_boot_mpidr_chk(void)
+@@ -134,7 +140,7 @@ uint32_t bl31_plat_boot_mpidr_chk(void)
+ 	uint32_t rc = RCAR_MPIDRCHK_NOT_BOOTCPU;
+ 	uint64_t tmp_mpidr;
+ 
+-	tmp_mpidr = read_mpidr_el1() & 0x0000ffffU;
++	tmp_mpidr = read_mpidr_el1() & BOOT_MPIDR_MASK;
+ 
+ 	if (tmp_mpidr == rcar_boot_mpidr) {
+ 		rc = RCAR_MPIDRCHK_BOOTCPU;
+diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
+index 563b3aa..d015fa8 100644
+--- a/plat/renesas/rcar/include/platform_def.h
++++ b/plat/renesas/rcar/include/platform_def.h
+@@ -80,12 +80,25 @@
+  * L1:I/32KB(16KBx2way) D/32KB(8KBx4way) L2:512KB(32KBx16way)
+  */
+ #define PLATFORM_CACHE_LINE_SIZE	64
++#if (RCAR_LSI == RCAR_V3U)
++#define PLATFORM_CLUSTER_COUNT		U(4)
++#define PLATFORM_CLUSTER0_CORE_COUNT	U(2)
++#define PLATFORM_CLUSTER1_CORE_COUNT	U(2)
++#define PLATFORM_CLUSTER2_CORE_COUNT	U(2)
++#define PLATFORM_CLUSTER3_CORE_COUNT	U(2)
++#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER3_CORE_COUNT + \
++					 PLATFORM_CLUSTER2_CORE_COUNT + \
++					 PLATFORM_CLUSTER1_CORE_COUNT + \
++					 PLATFORM_CLUSTER0_CORE_COUNT)
++#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(2)
++#else
+ #define PLATFORM_CLUSTER_COUNT		U(2)
+ #define PLATFORM_CLUSTER0_CORE_COUNT	U(4)
+ #define PLATFORM_CLUSTER1_CORE_COUNT	U(4)
+ #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER1_CORE_COUNT + \
+ 					 PLATFORM_CLUSTER0_CORE_COUNT)
+ #define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
++#endif
+ 
+ #define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL2
+ #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CORE_COUNT + \
+diff --git a/plat/renesas/rcar/include/rcar_def.h b/plat/renesas/rcar/include/rcar_def.h
+index 1301e2c..690bdd4 100644
+--- a/plat/renesas/rcar/include/rcar_def.h
++++ b/plat/renesas/rcar/include/rcar_def.h
+@@ -91,6 +91,16 @@
+ #define CCI500_CLUSTER0_SL_IFACE_IX_FOR_M3	(1)
+ #define CCI500_CLUSTER1_SL_IFACE_IX_FOR_M3	(2)
+ #define	RCAR_CCI_BASE				CCI500_BASE
++
++/* V3U APSREG boot configuration */
++#define APSREG_AP_CLUSTER_AUX0(n)	U(0xE6280010 + ((n) & 0x3) * 0x1000)
++#define APSREG_CCI500_AUX		U(0xE6289010)
++#define APSREG_P_CCI500_AUX		U(0xE62A9010)
++
++#define APSREG_AP_CLUSTER_AUX0_INIT	U(0x3)
++#define APSREG_CCI500_AUX_INIT		U(0x1)
++#define APSREG_P_CCI500_AUX_INIT	U(0x102)
++
+ /* GIC */
+ #define RCAR_GICD_BASE			U(0xF1010000)
+ #define RCAR_GICR_BASE			U(0xF1010000)
+@@ -143,6 +153,35 @@
+ #define	RCAR_PWRER5		U(0xE61801D4)	/* shutoff/resume error */
+ #define	RCAR_SYSCISR		U(0xE6180004)	/* Interrupt status     */
+ #define	RCAR_SYSCISCR		U(0xE6180008)	/* Interrupt stat clear */
++
++/* V3U APMU */
++#define RCAR_APMU_BASE			U(0xE6170000)
++#define RCAR_APMU_CLUSTER_BASE(n)	U(RCAR_APMU_BASE + 0x400 + \
++					((n) & 0x3) * 0x40)
++#define RCAR_APMU_CPU_BASE(n)		U(RCAR_APMU_BASE + 0x800 + \
++					((n) & 0x6) * 0x100 + ((n) & 0x1) * 0x40)
++
++#define RCAR_APMU_PWRCTRLC(n)		U(RCAR_APMU_CPU_BASE(n) + 0x00)
++#define RCAR_APMU_PWRCTRLC_WUP_REQ	U(1 << 0)
++#define RCAR_APMU_PWRCTRLC_IWUP_EN	U(1 << 4)
++#define RCAR_APMU_PWRCTRLC_PCHPUPEN	U(1 << 16)
++#define RCAR_APMU_PWRCTRLC_PCHPDNEN	U(1 << 17)
++
++#define RCAR_APMU_FSMSTSRC(n)			U(RCAR_APMU_CPU_BASE(n) + 0x18)
++#define RCAR_APMU_FSMSTSRC_STATE_MASK		U(0xFF)
++#define RCAR_APMU_FSMSTSRC_STATE_OFF		U(0x00)
++#define RCAR_APMU_FSMSTSRC_STATE_ON		U(0x0D)
++#define RCAR_APMU_FSMSTSRC_STATE_OFF_EMU	U(0x1C)
++
++#define RCAR_APMU_RVBARLC(n)		U(RCAR_APMU_CPU_BASE(n) + 0x30)
++#define RCAR_APMU_RVBARHC(n)		U(RCAR_APMU_CPU_BASE(n) + 0x34)
++#define RCAR_APMU_RVBARPLC(n)		U(RCAR_APMU_CPU_BASE(n) + 0x38)
++#define RCAR_APMU_RVBARPHC(n)		U(RCAR_APMU_CPU_BASE(n) + 0x3C)
++
++#define RCAR_APMU_RVBARPLC_MASK		U(0xFFFFFFFC)
++#define RCAR_APMU_RVBARPHC_MASK		U(0x00000FFF)
++#define RCAR_APMU_RVBARPL_VLD		U(0x1)
++
+ /* Product register */
+ #define	RCAR_PRR			U(0xFFF00044)
+ #define RCAR_M3_CUT_VER11		U(0x00000010)	/* M3 Ver.1.1/Ver.1.2 */
+@@ -178,6 +217,13 @@
+ #define RCAR_CPU_MASK_CA53		U(0x04000000)
+ #define RCAR_CPU_HAVE_CA57		U(0x00000000)
+ #define RCAR_CPU_HAVE_CA53		U(0x00000000)
++
++#define RCAR_CPU_HAVE_CA76		U(0x00000000)
++#define PRR_CA76_XX_EN_MASK		U(0x7)
++#define PRR_CA76_XX_EN_CLUSTER_MASK	U(0x4)
++#define PRR_CA76_XX_EN_CPU(n)		(1 << ((n) & 1))
++#define PRR_CA76_XX_EN_SHIFT(c)		(20 + ((c) & 3) * 3)
++
+ #define RCAR_SSCG_MASK			U(0x1000)	/* MD12 */
+ #define RCAR_SSCG_ENABLE		U(0x1000)
+ /* MD pin information */
+diff --git a/plat/renesas/rcar/plat_pm.c b/plat/renesas/rcar/plat_pm.c
+index 3acb189..da2da34 100644
+--- a/plat/renesas/rcar/plat_pm.c
++++ b/plat/renesas/rcar/plat_pm.c
+@@ -74,6 +74,7 @@ static int rcar_pwr_domain_on(u_register_t mpidr)
+ 
+ static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
+ {
++#if (RCAR_LSI != RCAR_V3U)
+ 	uint32_t cluster_type = rcar_pwrc_get_cluster();
+ 	unsigned long mpidr = read_mpidr_el1();
+ 
+@@ -86,13 +87,16 @@ static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
+ 
+ 	gicv2_cpuif_enable();
+ 	gicv2_pcpu_distif_init();
++#endif
+ }
+ 
+ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
+ {
+ #if RCAR_LSI != RCAR_D3
++#if RCAR_LSI != RCAR_V3U
+ 	uint32_t cluster_type = rcar_pwrc_get_cluster();
+ #endif
++#endif
+ 	unsigned long mpidr = read_mpidr_el1();
+ 
+ #if RCAR_LSI != RCAR_V3U
+@@ -102,8 +106,10 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
+ 
+ #if RCAR_LSI != RCAR_D3
+ 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
++#if RCAR_LSI != RCAR_V3U
+ 		if (cluster_type == RCAR_CLUSTER_A53A57)
+ 			plat_cci_disable();
++#endif
+ 
+ 		rcar_pwrc_clusteroff(mpidr);
+ 	}
+@@ -112,22 +118,26 @@ static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
+ 
+ static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
+ {
++#if RCAR_LSI != RCAR_V3U
+ 	uint32_t cluster_type = rcar_pwrc_get_cluster();
++#endif
+ 	unsigned long mpidr = read_mpidr_el1();
+ 
+ 	if (CORE_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
+ 		return;
+ 
+ 	rcar_program_mailbox(mpidr, rcar_sec_entrypoint);
+-	rcar_pwrc_enable_interrupt_wakeup(mpidr);
+ #if RCAR_LSI != RCAR_V3U
++	rcar_pwrc_enable_interrupt_wakeup(mpidr);
+ 	gicv2_cpuif_disable();
+ #endif
+ 	rcar_pwrc_cpuoff(mpidr);
+ 
+ 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
++#if RCAR_LSI != RCAR_V3U
+ 		if (cluster_type == RCAR_CLUSTER_A53A57)
+ 			plat_cci_disable();
++#endif
+ 
+ 		rcar_pwrc_clusteroff(mpidr);
+ 	}
+diff --git a/plat/renesas/rcar/plat_topology.c b/plat/renesas/rcar/plat_topology.c
+index 0d5880d..17ed4bc 100644
+--- a/plat/renesas/rcar/plat_topology.c
++++ b/plat/renesas/rcar/plat_topology.c
+@@ -13,7 +13,11 @@ static const unsigned char rcar_power_domain_tree_desc[] = {
+ 	1,
+ 	PLATFORM_CLUSTER_COUNT,
+ 	PLATFORM_CLUSTER0_CORE_COUNT,
+-	PLATFORM_CLUSTER1_CORE_COUNT
++	PLATFORM_CLUSTER1_CORE_COUNT,
++#if (RCAR_LSI == RCAR_V3U)
++	PLATFORM_CLUSTER2_CORE_COUNT,
++	PLATFORM_CLUSTER3_CORE_COUNT,
++#endif
+ };
+ 
+ const unsigned char *plat_get_power_domain_tree_desc(void)
+@@ -27,11 +31,16 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
+ 
+ 	mpidr &= MPIDR_AFFINITY_MASK;
+ 
++#if (RCAR_LSI == RCAR_V3U)
++	cluster_id = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
++	cpu_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
++#else
+ 	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK))
+ 		return -1;
+ 
+ 	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
+ 	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
++#endif
+ 
+ 	if (cluster_id >= PLATFORM_CLUSTER_COUNT)
+ 		return -1;
+@@ -42,6 +51,14 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
+ 	if (cluster_id == 1 && cpu_id >= PLATFORM_CLUSTER1_CORE_COUNT)
+ 		return -1;
+ 
+-	return (cpu_id + cluster_id * PLATFORM_CLUSTER0_CORE_COUNT);
++#if (RCAR_LSI == RCAR_V3U)
++	if (cluster_id == 2 && cpu_id >= PLATFORM_CLUSTER2_CORE_COUNT)
++		return -1;
++
++	if (cluster_id == 3 && cpu_id >= PLATFORM_CLUSTER3_CORE_COUNT)
++		return -1;
++#endif
++
++	return (cpu_id + cluster_id * PLATFORM_MAX_CPUS_PER_CLUSTER);
+ }
+ 
+-- 
+2.7.4
+

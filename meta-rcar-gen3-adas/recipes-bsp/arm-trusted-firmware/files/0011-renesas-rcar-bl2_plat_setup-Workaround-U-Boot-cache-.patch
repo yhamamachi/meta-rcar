@@ -1,0 +1,32 @@
+From 499d5f3d97eceba503a3b57f11feee9f7c762827 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 22 Feb 2021 23:02:15 +0300
+Subject: [PATCH 11/18] renesas: rcar: bl2_plat_setup: Workaround U-Boot cache
+ issues
+
+Invalidate dcache to avoid system hang when dcache is flushed
+by U-Boot when BL2 starts from U-Boot. Has to be tested on cold
+boot.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ plat/renesas/rcar/bl2_plat_setup.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/plat/renesas/rcar/bl2_plat_setup.c b/plat/renesas/rcar/bl2_plat_setup.c
+index bf2a7d5..50af745 100644
+--- a/plat/renesas/rcar/bl2_plat_setup.c
++++ b/plat/renesas/rcar/bl2_plat_setup.c
+@@ -725,6 +725,9 @@ static void rcar_icumxa_wait()
+ 	 * there might be I/O race with the RPC flash access.
+ 	 */
+ 	while (mmio_read_32(0xffc100b0) & 0x1);
++	/*
++	 * Invalidate DCACHE to avoid warm boot cache issues */
++	dcsw_op_all(DCISW);
+ #endif
+ }
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,136 @@
+From 6c6c6750bdae8296be70880401d8b4e375a47cc0 Mon Sep 17 00:00:00 2001
+From: Pramod Kumar <pramod.kumar@broadcom.com>
+Date: Wed, 5 Feb 2020 11:27:57 +0530
+Subject: [PATCH 18/18] lib: cpu: Check SCU presence in DSU before accessing
+ DSU registers
+
+The DSU contains system control registers in the SCU and L3 logic to
+control the functionality of the cluster. If "DIRECT CONNECT" L3
+memory system variant is used, there won't be any L3 cache,
+snoop filter, and SCU logic present hence no system control register
+will be present. Hence check SCU presence before accessing DSU register
+for DSU_936184 errata.
+
+Signed-off-by: Pramod Kumar <pramod.kumar@broadcom.com>
+Change-Id: I1ffa8afb0447ae3bd1032c9dd678d68021fe5a63
+---
+ include/lib/cpus/aarch64/neoverse_n1.h |  8 +++++++
+ lib/cpus/aarch64/dsu_helpers.S         | 38 +++++++++++++++++++++++++---------
+ lib/cpus/aarch64/neoverse_n1.S         | 13 ++++++++++++
+ 3 files changed, 49 insertions(+), 10 deletions(-)
+
+diff --git a/include/lib/cpus/aarch64/neoverse_n1.h b/include/lib/cpus/aarch64/neoverse_n1.h
+index b50befa..9998b93 100644
+--- a/include/lib/cpus/aarch64/neoverse_n1.h
++++ b/include/lib/cpus/aarch64/neoverse_n1.h
+@@ -64,4 +64,12 @@
+ #define CPUPOR_EL3	S3_6_C15_C8_2
+ #define CPUPMR_EL3	S3_6_C15_C8_3
+ 
++/******************************************************************************
++ * CPU Configuration register definitions.
++ *****************************************************************************/
++#define CPUCFR_EL1	S3_0_C15_C0_0
++
++/* SCU bit of CPU Configuration Register, EL1 */
++#define SCU_SHIFT	U(2)
++
+ #endif /* NEOVERSE_N1_H */
+diff --git a/lib/cpus/aarch64/dsu_helpers.S b/lib/cpus/aarch64/dsu_helpers.S
+index 100ffaa..da052d5 100644
+--- a/lib/cpus/aarch64/dsu_helpers.S
++++ b/lib/cpus/aarch64/dsu_helpers.S
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
++ * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  */
+@@ -72,18 +72,36 @@ endfunc errata_dsu_798953_wa
+ 	 * This function is called from both assembly and C environment. So it
+ 	 * follows AAPCS.
+ 	 *
+-	 * Clobbers: x0-x3
++	 * Clobbers: x0-x15
+ 	 * -----------------------------------------------------------------------
+ 	 */
+ 	.globl	check_errata_dsu_936184
+ 	.globl	errata_dsu_936184_wa
++	.weak	is_scu_present_in_dsu
++
++	/* --------------------------------------------------------------------
++	 * Default behaviour respresents SCU is always present with DSU.
++	 * CPUs can override this definition if required.
++	 *
++	 * Can clobber only: x0-x14
++	 * --------------------------------------------------------------------
++	 */
++func is_scu_present_in_dsu
++	mov	x0, #1
++	ret
++endfunc is_scu_present_in_dsu
+ 
+ func check_errata_dsu_936184
+-	mov	x2, #ERRATA_NOT_APPLIES
+-	mov	x3, #ERRATA_APPLIES
++	mov	x15, x30
++	bl	is_scu_present_in_dsu
++	cmp	x0, xzr
++	/* Default error status */
++	mov	x0, #ERRATA_NOT_APPLIES
++
++	/* If SCU is not present, return without applying patch */
++	b.eq	1f
+ 
+ 	/* Erratum applies only if DSU has the ACP interface */
+-	mov	x0, x2
+ 	mrs	x1, CLUSTERCFR_EL1
+ 	ubfx	x1, x1, #CLUSTERCFR_ACP_SHIFT, #1
+ 	cbz	x1, 1f
+@@ -92,13 +110,13 @@ func check_errata_dsu_936184
+ 	mrs	x1, CLUSTERIDR_EL1
+ 
+ 	/* DSU variant and revision bitfields in CLUSTERIDR are adjacent */
+-	ubfx	x0, x1, #CLUSTERIDR_REV_SHIFT,\
++	ubfx	x2, x1, #CLUSTERIDR_REV_SHIFT,\
+ 			#(CLUSTERIDR_REV_BITS + CLUSTERIDR_VAR_BITS)
+-	mov	x1, #(0x2 << CLUSTERIDR_VAR_SHIFT)
+-	cmp	x0, x1
+-	csel	x0, x2, x3, hs
++	cmp x2, #(0x2 << CLUSTERIDR_VAR_SHIFT)
++	b.hs	1f
++	mov	x0, #ERRATA_APPLIES
+ 1:
+-	ret
++	ret	x15
+ endfunc check_errata_dsu_936184
+ 
+ 	/* --------------------------------------------------
+diff --git a/lib/cpus/aarch64/neoverse_n1.S b/lib/cpus/aarch64/neoverse_n1.S
+index d537ed6..5a2b5e4 100644
+--- a/lib/cpus/aarch64/neoverse_n1.S
++++ b/lib/cpus/aarch64/neoverse_n1.S
+@@ -22,6 +22,19 @@
+ #endif
+ 
+ 	.global neoverse_n1_errata_ic_trap_handler
++	.global is_scu_present_in_dsu
++
++/*
++ * Check DSU is configured with SCU and L3 unit
++ * 1-> SCU present
++ * 0-> SCU not present
++ */
++func is_scu_present_in_dsu
++	mrs	x0, CPUCFR_EL1
++	ubfx	x0, x0, #SCU_SHIFT, #1
++	eor	x0, x0, #1
++	ret
++endfunc is_scu_present_in_dsu
+ 
+ /* --------------------------------------------------
+  * Errata Workaround for Neoverse N1 Erratum 1043202.
+-- 
+2.7.4
+

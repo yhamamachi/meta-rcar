@@ -1,0 +1,69 @@
+From 9f609da6a2a57c76132e0b2b48c2511d01576e20 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 17 Mar 2021 23:49:44 +0300
+Subject: [PATCH 16/18] plat: renesas: rcar: aarch64: Add GICv3 interrupt props
+
+This adds GICv3 interrupt props array based on the GICv3
+Group 1 Secure and Group 0 interrupt properties as per
+original patch by Hai Pham <hai.pham.ud@renesas.com>.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ plat/renesas/rcar/aarch64/platform_common.c | 34 +++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/plat/renesas/rcar/aarch64/platform_common.c b/plat/renesas/rcar/aarch64/platform_common.c
+index 3e54f8c..06c6d0c 100644
+--- a/plat/renesas/rcar/aarch64/platform_common.c
++++ b/plat/renesas/rcar/aarch64/platform_common.c
+@@ -276,6 +276,38 @@ uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
+ //static uint32_t rdist_has_saved[PLATFORM_CORE_COUNT];
+ //gicv3_dist_ctx_t dist_ctx;
+ 
++/*
++ * Define a list of Group 1 Secure and Group 0 interrupt properties as per GICv3
++ * terminology. On a GICv2 system or mode, the lists will be merged and treated
++ * as Group 0 interrupts.
++ */
++#define PLATFORM_G1S_PROPS(grp) \
++	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_LEVEL), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE)
++
++#define PLATFORM_G0_PROPS(grp) \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE), \
++	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, (grp), \
++			GIC_INTR_CFG_EDGE)
++
++static const interrupt_prop_t interrupt_props[] = {
++	PLATFORM_G1S_PROPS(INTR_GROUP1S),
++	PLATFORM_G0_PROPS(INTR_GROUP0)
++};
++
+ static unsigned int rcar_mpidr_to_core_pos(u_register_t mpidr)
+ {
+ 	return plat_core_pos_by_mpidr(mpidr);
+@@ -290,6 +322,8 @@ gicv3_driver_data_t rcar_gicv3_data = {
+ 	.rdistif_num = PLATFORM_CORE_COUNT,
+ 	.rdistif_base_addrs = rdistif_base_addrs,
+ 	.mpidr_to_core_pos = rcar_mpidr_to_core_pos,
++	.interrupt_props = interrupt_props,
++	.interrupt_props_num = (uint32_t) ARRAY_SIZE(interrupt_props),
+ };
+ #else
+ static const interrupt_prop_t interrupt_props[] = {
+-- 
+2.7.4
+

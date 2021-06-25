@@ -1,0 +1,95 @@
+From 74d8e995f5736ca645a6ca1fd1c57398130ba8e4 Mon Sep 17 00:00:00 2001
+From: Sandeep Tripathy <sandeep.tripathy@broadcom.com>
+Date: Fri, 5 Jun 2020 22:04:21 +0530
+Subject: [PATCH 17/18] TF-A GIC driver: Add barrier before eoi
+
+It is desired to have the peripheral writes completed to clear the
+interrupt condition and de-assert the interrupt request to GIC before
+EOI write. Failing which spurious interrupt will occurred.
+
+A barrier is needed to ensure peripheral register write transfers are
+complete before EOI is done.
+
+GICv2 memory mapped DEVICE nGnR(n)E writes are ordered from core point
+of view. However these writes may pass over different interconnects,
+bridges, buffers leaving some rare chances for the actual write to
+complete out of order.
+
+GICv3 ICC EOI system register writes have no ordering against nGnR(n)E
+memory writes as they are over different interfaces.
+
+Hence a dsb can ensure from core no writes are issued before the previous
+writes are *complete*.
+
+Signed-off-by: Sandeep Tripathy <sandeep.tripathy@broadcom.com>
+Change-Id: Ie6362009e2f91955be99dca8ece14ade7b4811d6
+---
+ drivers/arm/gic/v2/gicv2_main.c |  9 +++++++++
+ include/drivers/arm/gicv3.h     | 24 ++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/drivers/arm/gic/v2/gicv2_main.c b/drivers/arm/gic/v2/gicv2_main.c
+index c5bced0..4b21b92 100644
+--- a/drivers/arm/gic/v2/gicv2_main.c
++++ b/drivers/arm/gic/v2/gicv2_main.c
+@@ -247,6 +247,15 @@ void gicv2_end_of_interrupt(unsigned int id)
+ 	assert(driver_data != NULL);
+ 	assert(driver_data->gicc_base != 0U);
+ 
++	/*
++	 * Ensure the write to peripheral registers are *complete* before the write
++	 * to GIC_EOIR.
++	 *
++	 * Note: The completion gurantee depends on various factors of system design
++	 * and the barrier is the best core can do by which execution of further
++	 * instructions waits till the barrier is alive.
++	 */
++	dsbishst();
+ 	gicc_write_EOIR(driver_data->gicc_base, id);
+ }
+ 
+diff --git a/include/drivers/arm/gicv3.h b/include/drivers/arm/gicv3.h
+index 03596b9..b2d5d97 100644
+--- a/include/drivers/arm/gicv3.h
++++ b/include/drivers/arm/gicv3.h
+@@ -324,6 +324,18 @@ static inline uint32_t gicv3_get_pending_interrupt_id_sel1(void)
+ 
+ static inline void gicv3_end_of_interrupt_sel1(unsigned int id)
+ {
++	/*
++	 * Interrupt request deassertion from peripheral to GIC happens
++	 * by clearing interrupt condition by a write to the peripheral
++	 * register. It is desired that the write transfer is complete
++	 * before the core tries to change GIC state from 'AP/Active' to
++	 * a new state on seeing 'EOI write'.
++	 * Since ICC interface writes are not ordered against Device
++	 * memory writes, a barrier is required to ensure the ordering.
++	 * The dsb will also ensure *completion* of previous writes with
++	 * DEVICE nGnRnE attribute.
++	 */
++	dsbishst();
+ 	write_icc_eoir1_el1(id);
+ }
+ 
+@@ -337,6 +349,18 @@ static inline uint32_t gicv3_acknowledge_interrupt(void)
+ 
+ static inline void gicv3_end_of_interrupt(unsigned int id)
+ {
++	/*
++	 * Interrupt request deassertion from peripheral to GIC happens
++	 * by clearing interrupt condition by a write to the peripheral
++	 * register. It is desired that the write transfer is complete
++	 * before the core tries to change GIC state from 'AP/Active' to
++	 * a new state on seeing 'EOI write'.
++	 * Since ICC interface writes are not ordered against Device
++	 * memory writes, a barrier is required to ensure the ordering.
++	 * The dsb will also ensure *completion* of previous writes with
++	 * DEVICE nGnRnE attribute.
++	 */
++	dsbishst();
+ 	return write_icc_eoir0_el1(id);
+ }
+ 
+-- 
+2.7.4
+

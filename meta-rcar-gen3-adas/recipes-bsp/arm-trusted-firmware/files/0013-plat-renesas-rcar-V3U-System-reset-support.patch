@@ -1,0 +1,31 @@
+From d5de66c01b753758ef11c2bcb05780e0e00874c8 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Thu, 18 Mar 2021 17:28:13 +0300
+Subject: [PATCH 13/18] plat: renesas: rcar: V3U System reset support
+
+This adds RCAR_SRESCR definition for R-Car V3U.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ plat/renesas/rcar/include/rcar_def.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/plat/renesas/rcar/include/rcar_def.h b/plat/renesas/rcar/include/rcar_def.h
+index 690bdd4..af2dc40 100644
+--- a/plat/renesas/rcar/include/rcar_def.h
++++ b/plat/renesas/rcar/include/rcar_def.h
+@@ -128,7 +128,11 @@
+ /* Reset */
+ #define	RCAR_CA57RESCNT		U(0xE6160040)	/* Reset control A57    */
+ #define	RCAR_CA53RESCNT		U(0xE6160044)	/* Reset control A53    */
++#if (RCAR_LSI == RCAR_V3U)
++#define RCAR_SRESCR		U(0xE6160018)	/* Domain0 SPOR */
++#else
+ #define	RCAR_SRESCR		U(0xE6160110)	/* Soft Power On Reset  */
++#endif
+ #define	RCAR_CA53WUPCR		U(0xE6151010)	/* Wake-up control A53  */
+ #define	RCAR_CA57WUPCR		U(0xE6152010)	/* Wake-up control A57  */
+ #define	RCAR_CA53PSTR		U(0xE6151040)	/* Power status A53     */
+-- 
+2.7.4
+
