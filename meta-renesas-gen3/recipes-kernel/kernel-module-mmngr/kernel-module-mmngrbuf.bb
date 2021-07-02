@@ -41,8 +41,8 @@ do_install () {
 
     # Install shared header files to KERNELSRC(STAGING_KERNEL_DIR)
     # This file installed in SDK by kernel-devsrc pkg.
-    install -m 644 ${S}/${MMNGRBUF_DRV_DIR}/include/mmngr_buf_private.h ${KERNELSRC}/include/
-    install -m 644 ${S}/${MMNGRBUF_DRV_DIR}/include/mmngr_buf_private_cmn.h ${KERNELSRC}/include/
+    install -m 644 ${S}/${MMNGRBUF_DRV_DIR}/include/mmngr_buf_private.h ${KERNELSRC}/include/mmngr_buf_private.h
+    install -m 644 ${S}/${MMNGRBUF_DRV_DIR}/include/mmngr_buf_private_cmn.h ${KERNELSRC}/include/mmngr_buf_private_cmn.h
 
     # Install shared header files to ${includedir}
     install -m 644 ${S}/${MMNGRBUF_DRV_DIR}/include/mmngr_buf_private_cmn.h ${D}/${includedir}/
