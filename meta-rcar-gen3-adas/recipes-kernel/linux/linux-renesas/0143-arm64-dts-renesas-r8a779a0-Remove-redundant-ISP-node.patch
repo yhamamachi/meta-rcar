@@ -1,0 +1,251 @@
+From 84e7260d33f3ca3627cada947c4be96a60b2a273 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Mon, 28 Jun 2021 21:54:47 +0300
+Subject: [PATCH 1/3] arm64: dts: renesas: r8a779a0: Remove redundant ISP nodes
+
+Add "renesas,isp-r8a779a0" string to the tisp[0-3] compatibe
+property and remove redundant isp[0-3] nodes. Looks like
+isp "interrupts" property was incorrectly set to the ISP
+core interrupt instead of the ISP channel selector.
+This prevents resource conflict when both rcar-isp
+and uio_pdrv_genirq drivers are used.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a779a0.dtsi | 80 ++++++++-----------------------
+ 1 file changed, 20 insertions(+), 60 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+index e8e3642..db65385 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+@@ -2370,7 +2370,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 730>;
+ 			renesas,id = <0>;
+-			renesas,isp = <&isp0>;
++			renesas,isp = <&tisp0>;
+ 			linux,uio-name = "vin_00";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+@@ -2401,7 +2401,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 731>;
+ 			renesas,id = <1>;
+-			renesas,isp = <&isp0>;
++			renesas,isp = <&tisp0>;
+ 			linux,uio-name = "vin_01";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+@@ -2432,7 +2432,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 800>;
+ 			renesas,id = <2>;
+-			renesas,isp = <&isp0>;
++			renesas,isp = <&tisp0>;
+ 			linux,uio-name = "vin_02";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+@@ -2463,7 +2463,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 801>;
+ 			renesas,id = <3>;
+-			renesas,isp = <&isp0>;
++			renesas,isp = <&tisp0>;
+ 			linux,uio-name = "vin_03";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 0>;
+@@ -2546,7 +2546,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 806>;
+ 			renesas,id = <8>;
+-			renesas,isp = <&isp1>;
++			renesas,isp = <&tisp1>;
+ 			linux,uio-name = "vin_10";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 1>;
+@@ -2577,7 +2577,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 807>;
+ 			renesas,id = <9>;
+-			renesas,isp = <&isp1>;
++			renesas,isp = <&tisp1>;
+ 			linux,uio-name = "vin_11";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 1>;
+@@ -2608,7 +2608,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 808>;
+ 			renesas,id = <10>;
+-			renesas,isp = <&isp1>;
++			renesas,isp = <&tisp1>;
+ 			linux,uio-name = "vin_12";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 2>;
+@@ -2639,7 +2639,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 809>;
+ 			renesas,id = <11>;
+-			renesas,isp = <&isp1>;
++			renesas,isp = <&tisp1>;
+ 			linux,uio-name = "vin_13";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 3>;
+@@ -2722,7 +2722,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 814>;
+ 			renesas,id = <16>;
+-			renesas,isp = <&isp2>;
++			renesas,isp = <&tisp2>;
+ 			linux,uio-name = "vin_20";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 2>;
+@@ -2753,7 +2753,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 815>;
+ 			renesas,id = <17>;
+-			renesas,isp = <&isp2>;
++			renesas,isp = <&tisp2>;
+ 			linux,uio-name = "vin_21";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 2>;
+@@ -2784,7 +2784,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 816>;
+ 			renesas,id = <18>;
+-			renesas,isp = <&isp2>;
++			renesas,isp = <&tisp2>;
+ 			linux,uio-name = "vin_22";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 2>;
+@@ -2815,7 +2815,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 817>;
+ 			renesas,id = <19>;
+-			renesas,isp = <&isp2>;
++			renesas,isp = <&tisp2>;
+ 			linux,uio-name = "vin_23";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 2>;
+@@ -2898,7 +2898,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 822>;
+ 			renesas,id = <24>;
+-			renesas,isp = <&isp3>;
++			renesas,isp = <&tisp3>;
+ 			linux,uio-name = "vin_30";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 3>;
+@@ -2929,7 +2929,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 823>;
+ 			renesas,id = <25>;
+-			renesas,isp = <&isp3>;
++			renesas,isp = <&tisp3>;
+ 			linux,uio-name = "vin_31";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 3>;
+@@ -2960,7 +2960,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 824>;
+ 			renesas,id = <26>;
+-			renesas,isp = <&isp3>;
++			renesas,isp = <&tisp3>;
+ 			linux,uio-name = "vin_32";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 3>;
+@@ -2991,7 +2991,7 @@
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 825>;
+ 			renesas,id = <27>;
+-			renesas,isp = <&isp3>;
++			renesas,isp = <&tisp3>;
+ 			linux,uio-name = "vin_33";
+ 			status = "disabled";
+ 			ipmmu-id = <RCAR_IPMMU_VI0 3>;
+@@ -3256,46 +3256,6 @@
+ 			ipmmu-id = <RCAR_IPMMU_VC0 12>;
+ 		};
+ 
+-		isp0: isp@fed00000 {
+-			compatible = "renesas,isp-r8a779a0";
+-			reg = <0 0xfed00000 0 0x10000>;
+-			interrupts = <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&cpg CPG_MOD 612>;
+-                        power-domains = <&sysc R8A779A0_PD_A3ISP01>;
+-			resets = <&cpg 612>;
+-			renesas,id = <0>;
+-		};
+-
+-		isp1: isp@fed20000 {
+-			compatible = "renesas,isp-r8a779a0";
+-			reg = <0 0xfed20000 0 0x10000>;
+-			interrupts = <GIC_SPI 155 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&cpg CPG_MOD 613>;
+-                        power-domains = <&sysc R8A779A0_PD_A3ISP01>;
+-			resets = <&cpg 613>;
+-			renesas,id = <1>;
+-		};
+-
+-		isp2: isp@fed30000 {
+-			compatible = "renesas,isp-r8a779a0";
+-			reg = <0 0xfed30000 0 0x10000>;
+-			interrupts = <GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&cpg CPG_MOD 614>;
+-                        power-domains = <&sysc R8A779A0_PD_A3ISP23>;
+-			resets = <&cpg 614>;
+-			renesas,id = <2>;
+-		};
+-
+-		isp3: isp@fed40000 {
+-			compatible = "renesas,isp-r8a779a0";
+-			reg = <0 0xfed40000 0 0x10000>;
+-			interrupts = <GIC_SPI 159 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&cpg CPG_MOD 615>;
+-                        power-domains = <&sysc R8A779A0_PD_A3ISP23>;
+-			resets = <&cpg 615>;
+-			renesas,id = <3>;
+-		};
+-
+ 		cisp0: cisp@fec00000 {
+ 			compatible = "generic-uio";
+ 			reg = <0 0xfec00000 0 0x20000>;
+@@ -3308,7 +3268,7 @@
+ 		};
+ 
+ 		tisp0: tisp@fed00000 {
+-			compatible = "generic-uio";
++			compatible = "renesas,isp-r8a779a0", "generic-uio";
+ 			reg = <0 0xfed00000 0 0x10000>;
+ 			interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 612>;
+@@ -3330,7 +3290,7 @@
+ 		};
+ 
+ 		tisp1: tisp@fed20000 {
+-			compatible = "generic-uio";
++			compatible = "renesas,isp-r8a779a0", "generic-uio";
+ 			reg = <0 0xfed20000 0 0x10000>;
+ 			interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 613>;
+@@ -3352,7 +3312,7 @@
+ 		};
+ 
+ 		tisp2: tisp@fed30000 {
+-			compatible = "generic-uio";
++			compatible = "renesas,isp-r8a779a0", "generic-uio";
+ 			reg = <0 0xfed30000 0 0x10000>;
+ 			interrupts = <GIC_SPI 156 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 614>;
+@@ -3374,7 +3334,7 @@
+ 		};
+ 
+ 		tisp3: tisp@fed40000 {
+-			compatible = "generic-uio";
++			compatible = "renesas,isp-r8a779a0", "generic-uio";
+ 			reg = <0 0xfed40000 0 0x10000>;
+ 			interrupts = <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 615>;
+-- 
+2.7.4
+

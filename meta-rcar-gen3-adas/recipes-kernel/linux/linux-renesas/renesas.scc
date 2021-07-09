@@ -10,3 +10,6 @@ patch 0139-arm64-dts-renesas-falcon-fakra-Enable-camera-support.patch
 patch 0140-arm64-dts-renesas-r8a779a0-falcon-Update-flash-parti.patch
 patch 0141-arm64-dts-renesas-r8a779a0-falcon-Add-mmngr-nodes.patch
 patch 0142-arm64-dts-renesas-r8a779a0-Add-IMR-driver-support.patch
+patch 0143-arm64-dts-renesas-r8a779a0-Remove-redundant-ISP-node.patch
+patch 0144-arm64-dts-renesas-r8a77970-Remove-redundant-isp0-nod.patch
+patch 0145-arm64-dts-renesas-r8a77980-Remove-redundant-isp0-and.patch
