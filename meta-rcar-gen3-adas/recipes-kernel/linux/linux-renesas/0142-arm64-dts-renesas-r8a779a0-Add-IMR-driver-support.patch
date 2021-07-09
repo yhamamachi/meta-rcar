@@ -1,0 +1,114 @@
+From 7bb2f604a1997aca6f6d2a1dd2cf3c65b8f3ede2 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 7 Jul 2021 01:13:29 +0300
+Subject: [PATCH] arm64: dts: renesas: r8a779a0: Add IMR driver support
+
+This adds "renesas,imr-lx4" compatible property to the IMR nodes
+along with the alloc-dev property which enables IMR driver support.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a779a0.dtsi | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+index 7539440..e8e3642 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+@@ -2142,69 +2142,87 @@
+ 			ipmmu-id = <RCAR_IPMMU_VIP1 3>;
+ 		};
+ 
++		imr_v4l2_alloc: imr_alloc {
++			dma-coherent;
++		};
++
+ 		imrlx4_ims0: ims@fe860000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe860000 0 0x10000>;
+ 			interrupts = <GIC_SPI 150 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 529>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 529>;
+ 			linux,uio-name = "ims_00";
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 8>;
+ 		};
+ 
+ 		imrlx4_ims1: ims@fe870000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe870000 0 0x10000>;
+ 			interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 530>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 530>;
+ 			linux,uio-name = "ims_01";
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 9>;
+ 		};
+ 
+ 		imrlx4_imr0: imr@fe880000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe880000 0 0x10000>;
+ 			interrupts = <GIC_SPI 146 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 525>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 525>;
+ 			linux,uio-name = "imr_00";
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 0>;
+ 		};
+ 
+ 		imrlx4_imr1: imr@fe890000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe890000 0 0x10000>;
+ 			interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 526>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 526>;
+ 			linux,uio-name = "imr_01";
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 1>;
+ 		};
+ 
+ 		imrlx4_imr2: imr@fe8a0000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe8a0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 527>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 527>;
+ 			linux,uio-name = "imr_02";
++			rse;
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 2>;
+ 		};
+ 
+ 		imrlx4_imr3: imr@fe8b0000 {
+-			compatible = "generic-uio";
++			compatible = "generic-uio",
++				     "renesas,imr-lx4";
+ 			reg = <0 0xfe8b0000 0 0x10000>;
+ 			interrupts = <GIC_SPI 149 IRQ_TYPE_LEVEL_HIGH 0>;
+ 			clocks = <&cpg CPG_MOD 528>;
+ 			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 			resets = <&cpg 528>;
+ 			linux,uio-name = "imr_03";
++			rse;
++			alloc-dev = <&imr_v4l2_alloc>;
+ 			ipmmu-id = <RCAR_IPMMU_VC0 3>;
+ 		};
+ 
+-- 
+2.7.4
+

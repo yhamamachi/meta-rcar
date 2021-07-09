@@ -9,3 +9,4 @@ patch 0138-arm64-dts-renesas-r8a779a0-falcon-Update-max96712-no.patch
 patch 0139-arm64-dts-renesas-falcon-fakra-Enable-camera-support.patch
 patch 0140-arm64-dts-renesas-r8a779a0-falcon-Update-flash-parti.patch
 patch 0141-arm64-dts-renesas-r8a779a0-falcon-Add-mmngr-nodes.patch
+patch 0142-arm64-dts-renesas-r8a779a0-Add-IMR-driver-support.patch
