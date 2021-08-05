@@ -11,6 +11,10 @@ MMNGR_CFG_v3msk = "MMNGR_V3MSK"
 MMNGR_CFG_condor = "MMNGR_V3MSK"
 MMNGR_CFG_v3hsk = "MMNGR_V3MSK"
 
+SRC_URI_append = " \
+    file://0001-mmngr_drv-mmngr-Fix-cache-ioctl-operations.patch \
+"
+
 KERNEL_MODULE_AUTOLOAD += "mmngr"
 KERNEL_MODULE_PROBECONF += "mmngr"
 module_conf_mmngr = ""
