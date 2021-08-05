@@ -36,11 +36,11 @@ index cd797f5..c38329d 100644
  		break;
 +	case MM_IOC_FLUSH:
 +		cachep = (struct MM_CACHE_PARAM *) arg;
-+		dma_sync_single_for_device(mm_dev, p->hard_addr + cachep->offset, cachep->len, DMA_FROM_DEVICE);
++		dma_sync_single_for_device(mm_dev, p->hard_addr + cachep->offset, cachep->len, DMA_TO_DEVICE);
 +		break;
 +	case MM_IOC_INVAL:
 +		cachep = (struct MM_CACHE_PARAM *) arg;
-+		dma_sync_single_for_cpu(mm_dev, p->hard_addr + cachep->offset, cachep->len, DMA_TO_DEVICE);
++		dma_sync_single_for_cpu(mm_dev, p->hard_addr + cachep->offset, cachep->len, DMA_FROM_DEVICE);
 +		break;
  	default:
  		pr_err("MMD CMD EFAULT\n");
