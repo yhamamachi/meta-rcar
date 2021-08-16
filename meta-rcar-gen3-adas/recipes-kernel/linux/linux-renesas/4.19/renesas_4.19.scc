@@ -530,3 +530,4 @@ patch 0558-media-i2c-soc_camera-ass-AS0149-imager.patch
 patch 0559-media-i2c-max96712-enable-HS-VS-relocation.patch
 patch 0560-media-i2c-imx623-add-emb-line-and-fixes.patch
 patch 0561-media-i2c-ar0147-support-DVP.patch
+patch 0562-arm64-dts-renesas-change-cameras-relocated-addr.patch
