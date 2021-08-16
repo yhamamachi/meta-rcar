@@ -1,0 +1,205 @@
+From ee5741c5d4d739c028e7eaa5310fbd0d04d6c8cc Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 16 Aug 2021 01:07:50 +0300
+Subject: [PATCH] media: i2c: ar0147: support DVP
+
+This supports DVP with max9286 simple (custom) setup
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0147.c | 61 +++++++++++++++++++++++++++++------
+ drivers/media/i2c/soc_camera/ar0147.h | 18 +++++++----
+ 2 files changed, 63 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0147.c b/drivers/media/i2c/soc_camera/ar0147.c
+index 48e627d..0647fe4 100644
+--- a/drivers/media/i2c/soc_camera/ar0147.c
++++ b/drivers/media/i2c/soc_camera/ar0147.c
+@@ -41,6 +41,7 @@ struct ar0147_priv {
+ 	int				fps_numerator;
+ 	int				init_complete;
+ 	u8				id[6];
++	bool				emb_enable;
+ 	/* serializers */
+ 	int				max9286_addr;
+ 	int				max9271_addr;
+@@ -177,7 +178,7 @@ static int ar0147_set_window(struct v4l2_subdev *sd)
+ 	/* vert crop start */
+ 	reg16_write16(client, 0x3002, priv->rect.top + AR0147_Y_START);
+ 	/* vert crop end */
+-	reg16_write16(client, 0x3006, priv->rect.top + priv->rect.height - 1 + AR0147_Y_START);
++	reg16_write16(client, 0x3006, priv->rect.top + priv->rect.height + 1 + AR0147_Y_START);
+ 
+ 	return 0;
+ };
+@@ -296,12 +297,18 @@ static int ar0147_get_selection(struct v4l2_subdev *sd,
+ 	case V4L2_SEL_TGT_CROP_DEFAULT:
+ 		sel->r.left = 0;
+ 		sel->r.top = 0;
+-		sel->r.width = AR0147_MAX_WIDTH;
+-		sel->r.height = AR0147_MAX_HEIGHT;
++		sel->r.width = AR0147_DEFAULT_WIDTH;
++		sel->r.height = AR0147_DEFAULT_HEIGHT;
+ 		return 0;
+ 	case V4L2_SEL_TGT_CROP:
+ 		sel->r = priv->rect;
+ 		return 0;
++	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = AR0147_EMB_PADDED;
++		sel->r.width = priv->rect.width;
++		sel->r.height = priv->rect.height;
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -341,6 +348,7 @@ static int ar0147_s_parm(struct v4l2_subdev *sd, struct v4l2_streamparm *parms)
+ 	struct v4l2_captureparm *cp = &parms->parm.capture;
+ 	int ret = 0;
+ 	int tmp_addr;
++	int vts;
+ 
+ 	if (parms->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+ 		return -EINVAL;
+@@ -349,15 +357,15 @@ static int ar0147_s_parm(struct v4l2_subdev *sd, struct v4l2_streamparm *parms)
+ 
+ 	if (priv->fps_denominator != cp->timeperframe.denominator ||
+ 	    priv->fps_numerator != cp->timeperframe.numerator) {
+-		priv->vts = (AR0147_SENSOR_HEIGHT + 226) * 30 * cp->timeperframe.numerator / cp->timeperframe.denominator;
++		vts = priv->vts * 30 * cp->timeperframe.numerator / cp->timeperframe.denominator;
+ 
+-		ret = reg16_write16(client, 0x300A, priv->vts);		/* FRAME_LENGTH_LINES_ */
++		ret = reg16_write16(client, 0x300A, vts);		/* FRAME_LENGTH_LINES_ */
+ 
+ 		tmp_addr = client->addr;
+ 		if (priv->max9271_addr) {
+ 			client->addr = priv->max9271_addr;		/* Serializer I2C address */
+-			reg8_write(client, 0x58, priv->vts >> 8);	/* HS count */
+-			reg8_write(client, 0x59, priv->vts & 0xff);
++			reg8_write(client, 0x58, vts >> 8);	/* HS count */
++			reg8_write(client, 0x59, vts & 0xff);
+ 		}
+ 		client->addr = tmp_addr;
+ 
+@@ -531,7 +539,35 @@ static ssize_t ar0147_otp_id_show(struct device *dev,
+ 			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
+ }
+ 
++static ssize_t ar0147_emb_enable_store(struct device *dev,
++				       struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0147_priv *priv = to_ar0147(client);
++	u32 val;
++
++	if (sscanf(buf, "%u\n", &val) != 1)
++		return -EINVAL;
++	priv->emb_enable = !!val;
++
++	reg16_write16(client, 0x3064, priv->emb_enable ? 0x1982 : 0x1802);
++
++	return count;
++}
++
++static ssize_t ar0147_emb_enable_show(struct device *dev,
++			      struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ar0147_priv *priv = to_ar0147(client);
++
++	return snprintf(buf, 4, "%d\n", priv->emb_enable);
++}
++
+ static DEVICE_ATTR(otp_id_ar0147, S_IRUGO, ar0147_otp_id_show, NULL);
++static DEVICE_ATTR(emb_enable_ar0147, S_IRUGO|S_IWUSR, ar0147_emb_enable_show, ar0147_emb_enable_store);
+ 
+ static int ar0147_initialize(struct i2c_client *client)
+ {
+@@ -580,6 +616,8 @@ static int ar0147_initialize(struct i2c_client *client)
+ 				ar0147_set_regs(client, ar0147_regs_seplus1_mipi450mbps_12bit_30fps_rev3);
+ 			else if (strcmp(mode, "seplus2") == 0)
+ 				ar0147_set_regs(client, ar0147_regs_seplus2_mipi450mbps_12bit_30fps_rev3);
++			else if (strcmp(mode, "custom") == 0)
++				ar0147_set_regs(client, ar0147_regs_setup_custom);
+ 			else
+ 				dev_err(&client->dev, "Unsupported mode %s\n", mode);
+ 			break;
+@@ -718,6 +756,7 @@ static int ar0147_probe(struct i2c_client *client,
+ 	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	priv->fps_numerator = 1;
+ 	priv->fps_denominator = 30;
++	priv->emb_enable = 1;
+ 	mutex_init(&priv->lock);
+ 
+ 	v4l2_ctrl_handler_init(&priv->hdl, 4);
+@@ -769,14 +808,15 @@ static int ar0147_probe(struct i2c_client *client,
+ 
+ 	priv->rect.left = 0;
+ 	priv->rect.top = 0;
+-	priv->rect.width = AR0147_MAX_WIDTH;
+-	priv->rect.height = AR0147_MAX_HEIGHT;
++	priv->rect.width = AR0147_DEFAULT_WIDTH;
++	priv->rect.height = AR0147_DEFAULT_HEIGHT;
+ 
+ 	ret = v4l2_async_register_subdev(&priv->sd);
+ 	if (ret)
+ 		goto cleanup;
+ 
+-	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0147) != 0) {
++	if (device_create_file(&client->dev, &dev_attr_otp_id_ar0147) != 0||
++	    device_create_file(&client->dev, &dev_attr_emb_enable_ar0147) != 0) {
+ 		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
+ 		goto cleanup;
+ 	}
+@@ -801,6 +841,7 @@ static int ar0147_remove(struct i2c_client *client)
+ 	struct ar0147_priv *priv = i2c_get_clientdata(client);
+ 
+ 	device_remove_file(&client->dev, &dev_attr_otp_id_ar0147);
++	device_remove_file(&client->dev, &dev_attr_emb_enable_ar0147);
+ 	v4l2_async_unregister_subdev(&priv->sd);
+ 	media_entity_cleanup(&priv->sd.entity);
+ 	v4l2_ctrl_handler_free(&priv->hdl);
+diff --git a/drivers/media/i2c/soc_camera/ar0147.h b/drivers/media/i2c/soc_camera/ar0147.h
+index 2963708..e4d7db3 100644
+--- a/drivers/media/i2c/soc_camera/ar0147.h
++++ b/drivers/media/i2c/soc_camera/ar0147.h
+@@ -14,18 +14,23 @@
+ 
+ //#define AR0147_EMBEDDED_LINE
+ 
+-#define AR0147_MAX_WIDTH	1344
+-#define AR0147_MAX_HEIGHT	968
++#define AR0147_DEFAULT_WIDTH	1280
++#define AR0147_DEFAULT_HEIGHT	960
++
++#define AR0147_EMB_LINES	8
++#define AR0147_EMB_PADDED	(priv->emb_enable ? AR0147_EMB_LINES + 30 : 0) /* embedded data (SOF) and stats (EOF) + post padding */
+ 
+ #define AR0147_DELAY		0xffff
+ 
++#define AR0147_MAX_WIDTH	1344
++#define AR0147_MAX_HEIGHT	968
+ #define AR0147_SENSOR_WIDTH	1344
+ #define AR0147_SENSOR_HEIGHT	968
+ 
+-#define AR0147_X_START		((AR0147_SENSOR_WIDTH - AR0147_MAX_WIDTH) / 2)
+-#define AR0147_Y_START		((AR0147_SENSOR_HEIGHT - AR0147_MAX_HEIGHT) / 2)
+-#define AR0147_X_END		(AR0147_X_START + AR0147_MAX_WIDTH - 1)
+-#define AR0147_Y_END		(AR0147_Y_START + AR0147_MAX_HEIGHT - 1)
++#define AR0147_X_START		((AR0147_SENSOR_WIDTH - AR0147_DEFAULT_WIDTH) / 2)
++#define AR0147_Y_START		((AR0147_SENSOR_HEIGHT - AR0147_DEFAULT_HEIGHT) / 2)
++#define AR0147_X_END		(AR0147_X_START + AR0147_DEFAULT_WIDTH - 1)
++#define AR0147_Y_END		(AR0147_Y_START + AR0147_DEFAULT_HEIGHT - 1)
+ 
+ struct ar0147_reg {
+ 	u16	reg;
+@@ -35,3 +40,4 @@ struct ar0147_reg {
+ #include "ar0147_rev1.h"
+ #include "ar0147_rev2.h"
+ #include "ar0147_rev3.h"
++#include "ar0147_custom.h"
+-- 
+2.7.4
+
