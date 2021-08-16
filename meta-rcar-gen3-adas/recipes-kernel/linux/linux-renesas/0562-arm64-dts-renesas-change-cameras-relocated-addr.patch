@@ -1,0 +1,871 @@
+From 9c3a1a520ad49334dacf52b52cab90f877469ad3 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 16 Aug 2021 11:36:26 +0300
+Subject: [PATCH] arm64: dts: renesas: change cameras relocated addr
+
+Move serializer relocated address set 0x50-0x57 to more safe place
+0xc-0xf, 0x1c-0x1f
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts  | 16 ++++++++--------
+ .../boot/dts/renesas/r8a7795-es1-salvator-x-view.dts     | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts      | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts  | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts      |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts  |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a77970-eagle.dts           |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk-kf.dts        |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk-vbm.dts       |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a77970-v3msk-view.dts      |  8 ++++----
+ arch/arm64/boot/dts/renesas/r8a77980-condor.dts          | 16 ++++++++--------
+ .../boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts      | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vbm.dts       |  8 ++++----
+ arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi            |  8 ++++----
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi                 |  8 ++++----
+ arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi            |  8 ++++----
+ arch/arm64/boot/dts/renesas/ulcb-vb.dtsi                 | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/ulcb-vb2-cn12.dtsi           |  8 ++++----
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi                | 16 ++++++++--------
+ arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi                |  8 ++++----
+ 20 files changed, 112 insertions(+), 112 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
+index 1ce261d..35a61bc6 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
+@@ -173,22 +173,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+@@ -213,22 +213,22 @@
+ 
+ 		port@0 {
+ 			max9286_des1ep0: endpoint@0 {
+-				max9271-addr = <0x54>;
++				max9271-addr = <0x1c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in4>;
+ 			};
+ 			max9286_des1ep1: endpoint@1 {
+-				max9271-addr = <0x55>;
++				max9271-addr = <0x1d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in5>;
+ 			};
+ 			max9286_des1ep2: endpoint@2 {
+-				max9271-addr = <0x56>;
++				max9271-addr = <0x1e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in6>;
+ 			};
+ 			max9286_des1ep3: endpoint@3 {
+-				max9271-addr = <0x57>;
++				max9271-addr = <0x1f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in7>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
+index 9a7487c..dcf01b5 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
+@@ -188,22 +188,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+@@ -227,22 +227,22 @@
+ 
+ 		port@0 {
+ 			max9286_des1ep0: endpoint@0 {
+-				max9271-addr = <0x54>;
++				max9271-addr = <0x1c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in4>;
+ 			};
+ 			max9286_des1ep1: endpoint@1 {
+-				max9271-addr = <0x55>;
++				max9271-addr = <0x1d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in5>;
+ 			};
+ 			max9286_des1ep2: endpoint@2 {
+-				max9271-addr = <0x56>;
++				max9271-addr = <0x1e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in6>;
+ 			};
+ 			max9286_des1ep3: endpoint@3 {
+-				max9271-addr = <0x57>;
++				max9271-addr = <0x1f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in7>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
+index ae90fb89..07963cb 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
+@@ -173,22 +173,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+@@ -213,22 +213,22 @@
+ 
+ 		port@0 {
+ 			max9286_des1ep0: endpoint@0 {
+-				max9271-addr = <0x54>;
++				max9271-addr = <0x1c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in4>;
+ 			};
+ 			max9286_des1ep1: endpoint@1 {
+-				max9271-addr = <0x55>;
++				max9271-addr = <0x1d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in5>;
+ 			};
+ 			max9286_des1ep2: endpoint@2 {
+-				max9271-addr = <0x56>;
++				max9271-addr = <0x1e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in6>;
+ 			};
+ 			max9286_des1ep3: endpoint@3 {
+-				max9271-addr = <0x57>;
++				max9271-addr = <0x1f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in7>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
+index d4d5557..f69334d 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
+@@ -188,22 +188,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+@@ -227,22 +227,22 @@
+ 
+ 		port@0 {
+ 			max9286_des1ep0: endpoint@0 {
+-				max9271-addr = <0x54>;
++				max9271-addr = <0x1c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in4>;
+ 			};
+ 			max9286_des1ep1: endpoint@1 {
+-				max9271-addr = <0x55>;
++				max9271-addr = <0x1d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in5>;
+ 			};
+ 			max9286_des1ep2: endpoint@2 {
+-				max9271-addr = <0x56>;
++				max9271-addr = <0x1e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in6>;
+ 			};
+ 			max9286_des1ep3: endpoint@3 {
+-				max9271-addr = <0x57>;
++				max9271-addr = <0x1f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in7>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
+index 9e764c5..64ba092 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
+@@ -101,22 +101,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
+index f734437..41bd25f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
+@@ -116,22 +116,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+index 7525bc9..030e074 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-eagle.dts
+@@ -373,22 +373,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-kf.dts
+index 8c001a5..ceba0c0 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-kf.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-kf.dts
+@@ -233,22 +233,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-vbm.dts
+index 4eb160c..c38298f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-vbm.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-vbm.dts
+@@ -189,22 +189,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-view.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-view.dts
+index 2197bbe..fba235f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk-view.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk-view.dts
+@@ -140,22 +140,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+index e21dadd..250b763 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-condor.dts
+@@ -490,22 +490,22 @@
+ 
+ 		port@0 {
+ 			max9286_des0ep0: endpoint@0 {
+-				max9271-addr = <0x50>;
++				max9271-addr = <0x0c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in0>;
+ 			};
+ 			max9286_des0ep1: endpoint@1 {
+-				max9271-addr = <0x51>;
++				max9271-addr = <0x0d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in1>;
+ 			};
+ 			max9286_des0ep2: endpoint@2 {
+-				max9271-addr = <0x52>;
++				max9271-addr = <0x0e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in2>;
+ 			};
+ 			max9286_des0ep3: endpoint@3 {
+-				max9271-addr = <0x53>;
++				max9271-addr = <0x0f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in3>;
+ 			};
+@@ -532,22 +532,22 @@
+ 
+ 		port@0 {
+ 			max9286_des1ep0: endpoint@0 {
+-				max9271-addr = <0x54>;
++				max9271-addr = <0x1c>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in4>;
+ 			};
+ 			max9286_des1ep1: endpoint@1 {
+-				max9271-addr = <0x55>;
++				max9271-addr = <0x1d>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in5>;
+ 			};
+ 			max9286_des1ep2: endpoint@2 {
+-				max9271-addr = <0x56>;
++				max9271-addr = <0x1e>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in6>;
+ 			};
+ 			max9286_des1ep3: endpoint@3 {
+-				max9271-addr = <0x57>;
++				max9271-addr = <0x1f>;
+ 				dvp-order = <1>;
+ 				remote-endpoint = <&ov106xx_in7>;
+ 			};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts
+index dc7938b..1cf07ce 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vb-gmsl-8ch.dts
+@@ -280,22 +280,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+@@ -404,22 +404,22 @@
+ 
+ 				port@0 {
+ 					max9286_des1ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in4>;
+ 					};
+ 					max9286_des1ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in5>;
+ 					};
+ 					max9286_des1ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in6>;
+ 					};
+ 					max9286_des1ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in7>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vbm.dts
+index f5eb597..a986ee8 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vbm.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77980-v3hsk-vbm.dts
+@@ -188,22 +188,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0xc>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0xd>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0xe>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0xf>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
+index c5384ca..8ac1a2b 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
+@@ -163,22 +163,22 @@
+ 
+ 			port@0 {
+ 				max9286_des1ep0: endpoint@0 {
+-					max9271-addr = <0x50>;
++					max9271-addr = <0x0c>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in4>;
+ 				};
+ 				max9286_des1ep1: endpoint@1 {
+-					max9271-addr = <0x51>;
++					max9271-addr = <0x0d>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in5>;
+ 				};
+ 				max9286_des1ep2: endpoint@2 {
+-					max9271-addr = <0x52>;
++					max9271-addr = <0x0e>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in6>;
+ 				};
+ 				max9286_des1ep3: endpoint@3 {
+-					max9271-addr = <0x53>;
++					max9271-addr = <0x0f>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in7>;
+ 				};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index f7f10b3..feaac78 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -895,22 +895,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
+index abf4669..dba0429 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
+@@ -164,22 +164,22 @@
+ 
+ 			port@0 {
+ 				max9286_des2ep0: endpoint@0 {
+-					max9271-addr = <0x50>;
++					max9271-addr = <0x0c>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in8>;
+ 				};
+ 				max9286_des2ep1: endpoint@1 {
+-					max9271-addr = <0x51>;
++					max9271-addr = <0x0d>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in9>;
+ 				};
+ 				max9286_des2ep2: endpoint@2 {
+-					max9271-addr = <0x52>;
++					max9271-addr = <0x0e>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in10>;
+ 				};
+ 				max9286_des2ep3: endpoint@3 {
+-					max9271-addr = <0x53>;
++					max9271-addr = <0x0f>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in11>;
+ 				};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
+index 67903db..077d484 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
+@@ -565,22 +565,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+@@ -745,22 +745,22 @@
+ 
+ 				port@0 {
+ 					max9286_des1ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in4>;
+ 					};
+ 					max9286_des1ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in5>;
+ 					};
+ 					max9286_des1ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in6>;
+ 					};
+ 					max9286_des1ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in7>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2-cn12.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2-cn12.dtsi
+index 7ce48d90..cdfd257 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vb2-cn12.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb2-cn12.dtsi
+@@ -164,22 +164,22 @@
+ 
+ 			port@0 {
+ 				max9286_des2ep0: endpoint@0 {
+-					max9271-addr = <0x50>;
++					max9271-addr = <0x0c>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in8>;
+ 				};
+ 				max9286_des2ep1: endpoint@1 {
+-					max9271-addr = <0x51>;
++					max9271-addr = <0x0d>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in9>;
+ 				};
+ 				max9286_des2ep2: endpoint@2 {
+-					max9271-addr = <0x52>;
++					max9271-addr = <0x0e>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in10>;
+ 				};
+ 				max9286_des2ep3: endpoint@3 {
+-					max9271-addr = <0x53>;
++					max9271-addr = <0x0f>;
+ 					dvp-order = <1>;
+ 					remote-endpoint = <&ov106xx_in11>;
+ 				};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+index 1b4e6c3..745ffa1 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+@@ -575,22 +575,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+@@ -755,22 +755,22 @@
+ 
+ 				port@0 {
+ 					max9286_des1ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in4>;
+ 					};
+ 					max9286_des1ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in5>;
+ 					};
+ 					max9286_des1ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in6>;
+ 					};
+ 					max9286_des1ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in7>;
+ 					};
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
+index 067607a..3ad6055 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
+@@ -221,22 +221,22 @@
+ 
+ 				port@0 {
+ 					max9286_des0ep0: endpoint@0 {
+-						max9271-addr = <0x50>;
++						max9271-addr = <0x0c>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in0>;
+ 					};
+ 					max9286_des0ep1: endpoint@1 {
+-						max9271-addr = <0x51>;
++						max9271-addr = <0x0d>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in1>;
+ 					};
+ 					max9286_des0ep2: endpoint@2 {
+-						max9271-addr = <0x52>;
++						max9271-addr = <0x0e>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in2>;
+ 					};
+ 					max9286_des0ep3: endpoint@3 {
+-						max9271-addr = <0x53>;
++						max9271-addr = <0x0f>;
+ 						dvp-order = <1>;
+ 						remote-endpoint = <&ov106xx_in3>;
+ 					};
+-- 
+2.7.4
+
