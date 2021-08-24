@@ -1,0 +1,473 @@
+From 462f5b332c83162e3dd45a2c22c9a084cf1d4b0d Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 24 Aug 2021 17:45:19 +0300
+Subject: [PATCH] media: i2c: soc_camera: ONSEMI: use fuseid instead otpid
+
+Switch to fuseid camera identification
+
+Signed-off-by Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c       | 30 ++++++++++++-------
+ drivers/media/i2c/soc_camera/ar0140.c              | 33 +++++++++++++-------
+ drivers/media/i2c/soc_camera/ar0143.c              | 29 +++++++++++-------
+ drivers/media/i2c/soc_camera/ar0147.c              | 29 +++++++++++-------
+ drivers/media/i2c/soc_camera/ar0231.c              | 29 +++++++++++-------
+ drivers/media/i2c/soc_camera/ar0233.c              | 29 +++++++++++-------
+ drivers/media/i2c/soc_camera/ar0323.c              | 29 +++++++++++-------
+ .../media/i2c/soc_camera/imagers/ap0101_ar014x.c   | 34 ++++++++++++++-------
+ .../media/i2c/soc_camera/imagers/ap0201_ar023x.c   | 35 +++++++++++++++-------
+ drivers/media/i2c/soc_camera/imagers/ar0231.c      | 33 +++++++++++++-------
+ 10 files changed, 209 insertions(+), 101 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+index 760014f..e85e17a8 100644
+--- a/drivers/media/i2c/soc_camera/ap0101_ar014x.c
++++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+@@ -397,16 +397,26 @@ static void ap0101_otp_id_read(struct i2c_client *client)
+ {
+ 	struct ap0101_priv *priv = to_ap0101(client);
+ 	int i;
+-
+-	/* read camera id from ar014x OTP memory */
+-	ap0101_ar014x_write(client, 0x3054, 0x400);
+-	ap0101_ar014x_write(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		priv->id[i]     = (ap0101_ar014x_read(client, 0x3800 + i + 4) >> 8)   ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) >> 8);
+-		priv->id[i + 1] = (ap0101_ar014x_read(client, 0x3800 + i + 4) & 0xff) ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) & 0xff);
++	u16 val;
++
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		ap0101_ar014x_write(client, 0x3054, 0x400);
++		ap0101_ar014x_write(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			priv->id[i]     = (ap0101_ar014x_read(client, 0x3800 + i + 4) >> 8)   ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) >> 8);
++			priv->id[i + 1] = (ap0101_ar014x_read(client, 0x3800 + i + 4) & 0xff) ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) & 0xff);
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			val = ap0101_ar014x_read(client, 0x34C0 + i);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0140.c b/drivers/media/i2c/soc_camera/ar0140.c
+index 9c3067f..4e6acaf 100644
+--- a/drivers/media/i2c/soc_camera/ar0140.c
++++ b/drivers/media/i2c/soc_camera/ar0140.c
+@@ -51,6 +51,10 @@ struct ar0140_priv {
+ 	int				frame_preamble;
+ };
+ 
++static int legacy_otp = 0;
++module_param(legacy_otp, int, 0644);
++MODULE_PARM_DESC(legacy_otp, " Legacy OTP identification  method (default disabled: 0) ");
++
+ static inline struct ar0140_priv *to_ar0140(const struct i2c_client *client)
+ {
+ 	return container_of(i2c_get_clientdata(client), struct ar0140_priv, sd);
+@@ -398,16 +402,25 @@ static void ar0140_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0143.c b/drivers/media/i2c/soc_camera/ar0143.c
+index efa28dd..b6c767b 100644
+--- a/drivers/media/i2c/soc_camera/ar0143.c
++++ b/drivers/media/i2c/soc_camera/ar0143.c
+@@ -491,16 +491,25 @@ static void ar0143_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0147.c b/drivers/media/i2c/soc_camera/ar0147.c
+index 0647fe4..720b69f 100644
+--- a/drivers/media/i2c/soc_camera/ar0147.c
++++ b/drivers/media/i2c/soc_camera/ar0147.c
+@@ -513,16 +513,25 @@ static void ar0147_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0231.c b/drivers/media/i2c/soc_camera/ar0231.c
+index ffe2dd5..ef64ccd 100644
+--- a/drivers/media/i2c/soc_camera/ar0231.c
++++ b/drivers/media/i2c/soc_camera/ar0231.c
+@@ -386,16 +386,25 @@ static void ar0231_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index 2321bb6..832a931 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -461,16 +461,25 @@ static void ar0233_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/ar0323.c b/drivers/media/i2c/soc_camera/ar0323.c
+index 5b1c91ca..6a93a96 100644
+--- a/drivers/media/i2c/soc_camera/ar0323.c
++++ b/drivers/media/i2c/soc_camera/ar0323.c
+@@ -340,16 +340,25 @@ static void ar0323_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/imagers/ap0101_ar014x.c
+index 526d4ea..5b74769 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ap0101_ar014x.c
++++ b/drivers/media/i2c/soc_camera/imagers/ap0101_ar014x.c
+@@ -52,6 +52,10 @@ struct ap0101_priv {
+ 	int				frame_preamble;
+ };
+ 
++static int legacy_otp = 0;
++module_param(legacy_otp, int, 0644);
++MODULE_PARM_DESC(legacy_otp, " Legacy OTP identification  method (default disabled: 0) ");
++
+ static inline struct ap0101_priv *to_ap0101(const struct i2c_client *client)
+ {
+ 	return container_of(i2c_get_clientdata(client), struct ap0101_priv, sd);
+@@ -117,16 +121,26 @@ static void ap0101_otp_id_read(struct i2c_client *client)
+ {
+ 	struct ap0101_priv *priv = to_ap0101(client);
+ 	int i;
+-
+-	/* read camera id from ar014x OTP memory */
+-	ap0101_ar014x_write(client, 0x3054, 0x400);
+-	ap0101_ar014x_write(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		priv->id[i]     = (ap0101_ar014x_read(client, 0x3800 + i + 4) >> 8)   ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) >> 8);
+-		priv->id[i + 1] = (ap0101_ar014x_read(client, 0x3800 + i + 4) & 0xff) ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) & 0xff);
++	u16 val;
++
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		ap0101_ar014x_write(client, 0x3054, 0x400);
++		ap0101_ar014x_write(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			priv->id[i]     = (ap0101_ar014x_read(client, 0x3800 + i + 4) >> 8)   ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) >> 8);
++			priv->id[i + 1] = (ap0101_ar014x_read(client, 0x3800 + i + 4) & 0xff) ^ (ap0101_ar014x_read(client, 0x3800 + i + 16) & 0xff);
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			val = ap0101_ar014x_read(client, 0x34C0 + i);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ap0201_ar023x.c b/drivers/media/i2c/soc_camera/imagers/ap0201_ar023x.c
+index 8dfad4a..67ca0d3 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ap0201_ar023x.c
++++ b/drivers/media/i2c/soc_camera/imagers/ap0201_ar023x.c
+@@ -49,6 +49,10 @@ struct ap0201_priv {
+ 	int				ser_addr;
+ };
+ 
++static int legacy_otp = 0;
++module_param(legacy_otp, int, 0644);
++MODULE_PARM_DESC(legacy_otp, " Legacy OTP identification  method (default disabled: 0) ");
++
+ static inline struct ap0201_priv *to_ap0201(const struct i2c_client *client)
+ {
+ 	return container_of(i2c_get_clientdata(client), struct ap0201_priv, sd);
+@@ -114,18 +118,27 @@ static void ap0201_otp_id_read(struct i2c_client *client)
+ {
+ 	struct ap0201_priv *priv = to_ap0201(client);
+ 	int i;
++	u16 val = 0;
+ 
+-	/* read camera id from ar023x OTP memory */
+-	ap0201_ar023x_write(client, 0x3054, 0x400);
+-	ap0201_ar023x_write(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		u16 val = 0;
+-		/* first 4 bytes are equal on all ar023x */
+-		val = ap0201_ar023x_read(client, 0x3800 + i + 4);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar023x OTP memory */
++		ap0201_ar023x_write(client, 0x3054, 0x400);
++		ap0201_ar023x_write(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar023x */
++			val = ap0201_ar023x_read(client, 0x3800 + i + 4);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		for (i = 0; i < 6; i += 2) {
++			/* read FuseIDs */
++			val = ap0201_ar023x_read(client, 0x34C0 + i);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/media/i2c/soc_camera/imagers/ar0231.c b/drivers/media/i2c/soc_camera/imagers/ar0231.c
+index fd8fe94..aff73df 100644
+--- a/drivers/media/i2c/soc_camera/imagers/ar0231.c
++++ b/drivers/media/i2c/soc_camera/imagers/ar0231.c
+@@ -47,6 +47,10 @@ static int trigger = 0;
+ module_param(trigger, int, 0644);
+ MODULE_PARM_DESC(trigger, " Trigger gpio number (default: 0 - GPIO0) ");
+ 
++static int legacy_otp = 0;
++module_param(legacy_otp, int, 0644);
++MODULE_PARM_DESC(legacy_otp, " Legacy OTP identification  method (default disabled: 0) ");
++
+ static inline struct ar0231_priv *to_ar0231(const struct i2c_client *client)
+ {
+ 	return container_of(i2c_get_clientdata(client), struct ar0231_priv, sd);
+@@ -80,16 +84,25 @@ static void ar0231_otp_id_read(struct i2c_client *client)
+ 	int i;
+ 	u16 val = 0;
+ 
+-	/* read camera id from ar014x OTP memory */
+-	reg16_write16(client, 0x3054, 0x400);
+-	reg16_write16(client, 0x304a, 0x110);
+-	usleep_range(25000, 25500); /* wait 25 ms */
+-
+-	for (i = 0; i < 6; i += 2) {
+-		/* first 4 bytes are equal on all ar014x */
+-		reg16_read16(client, 0x3800 + i + 4, &val);
+-		priv->id[i]     = val >> 8;
+-		priv->id[i + 1] = val & 0xff;
++	if (legacy_otp) {
++		/* read camera id from ar014x OTP memory */
++		reg16_write16(client, 0x3054, 0x400);
++		reg16_write16(client, 0x304a, 0x110);
++		usleep_range(25000, 25500); /* wait 25 ms */
++
++		for (i = 0; i < 6; i += 2) {
++			/* first 4 bytes are equal on all ar014x */
++			reg16_read16(client, 0x3800 + i + 4, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
++	} else {
++		/* read FuseIDs */
++		for (i = 0; i < 6; i += 2) {
++			reg16_read16(client, 0x34C0 + i, &val);
++			priv->id[i]     = val >> 8;
++			priv->id[i + 1] = val & 0xff;
++		}
+ 	}
+ }
+ 
+-- 
+2.7.4
+
