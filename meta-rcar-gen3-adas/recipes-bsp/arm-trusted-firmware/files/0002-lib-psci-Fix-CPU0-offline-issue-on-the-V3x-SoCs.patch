@@ -1,7 +1,7 @@
-From 4466b63f49ed89ca16fc3290f6ea49b60c03f7f3 Mon Sep 17 00:00:00 2001
+From 0c4996c67fed02e19257b8811ae468a7ee2d46e0 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 20 Aug 2019 15:20:18 +0300
-Subject: [PATCH 3/6] lib: psci: Fix CPU0 offline issue on the V3x SoCs
+Subject: [PATCH 2/4] lib: psci: Fix CPU0 offline issue on the V3x SoCs
 
 When Linux requests CPU0 to go offline, such a request
 is denied on all R-Car SoCs by the PSCI firmware.
@@ -31,10 +31,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/lib/psci/psci_setup.c b/lib/psci/psci_setup.c
-index d1ec998..235db33 100644
+index 9c37d63..47167b4 100644
 --- a/lib/psci/psci_setup.c
 +++ b/lib/psci/psci_setup.c
-@@ -263,6 +263,11 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
+@@ -273,6 +273,11 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
  	psci_caps |=  define_psci_cap(PSCI_STAT_COUNT_AARCH64);
  #endif
  

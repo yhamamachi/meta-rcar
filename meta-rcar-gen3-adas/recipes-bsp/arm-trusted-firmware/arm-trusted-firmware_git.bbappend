@@ -13,11 +13,10 @@ ATFW_OPT_RPC = "${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", " RCAR_RPC_HY
 ATFW_OPT_append = " ${ATFW_OPT_RPC}"
 
 SRC_URI_append = " \
-    file://0001-plat-renesas-rcar-bl31-Enable-RPC-access-if-necessar.patch \
-    file://0003-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
-    file://0004-drivers-renesas-io_memdrv-Invalidate-cache-before-ex.patch \
-    file://0005-drivers-renesas-rcar-pfc-Update-common-registers.patch \
-    file://0006-plat-renesas-rcar-Add-R-Car-V3H-support.patch \
+    file://0001-plat-renesas-bl31-Enable-RPC-access-if-necessary.patch \
+    file://0002-lib-psci-Fix-CPU0-offline-issue-on-the-V3x-SoCs.patch \
+    file://0003-drivers-renesas-io_memdrv-Invalidate-cache-before-ex.patch \
+    file://0004-plat-renesas-rcar-Add-R-Car-V3H-support.patch \
 "
 
 # Override the do_ipl_opt_compile function to add the ${ATFW_OPT_RPC} option
