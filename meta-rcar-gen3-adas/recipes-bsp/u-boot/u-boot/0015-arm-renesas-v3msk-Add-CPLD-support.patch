@@ -1,7 +1,7 @@
-From 03dc49d9af564a5c95e4294095eca69b74f09ac0 Mon Sep 17 00:00:00 2001
+From 21f90739dcb7f6fb5fcf96ac44b0e33dff25610e Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 8 Aug 2019 00:49:53 +0300
-Subject: [PATCH 15/22] arm: renesas: v3msk: Add CPLD support
+Subject: [PATCH 13/19] arm: renesas: v3msk: Add CPLD support
 
 This adds CPLD sysreset driver to the R-Car V3M SK board.
 

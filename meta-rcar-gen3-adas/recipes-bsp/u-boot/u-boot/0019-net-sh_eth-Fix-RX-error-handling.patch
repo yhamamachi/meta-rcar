@@ -1,7 +1,7 @@
-From 70bb9783dc321340e60979b818440a9109d384e5 Mon Sep 17 00:00:00 2001
+From d094e5dbefb1440e2744865d33abdf57fd8353f6 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 2 Dec 2019 01:20:34 +0300
-Subject: [PATCH 19/22] net: sh_eth: Fix RX error handling
+Subject: [PATCH 16/19] net: sh_eth: Fix RX error handling
 
 In case RX error occurs, and the RD_RFE bit is set, the descriptor
 is never returned back to the queue. Make sh_eth_recv_start return

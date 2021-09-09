@@ -1,7 +1,7 @@
-From fb399be2239123ad67fcb2c748e87a36b0f158cf Mon Sep 17 00:00:00 2001
+From f4bab069e402ae2be66001aefa2a3ccbd0301209 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 7 Dec 2020 20:00:45 +0300
-Subject: [PATCH 06/22] clk: renesas: clk-rcar-gen3: Fix SD divider setting
+Subject: [PATCH 05/19] clk: renesas: clk-rcar-gen3: Fix SD divider setting
 
 This backports kernel commit ee87a8797d62dda7 ("clk: renesas: rcar-gen3:
 Fix SD divider setting")
@@ -22,10 +22,10 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 6b8806f..e474370 100644
+index f26fafd..2f14659 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
-@@ -70,16 +70,16 @@
+@@ -68,16 +68,16 @@
   */
  static const struct cpg_sd_div_table cpg_sd_div_table[] = {
  /*	CPG_SD_DIV_TABLE_DATA(stp_hck,  stp_ck,   sd_srcfc,   sd_fc,  sd_div) */

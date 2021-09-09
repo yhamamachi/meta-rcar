@@ -1,7 +1,7 @@
-From a7bd7d95708047aedfdbeef231eadeb8239068e7 Mon Sep 17 00:00:00 2001
+From d3260caae5a49e17d76b520691c3838f6763d952 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 22 Nov 2018 00:17:56 +0300
-Subject: [PATCH 20/22] arm: renesas: Enable RPC HF MTD support for all ULCB
+Subject: [PATCH 17/19] arm: renesas: Enable RPC HF MTD support for all ULCB
  boards
 
 This enables RPC HyperFlash MTD support
@@ -53,12 +53,12 @@ index 954d8b6..b1cddb1 100644
 +	status = "okay";
 +};
 diff --git a/configs/rcar3_ulcb_defconfig b/configs/rcar3_ulcb_defconfig
-index e32b503..355ec90 100644
+index 9f7d05d..31c1e4e 100644
 --- a/configs/rcar3_ulcb_defconfig
 +++ b/configs/rcar3_ulcb_defconfig
 @@ -53,6 +53,14 @@ CONFIG_MMC_IO_VOLTAGE=y
  CONFIG_MMC_UHS_SUPPORT=y
- CONFIG_MMC_HS400_SUPPORT=y
+ CONFIG_MMC_HS200_SUPPORT=y
  CONFIG_RENESAS_SDHI=y
 +CONFIG_MTD=y
 +CONFIG_DM_MTD=y

@@ -1,7 +1,7 @@
-From e122d997a7b86f2af134033b1c37bbbd61a7a1c9 Mon Sep 17 00:00:00 2001
+From 21149c24c5995060d2a463c0e14721b9e278cb4a Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Mon, 2 Dec 2019 01:13:19 +0300
-Subject: [PATCH 18/22] net: sh_eth: Workaround cache issues
+Subject: [PATCH 15/19] net: sh_eth: Workaround cache issues
 
 U-Boot writes to RX packets when constructing replies.
 This can cause stale cached data to be written to RX

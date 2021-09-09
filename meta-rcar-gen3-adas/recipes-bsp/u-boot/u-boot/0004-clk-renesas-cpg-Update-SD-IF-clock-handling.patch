@@ -1,7 +1,7 @@
-From 93281c6eede916b82482c2ab020a74bac209e3dd Mon Sep 17 00:00:00 2001
+From e021b6c742dc667f3e992870a606822a92cf87e6 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 1 Aug 2019 22:44:03 +0300
-Subject: [PATCH 04/22] clk: renesas: cpg: Update SD-IF clock handling
+Subject: [PATCH 03/19] clk: renesas: cpg: Update SD-IF clock handling
 
 Make SD-IF clock division rate table configurable
 in the cpg_mssr_info structure. This is needed
@@ -16,14 +16,14 @@ division ratio table instead of hard-coding it.
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---
  drivers/clk/renesas/clk-rcar-gen3.c    | 117 +++++++++++++++++++++------------
- drivers/clk/renesas/renesas-cpg-mssr.h |   9 +++
- 2 files changed, 83 insertions(+), 43 deletions(-)
+ drivers/clk/renesas/renesas-cpg-mssr.h |   8 +++
+ 2 files changed, 82 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 30a101f..6b8806f 100644
+index ef2e98d..f26fafd 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
-@@ -53,11 +53,6 @@
+@@ -51,11 +51,6 @@
  	.div = (sd_div), \
  }
  
@@ -35,7 +35,7 @@ index 30a101f..6b8806f 100644
  /* SDn divider
   *                     sd_srcfc   sd_fc   div
   * stp_hck   stp_ck    (div)      (div)     = sd_srcfc x sd_fc
-@@ -73,7 +68,7 @@ struct sd_div_table {
+@@ -71,7 +66,7 @@ struct sd_div_table {
   *  1         0         3 (8)      0 (2)     16
   *  1         0         4 (16)     0 (2)     32
   */
@@ -44,7 +44,7 @@ index 30a101f..6b8806f 100644
  /*	CPG_SD_DIV_TABLE_DATA(stp_hck,  stp_ck,   sd_srcfc,   sd_fc,  sd_div) */
  	CPG_SD_DIV_TABLE_DATA(0,        0,        0,          1,        4),
  	CPG_SD_DIV_TABLE_DATA(0,        0,        1,          1,        8),
-@@ -109,37 +104,6 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
+@@ -110,37 +105,6 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
  	return renesas_clk_get_parent(clk, info, parent);
  }
  
@@ -82,9 +82,9 @@ index 30a101f..6b8806f 100644
  static int gen3_clk_enable(struct clk *clk)
  {
  	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-@@ -270,17 +234,17 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
- 
- 	case CLK_TYPE_GEN3_SD:		/* FIXME */
+@@ -300,17 +264,17 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
+ 		fallthrough;
+ 	case CLK_TYPE_R8A779A0_SD:
  		value = readl(priv->base + core->offset);
 -		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
 +		value &= info->sd_div_mask;
@@ -105,7 +105,7 @@ index 30a101f..6b8806f 100644
  
  			return rate;
  		}
-@@ -318,6 +282,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
+@@ -357,6 +321,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
  	return -ENOENT;
  }
  
@@ -165,7 +165,7 @@ index 30a101f..6b8806f 100644
  static ulong gen3_clk_get_rate(struct clk *clk)
  {
  	return gen3_clk_get_rate64(clk);
-@@ -325,8 +342,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
+@@ -364,8 +381,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
  
  static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
  {
@@ -183,7 +183,7 @@ index 30a101f..6b8806f 100644
  	return gen3_clk_get_rate64(clk);
  }
  
-@@ -368,6 +393,12 @@ int gen3_clk_probe(struct udevice *dev)
+@@ -407,6 +432,12 @@ int gen3_clk_probe(struct udevice *dev)
  	if (ret < 0)
  		return ret;
  
@@ -197,14 +197,13 @@ index 30a101f..6b8806f 100644
  	if (rst_base == FDT_ADDR_T_NONE)
  		return -EINVAL;
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.h b/drivers/clk/renesas/renesas-cpg-mssr.h
-index b669dec..4c59680 100644
+index 519f885..4104e69 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.h
 +++ b/drivers/clk/renesas/renesas-cpg-mssr.h
-@@ -14,6 +14,12 @@
- #define __DRIVERS_CLK_RENESAS_CPG_MSSR__
+@@ -20,6 +20,11 @@ enum clk_reg_layout {
+ 	CLK_REG_LAYOUT_RCAR_V3U,
+ };
  
- #include <linux/bitops.h>
-+
 +struct cpg_sd_div_table {
 +	u32 val;
 +	unsigned int div;
@@ -213,7 +212,7 @@ index b669dec..4c59680 100644
  struct cpg_mssr_info {
  	const struct cpg_core_clk	*core_clk;
  	unsigned int			core_clk_size;
-@@ -21,6 +27,9 @@ struct cpg_mssr_info {
+@@ -28,6 +33,9 @@ struct cpg_mssr_info {
  	unsigned int			mod_clk_size;
  	const struct mstp_stop_table	*mstp_table;
  	unsigned int			mstp_table_size;
@@ -221,8 +220,8 @@ index b669dec..4c59680 100644
 +	unsigned int			sd_div_table_size;
 +	u32				sd_div_mask;
  	const char			*reset_node;
+ 	unsigned int			reset_modemr_offset;
  	const char			*extalr_node;
- 	const char			*extal_usb_node;
 -- 
 2.7.4
 

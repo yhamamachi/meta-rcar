@@ -1,7 +1,7 @@
-From 72bd388e1bbc2715f0608271f4b296f6dff7f790 Mon Sep 17 00:00:00 2001
+From b2423d6bfb0a294ca7f94d3d15c1f3ca62349b20 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Tue, 23 Apr 2019 23:16:15 +0300
-Subject: [PATCH 13/22] ARM: rmobile: Add R8A77970 V3MSK board support
+Subject: [PATCH 11/19] ARM: rmobile: Add R8A77970 V3MSK board support
 
 This adds V3MSK board support based on the Eagle board.
 
@@ -29,17 +29,17 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 include/configs/v3msk.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index f8f5294..b23fff0 100644
+index 637ed85..a5e97b3 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -791,6 +791,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
- 	r8a77965-ulcb-u-boot.dtb \
+@@ -795,6 +795,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
  	r8a77965-salvator-x-u-boot.dtb \
+ 	r8a77965-salvator-xs-u-boot.dtb \
  	r8a77970-eagle-u-boot.dtb \
 +	r8a77970-v3msk-u-boot.dtb \
  	r8a77980-condor-u-boot.dtb \
  	r8a77990-ebisu-u-boot.dtb \
- 	r8a77995-draak-u-boot.dtb
+ 	r8a77995-draak-u-boot.dtb \
 diff --git a/arch/arm/dts/r8a77970-v3msk-u-boot.dts b/arch/arm/dts/r8a77970-v3msk-u-boot.dts
 new file mode 100644
 index 0000000..65a3061
@@ -335,10 +335,10 @@ index 0000000..72ddc82
 +	status = "okay";
 +};
 diff --git a/arch/arm/mach-rmobile/Kconfig.64 b/arch/arm/mach-rmobile/Kconfig.64
-index 07f607d..e7dd560 100644
+index 1d696f6..f952cd0 100644
 --- a/arch/arm/mach-rmobile/Kconfig.64
 +++ b/arch/arm/mach-rmobile/Kconfig.64
-@@ -69,6 +69,11 @@ config TARGET_EAGLE
+@@ -76,6 +76,11 @@ config TARGET_EAGLE
  	help
            Support for Renesas R-Car Gen3 Eagle platform
  
@@ -350,14 +350,14 @@ index 07f607d..e7dd560 100644
  config TARGET_EBISU
  	bool "Ebisu board"
  	imply R8A77990
-@@ -105,6 +110,7 @@ config SYS_SOC
+@@ -118,6 +123,7 @@ config SYS_SOC
  source "board/renesas/condor/Kconfig"
  source "board/renesas/draak/Kconfig"
  source "board/renesas/eagle/Kconfig"
 +source "board/renesas/v3msk/Kconfig"
  source "board/renesas/ebisu/Kconfig"
+ source "board/renesas/falcon/Kconfig"
  source "board/renesas/salvator-x/Kconfig"
- source "board/renesas/ulcb/Kconfig"
 diff --git a/board/renesas/v3msk/Kconfig b/board/renesas/v3msk/Kconfig
 new file mode 100644
 index 0000000..ecfc9b9
