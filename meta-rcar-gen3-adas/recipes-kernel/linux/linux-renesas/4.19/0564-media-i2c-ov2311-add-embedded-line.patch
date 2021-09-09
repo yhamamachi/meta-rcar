@@ -1,0 +1,78 @@
+From e4a57a84617d0b5d8eff49cdb65ca12fde333cbb Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 9 Sep 2021 21:57:47 +0300
+Subject: [PATCH] media: i2c: soc_camera: ov2311: add embedded line
+
+This adds embedded line support for DVP amd MIPI cases
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ov2311.h | 38 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ov2311.h b/drivers/media/i2c/soc_camera/ov2311.h
+index cac5d57..d044315 100644
+--- a/drivers/media/i2c/soc_camera/ov2311.h
++++ b/drivers/media/i2c/soc_camera/ov2311.h
+@@ -11,6 +11,7 @@
+ 
+ //#define OV2311_DISPLAY_PATTERN
+ //#define OV2311_FSIN_ENABLE
++//#define OV2311_EMBEDDED_LINE
+ 
+ #define OV2311_MAX_WIDTH	1600
+ #define OV2311_MAX_HEIGHT	1300
+@@ -208,8 +209,11 @@ static const struct ov2311_reg ov2311_regs_wizard_r1c_mipi[] = {
+ {0x3208, 0x14},
+ {0x3662, 0x67}, //; [1] raw8
+ {0x366F, 0x1A}, //; [6] MSB
+-//{0x3674, 0x11}, //; [0] embed_en, add embed data before normal image
++ #ifdef OV2311_EMBEDDED_LINE
++{0x3674, 0x11}, //; [0] embed_en, add embed data before normal image
++ #else
+ {0x3674, 0x10}, //; [0] embed_dis, add embed data before normal image
++ #endif
+ {0x3016, 0xF0},
+ #endif
+ 
+@@ -391,5 +395,37 @@ static const struct ov2311_reg ov2311_regs_wizard_r1c_dvp[] = {
+ {0x3501, 0x05},
+ {0x3502, 0x94},
+ 
++ #ifdef OV2311_EMBEDDED_LINE
++{0x3218, 0x32}, // emb_addr_en, emb_tag_en, emb_sof_en
++{0x3216, 0x01}, // emb_line_num
++{0x366f, 0x1A}, // [6] MSB
++{0x3674, 0x13}, // [0] embed_en, add embed data before normal image
++
++{0x3016, 0xf1}, // stop timer counter
++
++// Manual DVP timings (adjust to latch EMB data)
++{0x3674, 0xbb}, // dvp_rd_pause (msb)
++{0x3675, 0x3e}, // dvp_rd_pause (lsb)
++{0x4600, 0x00}, // VFIFO read start (msb)
++{0x4601, 0x64}, // VFIFO read start (lsb)
++{0x380e, 0x05}, // VTS (msb)
++{0x380f, 0xa0}, // VTS (lsb)
++{0x3816, 0x05}, // HS start (msb)
++{0x3817, 0x9c}, // HS start (lsb
++{0x3818, 0x05}, // HS end (msb)
++{0x3819, 0x9e}, // HS end (lsb)
++
++{0x0100, 0x01}, // stream enable
++{0x3016, 0xf0}, // start timer counter
++
++// setup emb line content using group 4: must be set when STREAM ENABLED
++{0x3208, 0x04}, //group 4 start recording: the registers that should be send in data line
++{0x4448, 0x04}, //frame counter      (4 bytes)
++{0x4417, 0x02}, //temperature sensor (2 bytes)
++{0x3509, 0x01}, //read gain coarse   (1 byte)
++{0x3508, 0x01}, //read gain fine     (1 byte)
++{0x3208, 0x14}, //group 4 stop recording
++ #else
+ {0x0100, 0x01},
++ #endif
+ };
+-- 
+2.7.4
+
