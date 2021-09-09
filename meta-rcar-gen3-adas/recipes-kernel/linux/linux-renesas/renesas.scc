@@ -495,3 +495,4 @@ patch 0560-media-i2c-imx623-add-emb-line-and-fixes.patch
 patch 0561-media-i2c-ar0147-support-DVP.patch
 patch 0562-arm64-dts-renesas-change-cameras-relocated-addr.patch
 patch 0563-media-i2c-soc_camera-ONSEMI-use-fuseid-instead-otpid.patch
+patch 0564-media-i2c-ov2311-add-embedded-line.patch
