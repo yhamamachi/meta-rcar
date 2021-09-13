@@ -14,7 +14,10 @@ SRC_URI_append = " \
     file://renesas.scc \
 "
 
-SRC_URI_append_ulcb = " file://ulcb.cfg"
+SRC_URI_append_ulcb = " \
+    file://ulcb.cfg \
+    file://ath9k_wireless_pcie.cfg \
+"
 
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 
