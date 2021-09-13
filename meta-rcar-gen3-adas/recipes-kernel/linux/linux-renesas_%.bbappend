@@ -14,9 +14,8 @@ SRC_URI_append = " \
     file://renesas.scc \
 "
 
-SRC_URI_append_h3ulcb = " file://ulcb.cfg"
-SRC_URI_append_m3ulcb = " file://ulcb.cfg"
-SRC_URI_append_m3nulcb = " file://ulcb.cfg"
+SRC_URI_append_ulcb = " file://ulcb.cfg"
+
 SRC_URI_append_salvator-x = " file://salvator-x.cfg"
 
 SRC_URI_append_rcar-gen3-v3x = " \
