@@ -1,0 +1,90 @@
+From e7fdba0c7150e35e273bad810dba0fe6556106b9 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 4 Oct 2021 19:48:02 +0300
+Subject: [PATCH] media: i2c: ar0233: update seplus 30 fps setup
+
+This extracts seplus 30fps from latest seplus 60fps setup
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ar0233.c      | 26 +++++++++++++++-----------
+ drivers/media/i2c/soc_camera/ar0233_rev2.h | 17 +++++++++++++++++
+ 2 files changed, 32 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ar0233.c b/drivers/media/i2c/soc_camera/ar0233.c
+index 832a931..ae004ad 100644
+--- a/drivers/media/i2c/soc_camera/ar0233.c
++++ b/drivers/media/i2c/soc_camera/ar0233.c
+@@ -74,9 +74,9 @@ static int extclk = 23;
+ module_param(extclk, int, 0644);
+ MODULE_PARM_DESC(extclk, " EXTCLK value in MHz (default: 23) ");
+ 
+-static char *mode = "hdr";
++static char *mode = "seplus";
+ module_param(mode, charp, 0644);
+-MODULE_PARM_DESC(mode, " Modes linear,hdr,seplus,seplus60 (default: hdr)");
++MODULE_PARM_DESC(mode, " Modes linear,hdr,seplus,seplus60 (default: seplus)");
+ 
+ static inline struct ar0233_priv *to_ar0233(const struct i2c_client *client)
+ {
+@@ -627,16 +627,20 @@ static int ar0233_initialize(struct i2c_client *client)
+ 				ar0233_set_regs(client, ar0233_regs_hdr_mipi_12bit_30fps_rev1);
+ 				break;
+ 			case 0x2:
+-				if (extclk == 27) {
+-					ar0233_regs_hdr_mipi_12bit_30fps_rev2[4] = ar0233_rev2_pll_27_102_4lane_12b;
+-					ar0233_regs_seplus_mipi_12bit_30fps_rev2[2] = ar0233_rev2_pll_27_102_4lane_12b;
+-				}
+-
+-				if (strcmp(mode, "hdr") == 0)
++				if (strcmp(mode, "hdr") == 0) {
++					if (extclk == 27) {
++						ar0233_regs_hdr_mipi_12bit_30fps_rev2[4] = ar0233_rev2_pll_27_102_4lane_12b;
++						ar0233_regs_seplus_mipi_12bit_30fps_rev2[2] = ar0233_rev2_pll_27_102_4lane_12b;
++					}
+ 					ar0233_set_regs(client, ar0233_regs_hdr_mipi_12bit_30fps_rev2);
+-				else if (strcmp(mode, "seplus") == 0)
+-					ar0233_set_regs(client, ar0233_regs_seplus_mipi_12bit_30fps_rev2);
+-				else if (strcmp(mode, "seplus60") == 0) {
++				} else if (strcmp(mode, "seplus") == 0) {
++					ar0233_regs_seplus_mipi_12bit_60fps_rev2[10] = ar0233_rev2_SE_Lin_T2_12bit_30fps;
++					ar0233_set_regs(client, ar0233_regs_seplus_mipi_12bit_60fps_rev2);
++					if (extclk != 27) {
++						reg16_read16(client, 0x3030, &val);
++						reg16_write16(client, 0x3030, val * 27 / extclk + 1);
++					}
++				} else if (strcmp(mode, "seplus60") == 0) {
+ 					AR_MAX_WIDTH = 1920;
+ 					AR_MAX_HEIGHT = 1080;
+ 					AR_DEFAULT_WIDTH = 1920;
+diff --git a/drivers/media/i2c/soc_camera/ar0233_rev2.h b/drivers/media/i2c/soc_camera/ar0233_rev2.h
+index 1df367c..d683213 100644
+--- a/drivers/media/i2c/soc_camera/ar0233_rev2.h
++++ b/drivers/media/i2c/soc_camera/ar0233_rev2.h
+@@ -3476,6 +3476,23 @@ static const struct ar0xxx_reg ar0233_rev2_SE_Lin_T2_12bit[] = {
+ { }
+ }; /* */
+ 
++static const struct ar0xxx_reg ar0233_rev2_SE_Lin_T2_12bit_30fps[] = {
++/* Hidden: SE+Lin T2_12bit */
++{0x3112, 0x71E7}, //bypass_pix_comb_dtr = 0
++{0x3082, 0x4},    //0x3082 = 1, 2 exposures
++{0x30BA, 0x1121}, //Num_exp_max
++{0x31AC, 0x140C}, //12 bit output
++
++{0x300C, 0x0760}, // LINE_LENGTH_PCK_
++{0x300A, 0x089e}, // FRAME_LENGTH_LINES_
++{0x33E0, 0x0D40}, // TEST_ASIL_ROWS_idle row=7
++{0x3362, 0x0001}, // DC_GAIN
++{0x3238, 0x8446}, // EXPOSURE_RATIO
++{0x3012, 0x02A5}, // COARSE_INTEGRATION_TIME_
++{0x3212, 0x0007}, // COARSE_INTEGRATION_TIME2
++{ }
++}; /* */
++
+ static const struct ar0xxx_reg ar0233_rev2_SEPLUS_12bit[] = {
+ {0x3082, 0x4},    //num_exp = 2
+ {0x30BA, 0x1121}, //num_exp_max =2
+-- 
+2.7.4
+
