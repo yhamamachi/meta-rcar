@@ -498,3 +498,4 @@ patch 0563-media-i2c-soc_camera-ONSEMI-use-fuseid-instead-otpid.patch
 patch 0564-media-i2c-ov2311-add-embedded-line.patch
 patch 0565-media-i2c-ar0233-update-seplus-30-fps-setup.patch
 patch 0566-media-i2c-ar0233-latest-silicon-should-not-load-some.patch
+patch 0567-media-i2c-ar0233-change-ADC-LUT.patch
