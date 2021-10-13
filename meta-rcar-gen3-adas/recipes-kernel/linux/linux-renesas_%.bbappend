@@ -42,7 +42,6 @@ ULCB_KF_DTBO = " \
 "
 
 KERNEL_DEVICETREE_append_h3ulcb = " \
-    renesas/r8a77950-ulcb-kf.dtb \
     renesas/r8a77951-ulcb-kf.dtb \
     renesas/r8a779m1-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
