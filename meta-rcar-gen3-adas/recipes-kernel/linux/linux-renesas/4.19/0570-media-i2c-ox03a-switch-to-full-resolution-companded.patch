@@ -1,0 +1,190 @@
+From 96c36cb03081d2ccb7907044d839c3af695d019e Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 18 Oct 2021 20:34:29 +0300
+Subject: [PATCH] media: i2c: ox03a: switch to full resolution companded
+
+Siwtch ot 1920x1280@30 DCG 12bit format with emb lines/stats
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/ox03a.c | 16 +++++++--
+ drivers/media/i2c/soc_camera/ox03a.h | 67 +++++++++++++++++++++++++++---------
+ 2 files changed, 64 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/ox03a.c b/drivers/media/i2c/soc_camera/ox03a.c
+index 9569c70..d0b128f 100644
+--- a/drivers/media/i2c/soc_camera/ox03a.c
++++ b/drivers/media/i2c/soc_camera/ox03a.c
+@@ -27,8 +27,9 @@ static const int ox03a_i2c_addr[] = {0x10, 0x36};
+ #define OX03A_PID		0x300A
+ #define OX03A_VER		0x300B
+ #define OX03A_VERSION_REG	0x5803
++#define OX03A_REV_REG		0x302a
+ 
+-#define OX03A_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR16_1X16
++#define OX03A_MEDIA_BUS_FMT	MEDIA_BUS_FMT_SBGGR12_1X12
+ 
+ struct ox03a_priv {
+ 	struct v4l2_subdev		sd;
+@@ -193,6 +194,12 @@ static int ox03a_get_selection(struct v4l2_subdev *sd,
+ 	case V4L2_SEL_TGT_CROP:
+ 		sel->r = priv->rect;
+ 		return 0;
++	case V4L2_SEL_TGT_COMPOSE_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = OX03A_EMB_PADDED;
++		sel->r.width = priv->rect.width;
++		sel->r.height = priv->rect.height;
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -409,13 +416,16 @@ static int ox03a_initialize(struct i2c_client *client)
+ 		goto err;
+ 	}
+ 
++	/* check revision  */
++	reg16_read(client, OX03A_REV_REG, &val);
++	rev = 0x10 | ((val & 0xf) + 0xa);
+ 	/* Program wizard registers */
+ 	ox03a_set_regs(client, ox03a_regs_wizard_r1a, ARRAY_SIZE(ox03a_regs_wizard_r1a));
+ 	/* Read OTP IDs */
+ 	ox03a_otp_id_read(client);
+ 
+-	dev_info(&client->dev, "ox03a PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
+-		 pid, OX03A_MAX_WIDTH, OX03A_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++	dev_info(&client->dev, "ox03a PID %x (rev %x), res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, rev, OX03A_MAX_WIDTH, OX03A_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
+ err:
+ 	return ret;
+ }
+diff --git a/drivers/media/i2c/soc_camera/ox03a.h b/drivers/media/i2c/soc_camera/ox03a.h
+index 4c20374..e20bbb2 100644
+--- a/drivers/media/i2c/soc_camera/ox03a.h
++++ b/drivers/media/i2c/soc_camera/ox03a.h
+@@ -1,7 +1,7 @@
+ /*
+- * OmniVision OX03A sensor camera wizard 1920x1080@30/BGGR/MIPI
++ * OmniVision OX03A sensor camera wizard 1920x1280@30/BGGR/MIPI
+  *
+- * Copyright (C) 2018 Cogent Embedded, Inc.
++ * Copyright (C) 2018-2021 Cogent Embedded, Inc.
+  *
+  * This program is free software; you can redistribute  it and/or modify it
+  * under  the terms of  the GNU General  Public License as published by the
+@@ -9,13 +9,16 @@
+  * option) any later version.
+  */
+ 
+-//#define OX03A_DISPLAY_PATTERN_COLOR_BAR
++#define OX03A_DISPLAY_PATTERN_COLOR_BAR
++#define OX03A_EMBEDDED_LINE
+ 
+-#define OX03A_MAX_WIDTH		1632
++#define OX03A_MAX_WIDTH		1920
+ #define OX03A_MAX_HEIGHT	1280
+ 
++#define OX03A_EMB_LINES		2 /* 2 emb lines at SOF, 2 embedded lines at EOF, 2 stat lines at EOF */
++#define OX03A_EMB_PADDED	OX03A_EMB_LINES /* embedded data (SOF) */
++
+ #define OX03A_DELAY		0xffff
+-//#define OX03A_DT		0x2c /* MIPI Data Type RAW12 */
+ //#define DCG16_ONLY
+ 
+ struct ox03a_reg {
+@@ -23,7 +26,7 @@ struct ox03a_reg {
+ 	u8	val;
+ };
+ 
+-/* wizard: MIPI 1632x1280 16DCG+12VS 30fps 575MBPS R1A */
++/* MIPI 1920x1280 12DCG 30fps 575MBPS R1A */
+ static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
+ {0x0103, 0x01}, // s/w reset
+ {OX03A_DELAY, 10}, // Wait 10ms
+@@ -63,7 +66,7 @@ static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
+ {0x0322, 0x00},
+ {0x0323, 0x02},
+ {0x0324, 0x00},
+-{0x0325, 0x6c},
++{0x0325, 0x7e},
+ {0x0326, 0x00},
+ {0x0327, 0x05},
+ {0x0328, 0x05},
+@@ -763,20 +766,20 @@ static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
+ {0x3801, 0x00},
+ {0x3802, 0x00},
+ {0x3803, 0x04},
+-{0x3804, 0x07},
+-{0x3805, 0x8f},
+-{0x3806, 0x05},
+-{0x3807, 0x0d},
++{0x3804, (OX03A_MAX_WIDTH + 0x0f) >> 8},
++{0x3805, (OX03A_MAX_WIDTH + 0x0f) & 0xff},
++{0x3806, (OX03A_MAX_HEIGHT + 0x0f) >> 8},
++{0x3807, (OX03A_MAX_HEIGHT + 0x0f) & 0xff},
+ {0x3808, OX03A_MAX_WIDTH >> 8},
+ {0x3809, OX03A_MAX_WIDTH & 0xff},
+ {0x380a, OX03A_MAX_HEIGHT >> 8},
+ {0x380b, OX03A_MAX_HEIGHT & 0xff},
+-{0x380c, 0x06},
+-{0x380d, 0xce},
+-{0x380e, 0x05},
+-{0x380f, 0x37},
++{0x380c, (OX03A_MAX_WIDTH + 0x6f) >> 8},
++{0x380d, (OX03A_MAX_WIDTH + 0x6f) & 0xff},
++{0x380e, (OX03A_MAX_HEIGHT + 0x3f) >> 8},
++{0x380f, (OX03A_MAX_HEIGHT + 0x3f) & 0xff},
+ {0x3810, 0x00},
+-{0x3811, 0x9c},
++{0x3811, 0x08},
+ {0x3812, 0x00},
+ {0x3813, 0x04},
+ /* window end */
+@@ -1719,6 +1722,7 @@ static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
+ {0x5115, 0x00},
+ {0x5116, 0x00},
+ {0x5117, 0x00},
++#if 0
+ /* patch start */
+ {0x0325, 0x68},
+ {0x0400, 0xe8},
+@@ -1762,5 +1766,36 @@ static const struct ox03a_reg ox03a_regs_wizard_r1a[] = {
+ //{0x3208, 0x13}, // stop recording group3
+ //{0x3208, 0xe3}, // launch group3
+ /* patch2 end */
++#else
++{0x3673, 0x6c}, // DT = 0x2c RAW12
++{0x3671, 0x2f}, // Switch to compressed 12-bit DCG option B
++{0x4813, 0x12}, // VC
++{0x4814, 0x2c},
++{0x4815, 0x2c},
++{0x3793, 0x04},
++#endif
++
++ #ifdef OX03A_EMBEDDED_LINE
++{0x3208, 0x04}, // setup SOF emb line
++{0x3808, 0x04}, // show window
++{0x4f06, 0x02}, // show temperature
++{0x3208, 0x14},
++
++{0x3208, 0x05}, // setup EOF emb line
++{0x5000, 0x10},
++{0x4f06, 0x02}, // show temperature
++{0x3208, 0x15},
++
++{0x3217, 0x00}, // padding value in embedded data
++{0x3219, 0x55}, // tag value in embedded data
++
++{0x3665, 0x2c}, // EMB data  DT=0x2c
++{0x3667, 0x6c}, // EMB stats DT=0x2c, enable stats
++{0x366f, 0xf4}, // EMB data front and end enable
++ #else
++{0x3667, 0x2c}, // EMB stats disable
++{0x366f, 0xc4}, // EMB data front and end disable
++ #endif
++
+ {0x0100, 0x01},
+ };
+-- 
+2.7.4
+
