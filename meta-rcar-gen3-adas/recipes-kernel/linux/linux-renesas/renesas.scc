@@ -501,3 +501,4 @@ patch 0566-media-i2c-ar0233-latest-silicon-should-not-load-some.patch
 patch 0567-media-i2c-ar0233-change-ADC-LUT.patch
 patch 0568-media-i2c-ar0233-fix-multicamera-usecase-for-30fps.patch
 patch 0569-media-i2c-imx623-update-setup-for-be1-be2.patch
+patch 0570-media-i2c-ox03a-switch-to-full-resolution-companded.patch
