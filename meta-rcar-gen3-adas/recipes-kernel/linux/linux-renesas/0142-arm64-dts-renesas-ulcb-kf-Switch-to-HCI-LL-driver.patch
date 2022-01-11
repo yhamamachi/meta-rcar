@@ -1,7 +1,7 @@
-From aa3d67e310fe5d24b8f2113b459fd2998971ac8f Mon Sep 17 00:00:00 2001
+From 23db2c2d08a5160461ba23c5271537c0568e82aa Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 5 May 2021 04:09:30 +0300
-Subject: [PATCH 55/70] arm64: dts: renesas: ulcb-kf: Switch to HCI LL driver
+Subject: [PATCH 61/76] arm64: dts: renesas: ulcb-kf: Switch to HCI LL driver
 
 Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
 ---

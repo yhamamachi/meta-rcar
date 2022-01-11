@@ -1,7 +1,7 @@
-From 2711515a6781e196868d3e9cebcaf1d4a6f19bc1 Mon Sep 17 00:00:00 2001
+From 75d28c6a26fa14603fc24cf07d894799fc577ffb Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Thu, 12 Nov 2020 17:07:52 +0300
-Subject: [PATCH 29/70] media: i2c: ov2311: add frame rate adjustment
+Subject: [PATCH 34/76] media: i2c: ov2311: add frame rate adjustment
 
 This adds the FPS adjustment support
 

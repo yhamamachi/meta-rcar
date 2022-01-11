@@ -1,7 +1,7 @@
-From 4976212a6776068b2f2523c6f7a4f872a9fe2983 Mon Sep 17 00:00:00 2001
+From b0add8759726a4bb17610656b43d75e2923febaa Mon Sep 17 00:00:00 2001
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Date: Wed, 14 Apr 2021 22:54:53 +0300
-Subject: [PATCH 61/70] iio: st_sensors: Add lsm9ds0 IMU support
+Subject: [PATCH 67/76] iio: st_sensors: Add lsm9ds0 IMU support
 
 We can utilize separate drivers for accelerometer and magnetometer,
 so here is the glue driver to enable LSM9DS0 IMU support.

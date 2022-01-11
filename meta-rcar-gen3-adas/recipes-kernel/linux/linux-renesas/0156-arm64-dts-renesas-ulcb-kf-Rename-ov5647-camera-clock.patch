@@ -1,7 +1,7 @@
-From 83eccc1147c70a8cff7f3a1342e1c34d0447e5b5 Mon Sep 17 00:00:00 2001
+From 27129a6b86d9f28712a490fcde67feb24b2600f1 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 28 May 2021 02:52:09 +0300
-Subject: [PATCH 68/70] arm64: dts: renesas: ulcb-kf: Rename ov5647 camera
+Subject: [PATCH 74/76] arm64: dts: renesas: ulcb-kf: Rename ov5647 camera
  clock
 
 This renames ov5647 RPi camera clock to avoid name collision

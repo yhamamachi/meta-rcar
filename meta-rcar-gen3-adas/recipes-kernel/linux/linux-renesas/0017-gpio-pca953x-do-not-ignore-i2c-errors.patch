@@ -1,9 +1,20 @@
-From eb8ee13e89d5ae682e02b2a3a56781b1571a7c71 Mon Sep 17 00:00:00 2001
+From f408b8a7e9421cb48cad6c709c91e66d6fffc9ab Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
-Date: Tue, 27 Aug 2019 13:08:42 +0300
-Subject: [PATCH 10/70] gpio: pca953x: do not ignore i2c errors
+Date: Thu, 23 Sep 2021 20:22:16 +0300
+Subject: [PATCH 10/76] gpio: pca953x: do not ignore i2c errors
 
+Upstream commit 540cffbab8b8e6c52a4121666ca18d6e94586ed2.
+
+Per gpio_chip interface, error shall be proparated to the caller.
+
+Attempt to silent diagnostics by returning zero (as written in the
+comment) is plain wrong, because the zero return can be interpreted by
+the caller as the gpio value.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 ---
  drivers/gpio/gpio-pca953x.c | 11 ++---------
  1 file changed, 2 insertions(+), 9 deletions(-)

@@ -1,7 +1,7 @@
-From 2dbf8c9eb79a44342d987a310f49f7746f4c4f55 Mon Sep 17 00:00:00 2001
+From 81e83b3d5400796743311c81af2a15c18e007b68 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Mon, 19 Oct 2020 01:47:41 +0300
-Subject: [PATCH 26/70] ASoC: PCM3168A: add TDM modes, merge ADC and DAC
+Subject: [PATCH 31/76] ASoC: PCM3168A: add TDM modes, merge ADC and DAC
 
 Also disable 16 bit format and enable at start
 
@@ -13,7 +13,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  2 files changed, 209 insertions(+), 207 deletions(-)
 
 diff --git a/sound/soc/codecs/pcm3168a.c b/sound/soc/codecs/pcm3168a.c
-index 821e739..467a12f 100644
+index 821e739..c1ee301 100644
 --- a/sound/soc/codecs/pcm3168a.c
 +++ b/sound/soc/codecs/pcm3168a.c
 @@ -21,9 +21,10 @@
@@ -311,15 +311,20 @@ index 821e739..467a12f 100644
 -		reg = PCM3168A_ADC_MST_FMT;
 -		mask = PCM3168A_ADC_MSAD_MASK;
 -		shift = PCM3168A_ADC_MSAD_SHIFT;
-+		fmt = pcm3168a->adc_fmt;
- 	}
- 
+-	}
+-
 -	master_mode = io_params->master_mode;
 -	fmt = io_params->fmt;
 -
 -	for (i = 0; i < max_ratio; i++) {
 -		if (pcm3168a_scki_ratios[i] == ratio)
 -			break;
++		fmt = pcm3168a->adc_fmt;
+ 	}
+ 
+-	if (i == max_ratio) {
+-		dev_err(component->dev, "unsupported sysclk ratio\n");
+-		return -EINVAL;
 -	}
 +	if (pcm3168a->master_mode) {
 +		ratio = pcm3168a->sysclk / rate;
@@ -327,11 +332,6 @@ index 821e739..467a12f 100644
 +			if (pcm3168a_scki_ratios[i] == ratio)
 +				break;
  
--	if (i == max_ratio) {
--		dev_err(component->dev, "unsupported sysclk ratio\n");
--		return -EINVAL;
--	}
--
 -	if (io_params->slot_width)
 -		slot_width = io_params->slot_width;
 -	else
@@ -422,9 +422,11 @@ index 821e739..467a12f 100644
 -	if (master_mode)
 -		val = ((i + 1) << shift);
 -	else
+-		val = 0;
 +		/* single rate */
 +		sample_rate = 1;
-+
+ 
+-	regmap_update_bits(pcm3168a->regmap, reg, mask, val);
 +		/*
 +		 * 256fs for single line DIN0/DOUT0
 +		 * 128fs for two lines DIN01/DOU01
@@ -435,7 +437,13 @@ index 821e739..467a12f 100644
 +			return -EINVAL;
 +		}
 +	}
-+ 
+ 
+-	if (dai->id == PCM3168A_DAI_DAC) {
+-		mask = PCM3168A_DAC_FMT_MASK;
+-		shift = PCM3168A_DAC_FMT_SHIFT;
+-	} else {
+-		mask = PCM3168A_ADC_FMTAD_MASK;
+-		shift = PCM3168A_ADC_FMTAD_SHIFT;
 +	/* Setup ADC in master mode, couse it drives ADC */
 +	if ((pcm3168a->master_mode) || (tx)) {
 +		fmt = pcm3168a->dac_fmt;
@@ -452,26 +460,18 @@ index 821e739..467a12f 100644
 +		mask = PCM3168A_ADC_MSAD_MASK | PCM3168A_ADC_FMTAD_MASK;
 +		shift = PCM3168A_ADC_MSAD_SHIFT;
 +		/* ADC slave mode only, driven by DAC or CPU DAI */
- 		val = 0;
++		val = 0;
 +		regmap_update_bits(pcm3168a->regmap, reg, mask, (val << shift) | fmt);
-+	}
+ 	}
  
--	regmap_update_bits(pcm3168a->regmap, reg, mask, val);
+-	regmap_update_bits(pcm3168a->regmap, reg, mask, fmt << shift);
 +	regmap_update_bits(pcm3168a->regmap, PCM3168A_RST_SMODE,
 +		PCM3168A_DAC_SRDA_MASK,
 +		sample_rate << PCM3168A_DAC_SRDA_SHIFT);
- 
--	if (dai->id == PCM3168A_DAI_DAC) {
--		mask = PCM3168A_DAC_FMT_MASK;
--		shift = PCM3168A_DAC_FMT_SHIFT;
--	} else {
--		mask = PCM3168A_ADC_FMTAD_MASK;
--		shift = PCM3168A_ADC_FMTAD_SHIFT;
--	}
++
 +	return 0;
 +}
- 
--	regmap_update_bits(pcm3168a->regmap, reg, mask, fmt << shift);
++
 +static int pcm3168a_set_tdm_slot(struct snd_soc_dai *dai,
 +			        unsigned int tx_mask,
 +				unsigned int rx_mask,

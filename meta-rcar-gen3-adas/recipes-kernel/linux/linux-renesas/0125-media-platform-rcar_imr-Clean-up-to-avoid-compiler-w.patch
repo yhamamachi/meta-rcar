@@ -1,7 +1,7 @@
-From 93357678f5be424a9eec62ab44d3591280c00f08 Mon Sep 17 00:00:00 2001
+From b22693e4a0a438e99be721dfc763e9f14693d44a Mon Sep 17 00:00:00 2001
 From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
 Date: Mon, 5 Oct 2020 13:36:47 +0300
-Subject: [PATCH 45/70] media: platform: rcar_imr: Clean up to avoid compiler
+Subject: [PATCH 51/76] media: platform: rcar_imr: Clean up to avoid compiler
  warnings
 
 This is a slight driver clean-up that helps to avoid compiler warnings.

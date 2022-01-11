@@ -1,7 +1,7 @@
-From 2b21d4db6dfea6ec21181271114faa9cb104d0f5 Mon Sep 17 00:00:00 2001
+From ce9c92145d26de7f22ffbc16b0e4e7824c7f84fd Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Thu, 19 Nov 2020 17:17:08 +0300
-Subject: [PATCH 38/70] media: i2c: imx219: Set 8-bit SBGGR mode by default
+Subject: [PATCH 44/76] media: i2c: imx219: Set 8-bit SBGGR mode by default
 
 This sets 8-bit SBGGR mode, and enables [hv]flip controls by default.
 

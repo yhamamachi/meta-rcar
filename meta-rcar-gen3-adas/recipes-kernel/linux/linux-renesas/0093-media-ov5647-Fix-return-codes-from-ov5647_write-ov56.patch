@@ -1,7 +1,7 @@
-From ba8c9c3e2ad201864f00675534fa3487c9d5ecd4 Mon Sep 17 00:00:00 2001
+From 47f7af4ed29e654ff9bc922641f368703de7e362 Mon Sep 17 00:00:00 2001
 From: David Plowman <david.plowman@raspberrypi.org>
 Date: Wed, 15 Jan 2020 13:40:38 +0000
-Subject: [PATCH 32/70] media: ov5647: Fix return codes from
+Subject: [PATCH 38/76] media: ov5647: Fix return codes from
  ov5647_write/ov5647_read functions.
 
 Previously they were returning positive non-zero codes for success,

@@ -1,7 +1,7 @@
-From b8c3701bf3f65eb626b31113f4e39f43a7c60001 Mon Sep 17 00:00:00 2001
+From 59265b91718ba9e8e9eb087a081c6758a7342966 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 16 Nov 2018 00:04:14 +0300
-Subject: [PATCH 19/70] mtd: spi-nor: renesas: rpc: Support single mode write
+Subject: [PATCH 19/76] mtd: spi-nor: renesas: rpc: Support single mode write
  command
 
 This adds single mode write command support.

@@ -1,7 +1,7 @@
-From df00a7f65481903057eef15375bca63365c26193 Mon Sep 17 00:00:00 2001
+From 089794a7cb536653ad8dd6cfa21945383b42d48e Mon Sep 17 00:00:00 2001
 From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 Date: Thu, 10 Aug 2017 16:29:01 +0300
-Subject: [PATCH 06/70] ASoC: add dummy device for WL18xx PCM audio
+Subject: [PATCH 06/76] ASoC: add dummy device for WL18xx PCM audio
 
 Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
 ---

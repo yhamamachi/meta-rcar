@@ -1,7 +1,7 @@
-From 1867a6ac2f1c4933aa7cd67d8067dd5943f439b5 Mon Sep 17 00:00:00 2001
+From c192c6d1285d7e9cedada99dc4e5dc9f0b899ebf Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Fri, 16 Nov 2018 10:04:14 +0300
-Subject: [PATCH 20/70] mtd: spi-nor: renesas-rpc: Add DMA read support
+Subject: [PATCH 20/76] mtd: spi-nor: renesas-rpc: Add DMA read support
 
 This adds DMA read support which can be disabled
 by the "use_dma=0" module parameter.

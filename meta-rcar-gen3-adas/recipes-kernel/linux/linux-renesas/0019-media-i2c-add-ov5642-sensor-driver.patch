@@ -1,7 +1,7 @@
-From 53029f8ef9ee23b77896ec98641bd53adf2b6f76 Mon Sep 17 00:00:00 2001
+From 48490273defeac724c45d973d7005fc0879ced13 Mon Sep 17 00:00:00 2001
 From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 Date: Tue, 29 Oct 2019 18:52:52 +0300
-Subject: [PATCH 12/70] media: i2c: add ov5642 sensor driver
+Subject: [PATCH 12/76] media: i2c: add ov5642 sensor driver
 
 This adds ov5642 glue drivers
 
@@ -1248,7 +1248,7 @@ index 0000000..ac47a16
 +#endif /* _OV5642_H_ */
 diff --git a/drivers/media/i2c/ov5642_720p.h b/drivers/media/i2c/ov5642_720p.h
 new file mode 100644
-index 0000000..d5a52e3
+index 0000000..c2f522c
 --- /dev/null
 +++ b/drivers/media/i2c/ov5642_720p.h
 @@ -0,0 +1,711 @@
@@ -1324,7 +1324,7 @@ index 0000000..d5a52e3
 +	{0x4610, 0x00},
 +	{0x471d, 0x05},
 +	{0x4708, 0x06},
-+	/* POLARITY CTRL 00 
++	/* POLARITY CTRL 00
 +	 * [0] VSYNC - act low
 +	 * [1] HREF - act low
 +	 * [2] gate PCLK under HREF - no
@@ -1345,7 +1345,7 @@ index 0000000..d5a52e3
 +					// 0x1e0 => 480
 +	{REG_OUT_TOTAL_HEIGHT_HIGH, 0x07},	// TIMING VTS Bit[3:0] Total vertical size high byte [11:8]
 +	{REG_OUT_TOTAL_HEIGHT_LOW, 0xd0},	// TIMING VTS Bit[7:0] Total vertical size low byte [7:0]
-+             	// 0x7d0 => 2000
++		// 0x7d0 => 2000
 +	{0x501f, 0x00},
 +	{REG_ISP_CTRL_00, 0x4f},
 +	{REG_OUTPUT_FORMAT, 0x32},   //UYVY
@@ -1362,7 +1362,7 @@ index 0000000..d5a52e3
 +	{REG_OUT_TOTAL_WIDTH_LOW, 0x80},
 +	{REG_OUT_TOTAL_HEIGHT_HIGH, 0x03},	// TIMING VTS Bit[3:0] Total vertical size high byte [11:8]
 +	{REG_OUT_TOTAL_HEIGHT_LOW, 0xe8},	// TIMING VTS Bit[7:0] Total vertical size low byte [7:0]
-+             	// 0x3e8 => 1000
++		// 0x3e8 => 1000
 +	{0x3a0d, 0x04},
 +	{0x3a0e, 0x03},
 +	{0x3818, 0xc1},

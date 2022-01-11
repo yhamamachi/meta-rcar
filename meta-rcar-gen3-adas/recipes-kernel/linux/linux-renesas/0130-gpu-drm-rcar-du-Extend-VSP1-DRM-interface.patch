@@ -1,7 +1,7 @@
-From 8cbfa3a0ae7260e6e3fe3913381c1df428235376 Mon Sep 17 00:00:00 2001
+From 3d0a36939ad2760e0330139d2202388c22022dd7 Mon Sep 17 00:00:00 2001
 From: Andrey Dolnikov <andrey.dolnikov@cogentembedded.com>
 Date: Thu, 8 Oct 2020 12:56:04 +0300
-Subject: [PATCH 49/70] gpu: drm: rcar-du: Extend VSP1-DRM interface
+Subject: [PATCH 55/76] gpu: drm: rcar-du: Extend VSP1-DRM interface
 
 This is based on the original "Extend VSP1-DRM interface" patch
 by Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com>
@@ -49,10 +49,10 @@ index 62d564d..55d220a 100644
  
  	unsigned int dpad0_source;
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_kms.c b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
-index 3a22361..033a61d 100644
+index 2c7cb49..74e4420 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_kms.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
-@@ -114,6 +114,14 @@ static const struct rcar_du_format_info rcar_du_format_infos[] = {
+@@ -115,6 +115,14 @@ static const struct rcar_du_format_info rcar_du_format_infos[] = {
  		.hsub = 2,
  		.pnmr = PnMR_SPIM_TP_OFF | PnMR_DDDF_YC,
  		.edf = PnDDCR4_EDF_NONE,
@@ -67,7 +67,7 @@ index 3a22361..033a61d 100644
  	},
  	/*
  	 * The following formats are not supported on Gen2 and thus have no
-@@ -656,6 +664,37 @@ static int rcar_du_properties_init(struct rcar_du_device *rcdu)
+@@ -695,6 +703,37 @@ static int rcar_du_properties_init(struct rcar_du_device *rcdu)
  			return -ENOMEM;
  	}
  
@@ -106,10 +106,10 @@ index 3a22361..033a61d 100644
  }
  
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_plane.c b/drivers/gpu/drm/rcar-du/rcar_du_plane.c
-index 15cd8b6..2fbe8b69 100644
+index e15de8e..02236e3 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_plane.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_plane.c
-@@ -783,6 +783,7 @@ static const uint32_t formats[] = {
+@@ -789,6 +789,7 @@ static const uint32_t formats[] = {
  	DRM_FORMAT_NV12,
  	DRM_FORMAT_NV21,
  	DRM_FORMAT_NV16,
@@ -134,7 +134,7 @@ index 4701ea4..0e83fbd 100644
  
  static inline struct rcar_du_plane_state *
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
-index 1c7c995..680d284 100644
+index c26c79e..039edc3 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
 @@ -100,6 +100,16 @@ void rcar_du_vsp_enable(struct rcar_du_crtc *crtc)
@@ -197,8 +197,8 @@ index 1c7c995..680d284 100644
 +		       struct sg_table sg_tables[3], struct rcar_du_vsp_plane_state *rstate)
  {
  	struct rcar_du_device *rcdu = vsp->dev;
- 	unsigned int i;
-@@ -216,6 +249,24 @@ int rcar_du_vsp_map_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
+ 	unsigned int i, j;
+@@ -242,6 +275,24 @@ int rcar_du_vsp_map_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
  		}
  	}
  
@@ -223,7 +223,7 @@ index 1c7c995..680d284 100644
  	return 0;
  
  fail:
-@@ -243,7 +294,7 @@ static int rcar_du_vsp_plane_prepare_fb(struct drm_plane *plane,
+@@ -269,7 +320,7 @@ static int rcar_du_vsp_plane_prepare_fb(struct drm_plane *plane,
  	if (!state->visible)
  		return 0;
  
@@ -232,7 +232,7 @@ index 1c7c995..680d284 100644
  	if (ret < 0)
  		return ret;
  
-@@ -251,7 +302,7 @@ static int rcar_du_vsp_plane_prepare_fb(struct drm_plane *plane,
+@@ -277,7 +328,7 @@ static int rcar_du_vsp_plane_prepare_fb(struct drm_plane *plane,
  }
  
  void rcar_du_vsp_unmap_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
@@ -241,7 +241,7 @@ index 1c7c995..680d284 100644
  {
  	unsigned int i;
  
-@@ -261,6 +312,15 @@ void rcar_du_vsp_unmap_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
+@@ -287,6 +338,15 @@ void rcar_du_vsp_unmap_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
  		vsp1_du_unmap_sg(vsp->vsp, sgt);
  		sg_free_table(sgt);
  	}
@@ -257,7 +257,7 @@ index 1c7c995..680d284 100644
  }
  
  static void rcar_du_vsp_plane_cleanup_fb(struct drm_plane *plane,
-@@ -272,7 +332,7 @@ static void rcar_du_vsp_plane_cleanup_fb(struct drm_plane *plane,
+@@ -298,7 +358,7 @@ static void rcar_du_vsp_plane_cleanup_fb(struct drm_plane *plane,
  	if (!state->visible)
  		return;
  
@@ -266,7 +266,7 @@ index 1c7c995..680d284 100644
  }
  
  static int rcar_du_vsp_plane_atomic_check(struct drm_plane *plane,
-@@ -315,6 +375,13 @@ rcar_du_vsp_plane_atomic_duplicate_state(struct drm_plane *plane)
+@@ -341,6 +401,13 @@ rcar_du_vsp_plane_atomic_duplicate_state(struct drm_plane *plane)
  	if (copy == NULL)
  		return NULL;
  
@@ -280,7 +280,7 @@ index 1c7c995..680d284 100644
  	__drm_atomic_helper_plane_duplicate_state(plane, &copy->state);
  	copy->alpha = to_rcar_vsp_plane_state(plane->state)->alpha;
  	copy->colorkey = to_rcar_vsp_plane_state(plane->state)->colorkey;
-@@ -326,8 +393,17 @@ rcar_du_vsp_plane_atomic_duplicate_state(struct drm_plane *plane)
+@@ -352,8 +419,17 @@ rcar_du_vsp_plane_atomic_duplicate_state(struct drm_plane *plane)
  static void rcar_du_vsp_plane_atomic_destroy_state(struct drm_plane *plane,
  						   struct drm_plane_state *state)
  {
@@ -299,7 +299,7 @@ index 1c7c995..680d284 100644
  }
  
  static void rcar_du_vsp_plane_reset(struct drm_plane *plane)
-@@ -335,6 +411,8 @@ static void rcar_du_vsp_plane_reset(struct drm_plane *plane)
+@@ -361,6 +437,8 @@ static void rcar_du_vsp_plane_reset(struct drm_plane *plane)
  	struct rcar_du_vsp_plane_state *state;
  
  	if (plane->state) {
@@ -308,7 +308,7 @@ index 1c7c995..680d284 100644
  		rcar_du_vsp_plane_atomic_destroy_state(plane, plane->state);
  		plane->state = NULL;
  	}
-@@ -364,9 +442,10 @@ int rcar_du_vsp_write_back(struct drm_device *dev, void *data,
+@@ -390,9 +468,10 @@ int rcar_du_vsp_write_back(struct drm_device *dev, void *data,
  	struct rcar_du_crtc *rcrtc;
  	struct rcar_du_device *rcdu;
  	const struct drm_display_mode *mode;
@@ -321,7 +321,7 @@ index 1c7c995..680d284 100644
  
  	obj = drm_mode_object_find(dev, file_priv, sh->crtc_id,
  				   DRM_MODE_OBJECT_CRTC);
-@@ -378,64 +457,90 @@ int rcar_du_vsp_write_back(struct drm_device *dev, void *data,
+@@ -404,64 +483,90 @@ int rcar_du_vsp_write_back(struct drm_device *dev, void *data,
  	rcdu = rcrtc->group->dev;
  	mode = &rcrtc->crtc.state->adjusted_mode;
  
@@ -439,12 +439,12 @@ index 1c7c995..680d284 100644
 +		vsp1_du_unmap_sg(rcrtc->vsp->vsp, sgt);
 +		sg_free_table(sgt);
 +	}
-+ 
++
 +	drm_framebuffer_put(fb);
  
  	return ret;
  }
-@@ -481,7 +586,38 @@ static int rcar_du_vsp_plane_atomic_set_property(struct drm_plane *plane,
+@@ -507,7 +612,38 @@ static int rcar_du_vsp_plane_atomic_set_property(struct drm_plane *plane,
  		rstate->colorkey = val;
  	else if (property == rcdu->props.colorkey_alpha)
  		rstate->colorkey_alpha = val;
@@ -484,7 +484,7 @@ index 1c7c995..680d284 100644
  		return -EINVAL;
  
  	return 0;
-@@ -501,6 +637,16 @@ static int rcar_du_vsp_plane_atomic_get_property(struct drm_plane *plane,
+@@ -527,6 +663,16 @@ static int rcar_du_vsp_plane_atomic_get_property(struct drm_plane *plane,
  		*val = rstate->colorkey;
  	else if (property == rcdu->props.colorkey_alpha)
  		*val = rstate->colorkey_alpha;
@@ -501,7 +501,7 @@ index 1c7c995..680d284 100644
  	else
  		return -EINVAL;
  
-@@ -607,7 +753,8 @@ int rcar_du_vsp_init(struct rcar_du_vsp *vsp, struct device_node *np,
+@@ -633,7 +779,8 @@ int rcar_du_vsp_init(struct rcar_du_vsp *vsp, struct device_node *np,
  		drm_plane_helper_add(&plane->plane,
  				     &rcar_du_vsp_plane_helper_funcs);
  
@@ -511,7 +511,7 @@ index 1c7c995..680d284 100644
  			drm_plane_create_zpos_immutable_property(&plane->plane,
  								 0);
  		} else {
-@@ -622,6 +769,16 @@ int rcar_du_vsp_init(struct rcar_du_vsp *vsp, struct device_node *np,
+@@ -648,6 +795,16 @@ int rcar_du_vsp_init(struct rcar_du_vsp *vsp, struct device_node *np,
  							   0);
  			drm_plane_create_zpos_property(&plane->plane, 1, 1,
  						       vsp->num_planes - 1);
