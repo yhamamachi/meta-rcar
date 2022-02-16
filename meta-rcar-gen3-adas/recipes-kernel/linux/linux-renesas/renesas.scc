@@ -1,8 +1,6 @@
-patch 0001-ti-st-add-device-tree-support.patch
 patch 0003-ASoC-Modify-check-condition-of-multiple-bindings-of-.patch
 patch 0004-ASoC-add-dummy-Si468x-driver.patch
 patch 0005-wl18xx-do-not-invert-IRQ-on-WLxxxx-side.patch
-patch 0012-ti-st-use-proper-way-to-get-shutdown-gpio.patch
 patch 0013-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch
 patch 0014-staging-most-dim2-force-fcnt-3-on-Renesas-GEN3.patch
 patch 0015-i2c-mix-pca954x-reset-mux-in-case-of-error-during-bu.patch
@@ -74,3 +72,4 @@ patch 0155-media-rcar-vin-Fix-VNIS_REG-settings.patch
 patch 0156-arm64-dts-renesas-ulcb-kf-Rename-ov5647-camera-clock.patch
 patch 0157-arm64-dts-renesas-ulcb-kf-Move-ov5642-gpio-pins-to-o.patch
 patch 0158-media-i2c-imx219-Align-default-frame-width-to-32.patch
+patch 0200-arm64-dts-renesas-ulcb-kf-remove-obsolete-kim-node.patch
