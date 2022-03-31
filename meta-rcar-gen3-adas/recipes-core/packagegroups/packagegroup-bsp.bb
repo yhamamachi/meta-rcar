@@ -2,6 +2,8 @@ DESCRIPTION = "BSP packages (explicitly requested by Renesas)"
 
 LICENSE = "BSD-3-Clause & GPL-2.0-or-later & LGPL-2.0-or-later"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 PACKAGES = " \
