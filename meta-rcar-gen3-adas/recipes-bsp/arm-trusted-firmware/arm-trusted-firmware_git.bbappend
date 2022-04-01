@@ -26,8 +26,8 @@ do_ipl_opt_compile () {
 }
 
 do_ipl_opt_deploy:append () {
-    install -m 0644 ${S}/tools/renesas/rcar_layout_create/bootparam_sa0.bin ${DEPLOYDIR}/bootparam_sa0-${EXTRA_ATFW_CONF}.bin
-    install -m 0644 ${S}/tools/renesas/rcar_layout_create/cert_header_sa6.bin ${DEPLOYDIR}/cert_header_sa6-${EXTRA_ATFW_CONF}.bin
+    install -m 0644 ${S}/tools/renesas/rcar_layout_create/bootparam_sa0.bin ${DEPLOY_DIR_IMAGE}/bootparam_sa0-${EXTRA_ATFW_CONF}.bin
+    install -m 0644 ${S}/tools/renesas/rcar_layout_create/cert_header_sa6.bin ${DEPLOY_DIR_IMAGE}/cert_header_sa6-${EXTRA_ATFW_CONF}.bin
 }
 
 do_deploy:append() {
