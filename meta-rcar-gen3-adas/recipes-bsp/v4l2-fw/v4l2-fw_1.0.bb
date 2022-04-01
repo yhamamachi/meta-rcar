@@ -37,7 +37,7 @@ do_install() {
     install -m 755 ${S}/ov490_write.sh ${D}/usr/share/factory/
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/v4l2-fw \
     /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x1080@30_96Mhz.bin \
     /usr/share/factory/OV10640_OV490_combine_general_v491_20160105_common_withSPIHeader_1280x800@30_96Mhz.bin \

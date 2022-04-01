@@ -11,10 +11,10 @@ S = "${WORKDIR}/git"
 
 inherit cmake
 
-RDEPENDS_${PN} += "bash"
+RDEPENDS:${PN} += "bash"
 
 EXTRA_OECMAKE = "-DBUILD_SHARED_LIBS=ON -DINSTALL_HEADERS=ON -DINSTALL_SHARED_LIBS=ON"
 
-FILES_${PN}-dev += " \
+FILES:${PN}-dev += " \
     ${libdir}/cmake \
 "

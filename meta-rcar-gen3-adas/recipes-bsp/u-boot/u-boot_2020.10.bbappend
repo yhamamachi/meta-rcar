@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     file://0002-configs-rcar-gen3-Enable-askenv-command.patch \
     file://0003-net-sh_eth-Toggle-PHY-GPIO-reset-pin.patch \
     file://0004-clk-renesas-cpg-Update-SD-IF-clock-handling.patch \

@@ -10,7 +10,7 @@ PACKAGES = " \
 "
 
 # V3x common packages: IMP UIO, CMEM, CV lib, ICCOM
-RDEPENDS_packagegroup-v3x = " \
+RDEPENDS:packagegroup-v3x = " \
     kernel-module-cmemdrv \
     kernel-module-iccom \
     libiccom \
@@ -18,7 +18,7 @@ RDEPENDS_packagegroup-v3x = " \
 "
 
 # V3x test and benchmark packages
-RDEPENDS_packagegroup-v3x-test = " \
+RDEPENDS:packagegroup-v3x-test = " \
     br-test \
     dbench \
     tbench \

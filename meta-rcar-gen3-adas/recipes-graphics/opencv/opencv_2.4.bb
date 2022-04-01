@@ -57,7 +57,7 @@ TARGET_CC_ARCH += "-I${S}/include "
 
 PACKAGES += "${PN}-apps python-opencv"
 
-python populate_packages_prepend () {
+python populate_packages:prepend () {
     cv_libdir = d.expand('${libdir}')
     cv_libdir_dbg = d.expand('${libdir}/.debug')
     do_split_packages(d, cv_libdir, '^lib(.*)\.so$', 'lib%s-dev', 'OpenCV %s development package', extra_depends='${PN}-dev', allow_links=True)
@@ -67,32 +67,32 @@ python populate_packages_prepend () {
 
     pn = d.getVar('PN', 1)
     metapkg =  pn + '-dev'
-    d.setVar('ALLOW_EMPTY_' + metapkg, "1")
+    d.setVar('ALLOW_EMPTY:' + metapkg, "1")
     blacklist = [ metapkg ]
     metapkg_rdepends = [ ] 
     packages = d.getVar('PACKAGES', 1).split()
     for pkg in packages[1:]:
         if not pkg in blacklist and not pkg in metapkg_rdepends and pkg.endswith('-dev'):
             metapkg_rdepends.append(pkg)
-    d.setVar('RRECOMMENDS_' + metapkg, ' '.join(metapkg_rdepends))
+    d.setVar('RRECOMMENDS:' + metapkg, ' '.join(metapkg_rdepends))
 }
 
 PACKAGES_DYNAMIC += "^libopencv-.*"
 
-FILES_${PN} = ""
-FILES_${PN}-apps = "${bindir}/* ${datadir}/OpenCV"
-FILES_${PN}-dbg += "${libdir}/.debug"
-FILES_${PN}-dev = "${includedir} ${libdir}/pkgconfig"
-FILES_${PN}-doc = "${datadir}/OpenCV/doc"
+FILES:${PN} = ""
+FILES:${PN}-apps = "${bindir}/* ${datadir}/OpenCV"
+FILES:${PN}-dbg += "${libdir}/.debug"
+FILES:${PN}-dev = "${includedir} ${libdir}/pkgconfig"
+FILES:${PN}-doc = "${datadir}/OpenCV/doc"
 
-ALLOW_EMPTY_${PN} = "1"
+ALLOW_EMPTY:${PN} = "1"
 
-INSANE_SKIP_python-opencv = "True"
-SUMMARY_python-opencv = "Python bindings to opencv"
-FILES_python-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
-RDEPENDS_python-opencv = "python-core python-numpy"
+INSANE_SKIP:python-opencv = "True"
+SUMMARY:python-opencv = "Python bindings to opencv"
+FILES:python-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
+RDEPENDS:python-opencv = "python-core python-numpy"
 
-do_install_append() {
+do_install:append() {
     cp ${S}/include/opencv/*.h ${D}${includedir}/opencv/
     sed -i '/blobtrack/d' ${D}${includedir}/opencv/cvaux.h
 }

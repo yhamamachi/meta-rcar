@@ -3,8 +3,8 @@ SECTION = "multimedia"
 
 LICENSE = "CLOSED"
 
-INSANE_SKIP_${PN} = "ldflags"
-INSANE_SKIP_${PN}-dev = "ldflags"
+INSANE_SKIP:${PN} = "ldflags"
+INSANE_SKIP:${PN}-dev = "ldflags"
 
 PE = "1"
 PV = "0.2"
@@ -35,7 +35,7 @@ do_install() {
     done
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir} \
     /lib/firmware/radio \
 "

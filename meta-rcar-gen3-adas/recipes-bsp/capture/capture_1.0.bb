@@ -27,7 +27,7 @@ do_install() {
     install -m 755 ${S}/test_lvds_8cameras_on_display1920x1080.sh ${D}/usr/share/tests/
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/capture \
     /usr/share/tests/test_lvds_camera_0.sh \
     /usr/share/tests/test_lvds_camera_4.sh \

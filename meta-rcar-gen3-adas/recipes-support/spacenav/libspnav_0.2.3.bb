@@ -21,4 +21,4 @@ B = "${WORKDIR}/libspnav-${PV}"
 # Disable X11 protocol
 EXTRA_OECONF = "--disable-x11"
 
-FILES_${PN} = " ${libdir} "
+FILES:${PN} = " ${libdir} "

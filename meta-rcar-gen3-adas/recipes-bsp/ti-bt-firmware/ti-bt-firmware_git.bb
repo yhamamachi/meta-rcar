@@ -22,4 +22,4 @@ do_install() {
     cp *.bts ${D}/lib/firmware/ti-connectivity/
 }
 
-FILES_${PN} = "/lib/firmware/ti-connectivity/*"
+FILES:${PN} = "/lib/firmware/ti-connectivity/*"

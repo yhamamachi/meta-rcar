@@ -23,14 +23,14 @@ inherit autotools pkgconfig useradd systemd
 # dependecy with udev package, which depends on libusb
 EXTRA_OECONF = " --disable-x11"
 
-SRC_URI_append = " file://spacenavd.service"
+SRC_URI:append = " file://spacenavd.service"
 
-SYSTEMD_SERVICE_${PN} = "spacenavd.service"
+SYSTEMD_SERVICE:${PN} = "spacenavd.service"
 
 USERADD_PACKAGES = "${PN}"
-GROUPADD_PARAM_${PN} = "--system spacenavd"
+GROUPADD_PARAM:${PN} = "--system spacenavd"
 
-do_install_append() {
+do_install:append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${systemd_unitdir}/system/
         install -m 0644 ${WORKDIR}/spacenavd.service ${D}${systemd_unitdir}/system/

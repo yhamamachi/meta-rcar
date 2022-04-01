@@ -18,4 +18,4 @@ do_install() {
     install -m 755 ${S}/spidev_test ${D}${bindir}
 }
 
-FILES_${PN} = "${bindir}/spidev_test"
+FILES:${PN} = "${bindir}/spidev_test"

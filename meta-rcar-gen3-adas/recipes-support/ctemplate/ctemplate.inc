@@ -9,6 +9,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=762732742c73dc6c7fbe8632f06c059a"
 
 BBCLASSEXTEND = "native nativesdk"
 
-RDEPENDS_${PN} += "perl"
+RDEPENDS:${PN} += "perl"
 
-SRC_URI_append = " file://0001-Update-python-scripts-to-python3.patch"
+SRC_URI:append = " file://0001-Update-python-scripts-to-python3.patch"

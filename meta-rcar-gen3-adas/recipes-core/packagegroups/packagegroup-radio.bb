@@ -15,7 +15,7 @@ PULSEAUDIO_RADIO_PACKAGES = " \
     pulseaudio-module-bluez5-discover \
 "
 
-RDEPENDS_packagegroup-radio = " \
+RDEPENDS:packagegroup-radio = " \
     bluez5 \
     bluez5-testtools \
     linux-firmware-wl18xx \

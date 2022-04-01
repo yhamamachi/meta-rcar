@@ -5,8 +5,8 @@ SECTION = "libs"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=2b2f8752cc5edf504d283107d033f544"
 
-ARM_INSTRUCTION_SET_armv4 = "arm"
-ARM_INSTRUCTION_SET_armv5 = "arm"
+ARM_INSTRUCTION_SET:armv4 = "arm"
+ARM_INSTRUCTION_SET:armv5 = "arm"
 
 DEPENDS = "libtool swig-native bzip2 zlib glib-2.0"
 
@@ -56,7 +56,7 @@ EXTRA_OECMAKE = "-DOPENCV_EXTRA_MODULES_PATH=${WORKDIR}/contrib/modules \
     ${@oe.utils.conditional("libdir", "/usr/lib64", "-DLIB_SUFFIX=64", "", d)} \
     ${@oe.utils.conditional("libdir", "/usr/lib32", "-DLIB_SUFFIX=32", "", d)} \
 "
-EXTRA_OECMAKE_append_x86 = " -DX86=ON"
+EXTRA_OECMAKE:append:x86 = " -DX86=ON"
 
 PACKAGECONFIG ??=  "eigen jpeg png tiff v4l libv4l gstreamer samples tbb \
     ${@bb.utils.contains("DISTRO_FEATURES", "x11", "gtk", "", d)} \
@@ -108,7 +108,7 @@ PACKAGES += "${@bb.utils.contains('PACKAGECONFIG', 'samples', '${PN}-samples', '
     ${@bb.utils.contains('PACKAGECONFIG', 'python3', 'python3-${BPN}', '', d)} \
     ${PN}-apps"
 
-python populate_packages_prepend () {
+python populate_packages:prepend () {
     cv_libdir = d.expand('${libdir}')
     do_split_packages(d, cv_libdir, '^lib(.*)\.so$', 'lib%s-dev', 'OpenCV %s development package', extra_depends='${PN}-dev', allow_links=True)
     do_split_packages(d, cv_libdir, '^lib(.*)\.la$', 'lib%s-dev', 'OpenCV %s development package', extra_depends='${PN}-dev')
@@ -117,14 +117,14 @@ python populate_packages_prepend () {
 
     pn = d.getVar('PN', 1)
     metapkg =  pn + '-dev'
-    d.setVar('ALLOW_EMPTY_' + metapkg, "1")
+    d.setVar('ALLOW_EMPTY:' + metapkg, "1")
     blacklist = [ metapkg ]
     metapkg_rdepends = [ ]
     packages = d.getVar('PACKAGES', 1).split()
     for pkg in packages[1:]:
         if not pkg in blacklist and not pkg in metapkg_rdepends and pkg.endswith('-dev'):
             metapkg_rdepends.append(pkg)
-    d.setVar('RRECOMMENDS_' + metapkg, ' '.join(metapkg_rdepends))
+    d.setVar('RRECOMMENDS:' + metapkg, ' '.join(metapkg_rdepends))
 
     metapkg =  pn
     blacklist = [ metapkg ]
@@ -132,34 +132,34 @@ python populate_packages_prepend () {
     for pkg in packages[1:]:
         if not pkg in blacklist and not pkg in metapkg_rdepends and not pkg.endswith('-dev') and not pkg.endswith('-dbg') and not pkg.endswith('-doc') and not pkg.endswith('-locale') and not pkg.endswith('-staticdev'):
             metapkg_rdepends.append(pkg)
-    d.setVar('RDEPENDS_' + metapkg, ' '.join(metapkg_rdepends))
+    d.setVar('RDEPENDS:' + metapkg, ' '.join(metapkg_rdepends))
 
 }
 
 PACKAGES_DYNAMIC += "^libopencv-.*"
 
-FILES_${PN} = ""
-FILES_${PN}-dbg += "${datadir}/OpenCV/java/.debug/* ${datadir}/OpenCV/samples/bin/.debug/*"
-FILES_${PN}-dev = "${includedir} ${libdir}/pkgconfig ${datadir}/OpenCV/*.cmake"
-FILES_${PN}-staticdev += "${datadir}/OpenCV/3rdparty/lib/*.a"
-FILES_${PN}-apps = "${bindir}/* ${datadir}/OpenCV"
-FILES_${PN}-java = "${datadir}/OpenCV/java"
-FILES_${PN}-samples = "${datadir}/OpenCV/samples/"
+FILES:${PN} = ""
+FILES:${PN}-dbg += "${datadir}/OpenCV/java/.debug/* ${datadir}/OpenCV/samples/bin/.debug/*"
+FILES:${PN}-dev = "${includedir} ${libdir}/pkgconfig ${datadir}/OpenCV/*.cmake"
+FILES:${PN}-staticdev += "${datadir}/OpenCV/3rdparty/lib/*.a"
+FILES:${PN}-apps = "${bindir}/* ${datadir}/OpenCV"
+FILES:${PN}-java = "${datadir}/OpenCV/java"
+FILES:${PN}-samples = "${datadir}/OpenCV/samples/"
 
-INSANE_SKIP_${PN}-java = "libdir"
-INSANE_SKIP_${PN}-dbg = "libdir"
+INSANE_SKIP:${PN}-java = "libdir"
+INSANE_SKIP:${PN}-dbg = "libdir"
 
-ALLOW_EMPTY_${PN} = "1"
+ALLOW_EMPTY:${PN} = "1"
 
-SUMMARY_python-opencv = "Python bindings to opencv"
-FILES_python-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
-RDEPENDS_python-opencv = "python-core python-numpy"
+SUMMARY:python-opencv = "Python bindings to opencv"
+FILES:python-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
+RDEPENDS:python-opencv = "python-core python-numpy"
 
-SUMMARY_python3-opencv = "Python bindings to opencv"
-FILES_python3-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
-RDEPENDS_python3-opencv = "python3-core python3-numpy"
+SUMMARY:python3-opencv = "Python bindings to opencv"
+FILES:python3-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
+RDEPENDS:python3-opencv = "python3-core python3-numpy"
 
-do_install_append() {
+do_install:append() {
     cp ${S}/include/opencv/*.h ${D}${includedir}/opencv/
     sed -i '/blobtrack/d' ${D}${includedir}/opencv/cvaux.h
 

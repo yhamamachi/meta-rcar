@@ -1,4 +1,4 @@
-IMAGE_INSTALL_append = " \
+IMAGE_INSTALL:append = " \
     ${@bb.utils.contains('DISTRO_FEATURES', "pulseaudio", "packagegroup-mm", "", d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', "bluetooth", "packagegroup-radio", "", d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', "bsp-pkgs", "packagegroup-bsp", "", d)} \

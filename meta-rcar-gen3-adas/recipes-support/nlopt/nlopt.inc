@@ -21,12 +21,12 @@ EXTRA_OECONF += " \
 # see https://github.com/stevengj/nlopt/issues/29
 EXTRA_OECONF += "--enable-maintainer-mode"
 
-EXTRA_OECONF_remove = "--disable-static"
+EXTRA_OECONF:remove = "--disable-static"
 
 # see https://github.com/stevengj/nlopt/issues/9
-do_configure_prepend () {
+do_configure:prepend () {
 	touch ${S}/swig/nlopt.scm.in
 }
 
-SRC_URI_append = " file://0001-Fix-compilation-error.patch"
+SRC_URI:append = " file://0001-Fix-compilation-error.patch"
 

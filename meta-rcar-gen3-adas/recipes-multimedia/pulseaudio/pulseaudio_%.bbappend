@@ -1,8 +1,8 @@
-FILESEXTRAPATHS_append := "${THISDIR}/files:"
+FILESEXTRAPATHS:append := "${THISDIR}/files:"
 
 PR="r2"
 
-SRC_URI_append_rcar-gen3 = " \
+SRC_URI:append:rcar-gen3 = " \
     file://pulseaudio.init \
     file://rsnddai0ak4613h.conf \
     file://hifi \
@@ -15,10 +15,10 @@ SRC_URI_append_rcar-gen3 = " \
 inherit update-rc.d
 
 INITSCRIPT_PACKAGES = "${PN}-server"
-INITSCRIPT_NAME_${PN}-server = "pulseaudio"
-INITSCRIPT_PARAMS_${PN}-server = "defaults 30"
+INITSCRIPT_NAME:${PN}-server = "pulseaudio"
+INITSCRIPT_PARAMS:${PN}-server = "defaults 30"
 
-do_install_append_rcar-gen3() {
+do_install:append:rcar-gen3() {
     install -d ${D}/etc/init.d
     install -d ${D}/etc/pulse
     install -d ${D}/usr/share/alsa/ucm/rsnddai0ak4613h/
@@ -36,7 +36,7 @@ do_install_append_rcar-gen3() {
     install -m 644 ${WORKDIR}/pulseaudio-ofono.conf ${D}/${sysconfdir}/dbus-1/system.d/
 }
 
-FILES_${PN}-server += " \
+FILES:${PN}-server += " \
 	    ${datadir}/alsa/ucm \
 	    ${datadir}/dbus-1/ \
 "

@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=442d4e9f738ff4d05ae6215ae20caa6c"
 
 PN = "libiccom"
 PR = "r0"
-RDEPENDS_${PN} = "kernel-module-iccom"
+RDEPENDS:${PN} = "kernel-module-iccom"
 
 SRC_URI = "git://github.com/CogentEmbedded/libiccom.git;branch=master;protocol=https"
 SRCREV = "89478ad5de0b351f8622db3e384c65021e3b2370"
@@ -39,7 +39,7 @@ do_install () {
     install -m 0755 ${S}/out/iccom-test ${D}${bindir}
 }
 
-RPROVIDES_${PN} += "linux-iccomlib"
+RPROVIDES:${PN} += "linux-iccomlib"
 
 PACKAGES =+ "libiccom-test"
-FILES_libiccom-test = "${bindir}/iccom-test"
+FILES:libiccom-test = "${bindir}/iccom-test"

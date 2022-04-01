@@ -10,7 +10,7 @@ PACKAGES = " \
     packagegroup-surroundview \
 "
 
-RDEPENDS_packagegroup-surroundview = " \
+RDEPENDS:packagegroup-surroundview = " \
     glm \
     gstreamer1.0-omx \
     gstreamer1.0-plugins-base-app libgstapp-1.0 \

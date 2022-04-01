@@ -15,7 +15,7 @@ do_install() {
     install -m 755 ${S}/setup-audio-50 ${D}/usr/share/most/
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     /usr/share/most/most_setup.sh \
     /usr/share/most/most_play.sh \
     /usr/share/most/setup-audio-50 \

@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 COMPATIBLE_MACHINE_eagle = "eagle"
 COMPATIBLE_MACHINE_v3msk = "v3msk"

@@ -12,23 +12,23 @@ PACKAGES = " \
     packagegroup-bsp \
 "
 
-PACKAGES_append_rcar-gen3-v3x = " \
+PACKAGES:append:rcar-gen3-v3x = " \
     packagegroup-bsp-python3 \
 "
 
-RDEPENDS_packagegroup-bsp = " \
+RDEPENDS:packagegroup-bsp = " \
     packagegroup-bsp-core \
     packagegroup-bsp-custom \
     packagegroup-bsp-devdbg \
     packagegroup-bsp-utest \
 "
 
-RDEPENDS_packagegroup-bsp_append_rcar-gen3-v3x = " \
+RDEPENDS:packagegroup-bsp:append:rcar-gen3-v3x = " \
     packagegroup-bsp-python3 \
 "
 
 # Packages mandatory for BSP (but often not needed)
-RDEPENDS_packagegroup-bsp-core = " \
+RDEPENDS:packagegroup-bsp-core = " \
     cmake \
     g++ \
     gcc \
@@ -38,7 +38,7 @@ RDEPENDS_packagegroup-bsp-core = " \
 "
 
 # Packages mandatory for BSP (useful for development/debug)
-RDEPENDS_packagegroup-bsp-devdbg = " \
+RDEPENDS:packagegroup-bsp-devdbg = " \
     atop \
     curl \
     devmem2 \
@@ -61,7 +61,7 @@ RDEPENDS_packagegroup-bsp-devdbg = " \
 "
 
 # Various packages needed for all boards
-RDEPENDS_packagegroup-bsp-custom = " \
+RDEPENDS:packagegroup-bsp-custom = " \
     bonnie++ \
     can-utils \
     capture \
@@ -90,7 +90,7 @@ RDEPENDS_packagegroup-bsp-custom = " \
 "
 
 # Python2 packages requested by Renesas
-#RDEPENDS_packagegroup-bsp-python2 = " \
+#RDEPENDS:packagegroup-bsp-python2 = " \
 #    python-dbus \
 #    python-nose \
 #    python-numpy \
@@ -99,7 +99,7 @@ RDEPENDS_packagegroup-bsp-custom = " \
 #    python-setuptools \
 #"
 # Python3 packages requested by Renesas
-RDEPENDS_packagegroup-bsp-python3 = " \
+RDEPENDS:packagegroup-bsp-python3 = " \
     python3-dbus \
     python3-nose \
     python3-numpy \
@@ -110,7 +110,7 @@ RDEPENDS_packagegroup-bsp-python3 = " \
 
 
 # Utest (IMR, IMP, etc demos) related packages
-RDEPENDS_packagegroup-bsp-utest = " \
+RDEPENDS:packagegroup-bsp-utest = " \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-base-app \
     kernel-module-mmngr \

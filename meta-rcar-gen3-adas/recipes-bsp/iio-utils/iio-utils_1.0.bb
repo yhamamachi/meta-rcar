@@ -24,7 +24,7 @@ do_install() {
     install -m 755 ${S}/iio_generic_buffer ${D}${bindir}
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/iio_event_monitor \
     ${bindir}/lsiio \
     ${bindir}/iio_generic_buffer \

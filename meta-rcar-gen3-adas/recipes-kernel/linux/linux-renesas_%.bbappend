@@ -1,11 +1,11 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE_eagle = "eagle"
 COMPATIBLE_MACHINE_v3msk = "v3msk"
 COMPATIBLE_MACHINE_condor = "condor"
 COMPATIBLE_MACHINE_v3hsk = "v3hsk"
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://hyperflash.cfg", d)} \
     file://nvme.cfg \
     file://imr.cfg \
@@ -14,14 +14,14 @@ SRC_URI_append = " \
     file://renesas.scc \
 "
 
-SRC_URI_append_ulcb = " \
+SRC_URI:append:ulcb = " \
     file://ulcb.cfg \
     file://ath9k_wireless_pcie.cfg \
 "
 
-SRC_URI_append_salvator-x = " file://salvator-x.cfg"
+SRC_URI:append:salvator-x = " file://salvator-x.cfg"
 
-SRC_URI_append_rcar-gen3-v3x = " \
+SRC_URI:append:rcar-gen3-v3x = " \
     file://v3x.cfg \
     file://cma.cfg \
     ${@oe.utils.conditional("DISABLE_RPC_ACCESS", "1", "", " file://qspi.cfg", d)} \
@@ -41,24 +41,24 @@ ULCB_KF_DTBO = " \
     renesas/ulcb-kf-imx219.dtbo \
 "
 
-KERNEL_DEVICETREE_append_h3ulcb = " \
+KERNEL_DEVICETREE:append:h3ulcb = " \
     renesas/r8a77951-ulcb-kf.dtb \
     renesas/r8a779m1-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
-KERNEL_DEVICETREE_append_m3ulcb = " \
+KERNEL_DEVICETREE:append:m3ulcb = " \
     renesas/r8a77960-ulcb-kf.dtb \
     renesas/r8a77961-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
-KERNEL_DEVICETREE_append_m3nulcb = " \
+KERNEL_DEVICETREE:append:m3nulcb = " \
     renesas/r8a77965-ulcb-kf.dtb \
     ${ULCB_KF_DTBO} \
 "
 
-KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
+KERNEL_DEVICETREE:append:rcar-gen3-v3x = " \
     renesas/r8a77970-es1-eagle.dtb \
     renesas/r8a77970-es1-eagle-function.dtb \
     renesas/r8a77970-es1-v3msk.dtb \
@@ -90,12 +90,12 @@ KERNEL_DEVICETREE_append_rcar-gen3-v3x = " \
 "
 
 # Prefer generic-uio driver over kernel drivers
-KERNEL_MODULE_PROBECONF_append = " rcar_imr"
-KERNEL_MODULE_PROBECONF_append = " rcar_csi2"
-KERNEL_MODULE_PROBECONF_append = " rcar_vin"
-KERNEL_MODULE_PROBECONF_append = " vsp1"
-KERNEL_MODULE_PROBECONF_append = " rcar-du-drm"
-KERNEL_MODULE_PROBECONF_append = " rcar_lvds"
+KERNEL_MODULE_PROBECONF:append = " rcar_imr"
+KERNEL_MODULE_PROBECONF:append = " rcar_csi2"
+KERNEL_MODULE_PROBECONF:append = " rcar_vin"
+KERNEL_MODULE_PROBECONF:append = " vsp1"
+KERNEL_MODULE_PROBECONF:append = " rcar-du-drm"
+KERNEL_MODULE_PROBECONF:append = " rcar_lvds"
 module_conf_rcar_imr = "blacklist rcar_imr"
 module_conf_rcar_csi2 = "blacklist rcar_csi2"
 module_conf_rcar_vin = "blacklist rcar_vin"
@@ -103,15 +103,15 @@ module_conf_vsp1 = "blacklist vsp1"
 module_conf_rcar-du-drm = "blacklist rcar-du-drm"
 module_conf_rcar_lvds = "blacklist rcar_lvds"
 
-KERNEL_MODULE_AUTOLOAD_append = " uio_pdrv_genirq"
-KERNEL_MODULE_PROBECONF_append = " uio_pdrv_genirq"
-module_conf_uio_pdrv_genirq_append = 'options uio_pdrv_genirq of_id="generic-uio"'
+KERNEL_MODULE_AUTOLOAD:append = " uio_pdrv_genirq"
+KERNEL_MODULE_PROBECONF:append = " uio_pdrv_genirq"
+module_conf_uio_pdrv_genirq:append = 'options uio_pdrv_genirq of_id="generic-uio"'
 
 # Install RCAR Gen3 specific UAPI headers
-do_install_append_rcar-gen3() {
+do_install:append:rcar-gen3() {
     install -d ${D}/usr/include/linux/
     install -m 0644 ${STAGING_KERNEL_DIR}/include/uapi/linux/rcar-imr.h ${D}/usr/include/linux/
 }
 
 PACKAGES += "${PN}-uapi"
-FILES_${PN}-uapi = "/usr/include"
+FILES:${PN}-uapi = "/usr/include"

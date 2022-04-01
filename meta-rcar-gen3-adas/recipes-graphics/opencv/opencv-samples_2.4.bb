@@ -35,5 +35,5 @@ do_install() {
     done
 }
 
-FILES_${PN}-dev += "${datadir}/opencv/samples/*.c* ${datadir}/opencv/samples/*.vcp* ${datadir}/opencv/samples/build*" 
-FILES_${PN} += "${bindir} ${datadir}/opencv"
+FILES:${PN}-dev += "${datadir}/opencv/samples/*.c* ${datadir}/opencv/samples/*.vcp* ${datadir}/opencv/samples/build*"
+FILES:${PN} += "${bindir} ${datadir}/opencv"

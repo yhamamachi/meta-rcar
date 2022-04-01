@@ -8,7 +8,7 @@ PACKAGES = " \
     packagegroup-surroundview-drm \
 "
 
-RDEPENDS_packagegroup-surroundview-drm = " \
+RDEPENDS:packagegroup-surroundview-drm = " \
     gstreamer1.0-plugins-base libgstallocators-1.0 \
     gstreamer1.0-plugins-base-app libgstapp-1.0 \
     kernel-module-mmngr \

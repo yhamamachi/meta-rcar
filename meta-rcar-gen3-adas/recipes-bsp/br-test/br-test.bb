@@ -18,6 +18,6 @@ do_install() {
     install -m 755 br_test ${D}${bindir}
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/br_test \
 "

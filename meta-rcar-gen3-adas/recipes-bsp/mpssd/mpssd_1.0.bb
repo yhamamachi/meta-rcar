@@ -22,6 +22,6 @@ do_install() {
     install -m 755 ${S}/mpssd ${D}${bindir}
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/mpssd \
 "

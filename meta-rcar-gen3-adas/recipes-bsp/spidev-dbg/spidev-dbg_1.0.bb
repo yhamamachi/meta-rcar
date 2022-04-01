@@ -18,4 +18,4 @@ do_install() {
     install -m 755 ${S}/spidev-dbg ${D}${bindir}
 }
 
-FILES_${PN} = "${bindir}/spidev-dbg"
+FILES:${PN} = "${bindir}/spidev-dbg"

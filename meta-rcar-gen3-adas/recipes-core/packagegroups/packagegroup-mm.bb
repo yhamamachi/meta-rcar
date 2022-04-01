@@ -9,7 +9,7 @@ PACKAGES = " \
 "
 
 # Various multimedia packages
-RDEPENDS_packagegroup-mm = " \
+RDEPENDS:packagegroup-mm = " \
     gstreamer1.0-plugins-good-pulse \
     mm-init \
     pulseaudio-misc \
