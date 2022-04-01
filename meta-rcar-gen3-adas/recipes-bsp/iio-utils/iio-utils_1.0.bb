@@ -1,5 +1,5 @@
 SUMMARY = "IIO Utils"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=574295575bba94ba7980d611516fe3d2"
 
 DEPENDS = "virtual/kernel"

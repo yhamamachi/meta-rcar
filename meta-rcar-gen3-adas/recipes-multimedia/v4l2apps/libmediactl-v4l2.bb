@@ -1,5 +1,5 @@
 DESCRIPTION = "V4L2 media controller support library"
-LICENSE = "LGPLv2.1"
+LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = " \
     file://COPYING;md5=d749e86a105281d7a44c2328acebc4b0 \
 "

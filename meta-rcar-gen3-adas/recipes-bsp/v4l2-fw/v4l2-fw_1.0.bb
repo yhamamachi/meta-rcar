@@ -1,5 +1,5 @@
 SUMMARY = "OV10640/OV490 SPI flash firmware update tool"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=eb766567485731157b3c21013c3ce4b8"
 
 S = "${WORKDIR}/v4l2-fw"

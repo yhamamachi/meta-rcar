@@ -1,6 +1,6 @@
 DESCRIPTION = "Packages required for GPU Surroundview demo"
 
-LICENSE = "GPLv3 & BSD-3-Clause & MIT & GPLv2+ & LGPLv2+ & LGPLv2.1+"
+LICENSE = "GPL-3.0-only & BSD-3-Clause & MIT & GPL-2.0-or-later & LGPL-2.0-or-later & LGPL-2.1-or-later"
 
 LICENSE_FLAGS = "commercial"
 

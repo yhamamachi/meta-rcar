@@ -1,5 +1,5 @@
 SUMMARY = "MPSSD"
-LICENSE = "GPLv2"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=58dd7e3251f8a7d8c3784355098b8d53"
 
 DEPENDS = "virtual/kernel"
