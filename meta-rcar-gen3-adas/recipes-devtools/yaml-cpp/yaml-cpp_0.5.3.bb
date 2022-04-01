@@ -10,7 +10,7 @@ PR = "r0"
 
 S = "${WORKDIR}/git"
 
-SRC_URI = "git://github.com/jbeder/${BPN}.git"
+SRC_URI = "git://github.com/jbeder/${BPN}.git;branch=master;protocol=https"
 
 # tag: yaml-cpp-0.5.3
 SRCREV = "b57efe94e7d445713c29f863adb8c23438eaa217"
