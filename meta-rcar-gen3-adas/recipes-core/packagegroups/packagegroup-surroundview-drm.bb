@@ -1,6 +1,6 @@
 DESCRIPTION = "Packages required for DRM Surroundview demo"
 
-LICENSE = "GPLv2 & GPLv3 & BSD & MIT & GPLv2+ & LGPLv2+"
+LICENSE = "GPLv2 & GPLv3 & BSD-3-Clause & MIT & GPLv2+ & LGPLv2+"
 
 inherit packagegroup
 
