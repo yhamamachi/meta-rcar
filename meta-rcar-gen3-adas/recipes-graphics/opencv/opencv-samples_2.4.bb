@@ -1,7 +1,7 @@
 SUMMARY = "Opencv : The Open Computer Vision Library"
 HOMEPAGE = "http://opencv.willowgarage.com/wiki/"
 SECTION = "libs"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 
 DEPENDS = "opencv"
 
