@@ -9,7 +9,7 @@ ARM_INSTRUCTION_SET = "arm"
 
 DEPENDS = "python-numpy libtool swig swig-native python bzip2 zlib glib-2.0"
 
-SRC_URI = "git://github.com/Itseez/opencv.git;branch=2.4 "
+SRC_URI = "git://github.com/Itseez/opencv.git;branch=2.4"
 SRCREV = "707d10f11526afee1e1a35ec7fdaa8b05f7e1656"
 PV = "2.4.11+git${SRCPV}"
 
