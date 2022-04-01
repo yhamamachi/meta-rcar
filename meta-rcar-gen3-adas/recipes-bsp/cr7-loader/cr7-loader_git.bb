@@ -1,6 +1,6 @@
 DESCRIPTION = "CR7 Loader"
 
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://license.md;md5=9b6b96211116d6143a7f1d681d39b13d"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
