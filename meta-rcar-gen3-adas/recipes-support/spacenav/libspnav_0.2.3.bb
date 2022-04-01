@@ -1,6 +1,6 @@
 SUMMARY = "SpaceNavigator 3D-mouse daemon interface library"
 SECTION = "libs/multimedia"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://README;md5=a8f5600270c9340ba8f2d956133a91d3"
 
 SRC_URI = " \
