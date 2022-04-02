@@ -7,7 +7,7 @@ PN = "libiccom"
 PR = "r0"
 RDEPENDS_${PN} = "kernel-module-iccom"
 
-SRC_URI = "git://github.com/CogentEmbedded/libiccom.git;branch=master"
+SRC_URI = "git://github.com/CogentEmbedded/libiccom.git;branch=master;protocol=https"
 SRCREV = "89478ad5de0b351f8622db3e384c65021e3b2370"
 S = "${WORKDIR}/git"
 

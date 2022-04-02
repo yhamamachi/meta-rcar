@@ -6,7 +6,7 @@ inherit cmake
 S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
-SRC_URI = "git://github.com/CogentEmbedded/utest-cam-imr-drm.git;branch=${BRANCH}"
+SRC_URI = "git://github.com/CogentEmbedded/utest-cam-imr-drm.git;branch=${BRANCH};protocol=https"
 SRCREV = "fd160edb99b34223f2c49fecbef3cca3daddbe59"
 
 PV = "v1.0+renesas+git"

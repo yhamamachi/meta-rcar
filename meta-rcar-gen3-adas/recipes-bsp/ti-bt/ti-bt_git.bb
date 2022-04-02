@@ -10,7 +10,7 @@ INITSCRIPT_PARAMS = "start 20 2 3 4 5 ."
 
 PV = "0.1+git${SRCPV}"
 
-SRC_URI = "git://git.ti.com/ti-bt/uim.git;protocol=git \
+SRC_URI = "git://git.ti.com/ti-bt/uim.git;protocol=git;branch=master \
     file://0001-fix-poll-restart-after-fail.patch \
     file://0001-Improve-debug-output.patch \
     file://0002-Fix-possible-cross-compile-issue.patch \

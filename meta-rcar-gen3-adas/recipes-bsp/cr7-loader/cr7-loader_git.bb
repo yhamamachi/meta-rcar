@@ -12,7 +12,7 @@ inherit deploy
 S = "${WORKDIR}/git"
 
 BRANCH = "rcar_gen3"
-SRC_URI = "git://github.com/CogentEmbedded/cr7-loader.git;branch=${BRANCH}"
+SRC_URI = "git://github.com/CogentEmbedded/cr7-loader.git;branch=${BRANCH};protocol=https"
 SRCREV = "48b0f2ab55fcf79669ef7fec7a991f159295ce6a"
 
 PV = "v1.0+renesas+git"

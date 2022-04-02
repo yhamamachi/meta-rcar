@@ -8,7 +8,7 @@ PE = "1"
 PV = "0.1"
 PR = "r1"
 
-SRC_URI = "git://github.com/Blub/netevent.git \
+SRC_URI = "git://github.com/Blub/netevent.git;branch=master;protocol=https \
     file://0001-fix-endian-for-cross-arch.patch \
     file://0002-fix-cross-compile.patch \
     file://0003-use-socket-instead-of-stdout.patch \

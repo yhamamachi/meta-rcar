@@ -10,7 +10,7 @@ DEPENDS = "linux-renesas"
 PN = "kernel-module-iccom"
 PR = "r0"
 
-SRC_URI = "git://github.com/CogentEmbedded/kernel-module-iccom.git;branch=master"
+SRC_URI = "git://github.com/CogentEmbedded/kernel-module-iccom.git;branch=master;protocol=https"
 SRCREV = "b83573ab7cdfd2e03340f7417b6a08284058dc2f"
 S = "${WORKDIR}/git"
 

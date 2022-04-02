@@ -10,7 +10,7 @@ inherit autotools pkgconfig
 
 SRCREV = "998aaa0fa4a594bfc8d98ce0f5971ffc083be231"
 SRC_URI = " \
-    git://github.com/renesas-rcar/libmediactl-v4l2.git;protocol=git;branch=rcar-gen3 \
+    git://github.com/renesas-rcar/libmediactl-v4l2.git;protocol=https;branch=rcar-gen3 \
 "
 
 S = "${WORKDIR}/git"

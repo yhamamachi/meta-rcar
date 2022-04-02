@@ -8,7 +8,7 @@ DEPENDS = "opencv"
 LIC_FILES_CHKSUM = "file://include/opencv2/opencv.hpp;endline=41;md5=6d690d8488a6fca7a2c192932466bb14 \
 "
 SRCREV = "6fae07ba8867b8fd2c53344a774aab669afa7c5e"
-SRC_URI = "git://github.com/Itseez/opencv.git;branch=2.4 \
+SRC_URI = "git://github.com/Itseez/opencv.git;branch=2.4;protocol=https \
           "
 PV = "2.4.3+git${SRCPV}"
 

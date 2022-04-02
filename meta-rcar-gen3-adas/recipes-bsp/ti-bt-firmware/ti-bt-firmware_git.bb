@@ -6,7 +6,7 @@ LICENSE = "CLOSED"
 PE = "1"
 PV = "0.0"
 
-SRC_URI = "git://github.com/TI-ECS/bt-firmware.git;protocol=git"
+SRC_URI = "git://github.com/TI-ECS/bt-firmware.git;protocol=https;branch=master"
 SRCREV = "169b2df5b968f0ede32ea9044859942fc220c435"
 
 S = "${WORKDIR}/git"

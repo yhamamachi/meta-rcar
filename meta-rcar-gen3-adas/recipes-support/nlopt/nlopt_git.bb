@@ -1,6 +1,6 @@
 require ${PN}.inc
 
-SRC_URI = "git://github.com/stevengj/${BPN}.git"
+SRC_URI = "git://github.com/stevengj/${BPN}.git;branch=master;protocol=https"
 S = "${WORKDIR}/git"
 SRCREV = "cc413c5491df015c93992ddedd43b222d4369b45"
 
