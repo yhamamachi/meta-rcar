@@ -1,0 +1,29 @@
+From fd160edb99b34223f2c49fecbef3cca3daddbe59 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 9 Oct 2019 18:17:48 +0300
+Subject: [PATCH] Fix Yocto Project 2.8 (Zeus) build issue
+
+This fixes the following compilation error on Yocto 2.8:
+  "'%s' directive argument is null [-Werror=format-overflow=]"
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ utest/utest-drm-display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/utest/utest-drm-display.c b/utest/utest-drm-display.c
+index bf7f7e5..24bb665 100644
+--- a/utest/utest-drm-display.c
++++ b/utest/utest-drm-display.c
+@@ -412,7 +412,7 @@ static struct udev_device * find_drm(struct udev * udev, const char *seat_id)
+         goto out;
+     }
+ 
+-    TRACE(ERROR, _b("no DRM found (seat-id = %s)"), seat_id);
++    TRACE(ERROR, _b("no DRM found (seat-id = %s)"), seat_id ? seat_id : "(null)");
+ 
+ out:
+     /* ...deallocate enumeration structure */
+-- 
+2.25.1
+

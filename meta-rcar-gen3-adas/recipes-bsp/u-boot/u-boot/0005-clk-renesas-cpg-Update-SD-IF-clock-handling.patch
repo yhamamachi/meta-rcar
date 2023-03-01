@@ -20,7 +20,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  2 files changed, 82 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/clk/renesas/clk-rcar-gen3.c b/drivers/clk/renesas/clk-rcar-gen3.c
-index 2f74f0a..d06443f 100644
+index a2011dd..80cc932 100644
 --- a/drivers/clk/renesas/clk-rcar-gen3.c
 +++ b/drivers/clk/renesas/clk-rcar-gen3.c
 @@ -51,11 +51,6 @@
@@ -44,7 +44,7 @@ index 2f74f0a..d06443f 100644
  /*	CPG_SD_DIV_TABLE_DATA(stp_hck,  stp_ck,   sd_srcfc,   sd_fc,  sd_div) */
  	CPG_SD_DIV_TABLE_DATA(0,        0,        0,          1,        4),
  	CPG_SD_DIV_TABLE_DATA(0,        0,        1,          1,        8),
-@@ -110,37 +105,6 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
+@@ -107,37 +102,6 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
  	return renesas_clk_get_parent(clk, info, parent);
  }
  
@@ -82,7 +82,7 @@ index 2f74f0a..d06443f 100644
  static int gen3_clk_enable(struct clk *clk)
  {
  	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-@@ -296,17 +260,17 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
+@@ -268,17 +232,17 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
  
  	case CLK_TYPE_GEN3_SD:		/* FIXME */
  		value = readl(priv->base + core->offset);
@@ -105,7 +105,7 @@ index 2f74f0a..d06443f 100644
  
  			return rate;
  		}
-@@ -351,6 +315,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
+@@ -316,6 +280,59 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
  	return -ENOENT;
  }
  
@@ -165,7 +165,7 @@ index 2f74f0a..d06443f 100644
  static ulong gen3_clk_get_rate(struct clk *clk)
  {
  	return gen3_clk_get_rate64(clk);
-@@ -358,8 +375,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
+@@ -323,8 +340,16 @@ static ulong gen3_clk_get_rate(struct clk *clk)
  
  static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
  {
@@ -183,7 +183,7 @@ index 2f74f0a..d06443f 100644
  	return gen3_clk_get_rate64(clk);
  }
  
-@@ -401,6 +426,12 @@ int gen3_clk_probe(struct udevice *dev)
+@@ -366,6 +391,12 @@ int gen3_clk_probe(struct udevice *dev)
  	if (ret < 0)
  		return ret;
  
@@ -197,12 +197,12 @@ index 2f74f0a..d06443f 100644
  	if (rst_base == FDT_ADDR_T_NONE)
  		return -EINVAL;
 diff --git a/drivers/clk/renesas/renesas-cpg-mssr.h b/drivers/clk/renesas/renesas-cpg-mssr.h
-index ab59f5c..d386326 100644
+index 5b7012d..c0165f3 100644
 --- a/drivers/clk/renesas/renesas-cpg-mssr.h
 +++ b/drivers/clk/renesas/renesas-cpg-mssr.h
-@@ -18,6 +18,11 @@ enum clk_reg_layout {
- 	CLK_REG_LAYOUT_RCAR_V3U,
- };
+@@ -13,6 +13,11 @@
+ #ifndef __DRIVERS_CLK_RENESAS_CPG_MSSR__
+ #define __DRIVERS_CLK_RENESAS_CPG_MSSR__
  
 +struct cpg_sd_div_table {
 +	u32 val;
@@ -212,7 +212,7 @@ index ab59f5c..d386326 100644
  struct cpg_mssr_info {
  	const struct cpg_core_clk	*core_clk;
  	unsigned int			core_clk_size;
-@@ -26,6 +31,9 @@ struct cpg_mssr_info {
+@@ -20,6 +25,9 @@ struct cpg_mssr_info {
  	unsigned int			mod_clk_size;
  	const struct mstp_stop_table	*mstp_table;
  	unsigned int			mstp_table_size;

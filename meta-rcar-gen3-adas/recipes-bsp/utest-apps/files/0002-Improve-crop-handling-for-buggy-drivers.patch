@@ -1,0 +1,49 @@
+From cecd8094fe5d6c41b8a4401fd1bad3961a10b173 Mon Sep 17 00:00:00 2001
+From: Petr Nechaev <petr.nechaev@cogentembedded.com>
+Date: Fri, 23 Oct 2020 21:25:54 +0300
+Subject: [PATCH] Improve crop handling for buggy drivers
+
+Some drivers report picture size of 0x0. This leads to left and top
+parameters of the crop to be negative, which causes the app to behave
+incorrectly.
+
+This patch limits the (left, top) point to what the driver reports in
+cropcap.bounds.
+---
+ utest/utest-vin.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/utest/utest-vin.c b/utest/utest-vin.c
+index d39b237..3abacc1 100644
+--- a/utest/utest-vin.c
++++ b/utest/utest-vin.c
+@@ -293,11 +293,23 @@ static inline int vin_set_formats(int vfd, int width, int height, int s, u32 for
+         crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+         crop.c = cropcap.bounds;
+ 
+-        /* center window */
+-        crop.c.left = (cropcap.bounds.width - width) / 2;
+-        crop.c.top = (cropcap.bounds.height - height) / 2;
++        /* center window if possible */
++        crop.c.left = ((int)cropcap.bounds.width - width) / 2;
++        if (crop.c.left < cropcap.bounds.left)
++        {
++            crop.c.left = cropcap.bounds.left;
++        }
++
++        crop.c.top = ((int)cropcap.bounds.height - height) / 2;
++        if (crop.c.top < cropcap.bounds.top)
++        {
++            crop.c.top = cropcap.bounds.top;
++        }
++
++        /* Do not check bounds on width and height because some buggy drivers report 0x0 in cropcap.bounds */
+         crop.c.width = width;
+         crop.c.height = height;
++
+         CHK_API(ioctl(vfd, VIDIOC_S_CROP, &crop));
+     }
+ 
+-- 
+2.25.1
+

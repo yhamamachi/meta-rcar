@@ -13,7 +13,6 @@ SRC_URI = "git://github.com/Blub/netevent.git \
     file://0002-fix-cross-compile.patch \
     file://0003-use-socket-instead-of-stdout.patch \
     file://0004-Add-TCP-keep-alive-to-handle-peer-death-properly.patch \
-    file://0005-Fix-gcc-9.3.0-compiler-warnings.patch \
 "
 
 SRCREV = "06f1fe545f2063ae882fc8b66dc07f1ced85d1da"

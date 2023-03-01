@@ -111,5 +111,6 @@ RDEPENDS_packagegroup-bsp-utest = " \
     linux-renesas-uapi \
     mmngr-user-module \
     netevent \
+    media-ctl libv4l \
     utest-cam-imr-drm \
 "

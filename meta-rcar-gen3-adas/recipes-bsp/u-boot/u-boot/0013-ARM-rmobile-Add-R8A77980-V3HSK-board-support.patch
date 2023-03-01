@@ -26,7 +26,7 @@ Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
  create mode 100644 include/configs/v3hsk.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 1b6b010..97e3195 100644
+index c36948c..5b2c5c0 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -702,6 +702,7 @@ dtb-$(CONFIG_RCAR_GEN3) += \
@@ -36,7 +36,7 @@ index 1b6b010..97e3195 100644
 +	r8a77980-v3hsk-u-boot.dtb \
  	r8a77990-ebisu-u-boot.dtb \
  	r8a77990-ebisu-4d-u-boot.dtb \
- 	r8a77995-draak-u-boot.dtb \
+ 	r8a77995-draak-u-boot.dtb
 diff --git a/arch/arm/dts/r8a77980-v3hsk-u-boot.dts b/arch/arm/dts/r8a77980-v3hsk-u-boot.dts
 new file mode 100644
 index 0000000..28090c5
@@ -215,10 +215,10 @@ index 0000000..9042483
 +	clock-frequency = <14745600>;
 +};
 diff --git a/arch/arm/mach-rmobile/Kconfig.64 b/arch/arm/mach-rmobile/Kconfig.64
-index 0f398c6..c20c295 100644
+index f6e8d39..e2f81a0 100644
 --- a/arch/arm/mach-rmobile/Kconfig.64
 +++ b/arch/arm/mach-rmobile/Kconfig.64
-@@ -60,6 +60,11 @@ config TARGET_CONDOR
+@@ -49,6 +49,11 @@ config TARGET_CONDOR
  	help
            Support for Renesas R-Car Gen3 Condor platform
  
@@ -230,9 +230,9 @@ index 0f398c6..c20c295 100644
  config TARGET_DRAAK
  	bool "Draak board"
  	imply R8A77995
-@@ -115,6 +120,7 @@ config SYS_SOC
+@@ -103,6 +108,7 @@ config SYS_SOC
+ 	default "rmobile"
  
- source "board/renesas/falcon/Kconfig"
  source "board/renesas/condor/Kconfig"
 +source "board/renesas/v3hsk/Kconfig"
  source "board/renesas/draak/Kconfig"
