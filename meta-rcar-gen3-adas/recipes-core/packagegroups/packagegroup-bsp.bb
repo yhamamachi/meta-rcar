@@ -9,6 +9,7 @@ PACKAGES = " \
 "
 
 RDEPENDS_packagegroup-bsp-v3x = " \
+    i2c-tools \
     iio-utils \
     kernel-devicetree \
     kernel-modules \
