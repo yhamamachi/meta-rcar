@@ -2,3 +2,5 @@ patch 0001-gpu-drm-rcar-du-rcar_du_vsp-Check-if-gem-buffer-has-.patch
 patch 0002-gpu-drm-rcar-du-Extend-VSP1-DRM-interface.patch
 patch 0003-media-platform-vsp1-Extend-DRM-VSP1-interface.patch
 patch 0004-media-platform-vsp1-Add-cropping-handling-to-VSP-alp.patch
+patch 0005-gpu-drm-rcar-du-use-correct-interface-for-alphaplane-property-creation.patch
+patch 0006-aisin-gem-sgt-propagate-for-alphaplane-kernel-5.4.72.patch

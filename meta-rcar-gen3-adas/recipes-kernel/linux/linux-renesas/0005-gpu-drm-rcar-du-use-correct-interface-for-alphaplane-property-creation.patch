@@ -1,0 +1,18 @@
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_kms.c b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
+index 548895f70257..9ee7c149c62f 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_kms.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_kms.c
+@@ -659,12 +659,10 @@ static int rcar_du_properties_init(struct rcar_du_device *rcdu)
+ 	}
+ 
+ 	rcdu->props.alphaplane =
+-		drm_property_create(rcdu->ddev, DRM_MODE_PROP_OBJECT, "alphaplane", 1);
++		drm_property_create_object(rcdu->ddev, DRM_MODE_PROP_ATOMIC, "alphaplane", DRM_MODE_OBJECT_FB);
+ 	if (rcdu->props.alphaplane == NULL)
+ 		return -ENOMEM;
+ 
+-	rcdu->props.alphaplane->values[0] = DRM_MODE_OBJECT_FB;
+-
+ 	rcdu->props.blend =
+ 		drm_property_create_range(rcdu->ddev, 0, "blend",
+ 					  0, 0xffffffff);

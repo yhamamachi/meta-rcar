@@ -1,0 +1,44 @@
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+index 7013f981035c..35901440e87c 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+@@ -281,9 +281,36 @@ int rcar_du_vsp_map_fb(struct rcar_du_vsp *vsp, struct drm_framebuffer *fb,
+ 		struct drm_gem_cma_object *gem = drm_fb_cma_get_gem_obj(rstate->alphaplane, 0);
+ 		struct sg_table *sgt = &rstate->sg_tables[i++];
+ 
+-		ret = dma_get_sgtable(rcdu->dev, sgt, gem->vaddr, gem->paddr, gem->base.size);
+-		if (ret)
+-			goto fail;
++		if (gem->sgt && !gem->paddr) {
++			struct scatterlist *src;
++			struct scatterlist *dst;
++
++			/*
++			 * If the GEM buffer has a scatter gather table, it has
++			 * been imported from a dma-buf and has no physical
++			 * address as it might not be physically contiguous.
++			 * Copy the original scatter gather table to map it to
++			 * the VSP.
++			 */
++			ret = sg_alloc_table(sgt, gem->sgt->orig_nents,
++					     GFP_KERNEL);
++			if (ret)
++				goto fail;
++
++			src = gem->sgt->sgl;
++			dst = sgt->sgl;
++			for (j = 0; j < gem->sgt->orig_nents; ++j) {
++				sg_set_page(dst, sg_page(src), src->length,
++					    src->offset);
++				src = sg_next(src);
++				dst = sg_next(dst);
++			}
++		} else {
++			ret = dma_get_sgtable(rcdu->dev, sgt, gem->vaddr,
++					      gem->paddr, gem->base.size);
++			if (ret)
++				goto fail;
++		}
+ 
+ 		ret = vsp1_du_map_sg(vsp->vsp, sgt);
+ 		if (!ret) {
