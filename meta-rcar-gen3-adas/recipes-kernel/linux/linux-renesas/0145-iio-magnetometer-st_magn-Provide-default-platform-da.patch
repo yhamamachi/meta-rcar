@@ -1,8 +1,7 @@
-From 61e6545cea3c84eac7a368783cb96a4e233faaad Mon Sep 17 00:00:00 2001
+From 33d50fa345355a1cfdee5f4c7b75fad2e48f8d79 Mon Sep 17 00:00:00 2001
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Date: Wed, 14 Apr 2021 22:54:50 +0300
-Subject: [PATCH 64/76] iio: magnetometer: st_magn: Provide default platform
- data
+Subject: [PATCH] iio: magnetometer: st_magn: Provide default platform data
 
 Provide default platform data for magnetometer in case it supports DRDY.
 
@@ -12,13 +11,17 @@ is using INT1, default magnetometer to INT2.
 While at it, update description of the drdy_int_pin field.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Porting to Yocto 5.9.4(kernel 5.10.194)
+
+Signed-off-by: Yuya Hamamachi <yuya.hamamachi.sx@renesas.com>
 ---
  drivers/iio/magnetometer/st_magn_core.c        | 11 ++++++++++-
  include/linux/platform_data/st_sensors_pdata.h |  3 ++-
  2 files changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/iio/magnetometer/st_magn_core.c b/drivers/iio/magnetometer/st_magn_core.c
-index 79de721..cf3722e 100644
+index 0fc38f17dbe0..018b2523edfe 100644
 --- a/drivers/iio/magnetometer/st_magn_core.c
 +++ b/drivers/iio/magnetometer/st_magn_core.c
 @@ -382,6 +382,11 @@ static const struct st_sensor_settings st_magn_sensors_settings[] = {
@@ -41,7 +44,7 @@ index 79de721..cf3722e 100644
  	int err;
  
  	indio_dev->modes = INDIO_DIRECT_MODE;
-@@ -509,7 +515,10 @@ int st_magn_common_probe(struct iio_dev *indio_dev)
+@@ -505,7 +511,10 @@ int st_magn_common_probe(struct iio_dev *indio_dev)
  	mdata->current_fullscale = &mdata->sensor_settings->fs.fs_avl[0];
  	mdata->odr = mdata->sensor_settings->odr.odr_avl[0].hz;
  
@@ -51,10 +54,10 @@ index 79de721..cf3722e 100644
 +
 +	err = st_sensors_init_sensor(indio_dev, pdata);
  	if (err < 0)
- 		goto st_magn_power_off;
+ 		return err;
  
 diff --git a/include/linux/platform_data/st_sensors_pdata.h b/include/linux/platform_data/st_sensors_pdata.h
-index e40b28c..897051e 100644
+index e40b28ca892e..897051e51b78 100644
 --- a/include/linux/platform_data/st_sensors_pdata.h
 +++ b/include/linux/platform_data/st_sensors_pdata.h
 @@ -13,8 +13,9 @@
@@ -69,5 +72,5 @@ index e40b28c..897051e 100644
   * @spi_3wire: enable spi-3wire mode.
   * @pullups: enable/disable i2c controller pullup resistors.
 -- 
-2.7.4
+2.34.1
 

@@ -1,7 +1,7 @@
-From b0add8759726a4bb17610656b43d75e2923febaa Mon Sep 17 00:00:00 2001
+From bcb0876ec58780d659e5900f25185d537979d8e5 Mon Sep 17 00:00:00 2001
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Date: Wed, 14 Apr 2021 22:54:53 +0300
-Subject: [PATCH 67/76] iio: st_sensors: Add lsm9ds0 IMU support
+Subject: [PATCH] iio: st_sensors: Add lsm9ds0 IMU support
 
 We can utilize separate drivers for accelerometer and magnetometer,
 so here is the glue driver to enable LSM9DS0 IMU support.
@@ -20,17 +20,21 @@ Cc: mr.lahorde@laposte.net
 Cc: Matija Podravec <matija_podravec@fastmail.fm>
 Cc: Sergey Borishchenko <borischenko.sergey@gmail.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Porting to Yocto 5.9.4(kernel 5.10.194)
+
+Signed-off-by: Yuya Hamamachi <yuya.hamamachi.sx@renesas.com>
 ---
- drivers/iio/accel/st_accel_core.c            |  89 ++++++++++++++-
+ drivers/iio/accel/st_accel_core.c            |  89 +++++++++-
  drivers/iio/imu/Kconfig                      |   1 +
  drivers/iio/imu/Makefile                     |   1 +
- drivers/iio/imu/st_lsm9ds0/Kconfig           |  28 +++++
+ drivers/iio/imu/st_lsm9ds0/Kconfig           |  28 ++++
  drivers/iio/imu/st_lsm9ds0/Makefile          |   5 +
- drivers/iio/imu/st_lsm9ds0/st_lsm9ds0.h      |  23 ++++
- drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_core.c | 163 +++++++++++++++++++++++++++
- drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_i2c.c  |  84 ++++++++++++++
- drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c  |  83 ++++++++++++++
- drivers/iio/magnetometer/st_magn_core.c      |  98 ++++++++++++++++
+ drivers/iio/imu/st_lsm9ds0/st_lsm9ds0.h      |  23 +++
+ drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_core.c | 163 +++++++++++++++++++
+ drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_i2c.c  |  84 ++++++++++
+ drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c  |  83 ++++++++++
+ drivers/iio/magnetometer/st_magn_core.c      |  98 +++++++++++
  include/linux/iio/common/st_sensors.h        |   2 +
  11 files changed, 576 insertions(+), 1 deletion(-)
  create mode 100644 drivers/iio/imu/st_lsm9ds0/Kconfig
@@ -41,7 +45,7 @@ Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
  create mode 100644 drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c
 
 diff --git a/drivers/iio/accel/st_accel_core.c b/drivers/iio/accel/st_accel_core.c
-index 5c258c1..dc32ebe 100644
+index 5c258c1ca62d..dc32ebefe3fc 100644
 --- a/drivers/iio/accel/st_accel_core.c
 +++ b/drivers/iio/accel/st_accel_core.c
 @@ -980,7 +980,94 @@ static const struct st_sensor_settings st_accel_sensors_settings[] = {
@@ -141,7 +145,7 @@ index 5c258c1..dc32ebe 100644
  
  /* Default accel DRDY is available on INT1 pin */
 diff --git a/drivers/iio/imu/Kconfig b/drivers/iio/imu/Kconfig
-index f02883b..001ca2c 100644
+index f02883b08480..001ca2c3ff95 100644
 --- a/drivers/iio/imu/Kconfig
 +++ b/drivers/iio/imu/Kconfig
 @@ -94,6 +94,7 @@ config KMX61
@@ -153,7 +157,7 @@ index f02883b..001ca2c 100644
  endmenu
  
 diff --git a/drivers/iio/imu/Makefile b/drivers/iio/imu/Makefile
-index 13e9ff4..c827480 100644
+index 13e9ff442b11..c82748096c77 100644
 --- a/drivers/iio/imu/Makefile
 +++ b/drivers/iio/imu/Makefile
 @@ -26,3 +26,4 @@ obj-y += inv_mpu6050/
@@ -163,7 +167,7 @@ index 13e9ff4..c827480 100644
 +obj-y += st_lsm9ds0/
 diff --git a/drivers/iio/imu/st_lsm9ds0/Kconfig b/drivers/iio/imu/st_lsm9ds0/Kconfig
 new file mode 100644
-index 0000000..53b70170
+index 000000000000..53b7017014f8
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/Kconfig
 @@ -0,0 +1,28 @@
@@ -197,7 +201,7 @@ index 0000000..53b70170
 +	select REGMAP_SPI
 diff --git a/drivers/iio/imu/st_lsm9ds0/Makefile b/drivers/iio/imu/st_lsm9ds0/Makefile
 new file mode 100644
-index 0000000..488af52
+index 000000000000..488af523f648
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/Makefile
 @@ -0,0 +1,5 @@
@@ -208,7 +212,7 @@ index 0000000..488af52
 +obj-$(CONFIG_IIO_ST_LSM9DS0_SPI) += st_lsm9ds0_spi.o
 diff --git a/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0.h b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0.h
 new file mode 100644
-index 0000000..146393a
+index 000000000000..146393afd9a7
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0.h
 @@ -0,0 +1,23 @@
@@ -237,7 +241,7 @@ index 0000000..146393a
 +#endif /* ST_LSM9DS0_H */
 diff --git a/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_core.c b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_core.c
 new file mode 100644
-index 0000000..8204f73
+index 000000000000..8204f7303fd7
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_core.c
 @@ -0,0 +1,163 @@
@@ -406,7 +410,7 @@ index 0000000..8204f73
 +MODULE_LICENSE("GPL v2");
 diff --git a/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_i2c.c b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_i2c.c
 new file mode 100644
-index 0000000..50a36ab
+index 000000000000..50a36ab53bc3
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_i2c.c
 @@ -0,0 +1,84 @@
@@ -496,7 +500,7 @@ index 0000000..50a36ab
 +MODULE_LICENSE("GPL v2");
 diff --git a/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c
 new file mode 100644
-index 0000000..272c889
+index 000000000000..272c88990dd0
 --- /dev/null
 +++ b/drivers/iio/imu/st_lsm9ds0/st_lsm9ds0_spi.c
 @@ -0,0 +1,83 @@
@@ -584,7 +588,7 @@ index 0000000..272c889
 +MODULE_DESCRIPTION("STMicroelectronics LSM9DS0 IMU SPI driver");
 +MODULE_LICENSE("GPL v2");
 diff --git a/drivers/iio/magnetometer/st_magn_core.c b/drivers/iio/magnetometer/st_magn_core.c
-index 018b252..34fd892a 100644
+index 0fc38f17dbe0..a5be1d583d26 100644
 --- a/drivers/iio/magnetometer/st_magn_core.c
 +++ b/drivers/iio/magnetometer/st_magn_core.c
 @@ -33,6 +33,7 @@
@@ -712,9 +716,9 @@ index 018b252..34fd892a 100644
 +	},
  };
  
- /* Default magn DRDY is available on INT2 pin */
+ static int st_magn_read_raw(struct iio_dev *indio_dev,
 diff --git a/include/linux/iio/common/st_sensors.h b/include/linux/iio/common/st_sensors.h
-index aa017b9..0b9aeb4 100644
+index fcfa8b0af53b..9b5b6941d931 100644
 --- a/include/linux/iio/common/st_sensors.h
 +++ b/include/linux/iio/common/st_sensors.h
 @@ -20,6 +20,8 @@
@@ -727,5 +731,5 @@ index aa017b9..0b9aeb4 100644
   * Buffer size max case: 2bytes per channel, 3 channels in total +
   *			 8bytes timestamp channel (s64)
 -- 
-2.7.4
+2.25.1
 
