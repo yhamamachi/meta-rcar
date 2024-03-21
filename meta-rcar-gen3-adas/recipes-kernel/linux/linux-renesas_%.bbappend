@@ -12,6 +12,7 @@ SRC_URI_append = " \
     file://disable-unused.cfg \
     file://enable.cfg \
     file://renesas.scc \
+    file://lttng.cfg \
 "
 
 SRC_URI_append_ulcb = " \
