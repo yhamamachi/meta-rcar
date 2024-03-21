@@ -69,3 +69,4 @@ patch 0156-arm64-dts-renesas-ulcb-kf-Rename-ov5647-camera-clock.patch
 patch 0157-arm64-dts-renesas-ulcb-kf-Move-ov5642-gpio-pins-to-o.patch
 patch 0158-media-i2c-imx219-Align-default-frame-width-to-32.patch
 patch 0159-media-rcar-vin-Fix-YUV-input-V4L2_PIX_FMT_GREY-forma.patch
+patch 0160-Fix-arm64-dts-renesas-ulcb-kf-update-for-kernel-v5.1.patch
