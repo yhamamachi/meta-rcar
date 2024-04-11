@@ -61,6 +61,7 @@ patch 0142-arm64-dts-renesas-ulcb-kf-Switch-to-HCI-LL-driver.patch
 patch 0143-iio-accel-st_accel-Move-platform-data-from-header-to.patch
 patch 0144-iio-gyro-st_gyro-Move-platform-data-from-header-to-C.patch
 patch 0147-iio-st_sensors-Make-accel-gyro-magn-and-pressure-pro.patch
+patch 0148-iio-st_sensors-Add-lsm9ds0-IMU-support.patch
 patch 0149-dt-bindings-iio-st-st-sensors-Add-LSM9DS0-compatible.patch
 patch 0150-arm64-dts-renesas-ulcb-kf-Enable-LSM9DS0-IMU-and-GYR.patch
 patch 0152-arm64-dts-renesas-Makefile-Add-r8a77980-es2-videobox.patch
