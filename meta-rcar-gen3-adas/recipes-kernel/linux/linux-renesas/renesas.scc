@@ -7,7 +7,6 @@ patch 0013-ASoC-add-dummy-device-for-WL18xx-PCM-audio.patch
 patch 0014-staging-most-dim2-force-fcnt-3-on-Renesas-GEN3.patch
 patch 0015-i2c-mix-pca954x-reset-mux-in-case-of-error-during-bu.patch
 patch 0016-clk-cs2000-add-support-for-cs2300.patch
-patch 0017-gpio-pca953x-do-not-ignore-i2c-errors.patch
 patch 0018-phy-rcar-gen3-usb2-power-on-port-in-host-mode-to.patch
 patch 0019-media-i2c-add-ov5642-sensor-driver.patch
 patch 0020-media-i2c-add-camera-lvds-support.patch
@@ -62,14 +61,11 @@ patch 0142-arm64-dts-renesas-ulcb-kf-Switch-to-HCI-LL-driver.patch
 patch 0143-iio-accel-st_accel-Move-platform-data-from-header-to.patch
 patch 0144-iio-gyro-st_gyro-Move-platform-data-from-header-to-C.patch
 patch 0145-iio-magnetometer-st_magn-Provide-default-platform-da.patch
-patch 0146-iio-st_sensors-Call-st_sensors_power_enable-from-bus.patch
 patch 0147-iio-st_sensors-Make-accel-gyro-magn-and-pressure-pro.patch
 patch 0148-iio-st_sensors-Add-lsm9ds0-IMU-support.patch
 patch 0149-dt-bindings-iio-st-st-sensors-Add-LSM9DS0-compatible.patch
 patch 0150-arm64-dts-renesas-ulcb-kf-Enable-LSM9DS0-IMU-and-GYR.patch
 patch 0152-arm64-dts-renesas-Makefile-Add-r8a77980-es2-videobox.patch
-patch 0153-staging-most-dim2-do-not-double-register-the-same-de.patch
-patch 0154-staging-most-dim2-use-device-release-method.patch
 patch 0155-media-rcar-vin-Fix-VNIS_REG-settings.patch
 patch 0156-arm64-dts-renesas-ulcb-kf-Rename-ov5647-camera-clock.patch
 patch 0157-arm64-dts-renesas-ulcb-kf-Move-ov5642-gpio-pins-to-o.patch
